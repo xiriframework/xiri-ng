@@ -7,16 +7,23 @@ import { XiriTagChip } from 'projects/xiri-ng/src/lib/formfields/field.interface
 import { XiriButton } from 'projects/xiri-ng/src/lib/button/button.component';
 import { XiriRawTableComponent, XiriRawTableSettings } from 'projects/xiri-ng/src/lib/raw-table/xiri-raw-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-tables',
 	            templateUrl: './tables.component.html',
 	            styleUrl: './tables.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class TablesComponent {
 
 	private _snackBar = inject( MatSnackBar );
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Tables' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Tables',
@@ -315,6 +322,119 @@ export class TablesComponent {
 			{ id: 'tags', name: 'Tags', format: 'chips' }
 		]
 	};
+
+	goTable1Code = `tb := table.NewBuilder[Row](ctx, t)
+
+tb.TextField("id", "id", idAccessor).Sticky()
+tb.TextField("name", "content hier...", nameAccessor).
+    WithHeader("sideways")
+tb.TextField("content", "content hier...", contentAccessor).
+    WithHeader("vertical right").AlignRight()
+tb.IconField("content3", "hier", iconAccessor).
+    WithHeader("upright")
+tb.HtmlField("content5", "content5", htmlAccessor)
+
+tb.SetOptions(table.TableOptions{
+    Reload: true, Sort: true, Search: true,
+    Select: true, Borders: false, BordersHeader: true,
+})`;
+
+	goTable2Code = `tb := table.NewBuilder[Row](ctx, t)
+
+tb.IntField("id", "id", idAccessor)
+tb.FloatField("preis1", "Price 1", preis1Accessor).
+    WithInputType("number").WithWidth("30px")
+tb.FloatField("preis2", "Price 2", preis2Accessor).
+    WithInputType("number").WithWidth("90px")
+
+tb.SetOptions(table.TableOptions{
+    Reload: true, Sort: true, Search: true,
+    SaveInput: "Save", SaveInputUrl: "test",
+})`;
+
+	goTable3Code = `tb := table.NewBuilder[Row](ctx, t)
+
+tb.TextField("id", "id", idAccessor)
+tb.TextField("name", "name", nameAccessor)
+tb.ButtonsField("content4", buttonsAccessor)
+tb.ButtonsField("nums", numsButtonsAccessor)
+
+// Buttons: api, icon, link actions`;
+
+	goTable4Code = `tb := table.NewBuilder[Product](ctx, t)
+
+tb.IntField("id", "ID", idAcc).WithFooter("no")
+tb.TextField("name", "Product", nameAcc).WithFormat("link")
+tb.FloatField("price", "Price", priceAcc).
+    AlignRight().WithFooterSum().
+    WithWebFormatter(func(v float64) string {
+        return fmt.Sprintf("%.2f EUR", v)
+    })
+tb.TextField("category", "Category", catAcc).
+    WithFooterCount()
+tb.ButtonsField("actions", actionsAcc) // menu button
+
+tb.SetOptions(table.TableOptions{
+    Dense: true, Pagination: true, Footer: true,
+    ItemsPerPage: 5, PageSizes: []int{5, 10},
+})`;
+
+	goTable5Code = `tb := table.NewBuilder[Project](ctx, t)
+
+tb.TextField("name", "Project Name", nameAcc)
+tb.TextField("status", "Status", statusAcc)
+tb.TextField("priority", "Priority", prioAcc)
+tb.ChipsField("tags", "Tags", tagsAcc)
+
+tb.SetOptions(table.TableOptions{
+    Borders: true, Sort: true, Search: true,
+    MinWidth: "800px",
+})`;
+
+	goTable6Code = `tb := table.NewBuilder[Employee](ctx, t)
+
+// Felder werden serverseitig definiert
+tb.TextField("name", "Name", nameAcc)
+tb.TextField("email", "Email", emailAcc)
+tb.TextField("department", "Department", deptAcc)
+
+tbl := tb.Build()
+tbl.SetURL("Test/Table/ServerData")
+
+tb.SetOptions(table.TableOptions{
+    ServerSide: true, Pagination: true,
+    Sort: true, Search: true, Reload: true,
+    ItemsPerPage: 10,
+    PageSizes: []int{5, 10, 25},
+})`;
+
+	goTable7Code = `tb := table.NewBuilder[Item](ctx, t)
+
+tb.IntField("id", "ID", idAcc)
+tb.TextField("name", "Name", nameAcc)
+tb.IntField("value", "Value", valAcc)
+tb.TextField("status", "Status", statusAcc)
+
+tb.SetOptions(table.TableOptions{
+    Sort: true, Search: true,
+    Pagination: false,
+    ScrollHeight: "300px",
+})`;
+
+	goRawTableCode = `// RawTable = clientseitige Tabelle ohne Server-Anbindung
+// Im Go-Backend: Tabelle mit SetData() statt SetURL()
+
+tb := table.NewBuilder[Widget](ctx, t)
+
+tb.IntField("id", "ID", idAcc).AlignCenter()
+tb.TextField("name", "Name", nameAcc)
+tb.FloatField("price", "Price", priceAcc).
+    AlignRight().WithFormat("number")
+tb.IconField("status", "Status", statusAcc)
+tb.ChipsField("tags", "Tags", tagsAcc)
+
+tbl := tb.Build()
+tbl.SetData(widgets) // statische Daten`;
 
 	onRowClicked( row: any ): void {
 		console.log( 'Row clicked:', row );

@@ -4,14 +4,22 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-forms',
 	            templateUrl: './forms.component.html',
 	            styleUrl: './forms.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriFormComponent, MatCard, MatCardContent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriFormComponent, MatCard, MatCardContent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class FormsComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Forms' },
+		{ label: 'Basic Fields' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Basic Form Fields',
@@ -274,4 +282,53 @@ export class FormsComponent {
 			action: 'debug'
 		} ]
 	};
+
+	goFieldTypesCode = `fg := group.NewFormGroup([]field.FormField{
+    field.NewTextField("text1", "Text", false, "test").
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewIntField("int1", "Int", false, 1).
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewTextField("email", "email", false, "email@nicce.at").
+        SetSubtype("email").
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewTextField("password", "password", false, "").
+        SetSubtype("password").
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewSelectField("select", "Select with Search", false,
+        []field.SelectOption{
+            {Value: 1, Label: "Option 1"},
+            {Value: 2, Label: "Option 2"},
+        }).SetClass("xcol-md-6 xcol-xl-3"),
+})`;
+
+	goSectionsCode = `fields := []field.FormField{
+    field.NewHeaderField("section1", "Basic Information").
+        SetCollapsible(true).SetCollapsed(false),
+    field.NewTextField("firstName", "First Name", false, "").
+        SetClass("xcol-md-6"),
+    field.NewTextField("lastName", "Last Name", false, "").
+        SetClass("xcol-md-6"),
+    field.NewDividerField("divider1").SetValue("or"),
+    field.NewHeaderField("section2", "Advanced Settings").
+        SetCollapsible(true).SetCollapsed(true),
+    field.NewSelectField("role", "Role", false, roleOptions).
+        SetClass("xcol-md-6"),
+}`;
+
+	goConditionalCode = `typeField := field.NewSelectField("type", "Type", false,
+    []field.SelectOption{
+        {Value: 1, Label: "Basic"},
+        {Value: 2, Label: "Advanced"},
+        {Value: 3, Label: "Expert"},
+    }).SetClass("xcol-md-6")
+
+advField := field.NewTextField("advancedField",
+    "Advanced Field", false, "").
+    SetClass("xcol-md-6").
+    SetShowWhen("type", "in", []int{2, 3})
+
+expertField := field.NewIntField("expertSetting",
+    "Expert Setting", false, 0).
+    SetClass("xcol-md-6").
+    SetShowWhen("type", "equals", 3)`;
 }

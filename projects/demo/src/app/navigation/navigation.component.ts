@@ -8,9 +8,11 @@ import { XiriTabsComponent, XiriTabsSettings } from 'projects/xiri-ng/src/lib/ta
 import { XiriExpansionComponent, XiriExpansionSettings } from 'projects/xiri-ng/src/lib/expansion/expansion.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriCardSettings } from 'projects/xiri-ng/src/lib/card/card.component';
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriListSettings } from 'projects/xiri-ng/src/lib/list/list.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-navigation',
@@ -24,10 +26,18 @@ import { XiriListSettings } from 'projects/xiri-ng/src/lib/list/list.component';
 		            XiriSearchComponent,
 		            XiriTabsComponent,
 		            XiriExpansionComponent,
-		            XiriDynComponentComponent
+		            XiriDynComponentComponent,
+		            GoCodePanelComponent,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class NavigationComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Navigation & Layout' },
+		{ label: 'Layout' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Navigation & Layout',
@@ -301,6 +311,23 @@ export class NavigationComponent {
 			}
 		]
 	};
+
+	goHeaderCode = `h1 := layout.NewHeader("Default", "primary", "", "")
+h2 := layout.NewHeader("Size x1", "primary", "x1", "")
+h3 := layout.NewHeader("Size x15", "accent", "x15", "")
+h4 := layout.NewHeader("Size x2", "primary", "x2", "")
+h5 := layout.NewHeader("Size x25", "accent", "x25", "")
+h6 := layout.NewHeader("Size x3", "warn", "x3", "")`;
+
+	goButtonlineCode = `bl := []button.Button{
+    button.NewButton("raised", "Raised", "", "primary", ...),
+    button.NewButton("basic", "Basic", "", "", ...),
+    button.NewButton("stroked", "Stroked", "", "", ...),
+    button.NewButton("flat", "Flat", "", "accent", ...),
+    button.NewButton("minifab", "", "", "primary", ...),
+    button.NewApiButton("API", "url", "primary", "flat", ...),
+    button.NewLinkButton("Link", "/path", "icon"),
+}`;
 
 	ret( event: any ): void {
 		console.log( 'button ret', event );

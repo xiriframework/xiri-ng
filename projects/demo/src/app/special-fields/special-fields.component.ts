@@ -4,14 +4,22 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-special-fields',
 	            templateUrl: './special-fields.component.html',
 	            styleUrl: './special-fields.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriFormComponent, MatCard, MatCardContent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriFormComponent, MatCard, MatCardContent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class SpecialFieldsComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Forms' },
+		{ label: 'Special Fields' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Special Form Fields',
@@ -227,4 +235,37 @@ export class SpecialFieldsComponent {
 			action: 'debug'
 		} ]
 	};
+
+	goFileCode = `f := field.NewFileField("file1", "Single File", false).
+    SetAccept(".pdf").
+    SetClass("xcol-md-6 xcol-xl-4")
+
+f2 := field.NewFileField("file2", "Multiple Files", false).
+    SetAccept(".pdf,.jpg,.png").
+    SetMultiple(true).
+    SetClass("xcol-md-6 xcol-xl-4")`;
+
+	goVolumeCode = `v := field.NewVolumeField("volume", "Volume", false).
+    SetClass("xcol-md-6 xcol-xl-4")
+// Automatische Berechnung: Länge × Breite × Höhe`;
+
+	goTimelimitCode = `tl := field.NewTimelimitField("timelimit",
+    "Timelimit", false).
+    SetClass("xcol-md-6 xcol-xl-4")
+// Wochentag-Auswahl mit Zeitfenster (von/bis)`;
+
+	goQuestionCode = `q := field.NewQuestionField("question",
+    "Are you sure?").
+    SetIcon("help").
+    SetClass("xcol-md-6 xcol-xl-4")`;
+
+	goWaitingCode = `w := field.NewWaitingField("waiting",
+    "Processing...").
+    SetClass("xcol-md-6 xcol-xl-4")
+// done: true → schaltet auf Completed-State`;
+
+	goChipsCode = `c := field.NewChipsField("tags", "Tags", false).
+    SetClass("xcol-md-6 xcol-xl-4")
+// Freie Texteingabe oder Autocomplete aus Liste
+// Enter oder Komma zum Hinzufügen`;
 }

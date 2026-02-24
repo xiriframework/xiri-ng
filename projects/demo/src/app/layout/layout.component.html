@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -12,19 +19,26 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionPageHeader">
 				<div class="xrow">
-					<div class="xcol">
-						<p>Vollständig (Titel, Icon, Subtitle, Buttons):</p>
-						<xiri-page-header [settings]="pageHeader1"></xiri-page-header>
-					</div>
-				</div>
-				<div class="xrow">
 					<div class="xcol-md-6">
-						<p>Minimal (Titel only):</p>
-						<xiri-page-header [settings]="pageHeader2"></xiri-page-header>
+						<div class="xrow">
+							<div class="xcol">
+								<p>Vollständig (Titel, Icon, Subtitle, Buttons):</p>
+								<xiri-page-header [settings]="pageHeader1"></xiri-page-header>
+							</div>
+						</div>
+						<div class="xrow">
+							<div class="xcol-6">
+								<p>Minimal (Titel only):</p>
+								<xiri-page-header [settings]="pageHeader2"></xiri-page-header>
+							</div>
+							<div class="xcol-6">
+								<p>Mit Icon und Subtitle, keine Buttons:</p>
+								<xiri-page-header [settings]="pageHeader3"></xiri-page-header>
+							</div>
+						</div>
 					</div>
 					<div class="xcol-md-6">
-						<p>Mit Icon und Subtitle, keine Buttons:</p>
-						<xiri-page-header [settings]="pageHeader3"></xiri-page-header>
+						<app-go-code [code]="goPageHeaderCode" title="Go: pageheader"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>
@@ -35,14 +49,21 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionSection">
-				<p>Non-collapsible section mit Titel und Icon:</p>
-				<xiri-section [settings]="section1"></xiri-section>
-				<p>Collapsible section mit Buttons:</p>
-				<xiri-section [settings]="section2"></xiri-section>
-				<p>Collapsed by default:</p>
-				<xiri-section [settings]="section3"></xiri-section>
-				<p>Section mit nested DynComponents (Stats via <code>components</code>-Array):</p>
-				<xiri-section [settings]="section4"></xiri-section>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Non-collapsible section mit Titel und Icon:</p>
+						<xiri-section [settings]="section1"></xiri-section>
+						<p>Collapsible section mit Buttons:</p>
+						<xiri-section [settings]="section2"></xiri-section>
+						<p>Collapsed by default:</p>
+						<xiri-section [settings]="section3"></xiri-section>
+						<p>Section mit nested DynComponents (Stats via <code>components</code>-Array):</p>
+						<xiri-section [settings]="section4"></xiri-section>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goSectionCode" title="Go: section"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -51,19 +72,26 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionDivider">
-				<p>Plain divider:</p>
-				<xiri-divider [settings]="dividerPlain"></xiri-divider>
-				<p>Mit Text:</p>
-				<xiri-divider [settings]="dividerText"></xiri-divider>
-				<p>Mit Icon und Text:</p>
-				<xiri-divider [settings]="dividerIconText"></xiri-divider>
-				<p>Spacing-Varianten:</p>
-				<xiri-divider [settings]="dividerCompact"></xiri-divider>
-				<p>Inhalt zwischen compact und normal.</p>
-				<xiri-divider [settings]="dividerNormal"></xiri-divider>
-				<p>Inhalt zwischen normal und large.</p>
-				<xiri-divider [settings]="dividerLarge"></xiri-divider>
-				<p>Inhalt nach large divider.</p>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Plain divider:</p>
+						<xiri-divider [settings]="dividerPlain"></xiri-divider>
+						<p>Mit Text:</p>
+						<xiri-divider [settings]="dividerText"></xiri-divider>
+						<p>Mit Icon und Text:</p>
+						<xiri-divider [settings]="dividerIconText"></xiri-divider>
+						<p>Spacing-Varianten:</p>
+						<xiri-divider [settings]="dividerCompact"></xiri-divider>
+						<p>Inhalt zwischen compact und normal.</p>
+						<xiri-divider [settings]="dividerNormal"></xiri-divider>
+						<p>Inhalt zwischen normal und large.</p>
+						<xiri-divider [settings]="dividerLarge"></xiri-divider>
+						<p>Inhalt nach large divider.</p>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goDividerCode" title="Go: layout.Divider"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -72,10 +100,17 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionStatGrid">
-				<p>Standard 4-spaltig:</p>
-				<xiri-stat-grid [settings]="statGrid1"></xiri-stat-grid>
-				<p>3-spaltig mit Titel:</p>
-				<xiri-stat-grid [settings]="statGrid2"></xiri-stat-grid>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Standard 4-spaltig:</p>
+						<xiri-stat-grid [settings]="statGrid1"></xiri-stat-grid>
+						<p>3-spaltig mit Titel:</p>
+						<xiri-stat-grid [settings]="statGrid2"></xiri-stat-grid>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goStatGridCode" title="Go: statgrid"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -84,12 +119,19 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionToolbar">
-				<p>Mit Titel, Icon und Buttons:</p>
-				<xiri-toolbar [settings]="toolbar1"></xiri-toolbar>
-				<p>Mit Suche und Icon-Button:</p>
-				<xiri-toolbar [settings]="toolbar2"></xiri-toolbar>
-				<p>Minimal (nur Titel):</p>
-				<xiri-toolbar [settings]="toolbar3"></xiri-toolbar>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Mit Titel, Icon und Buttons:</p>
+						<xiri-toolbar [settings]="toolbar1"></xiri-toolbar>
+						<p>Mit Suche und Icon-Button:</p>
+						<xiri-toolbar [settings]="toolbar2"></xiri-toolbar>
+						<p>Minimal (nur Titel):</p>
+						<xiri-toolbar [settings]="toolbar3"></xiri-toolbar>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goToolbarCode" title="Go: toolbar"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -100,18 +142,25 @@
 			<xiri-section [settings]="sectionDescList">
 				<div class="xrow">
 					<div class="xcol-md-6">
-						<p>Stacked layout, 2 Spalten:</p>
-						<xiri-description-list [settings]="descList1"></xiri-description-list>
+						<div class="xrow">
+							<div class="xcol-6">
+								<p>Stacked layout, 2 Spalten:</p>
+								<xiri-description-list [settings]="descList1"></xiri-description-list>
+							</div>
+							<div class="xcol-6">
+								<p>Horizontal layout, 1 Spalte:</p>
+								<xiri-description-list [settings]="descList2"></xiri-description-list>
+							</div>
+						</div>
+						<div class="xrow">
+							<div class="xcol">
+								<p>Stacked layout, 3 Spalten (System-Metriken):</p>
+								<xiri-description-list [settings]="descList3"></xiri-description-list>
+							</div>
+						</div>
 					</div>
 					<div class="xcol-md-6">
-						<p>Horizontal layout, 1 Spalte:</p>
-						<xiri-description-list [settings]="descList2"></xiri-description-list>
-					</div>
-				</div>
-				<div class="xrow">
-					<div class="xcol">
-						<p>Stacked layout, 3 Spalten (System-Metriken):</p>
-						<xiri-description-list [settings]="descList3"></xiri-description-list>
+						<app-go-code [code]="goDescListCode" title="Go: descriptionlist"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>

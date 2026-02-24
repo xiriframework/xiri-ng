@@ -7,6 +7,8 @@ import { XiriDescriptionListComponent, XiriDescriptionListSettings } from 'proje
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
 	            selector: 'app-layout',
@@ -19,10 +21,18 @@ import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.inter
 		            XiriToolbarComponent,
 		            XiriDescriptionListComponent,
 		            XiriSectionComponent,
-		            XiriDynComponentComponent
+		            XiriDynComponentComponent,
+		            GoCodePanelComponent,
+		            XiriBreadcrumbComponent
 	            ]
 	            } )
 export class LayoutComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Navigation & Layout' },
+		{ label: 'Page Layout' },
+	];
 
 	// --- Seiten-Intro ---
 	pageHeaderIntro: XiriPageHeaderSettings = {
@@ -350,4 +360,108 @@ export class LayoutComponent {
 			{ label: 'Uptime', value: '14d 6h 32m', icon: 'schedule' },
 		]
 	};
+
+	goPageHeaderCode = `// Vollständig
+ph := pageheader.New("Dashboard").
+    Subtitle("Overview of all key metrics").
+    Icon("dashboard", "primary").
+    Buttons(buttonLine)
+
+// Minimal
+ph2 := pageheader.New("User Management")
+
+// Mit Icon, ohne Buttons
+ph3 := pageheader.New("Reports").
+    Subtitle("Monthly analytics report").
+    Icon("assessment", "accent")`;
+
+	goSectionCode = `// Non-collapsible
+s1 := section.New().
+    Title("General Settings").
+    Subtitle("Basic configuration options").
+    Icon("settings", "primary")
+s1.Add(htmlComponent)
+
+// Collapsible with buttons
+s2 := section.New().
+    Title("Advanced Options").
+    Subtitle("Expand to see more settings").
+    Icon("tune", "accent").
+    Collapsible(false).
+    Buttons(buttonLine)
+
+// Collapsed by default
+s3 := section.New().
+    Title("Collapsed by Default").
+    Icon("visibility_off", "").
+    Collapsible(true)`;
+
+	goDividerCode = `// Plain
+d1 := layout.NewDivider()
+
+// Mit Text
+d2 := layout.NewDivider().Text("or")
+
+// Mit Icon und Text
+d3 := layout.NewDivider().
+    Text("Section Break").
+    Icon("horizontal_rule")
+
+// Spacing-Varianten
+d4 := layout.NewDivider().Text("compact").Spacing("compact")
+d5 := layout.NewDivider().Text("normal").Spacing("normal")
+d6 := layout.NewDivider().Text("large").Spacing("large")`;
+
+	goStatGridCode = `// Standard 4-spaltig
+grid := statgrid.New()
+grid.Add(stat.New("1,234", "Total Users").
+    Icon("group").IconColor("primary").
+    SetTrend(12.5, stat.TrendUp))
+grid.Add(stat.New("€8,456", "Revenue").
+    Icon("payments").IconColor("success").
+    SetTrend(-3.2, stat.TrendDown))
+grid.Add(stat.New("97.8%", "Uptime").
+    Icon("speed").IconColor("accent"))
+grid.Add(stat.New("42", "Active Projects").
+    Icon("folder_open").IconColor("orange"))
+
+// 3-spaltig mit Titel
+grid2 := statgrid.New().Columns(3).Title("Monthly Report")
+grid2.Add(stat.New("328", "New Signups").
+    Icon("person_add").IconColor("primary"))
+grid2.Add(stat.New("89%", "Retention").
+    Icon("loyalty").IconColor("success"))
+grid2.Add(stat.New("4.8", "Avg Rating").
+    Icon("star").IconColor("orange"))`;
+
+	goToolbarCode = `// Mit Titel, Icon und Buttons
+tb1 := toolbar.New().
+    Title("Documents").
+    Icon("description").
+    Buttons(buttonLine)
+
+// Mit Suche
+tb2 := toolbar.New().
+    Title("Search Results").
+    Icon("search").
+    Search("Search documents...").
+    Buttons(buttonLine)
+
+// Minimal
+tb3 := toolbar.New().Title("Minimal Toolbar")`;
+
+	goDescListCode = `// Stacked, 2 Spalten
+dl := descriptionlist.New().Layout("stacked").Columns(2)
+dl.Add("Full Name", "Max Mustermann")
+dl.Add("Email", "max@example.com").Icon("mail").Type("link")
+dl.Add("Role", "Administrator").Type("badge").Color("primary")
+dl.Add("Department", "Engineering")
+dl.Add("Location", "Vienna, Austria").Icon("location_on")
+dl.Add("Status", "Active").Type("badge").Color("success")
+
+// Horizontal, 1 Spalte
+dl2 := descriptionlist.New().Layout("horizontal").Columns(1)
+dl2.Add("Server", "prod-eu-west-1")
+dl2.Add("Version", "v2.4.1").Type("badge")
+dl2.Add("Health", "Healthy").Type("badge").Color("success")`;
 }

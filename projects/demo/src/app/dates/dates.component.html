@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -14,6 +21,7 @@
 				<mat-card class="mat-elevation-z2">
 					<xiri-form [settings]="data"></xiri-form>
 				</mat-card>
+				<app-go-code [code]="goDateFieldsCode" title="Go: form/field (dates)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>

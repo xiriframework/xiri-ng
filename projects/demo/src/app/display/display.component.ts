@@ -8,6 +8,8 @@ import { XiriListComponent, XiriListSettings } from 'projects/xiri-ng/src/lib/li
 import { XiriCardlinkComponent, XiriCardlinkSettings } from 'projects/xiri-ng/src/lib/cardlink/cardlink.component';
 import { SafehtmlPipe } from 'projects/xiri-ng/src/lib/pipes/safehtml.pipe';
 import { MatCard } from '@angular/material/card';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-display',
@@ -22,10 +24,18 @@ import { MatCard } from '@angular/material/card';
 		            XiriListComponent,
 		            XiriCardlinkComponent,
 		            SafehtmlPipe,
-		            MatCard
+		            MatCard,
+		            GoCodePanelComponent,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class DisplayComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Data Display' },
+		{ label: 'Components' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Data Display',
@@ -195,4 +205,22 @@ export class DisplayComponent {
 
 	// --- SafeHtml ---
 	safeHtmlExample = '<strong style="color: green;">Safe HTML content</strong> with <em>formatting</em> and <a href="/Overview">link</a>.';
+
+	goImagetextCode = `it := imagetext.New(
+    "https://via.placeholder.com/300x200",
+    "Sample image",
+).
+    Header("Project Preview").
+    HeaderSub("With icon and subtitle").
+    HeaderIcon("image", "primary")`;
+
+	goLinksCode = `l := links.New().
+    Header("Helpful Links").
+    HeaderSub("External and internal links").
+    HeaderIcon("link", "primary")
+
+l.Add(button.NewLinkButton("Home", "/Overview", "home"))
+l.Add(button.NewLinkButton("Forms", "/Forms", "edit"))
+l.Add(button.NewDialogButton("Info Dialog", "", "info"))
+l.Add(button.NewLinkButton("Tables", "/Tables", "table_chart"))`;
 }

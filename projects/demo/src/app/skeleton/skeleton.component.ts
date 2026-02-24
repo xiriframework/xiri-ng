@@ -3,6 +3,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriSkeletonComponent } from 'projects/xiri-ng/src/lib/skeleton/skeleton.component';
 import { MatButton } from '@angular/material/button';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-skeleton',
@@ -12,10 +13,17 @@ import { MatButton } from '@angular/material/button';
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriSkeletonComponent,
-		            MatButton
+		            MatButton,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class SkeletonComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Feedback & Status' },
+		{ label: 'Skeleton' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Skeleton / Loading',

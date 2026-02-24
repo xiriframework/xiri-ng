@@ -3,6 +3,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriStatComponent, XiriStatSettings } from 'projects/xiri-ng/src/lib/stat/stat.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-stats',
@@ -12,10 +13,17 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriStatComponent,
-		            GoCodePanelComponent
+		            GoCodePanelComponent,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class StatsComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Data Display' },
+		{ label: 'Stats / KPI' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Stat / KPI Cards',

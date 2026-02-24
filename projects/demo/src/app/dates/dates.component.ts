@@ -4,14 +4,22 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard } from '@angular/material/card';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-dates',
 	            templateUrl: './dates.component.html',
 	            styleUrls: [ './dates.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, XiriFormComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class DatesComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Forms' },
+		{ label: 'Date & Time' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Date & Time',
@@ -113,4 +121,27 @@ export class DatesComponent {
 			action: 'debug'
 		} ]
 	};
+
+	goDateFieldsCode = `fields := []field.FormField{
+    field.NewDateField("date", "date no max", true).
+        SetMin(now - 14*day).
+        SetClass("xcol-md-6 xcol-xl-3"),
+
+    field.NewDateField("datetime", "datetime", false).
+        SetSubtype("datetime").
+        SetMin(now - 14*day).
+        SetMax(now + day).
+        SetClass("xcol-md-6 xcol-xl-3"),
+
+    field.NewDateRangeField("daterange", "daterange", false).
+        SetMin(now - 14*day).
+        SetMax(now + day).
+        SetClass("xcol-md-6 xcol-xl-3"),
+
+    field.NewDateTimeRangeField("datetimerange",
+        "datetimerange", false).
+        SetMin(now - 14*day).
+        SetMax(now + day).
+        SetClass("xcol-md-6 xcol-xl-3"),
+}`;
 }

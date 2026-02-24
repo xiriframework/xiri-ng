@@ -4,14 +4,22 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-selects',
 	            templateUrl: './selects.component.html',
 	            styleUrls: [ './selects.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, MatCardContent, XiriFormComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, MatCardContent, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class SelectsComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Forms' },
+		{ label: 'Select Fields' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Select Fields',
@@ -8249,5 +8257,21 @@ export class SelectsComponent {
 			action: 'simulate'
 		} ]
 	};
-	
+
+	goSelectFieldsCode = `multi := field.NewSelectField("multiselect",
+    "multiselect", false,
+    []field.SelectOption{
+        {Value: 1, Label: "SYSTEM"},
+        {Value: 2, Label: "Michi"},
+        {Value: 3, Label: "MTest"},
+    }).
+    SetSubtype("multiselect").
+    SetMax(3).
+    SetClass("xcol-md-6 xcol-xl-4")
+
+tree := field.NewSelectField("treeselect",
+    "treeselect", false, treeOptions).
+    SetSubtype("treeselect").
+    SetClass("xcol-md-6 xcol-xl-4")`;
+
 }

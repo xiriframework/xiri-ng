@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -12,6 +19,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable1">
 				<xiri-table [settings]="data"></xiri-table>
+				<app-go-code [code]="goTable1Code" title="Go: table (select + header)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -21,6 +29,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable2">
 				<xiri-table [settings]="data2"></xiri-table>
+				<app-go-code [code]="goTable2Code" title="Go: table (input fields)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -30,6 +39,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable3">
 				<xiri-table [settings]="data3"></xiri-table>
+				<app-go-code [code]="goTable3Code" title="Go: table (row buttons)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -39,6 +49,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable4">
 				<xiri-table [settings]="data4"></xiri-table>
+				<app-go-code [code]="goTable4Code" title="Go: table (footer + menu)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -48,6 +59,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable5">
 				<xiri-table [settings]="data5" (clickedRow)="onRowClicked($event)"></xiri-table>
+				<app-go-code [code]="goTable5Code" title="Go: table (chips + borders)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -57,6 +69,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable6">
 				<xiri-table [settings]="data6"></xiri-table>
+				<app-go-code [code]="goTable6Code" title="Go: table (server-side)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -66,6 +79,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable7">
 				<xiri-table [settings]="data7"></xiri-table>
+				<app-go-code [code]="goTable7Code" title="Go: table (scrollHeight)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -75,6 +89,7 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionRawTable">
 				<xiri-raw-table [settings]="rawTableSettings"></xiri-raw-table>
+				<app-go-code [code]="goRawTableCode" title="Go: table (static data)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>

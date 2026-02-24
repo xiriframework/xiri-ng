@@ -13,6 +13,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-services',
@@ -28,7 +29,8 @@ import { MatInput } from '@angular/material/input';
 		            FormsModule,
 		            MatFormField,
 		            MatLabel,
-		            MatInput
+		            MatInput,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class ServicesComponent {
@@ -39,6 +41,11 @@ export class ServicesComponent {
 	private numberService = inject( XiriNumberService );
 	private localStorage = inject( XiriLocalStorageService );
 	private sessionStorage = inject( XiriSessionStorageService );
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Services' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Library Services',

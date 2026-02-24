@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -16,6 +23,7 @@
 						<xiri-form [settings]="fileForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goFileCode" title="Go: field (file)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -29,6 +37,7 @@
 						<xiri-form [settings]="volumeForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goVolumeCode" title="Go: field (volume)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -42,6 +51,7 @@
 						<xiri-form [settings]="timelimitForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goTimelimitCode" title="Go: field (timelimit)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -55,6 +65,7 @@
 						<xiri-form [settings]="questionForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goQuestionCode" title="Go: field (question)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -68,6 +79,7 @@
 						<xiri-form [settings]="waitingForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goWaitingCode" title="Go: field (waiting)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -81,6 +93,7 @@
 						<xiri-form [settings]="chipsForm"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goChipsCode" title="Go: field (chips)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>

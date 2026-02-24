@@ -2,14 +2,21 @@ import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
 	            selector: 'app-breadcrumb',
 	            templateUrl: './breadcrumb.component.html',
 	            styleUrl: './breadcrumb.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriBreadcrumbComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriBreadcrumbComponent, GoCodePanelComponent ]
             } )
 export class BreadcrumbComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Navigation & Layout' },
+		{ label: 'Breadcrumb' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Breadcrumb Navigation',
@@ -20,7 +27,7 @@ export class BreadcrumbComponent {
 
 	sectionBasic: XiriSectionSettings = {
 		title: 'Basic Breadcrumbs',
-		subtitle: 'Simple breadcrumb with home icon and text items. Last item is active (non-clickable).',
+		subtitle: 'Simple breadcrumb with home icon and text items. Last item without link is active (non-clickable); with link it becomes clickable.',
 		icon: 'chevron_right',
 	};
 
@@ -47,7 +54,7 @@ export class BreadcrumbComponent {
 	basicBreadcrumbs: XiriBreadcrumbItem[] = [
 		{ label: 'Home', link: '/', icon: 'home' },
 		{ label: 'Settings', link: '/Settings' },
-		{ label: 'Profile' },
+		{ label: 'Profile', link: '/Breadcrumb' },
 	];
 
 	longBreadcrumbs: XiriBreadcrumbItem[] = [
@@ -70,4 +77,29 @@ export class BreadcrumbComponent {
 		{ label: 'Admin', link: '/Users/Admin', icon: 'admin_panel_settings' },
 		{ label: 'Details', icon: 'info' },
 	];
+
+	goBreadcrumbBasicCode = `p := page.NewPage()
+p.Bread("Home", "/", false)
+p.Bread("Settings", "/Settings", false)
+p.Bread("Profile", "", false)`;
+
+	goBreadcrumbDeepCode = `p := page.NewPage()
+p.Bread("Dashboard", "/", false)
+p.Bread("Projects", "/Projects", false)
+p.Bread("Project Alpha", "/Projects/Alpha", false)
+p.Bread("Tasks", "/Projects/Alpha/Tasks", false)
+p.Bread("Task #42", "", false)`;
+
+	goBreadcrumbExternCode = `p := page.NewPage()
+p.Bread("Home", "/", false)
+p.Bread("External Docs", "https://angular.dev", true)
+p.Bread("Current Page", "", false)`;
+
+	goBreadcrumbIconCode = `// Icons werden über NewBreadcrumbItem gesetzt
+items := []page.BreadcrumbItem{
+    page.NewBreadcrumbItem("Home", "/", false),
+    page.NewBreadcrumbItem("Users", "/Users", false),
+    page.NewBreadcrumbItem("Admin", "/Users/Admin", false),
+    page.NewBreadcrumbItem("Details", "", false),
+}`;
 }

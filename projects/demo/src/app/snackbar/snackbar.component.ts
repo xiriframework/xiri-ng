@@ -4,6 +4,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-snackbar',
@@ -13,12 +14,19 @@ import { MatIcon } from '@angular/material/icon';
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            MatButton,
-		            MatIcon
+		            MatIcon,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class SnackbarComponent {
 
 	private snackbar = inject( XiriSnackbarService );
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Feedback & Status' },
+		{ label: 'Snackbar' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Snackbar / Toast',

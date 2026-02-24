@@ -6,6 +6,7 @@ import { XiriTabsComponent, XiriTabsSettings } from 'projects/xiri-ng/src/lib/ta
 import { XiriQueryComponent, XiriQuerySettings } from 'projects/xiri-ng/src/lib/query/query.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-workflow',
@@ -17,10 +18,16 @@ import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.componen
 		            XiriStepperComponent,
 		            XiriTabsComponent,
 		            XiriQueryComponent,
-		            XiriDynComponentComponent
+		            XiriDynComponentComponent,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class WorkflowComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Workflows' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Multi-Step Workflows',

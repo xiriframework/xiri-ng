@@ -8,14 +8,21 @@ import { XiriTagChip } from 'projects/xiri-ng/src/lib/formfields/field.interface
 import { XiriButtonlineSettings } from "projects/xiri-ng/src/lib/buttonline/buttonline.component";
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriCardComponent } from 'projects/xiri-ng/src/lib/card/card.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-cards',
 	            templateUrl: './cards.component.html',
 	            styleUrls: [ './cards.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class CardsComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Cards' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Cards & Card Layouts',
@@ -340,4 +347,72 @@ export class CardsComponent {
 			'menuItems': 'link, href, dialog',
 		}
 	};
+
+	goTableCardCode = `fields := []card.CardListField{
+    {ID: "id", Name: "ID", Format: "text", Display: "info"},
+    {ID: "text", Name: "TEXT", Format: "text", Display: "right"},
+}
+
+data := []map[string]any{
+    {"id": "DEVICENAME", "text": "WZ J-XXX"},
+    {"id": "DigitalInput1", "text": "..."},
+}
+
+c := card.NewCardList(
+    card.Header{
+        Header: "Admin",
+        Icon:   "admin_panel_settings",
+        Type:   card.Table,
+    },
+    card.NewCardListContentFields(fields, data),
+)`;
+
+	goCardButtonsCode = `c := card.NewCardList(
+    card.Header{
+        Header:    "Card with Buttons",
+        HeaderSub: "buttonsTop + buttonsBottom",
+        Icon:      "dashboard",
+        IconColor: "accent",
+    },
+    card.NewCardListContent([]card.CardListContentLine{
+        {Label: "Created", Value: "2025-01-01"},
+        {Label: "Modified", Value: "2025-02-15"},
+        {Label: "Status", Value: "Active"},
+    }),
+)
+// ButtonsTop/ButtonsBottom via page component`;
+
+	goDenseCardCode = `content := card.NewCardListContentFields(
+    []card.CardListField{
+        {ID: "key", Name: "Key", Display: "info"},
+        {ID: "value", Name: "Value", Display: "right"},
+    },
+    []map[string]any{
+        {"key": "Host", "value": "server-01.local"},
+        {"key": "Port", "value": "8080"},
+        {"key": "Protocol", "value": "HTTPS"},
+        {"key": "Uptime", "value": "14 days"},
+    },
+)
+content.SetDense(2)`;
+
+	goIconCardCode = `c := card.NewCardListIconContent(
+    []card.CardListIconContentLine{
+        {Label: "Active", Icon: "check_circle", Color: "success"},
+        {Label: "Visible", Icon: "visibility", Color: "primary"},
+        {Label: "Locked", Icon: "lock", Color: "error"},
+        {Label: "Scheduled", Icon: "schedule", Color: "warn"},
+        {Label: "Cloud Sync", Icon: "cloud_done", Color: "success"},
+    },
+)`;
+
+	goMenuCardCode = `menuBtn := button.Button{
+    Action: "menu",
+    Icon:   "more_vert",
+    Hint:   "More actions",
+    MenuItems: []button.Button{
+        {Action: "link", URL: "/cards", Icon: "open_in_new", Text: "Open Cards"},
+        {Action: "href", URL: "https://...", Icon: "launch", Text: "Angular Material"},
+    },
+}`;
 }

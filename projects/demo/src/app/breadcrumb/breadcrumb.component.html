@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -11,7 +18,14 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionBasic">
-				<xiri-breadcrumb [items]="basicBreadcrumbs"></xiri-breadcrumb>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-breadcrumb [settings]="basicBreadcrumbs"></xiri-breadcrumb>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goBreadcrumbBasicCode" title="Go: page.Bread"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -20,7 +34,14 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionDeep">
-				<xiri-breadcrumb [items]="longBreadcrumbs"></xiri-breadcrumb>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-breadcrumb [settings]="longBreadcrumbs"></xiri-breadcrumb>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goBreadcrumbDeepCode" title="Go: page.Bread (deep)"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -29,7 +50,14 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionExternal">
-				<xiri-breadcrumb [items]="externalBreadcrumbs"></xiri-breadcrumb>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-breadcrumb [settings]="externalBreadcrumbs"></xiri-breadcrumb>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goBreadcrumbExternCode" title="Go: page.Bread (extern)"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>
@@ -38,7 +66,14 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionIcons">
-				<xiri-breadcrumb [items]="iconBreadcrumbs"></xiri-breadcrumb>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-breadcrumb [settings]="iconBreadcrumbs"></xiri-breadcrumb>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goBreadcrumbIconCode" title="Go: page.Bread (icons)"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>

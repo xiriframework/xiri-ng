@@ -5,16 +5,21 @@ import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
 import { XiriCardlinkComponent, XiriCardlinkSettings } from 'projects/xiri-ng/src/lib/cardlink/cardlink.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-overview',
 	            templateUrl: './overview.component.html',
 	            styleUrl: './overview.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriCardlinkComponent, MatButton, MatIcon ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriCardlinkComponent, MatButton, MatIcon, XiriBreadcrumbComponent ]
             } )
 export class OverviewComponent {
 
 	protected themeService = inject( ThemeService );
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', icon: 'home' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'XIRI UI Library',

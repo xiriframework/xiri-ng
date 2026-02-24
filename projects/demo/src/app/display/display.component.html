@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -29,10 +36,17 @@
 			<xiri-section [settings]="sectionImagetext">
 				<div class="xrow">
 					<div class="xcol-md-6">
-						<xiri-imagetext [settings]="imagetext1"></xiri-imagetext>
+						<div class="xrow">
+							<div class="xcol">
+								<xiri-imagetext [settings]="imagetext1"></xiri-imagetext>
+							</div>
+							<div class="xcol">
+								<xiri-imagetext [settings]="imagetext2"></xiri-imagetext>
+							</div>
+						</div>
 					</div>
 					<div class="xcol-md-6">
-						<xiri-imagetext [settings]="imagetext2"></xiri-imagetext>
+						<app-go-code [code]="goImagetextCode" title="Go: imagetext"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>
@@ -46,6 +60,9 @@
 				<div class="xrow">
 					<div class="xcol-md-6">
 						<xiri-links [settings]="linksSettings"></xiri-links>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goLinksCode" title="Go: links"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>

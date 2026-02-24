@@ -3,6 +3,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriEmptyStateComponent, XiriEmptyStateSettings } from 'projects/xiri-ng/src/lib/empty-state/empty-state.component';
 import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-empty-state',
@@ -12,10 +13,17 @@ import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriEmptyStateComponent,
-		            XiriTableComponent
+		            XiriTableComponent,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class EmptyStateComponent {
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Feedback & Status' },
+		{ label: 'Empty State' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Empty State',

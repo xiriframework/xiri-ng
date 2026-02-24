@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -15,6 +22,9 @@
 					<div class="xcol-md-6">
 						<xiri-timeline [settings]="activityTimeline"></xiri-timeline>
 					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goActivityCode" title="Go: timeline"></app-go-code>
+					</div>
 				</div>
 			</xiri-section>
 		</div>
@@ -28,6 +38,9 @@
 					<div class="xcol-md-6">
 						<xiri-timeline [settings]="statusTimeline"></xiri-timeline>
 					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goOrderCode" title="Go: timeline (compact)"></app-go-code>
+					</div>
 				</div>
 			</xiri-section>
 		</div>
@@ -40,6 +53,9 @@
 				<div class="xrow">
 					<div class="xcol-md-6">
 						<xiri-timeline [settings]="simpleTimeline"></xiri-timeline>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goSimpleCode" title="Go: timeline (minimal)"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>

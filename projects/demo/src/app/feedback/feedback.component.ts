@@ -8,6 +8,7 @@ import { XiriAlertComponent, XiriAlertConfig } from 'projects/xiri-ng/src/lib/al
 import { XiriMultiprogressComponent, XiriMultiprogressSettings } from 'projects/xiri-ng/src/lib/multiprogress/multiprogress.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 @Component( {
 	            selector: 'app-feedback',
@@ -20,12 +21,19 @@ import { MatIcon } from '@angular/material/icon';
 		            XiriErrorComponent,
 		            XiriMultiprogressComponent,
 		            MatButton,
-		            MatIcon
+		            MatIcon,
+		            XiriBreadcrumbComponent
 	            ]
             } )
 export class FeedbackComponent {
 
 	private dialog = inject( MatDialog );
+
+	breadcrumbs: XiriBreadcrumbItem[] = [
+		{ label: 'Home', link: '/Overview', icon: 'home' },
+		{ label: 'Feedback & Status' },
+		{ label: 'Alerts & Status' },
+	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Feedback & Status',

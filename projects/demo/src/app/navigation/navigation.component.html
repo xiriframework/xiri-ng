@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -12,25 +19,30 @@
 		<div class="xcol">
 			<xiri-section [settings]="sectionHeader">
 				<div class="xrow">
-					<div class="xcol-md-4">
-						<xiri-header [settings]="header"></xiri-header>
+					<div class="xcol-md-6">
+						<div class="xrow">
+							<div class="xcol-6">
+								<xiri-header [settings]="header"></xiri-header>
+							</div>
+							<div class="xcol-6">
+								<xiri-header [settings]="headerX1"></xiri-header>
+							</div>
+							<div class="xcol-6">
+								<xiri-header [settings]="headerX15"></xiri-header>
+							</div>
+							<div class="xcol-6">
+								<xiri-header [settings]="headerX2"></xiri-header>
+							</div>
+							<div class="xcol-6">
+								<xiri-header [settings]="headerX25"></xiri-header>
+							</div>
+							<div class="xcol-6">
+								<xiri-header [settings]="headerX3"></xiri-header>
+							</div>
+						</div>
 					</div>
-					<div class="xcol-md-4">
-						<xiri-header [settings]="headerX1"></xiri-header>
-					</div>
-					<div class="xcol-md-4">
-						<xiri-header [settings]="headerX15"></xiri-header>
-					</div>
-				</div>
-				<div class="xrow">
-					<div class="xcol-md-4">
-						<xiri-header [settings]="headerX2"></xiri-header>
-					</div>
-					<div class="xcol-md-4">
-						<xiri-header [settings]="headerX25"></xiri-header>
-					</div>
-					<div class="xcol-md-4">
-						<xiri-header [settings]="headerX3"></xiri-header>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goHeaderCode" title="Go: layout.Header"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>
@@ -41,9 +53,16 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionButtonline">
-				<xiri-buttonline [settings]="buttonline" (result)="ret($event)"></xiri-buttonline>
-				<xiri-buttonline [settings]="buttonline2" (result)="ret($event)"></xiri-buttonline>
-				<xiri-buttonline [settings]="buttonline2" [filterData]="{ test: '123' }" (result)="ret($event)"></xiri-buttonline>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-buttonline [settings]="buttonline" (result)="ret($event)"></xiri-buttonline>
+						<xiri-buttonline [settings]="buttonline2" (result)="ret($event)"></xiri-buttonline>
+						<xiri-buttonline [settings]="buttonline2" [filterData]="{ test: '123' }" (result)="ret($event)"></xiri-buttonline>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goButtonlineCode" title="Go: button"></app-go-code>
+					</div>
+				</div>
 			</xiri-section>
 		</div>
 	</div>

@@ -1,5 +1,12 @@
 <div class="xcontainer-fluid">
 
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
 	<!-- Seitenkopf -->
 	<div class="xrow">
 		<div class="xcol">
@@ -16,6 +23,7 @@
 						<xiri-form [settings]="data"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goFieldTypesCode" title="Go: form/field"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -29,6 +37,7 @@
 						<xiri-form [settings]="sectionsData"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goSectionsCode" title="Go: form (sections)"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
@@ -42,6 +51,7 @@
 						<xiri-form [settings]="conditionalData"></xiri-form>
 					</mat-card-content>
 				</mat-card>
+				<app-go-code [code]="goConditionalCode" title="Go: field.SetShowWhen"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
