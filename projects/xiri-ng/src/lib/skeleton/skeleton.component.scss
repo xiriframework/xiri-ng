@@ -5,6 +5,10 @@
 
 :host {
 	display: block;
+
+	&.fill {
+		height: 100%;
+	}
 }
 
 .skeleton-line, .skeleton-circle, .skeleton-rect {
@@ -44,6 +48,16 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
+
+	&.fill-height {
+		height: 100%;
+		overflow: hidden;
+
+		.skeleton-table-row {
+			flex: 1;
+			min-height: 0;
+		}
+	}
 }
 
 .skeleton-table-row {

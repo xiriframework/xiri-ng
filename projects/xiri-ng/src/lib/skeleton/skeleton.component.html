@@ -19,7 +19,7 @@
 		     [style.height]="height()"></div>
 	}
 	@case ('table-row') {
-		<div class="skeleton-table">
+		<div class="skeleton-table" [class.fill-height]="fill()">
 			@for (_ of linesArray(); track $index) {
 				<div class="skeleton-table-row">
 					@for (_ of columnsArray(); track $index) {

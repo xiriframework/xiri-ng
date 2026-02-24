@@ -7,7 +7,7 @@ export type XiriSkeletonType = 'text' | 'circle' | 'rect' | 'table-row';
 	            templateUrl: './skeleton.component.html',
 	            styleUrl: './skeleton.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
-	            host: { 'role': 'status', 'aria-label': 'Laden...' }
+	            host: { 'role': 'status', 'aria-label': 'Laden...', '[class.fill]': 'fill()' }
             } )
 export class XiriSkeletonComponent {
 
@@ -17,6 +17,7 @@ export class XiriSkeletonComponent {
 	lines = input<number>( 1 );
 	columns = input<number>( 4 );
 	animate = input<boolean>( true );
+	fill    = input<boolean>( false );
 
 	linesArray = computed( () => Array.from( { length: this.lines() } ) );
 	columnsArray = computed( () => Array.from( { length: this.columns() } ) );
