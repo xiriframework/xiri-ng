@@ -16,12 +16,20 @@ mat-card.xiritablecard {
 		display: inline-block;
 		width:   100%;
 
+		.tableout-wrap {
+			position: relative;
+		}
+
 		.tableout {
 			max-height: 60vh;
 			overflow-y: auto;
 			width:      100%;
 			min-width:  100%;
 			max-width:  100%;
+
+			&.is-loading {
+				min-height: 100px;
+			}
 		}
 
 		.alert {
@@ -217,12 +225,12 @@ mat-card.xiritablecard {
 		left:             0;
 		width:            100%;
 		bottom:           0;
-		padding:          1rem;
-
+		display:          flex;
+		justify-content:  center;
+		align-items:      center;
 		background-color: var(--ripple, rgba(206, 212, 218, 0.5));
 		z-index:          200;
-
-		border-radius: var(--mat-card-elevated-container-shape, 12px);
+		border-radius:    var(--mat-card-elevated-container-shape, 12px);
 	}
 }
 

@@ -39,7 +39,7 @@ import { XiriTableField } from "../raw-table/tabefield.interface";
 import { XiriSessionStorageService } from "../services/sessionStorage.service";
 import { XiriNumberService } from "../services/number.service";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
-import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
@@ -125,7 +125,7 @@ export interface XiriTableSettings {
 	                       MatCheckbox,
 	                       MatHeaderRow,
 	                       MatRow,
-	                       XiriSkeletonComponent,
+	                       MatProgressSpinner,
 	                       MatPaginator,
 	                       NgTemplateOutlet,
 	                       SafehtmlPipe, XiriButtonComponent, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
