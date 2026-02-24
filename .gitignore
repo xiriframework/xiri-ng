@@ -42,8 +42,6 @@ testem.log
 Thumbs.db
 
 proxy.conf.json
-/package-lock.json
-/projects/xiri-ng/package-lock.json
 /.claude/
 CLAUDE.md
 xiri-ng.iml
