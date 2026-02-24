@@ -1,0 +1,29 @@
+<mat-form-field>
+	@if (field().name) {
+		<mat-label>{{ field().name }}</mat-label>
+	}
+	<mat-chip-grid #chipGrid>
+		@for (chip of chips(); track chip) {
+			<mat-chip-row (removed)="remove(chip)" [class]="chipColor(chip)">
+				{{ chip }}
+				<button matChipRemove>
+					<mat-icon>cancel</mat-icon>
+				</button>
+			</mat-chip-row>
+		}
+	</mat-chip-grid>
+	<input #chipInput
+	       [matChipInputFor]="chipGrid"
+	       [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+	       [matChipInputAddOnBlur]="true"
+	       (matChipInputTokenEnd)="add($event)"
+	       (input)="onInputChange($event)"
+	       (focus)="onFocus()"
+	       [matAutocomplete]="auto"
+	       [placeholder]="field().hint || ''">
+	<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+		@for (option of filteredOptions(); track option.id) {
+			<mat-option [value]="option.name">{{ option.name }}</mat-option>
+		}
+	</mat-autocomplete>
+</mat-form-field>

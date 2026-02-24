@@ -1,0 +1,38 @@
+<div class="main">
+	<div class="line">
+		<div class="xrow xsmall">
+			<div class="xcol xcol-md-6 header"><span>{{ field.name }}</span></div>
+			<div class="xcol xcol-md-6 search">
+				@if (field.search != false) {
+					<xiri-search (changed)="searchDo($event)"></xiri-search>
+				}
+			</div>
+		</div>
+	</div>
+	<div class="tree">
+		@if (loading()) {
+			<mat-spinner diameter="30"></mat-spinner>
+		}
+		<mat-tree [dataSource]="dataSource" [childrenAccessor]="getChildren">
+			<mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding="" matTreeNodePaddingIndent="20px" [hidden]="node.hidden"
+			               [class.notree]="!field.tree">
+				<button mat-icon-button disabled aria-hidden="true"></button>
+				<mat-checkbox class="checklist-leaf-node" [checked]="node.state === 1"
+				              (change)="treeItemSelectionToggle(node)">{{ node.name }}
+				</mat-checkbox>
+			</mat-tree-node>
+			<mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding="" matTreeNodePaddingIndent="20px" [hidden]="node.hidden">
+				<button mat-icon-button matTreeNodeToggle [attr.aria-label]="tree().isExpanded(node) ? 'Zuklappen' : 'Aufklappen'">
+					<mat-icon class="mat-icon-rtl-mirror">
+						{{ tree().isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+					</mat-icon>
+				</button>
+				<mat-checkbox class="group"
+				              [checked]="node.state === 1"
+				              [indeterminate]="node.state === 2"
+				              (change)="treeItemSelectionToggle(node)">{{ node.name }}
+				</mat-checkbox>
+			</mat-tree-node>
+		</mat-tree>
+	</div>
+</div>

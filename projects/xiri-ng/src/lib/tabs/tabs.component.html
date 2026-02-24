@@ -1,0 +1,24 @@
+<mat-tab-group
+	[selectedIndex]="selectedIndex()"
+	[dynamicHeight]="settings().dynamicHeight ?? false"
+	[animationDuration]="settings().animationDuration ?? '225ms'"
+	[headerPosition]="settings().headerPosition ?? 'above'"
+	[mat-align-tabs]="settings().alignTabs ?? 'start'"
+	[mat-stretch-tabs]="settings().stretchTabs ?? false"
+	(selectedIndexChange)="onTabChange($event)">
+
+	@for (tab of settings().tabs; track tab.label; let i = $index) {
+		<mat-tab [disabled]="tab.disabled ?? false">
+			<ng-template mat-tab-label>
+				@if (tab.icon) {
+					<mat-icon>{{ tab.icon }}</mat-icon>
+				}
+				{{ tab.label }}
+			</ng-template>
+
+			@if (shouldRenderContent(i, tab)) {
+				<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: { data: tab.data, filterData: filterData() } }"></ng-container>
+			}
+		</mat-tab>
+	}
+</mat-tab-group>

@@ -1,0 +1,14 @@
+<div class="empty-state">
+	@if (settings().icon) {
+		<mat-icon [class]="settings().iconColor || 'gray'">{{ settings().icon }}</mat-icon>
+	}
+	<div class="title">{{ settings().title }}</div>
+	@if (settings().description) {
+		<div class="description">{{ settings().description }}</div>
+	}
+	@if (settings().button) {
+		<div class="action">
+			<xiri-button [button]="settings().button" (result)="buttonResult.emit($event)"></xiri-button>
+		</div>
+	}
+</div>

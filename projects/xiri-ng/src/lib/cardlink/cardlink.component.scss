@@ -1,0 +1,26 @@
+
+:host {
+	margin-bottom: 2rem;
+}
+
+mat-card {
+	&:hover {
+		background-color: var(--surface-variant, #DEE3EB);
+	}
+}
+
+.mat-mdc-card-avatar {
+	background-color: var(--primary, #2892D9);
+	border-radius: 50%;
+	color: var(--on-primary, white);
+	text-align: center;
+	width: 4rem;
+	height: 4rem;
+
+	mat-icon {
+		font-size: 2rem;
+		line-height: 4rem;
+		width: 2rem;
+		height: 4rem;
+	}
+}

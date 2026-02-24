@@ -1,0 +1,51 @@
+
+.main-container {
+	min-height: 100%; // brauch man das?
+}
+
+mat-sidenav-container {
+	min-height: 100vh;
+	background: transparent;
+
+  mat-sidenav {
+    mat-nav-list {
+      padding-top: 0;
+    }
+  }
+}
+
+mat-toolbar.nav-toolbar {
+	position: sticky;
+	position: -webkit-sticky;
+	top:      0;
+	z-index:  1000;
+
+	.nav-logo {
+		// margin-left: 1rem;
+		user-select: none;
+	}
+
+	.nav-spacer {
+		flex: 1 1 auto;
+	}
+
+	.nav-btn {
+		height: 100%;
+		border-radius: 0;
+		user-select: none;
+		color: white;
+		width:         64px;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+
+	mat-sidenav-container {
+		min-height: 100vh;
+	}
+}
+
+.mainpage {
+	padding: 1rem 1.2rem 5rem 1.2rem;
+}

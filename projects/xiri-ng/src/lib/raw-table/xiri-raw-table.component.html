@@ -1,0 +1,78 @@
+<div class="table-out" [class]="tableClass">
+	<table mat-table [dataSource]="dataSource">
+		@for (column of displayedColumns; track column) {
+			<ng-container [matColumnDef]="column.name">
+				@if (column.header) {
+					<th mat-header-cell *matHeaderCellDef [class]="column.display"> {{ column.header }}</th>
+				}
+				@switch (column.format) {
+					@case ('icon') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							@if (column.icons[ row[ column.id ] ]) {
+								<mat-icon [class]="column.icons[ row[ column.id ] ][ 'color' ] || 'primary'"
+								          [matTooltip]="column.icons[ row[ column.id ] ][ 'hint' ]"
+								          [matTooltipDisabled]="!column.icons[ row[ column.id ] ][ 'hint' ]">{{ column.icons[row[column.id]]['icon'] }}
+								</mat-icon>
+							}
+						</td>
+					}
+					@case ('html') {
+						<td mat-cell *matCellDef="let row" [innerHtml]="row[column.id] | safeHtml" [class]="column.display"></td>
+					}
+					@case ('link') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							@if (row[column.id + 'Link']) {
+								<a [routerLink]="row[column.id + 'Link']" class="tablelink">{{ row[column.id] }}</a>
+							} @else {
+								<span>{{ row[column.id] }}</span>
+							}
+						</td>
+					}
+					@case ('text2') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							<div>{{ row[column.id][0] }}</div>
+							<div>{{ row[column.id][1] }}</div>
+						</td>
+					}
+					@case ('linkrow') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							@if (row[column.id + 'Link']) {
+								<a [routerLink]="row[column.id + 'Link']">
+									<div class="linkrow">
+										@if (row['icon']) {
+											@if (row['iconSet']) {
+												<mat-icon [class]="row['iconColor'] || 'primary'" [fontSet]="row['iconSet']">{{ row['icon'] }}</mat-icon>
+											} @else {
+												<mat-icon [class]="row['iconColor'] || 'primary'">{{ row['icon'] }}</mat-icon>
+											}
+										}
+										<span class="text" [class.hasIcon]="row['icon']">{{ row[column.id] }}</span>
+									</div>
+								</a>
+							}
+						</td>
+					}
+					@case ('number') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							{{ column.textPrefix }}{{ row[column.id][0] }}{{ column.textSuffix }}
+						</td>
+					}
+					@case ('chips') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							<div class="xiri-chips-display">
+								@for (chip of row[column.id]; track chip.label) {
+									<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
+								}
+							</div>
+						</td>
+					}
+					@default {
+						<td mat-cell *matCellDef="let row" [class]="column.display">{{ row[column.id] }}</td>
+					}
+				}
+			</ng-container>
+		}
+
+		<tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+	</table>
+</div>

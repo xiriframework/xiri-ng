@@ -1,0 +1,97 @@
+@use "sass:map";
+@use "sass:math";
+
+@mixin grid( $breakpoints: ( xs: 0, sm: 576px,
+		                   md: 768px, lg: 992px,
+		                   xl: 1200px, xxl: 1400px ) ) {
+
+	.xcontainer, .xcontainer-fluid {
+		width: 100%;
+	}
+
+	.xrow {
+		display:               grid;
+		grid-template-columns: repeat(12, 1fr);
+		grid-column-gap:       var(--xiri-grid-column-gap, 24px);
+		grid-row-gap:          var(--xiri-grid-row-gap, 20px);
+		width:                 100%;
+
+		&.xsmall {
+			grid-row-gap: 4px;
+		}
+	}
+
+	.xcol {
+		grid-column-end: span 12;
+		max-width:       100%;
+	}
+
+	.xcol-start {
+		grid-column-start: 1;
+	}
+
+	@each $abbr, $size in $breakpoints {
+		@for $i from 1 through 12 {
+			.xcol-#{$abbr}-#{$i} {
+				grid-column-end: span 12;
+				max-width:       100%;
+			}
+		}
+	}
+
+	@for $i from 1 through 12 {
+		.xcol-#{$i} {
+			grid-column-end: span $i;
+		}
+	}
+
+	@each $abbr, $size in $breakpoints {
+		@media (min-width: $size) {
+			// Loop through col classes
+			@for $i from 1 through 12 {
+				.xcol-#{$abbr}-#{$i} {
+					grid-column-end: span $i;
+				}
+				.xcol-middle-#{$abbr}-#{$i} {
+					grid-column-start: math.ceil(calc((12 - $i )/2)) + 1;
+					grid-column-end:   math.ceil(calc((12 - $i )/2)) + $i + 1;
+				}
+				.xcol-right-#{$abbr}-#{$i} {
+					grid-column-start: calc(12 - $i + 1);
+					grid-column-end:   13;
+				}
+			}
+
+			.x-#{$abbr}-none {
+				display: none !important;
+			}
+		}
+	}
+
+	.x-none, .x-xs-none {
+		display: none !important;
+	}
+
+	@each $abbr, $size in $breakpoints {
+		@media (max-width: $size) {
+			.x-#{$abbr}-none-up {
+				display: none !important;
+			}
+		}
+	}
+
+	.x-valign-center {
+		align-content: center;
+	}
+	.x-valign-bottom {
+		align-content: end;
+	}
+
+	.x-align-center {
+		justify-self: center;
+	}
+	.x-align-right {
+		justify-self: end;
+	}
+
+}

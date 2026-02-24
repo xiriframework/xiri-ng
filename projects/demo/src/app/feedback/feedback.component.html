@@ -1,0 +1,67 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- XiriDoneComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDone">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-done></xiri-done>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriErrorComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionError">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-error text="An error occurred. Please try again."></xiri-error>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriAlertComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionAlert">
+				<button mat-raised-button color="warn" (click)="openAlert('warning')">
+					<mat-icon>warning</mat-icon> Warning Alert
+				</button>
+				&nbsp;
+				<button mat-raised-button color="primary" (click)="openAlert('info')">
+					<mat-icon>info</mat-icon> Info Alert
+				</button>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriMultiprogressComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionMultiprogress">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multiprogress [settings]="multiprogressSettings1"></xiri-multiprogress>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-multiprogress [settings]="multiprogressSettings2"></xiri-multiprogress>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

@@ -1,0 +1,15 @@
+.xiri-toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--xiri-spacing-sm);
+	padding: var(--xiri-spacing-sm) var(--xiri-spacing-md);
+	background: var(--surface-container, var(--surface));
+	border-radius: var(--mat-card-elevated-container-shape, 12px);
+	min-height: 48px;
+
+	.toolbar-title {
+		font-size: var(--xiri-font-size-title);
+		font-weight: 500;
+	}
+	.toolbar-spacer { flex: 1; }
+}

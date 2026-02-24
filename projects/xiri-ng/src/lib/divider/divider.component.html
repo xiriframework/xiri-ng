@@ -1,0 +1,12 @@
+<div class="xiri-divider" [class]="settings().spacing || 'normal'">
+	@if (settings().text || settings().icon) {
+		<mat-divider></mat-divider>
+		<span class="divider-label">
+			@if (settings().icon) { <mat-icon>{{ settings().icon }}</mat-icon> }
+			@if (settings().text) { {{ settings().text }} }
+		</span>
+		<mat-divider></mat-divider>
+	} @else {
+		<mat-divider></mat-divider>
+	}
+</div>

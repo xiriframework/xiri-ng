@@ -1,0 +1,11 @@
+<ng-container [formGroup]="parts">
+	<mat-date-range-input [rangePicker]="picker" [required]="required" [min]="minDate" [max]="maxDate">
+		<input matStartDate formControlName="start" placeholder="Start date" [required]="required">
+		<input matEndDate formControlName="end" placeholder="End date" [required]="required">
+	</mat-date-range-input>
+
+	<mat-datepicker-toggle matIconSuffix [for]="picker">
+		<mat-icon matDatepickerToggleIcon>today</mat-icon>
+	</mat-datepicker-toggle>
+	<mat-date-range-picker #picker></mat-date-range-picker>
+</ng-container>

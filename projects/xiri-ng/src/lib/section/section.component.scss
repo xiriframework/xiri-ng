@@ -1,0 +1,36 @@
+.xiri-section {
+	margin-bottom: var(--xiri-spacing-xl, 2rem);
+
+	.section-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--xiri-spacing-sm, 0.5rem) 0;
+
+		h2 {
+			font-size: var(--xiri-font-size-title);
+			font-weight: 500;
+			margin: 0;
+		}
+		.section-subtitle {
+			font-size: var(--xiri-font-size-label);
+			color: var(--on-surface-variant);
+		}
+		&.collapsible { cursor: pointer; }
+		.collapse-icon { transition: transform 200ms ease; }
+		.collapse-icon.collapsed { transform: rotate(-90deg); }
+		.section-header-left {
+			display: flex;
+			align-items: center;
+			gap: var(--xiri-spacing-sm);
+		}
+		.section-header-right {
+			display: flex;
+			align-items: center;
+			gap: var(--xiri-spacing-sm);
+		}
+	}
+	.section-content {
+		padding-top: var(--xiri-spacing-md, 1rem);
+	}
+}

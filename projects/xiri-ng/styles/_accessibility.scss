@@ -1,0 +1,50 @@
+// ============================================
+// Global Accessibility Styles
+// ============================================
+
+// Focus-visible indicator for keyboard navigation
+// Uses :focus-visible to only show on keyboard focus, not mouse clicks
+*:focus-visible {
+	outline: 2px solid var(--primary, #2892D9);
+	outline-offset: 2px;
+}
+
+// Material buttons already have their own focus indicator via ripple,
+// but we add a visible outline for keyboard-only navigation
+.mat-mdc-button:focus-visible,
+.mat-mdc-raised-button:focus-visible,
+.mat-mdc-unelevated-button:focus-visible,
+.mat-mdc-outlined-button:focus-visible,
+.mat-mdc-icon-button:focus-visible,
+.mat-mdc-fab:focus-visible,
+.mat-mdc-mini-fab:focus-visible {
+	outline: 2px solid var(--primary, #2892D9);
+	outline-offset: 2px;
+}
+
+// Material list items
+.mat-mdc-list-item:focus-visible {
+	outline: 2px solid var(--primary, #2892D9);
+	outline-offset: -2px;
+}
+
+// Material form fields
+.mat-mdc-form-field:focus-within {
+	// Material handles this internally, no override needed
+}
+
+// Skip link for keyboard users
+.xiri-skip-link {
+	position: absolute;
+	top: -40px;
+	left: 0;
+	background: var(--primary, #2892D9);
+	color: var(--on-primary, #FFFFFF);
+	padding: 8px 16px;
+	z-index: 10000;
+	transition: top 0.2s;
+
+	&:focus {
+		top: 0;
+	}
+}

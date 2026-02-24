@@ -1,0 +1,15 @@
+<div class="xiri-toolbar">
+	@if (settings().icon) {
+		<mat-icon>{{ settings().icon }}</mat-icon>
+	}
+	@if (settings().title) {
+		<span class="toolbar-title">{{ settings().title }}</span>
+	}
+	<div class="toolbar-spacer"></div>
+	@if (settings().search) {
+		<xiri-search [placeholder]="searchPlaceholder()" [open]="true" (changed)="searchChanged.emit($event)"></xiri-search>
+	}
+	@if (settings().buttons) {
+		<xiri-buttonline [settings]="settings().buttons!" [filterData]="filterData()"></xiri-buttonline>
+	}
+</div>

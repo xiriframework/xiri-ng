@@ -1,0 +1,11 @@
+:host {
+	display: block;
+}
+
+mat-icon {
+	margin-right: 8px;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+	padding: 16px;
+}

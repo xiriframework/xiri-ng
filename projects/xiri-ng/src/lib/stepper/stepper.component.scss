@@ -1,0 +1,30 @@
+
+.error {
+	padding: 0.5rem 0;
+}
+
+.xrow {
+	padding-top: 1rem;
+}
+
+.checking {
+	padding:         1rem 0.5rem;
+	display:         flex;
+	justify-content: flex-end;
+}
+
+.buttons {
+	padding-top:     1rem;
+	display:         flex;
+	justify-content: space-between;
+}
+
+.done {
+	font-size:       3rem;
+	display:         flex;
+	justify-content: center;
+}
+
+[hidden] {
+	display: none !important;
+}

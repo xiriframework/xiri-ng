@@ -1,0 +1,48 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- DynComponent Demo -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDynComponent">
+				<xiri-dyncomponent [data]="cardData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- DynPage Explanation -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDynPage">
+				<ol>
+					<li>Takes the current URL (e.g. <code>/Test/Test/Home</code>)</li>
+					<li>Makes an API call to <code>/api/Test/Test/Home</code></li>
+					<li>Receives a <code>&#123; bread, data: XiriDynData[] &#125;</code> object back</li>
+					<li>Renders the <code>data[]</code> via <code>XiriDynComponentComponent</code></li>
+				</ol>
+				<p>This allows the server to dynamically compose arbitrary pages (tables, forms, buttons, etc.).</p>
+				<p>Examples can be found in the sidenav under <strong>Server (DynPage)</strong>: Login, Dialogs, Query, Simulation, Groups, Form.</p>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
+
+<ng-template #dynTemplate let-obj>
+	@switch (obj.type) {
+		@case ( 'test' ) {
+			<div class="xcol" [class]="obj.display">
+				<p><em>Custom template for type 'test':</em> {{ obj.data }}</p>
+			</div>
+		}
+		@default {
+			<div class="xcol">Unknown type: {{ obj.type }}</div>
+		}
+	}
+</ng-template>

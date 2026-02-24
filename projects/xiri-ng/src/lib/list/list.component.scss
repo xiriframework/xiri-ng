@@ -1,0 +1,88 @@
+
+.card {
+	background-color: var(--surface, #FFFFFF);
+
+	mat-card-content, mat-nav-list {
+		padding: 0;
+	}
+
+	a + a {
+		border-top: 1px solid var(--outline-variant, #C2C7CF);
+	}
+
+	a.mat-mdc-list-item {
+		align-items:   center;
+		border-radius: 0;
+
+		&::before {
+			border-radius: 8px;
+		}
+
+		&.mdc-list-item--with-two-lines ::ng-deep .mdc-list-item__content {
+			transform: translateY(-7px);
+		}
+	}
+
+	.list-icon {
+		width:           48px;
+		height:          48px;
+		color:           var(--on-primary, #FFFFFF);
+		border-radius:   50%;
+		margin:          0 16px 0 16px;
+		align-self:      center;
+
+		display:         flex;
+		justify-content: center;
+		align-items:     center;
+
+		mat-icon {
+			text-align:       center;
+			font-size:        var(--xiri-icon-size-lg);
+			--mat-icon-color: white;
+		}
+
+		&.emerald {
+			background-color: var(--primary, #2892D9) !important;
+		}
+
+		&.red {
+			background-color: #E74C3C !important;
+		}
+
+		&.yellow {
+			background-color: #F1C40F !important;
+		}
+
+		&.green {
+			background-color: var(--color-success, #2ECC71) !important;
+		}
+
+		&.purple {
+			background-color: #9B59B6 !important;
+		}
+
+		&.gray {
+			background-color: #95A5A6 !important;
+		}
+
+		&.white {
+			background-color: var(--surface, #FFFFFF) !important;
+		}
+	}
+
+	.list-fav {
+		display:         flex;
+		justify-content: center;
+		align-items:     center;
+		height:          100%;
+
+		mat-icon.gray {
+			--mat-icon-color: gray;
+		}
+
+		mat-icon.accent {
+			--mat-icon-color: var(--secondary, #6750A4);
+		}
+	}
+
+}

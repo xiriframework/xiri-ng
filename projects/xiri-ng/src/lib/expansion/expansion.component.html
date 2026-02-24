@@ -1,0 +1,29 @@
+<mat-accordion
+	[multi]="settings().multi ?? false"
+	[displayMode]="settings().displayMode ?? 'default'"
+	[hideToggle]="settings().hideToggle ?? false"
+	[togglePosition]="settings().togglePosition ?? 'after'">
+
+	@for (panel of settings().panels; track panel.title; let i = $index) {
+		<mat-expansion-panel
+			[disabled]="panel.disabled ?? false"
+			[expanded]="panel.expanded ?? false"
+			(opened)="onPanelOpened(i)"
+			(closed)="onPanelClosed(i)">
+
+			<mat-expansion-panel-header>
+				@if (panel.icon) {
+					<mat-icon>{{ panel.icon }}</mat-icon>
+				}
+				<mat-panel-title>{{ panel.title }}</mat-panel-title>
+				@if (panel.description) {
+					<mat-panel-description>{{ panel.description }}</mat-panel-description>
+				}
+			</mat-expansion-panel-header>
+
+			@if (shouldRenderContent(i, panel)) {
+				<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: { data: panel.data, filterData: filterData() } }"></ng-container>
+			}
+		</mat-expansion-panel>
+	}
+</mat-accordion>

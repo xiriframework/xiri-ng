@@ -1,0 +1,97 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- XiriHeaderComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionHeader">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-header [settings]="header"></xiri-header>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-header [settings]="headerX1"></xiri-header>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-header [settings]="headerX15"></xiri-header>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-header [settings]="headerX2"></xiri-header>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-header [settings]="headerX25"></xiri-header>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-header [settings]="headerX3"></xiri-header>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriButtonlineComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionButtonline">
+				<xiri-buttonline [settings]="buttonline" (result)="ret($event)"></xiri-buttonline>
+				<xiri-buttonline [settings]="buttonline2" (result)="ret($event)"></xiri-buttonline>
+				<xiri-buttonline [settings]="buttonline2" [filterData]="{ test: '123' }" (result)="ret($event)"></xiri-buttonline>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriSearchComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSearch">
+				<xiri-search (changed)="searchChange($event)" [placeholder]="'Search..'" [focus]="searchFocus()" [open]="true" [reset]="searchReset()"></xiri-search>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriTabsComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTabs">
+				<xiri-tabs [settings]="tabsSettings" [dyncomponent]="dynTemplate"></xiri-tabs>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriExpansionComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionExpansion">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Multi + Flat + Lazy:</p>
+						<xiri-expansion [settings]="expansionSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<p>Single + Unload:</p>
+						<xiri-expansion [settings]="expansionSettings2" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Toggle Before + Hide Toggle:</p>
+						<xiri-expansion [settings]="expansionSettings3" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
+
+<ng-template #dynTemplate let-obj>
+	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>
+</ng-template>

@@ -1,0 +1,17 @@
+<a [routerLink]="settings().link">
+	<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2" matRipple>
+		<mat-card-header>
+			@if (settings().icon) {
+				<div mat-card-avatar>
+					<mat-icon [fontSet]="settings().iconSet">{{ settings().icon }}</mat-icon>
+				</div>
+			}
+			@if (settings().text) {
+				<mat-card-title>{{ settings().text }}</mat-card-title>
+			}
+			@if (settings().sub) {
+				<mat-card-subtitle>{{ settings().sub }}</mat-card-subtitle>
+			}
+		</mat-card-header>
+	</mat-card>
+</a>

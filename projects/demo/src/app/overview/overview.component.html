@@ -1,0 +1,38 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- ThemeService -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTheme">
+				<p>Current mode: <strong>{{ themeService.isDark() ? 'Dark' : 'Light' }}</strong></p>
+				<button mat-raised-button (click)="themeService.toggle()">
+					<mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+					Toggle Theme
+				</button>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- All Categories -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCategories">
+				<div class="xrow">
+					@for (card of cardlinks; track card.link) {
+						<div class="xcol-md-6 xcol-xl-3">
+							<xiri-cardlink [settings]="card"></xiri-cardlink>
+						</div>
+					}
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

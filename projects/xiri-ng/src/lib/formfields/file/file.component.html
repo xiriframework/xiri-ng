@@ -1,0 +1,17 @@
+<mat-form-field [formGroup]="parts" floatLabel="auto" class="fileselect" (click)="fileInput.click()">
+	<mat-label>{{ field.name }}</mat-label>
+
+	<input matInput formControlName="text" type="text" [required]="required" readonly>
+	<button mat-icon-button matSuffix class="form-field-button" aria-label="Datei auswählen">
+		<mat-icon>file_upload</mat-icon>
+	</button>
+
+	<input hidden type="file" [accept]="field.accept" [multiple]="field.multiple" (change)="fileChange($event)" #fileInput>
+
+	@if (field.hint) {
+		<mat-hint>{{ field.hint }}</mat-hint>
+	}
+	@if (errorState) {
+		<mat-error>{{ getErrorMessage() }}</mat-error>
+	}
+</mat-form-field>

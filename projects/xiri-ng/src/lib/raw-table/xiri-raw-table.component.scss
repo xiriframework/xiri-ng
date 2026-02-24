@@ -1,0 +1,126 @@
+@use '@angular/material' as mat;
+
+.table-out {
+	&.dense-1 {
+		@include mat.table-density(-1);
+	}
+
+	&.dense-2 {
+		@include mat.table-density(-2);
+	}
+
+	&.dense-3 {
+		@include mat.table-density(-3);
+	}
+
+	&.dense-4 {
+		@include mat.table-density(-4);
+	}
+
+	&.dense-6 {
+		@include mat.table-density(-6);
+
+		table {
+			tr.mat-mdc-row {
+				height: 32px;
+			}
+		}
+	}
+
+	&.dense-8 {
+		@include mat.table-density(-8);
+
+		table {
+			tr.mat-mdc-row {
+				height: 30px;
+			}
+		}
+	}
+
+	&.force-min-width {
+		td {
+			min-width: 150px;
+		}
+	}
+}
+
+table {
+	width: 100%;
+
+	tr.mat-mdc-row:hover {
+		background: var(--surface-variant, #DEE3EB);
+	}
+
+	.tablelink {
+		text-decoration: underline;
+	}
+
+	.linkrow {
+
+		display: table-row;
+
+		mat-icon {
+			display:       table-cell;
+			width:         30px;
+			text-align:    center;
+			padding-right: 1rem;
+			line-height:   31px; // tr.mat-row - 1px
+			color:         var(--xiri-linkrow-icon-color);
+		}
+
+		.text {
+			display:         table-cell;
+			text-decoration: underline;
+
+			&.hasIcon {
+				vertical-align: middle;
+				line-height:    33px; // tr.mat-row - 1px
+			}
+		}
+	}
+
+	td.mat-mdc-cell {
+
+		mat-icon {
+			vertical-align: middle;
+		}
+
+		&.info {
+			font-size: var(--xiri-font-size-label);
+			color:     var(--on-surface-variant, #42474E);
+		}
+
+		&.right, &.align-right {
+			text-align:   right;
+			padding-left: 1rem;
+			word-wrap:    anywhere;
+		}
+
+		&.center, &.align-center {
+			text-align:   center;
+			padding-left: 1rem;
+		}
+
+		&.left, &.align-left {
+			text-align: left;
+		}
+
+		&.middle {
+			padding-left: 1rem;
+		}
+	}
+
+	th.mat-mdc-header-cell {
+		&.align-right {
+			text-align: right;
+		}
+
+		&.align-center {
+			text-align: center;
+		}
+
+		&.align-left {
+			text-align: left;
+		}
+	}
+}

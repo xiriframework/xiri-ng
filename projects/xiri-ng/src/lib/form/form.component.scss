@@ -1,0 +1,22 @@
+
+.formbtnline {
+	padding-top:     2rem;
+	display:         flex;
+	justify-content: space-between;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.done {
+	text-align: center;
+	font-size:  2rem;
+	margin-bottom: 1rem;
+}
+
+mat-spinner {
+	margin: 2rem;
+}
+
+[hidden] {
+	display: none !important;
+}

@@ -1,0 +1,31 @@
+<div class="xrow" cdkTrapFocus>
+	<div class="xcol">
+		@if (loading()) {
+			<mat-spinner diameter="30"></mat-spinner>
+		}
+		@if (formFields() !== null) {
+			<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [hidden]="loading()"
+			                  [check]="checkSubject.asObservable()"></xiri-form-fields>
+		}
+		@if (error()) {
+			<xiri-error class="error" [text]="error()"></xiri-error>
+		}
+	</div>
+	@if (done()) {
+		<div class="xcol done">
+			<xiri-done></xiri-done>
+		</div>
+	}
+	@else if (!loading()) {
+		<div class="xcol formbtnline">
+			@for (button of buttons; track button) {
+				@if (button.default) {
+					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="!formValid"></xiri-buttonstyle>
+				} @else {
+					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="false"></xiri-buttonstyle>
+				}
+			}
+		</div>
+	}
+</div>
+

@@ -1,0 +1,5 @@
+<div class="buttonline" [class]="settings().class">
+	@for (button of settings().buttons; track i; let i = $index) {
+		<xiri-button [button]="button" [filterData]="filterData()" [disabled]="disabled()" (result)="result.emit( $event )"></xiri-button>
+	}
+</div>

@@ -1,0 +1,82 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Table 1 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable1">
+				<xiri-table [settings]="data"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 2 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable2">
+				<xiri-table [settings]="data2"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 3 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable3">
+				<xiri-table [settings]="data3"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 4 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable4">
+				<xiri-table [settings]="data4"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 5 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable5">
+				<xiri-table [settings]="data5" (clickedRow)="onRowClicked($event)"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 6 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable6">
+				<xiri-table [settings]="data6"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table 7 -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable7">
+				<xiri-table [settings]="data7"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- RawTable -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionRawTable">
+				<xiri-raw-table [settings]="rawTableSettings"></xiri-raw-table>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

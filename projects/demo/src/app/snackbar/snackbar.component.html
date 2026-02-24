@@ -1,0 +1,58 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Basic Variants -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionBasicVariants">
+				<button mat-raised-button class="success" (click)="showSuccess()">
+					<mat-icon>check_circle</mat-icon> Success (3s)
+				</button>
+				&nbsp;
+				<button mat-raised-button class="error" (click)="showError()">
+					<mat-icon>error</mat-icon> Error (5s)
+				</button>
+				&nbsp;
+				<button mat-raised-button class="blue" (click)="showInfo()">
+					<mat-icon>info</mat-icon> Info (3s)
+				</button>
+				&nbsp;
+				<button mat-raised-button class="orange" (click)="showWarning()">
+					<mat-icon>warning</mat-icon> Warning (4s)
+				</button>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- With Action -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionWithAction">
+				<button mat-raised-button color="primary" (click)="showWithAction()">
+					<mat-icon>delete</mat-icon> Delete with Undo
+				</button>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Usage -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionUsage">
+				<pre><code>private snackbar = inject(XiriSnackbarService);
+
+this.snackbar.success('Saved!');
+this.snackbar.error('Failed!', 5000);
+this.snackbar.info('Info', 3000, 'Dismiss');
+this.snackbar.warning('Check input!');</code></pre>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

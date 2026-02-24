@@ -1,0 +1,69 @@
+@keyframes shimmer {
+	0% { background-position: -200px 0; }
+	100% { background-position: calc(200px + 100%) 0; }
+}
+
+:host {
+	display: block;
+}
+
+.skeleton-line, .skeleton-circle, .skeleton-rect {
+	background-color: var(--color-gray-200, #E9ECEF);
+	border-radius: 4px;
+
+	&.animate {
+		background-image: linear-gradient(90deg,
+			var(--color-gray-200, #E9ECEF) 0px,
+			var(--color-gray-100, #F8F9FA) 40px,
+			var(--color-gray-200, #E9ECEF) 80px
+		);
+		background-size: 200px 100%;
+		animation: shimmer 1.5s ease-in-out infinite;
+	}
+}
+
+.skeleton-text {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	.skeleton-line {
+		height: 1em;
+	}
+}
+
+.skeleton-circle {
+	border-radius: 50%;
+}
+
+.skeleton-rect {
+	border-radius: 8px;
+}
+
+.skeleton-table {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.skeleton-table-row {
+	display: flex;
+	gap: 16px;
+}
+
+.skeleton-table-cell {
+	flex: 1;
+
+	.skeleton-line {
+		height: 1em;
+		width: 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skeleton-line, .skeleton-circle, .skeleton-rect {
+		&.animate {
+			animation: none;
+		}
+	}
+}

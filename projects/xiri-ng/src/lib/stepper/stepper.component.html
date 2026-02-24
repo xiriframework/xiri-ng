@@ -1,0 +1,36 @@
+<mat-horizontal-stepper [linear]="true" (selectionChange)="stepChanged( $event )" [hidden]="done()">
+	@for (step of steps(); track i; let i = $index) {
+		<mat-step [label]="step.title" [completed]="step.completed()">
+			<div class="xrow">
+				<div class="xcol">
+					@if (!step.load()) {
+						<xiri-form-fields [form]="step.fields()" (formChange)="formChanged(step, $event, i)"></xiri-form-fields>
+					}
+					@if (step.errorMsg()) {
+						<xiri-error class="error" [text]="step.errorMsg()"></xiri-error>
+					}
+				</div>
+				@if (step.check()) {
+					<div class="xcol checking">
+						<mat-spinner diameter="25"></mat-spinner>
+					</div>
+				}
+				<div class="xcol buttons">
+					@for (button of step.buttons(); track button) {
+						@if (!button.default) {
+							<xiri-buttonstyle [disabled]="false" (click)="clickButton( button )" [button]="button"></xiri-buttonstyle>
+						} @else {
+							<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="!step.valid() || step.check()"></xiri-buttonstyle>
+						}
+					}
+				</div>
+			</div>
+		</mat-step>
+	}
+</mat-horizontal-stepper>
+
+@if (done()) {
+	<div class="xcol done">
+		<xiri-done></xiri-done>
+	</div>
+}

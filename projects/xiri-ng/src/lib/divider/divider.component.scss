@@ -1,0 +1,19 @@
+.xiri-divider {
+	display: flex;
+	align-items: center;
+	gap: var(--xiri-spacing-md);
+
+	mat-divider { flex: 1; }
+	.divider-label {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		color: var(--on-surface-variant);
+		font-size: var(--xiri-font-size-label);
+		white-space: nowrap;
+	}
+
+	&.compact { padding: var(--xiri-spacing-xs) 0; }
+	&.normal  { padding: var(--xiri-spacing-md) 0; }
+	&.large   { padding: var(--xiri-spacing-xl) 0; }
+}

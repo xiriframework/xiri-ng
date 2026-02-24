@@ -1,0 +1,120 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- ThemeService -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTheme">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>Current mode: <strong>{{ themeService.isDark() ? 'Dark' : 'Light' }}</strong></p>
+						<button mat-raised-button (click)="themeService.toggle()">
+							<mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+							Toggle
+						</button>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriDataService -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDataService">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>API Base URL: <strong>{{ apiUrl }}</strong></p>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriDateService -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDateService">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>unixToStringDateTime: <strong>{{ dateNowFormatted }}</strong></p>
+						<p>unixToStringDate: <strong>{{ dateNowDate }}</strong></p>
+						<p>unixToStringDateYear: <strong>{{ dateNowDateYear }}</strong></p>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriNumberService -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionNumberService">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>1234567.89 (default): <strong>{{ numberFormatted }}</strong></p>
+						<p>1234567.89 (integer): <strong>{{ numberInteger }}</strong></p>
+						<p>1234567.89 (float2): <strong>{{ numberFloat2 }}</strong></p>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- LocalStorage & SessionStorage -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionStorage">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<mat-card class="mat-elevation-z2">
+							<mat-card-content>
+								<h4>LocalStorage</h4>
+								<mat-form-field>
+									<mat-label>Key</mat-label>
+									<input matInput [(ngModel)]="storageKey">
+								</mat-form-field>
+								<mat-form-field>
+									<mat-label>Value</mat-label>
+									<input matInput [(ngModel)]="storageValue">
+								</mat-form-field>
+								<div>
+									<button mat-raised-button color="primary" (click)="setLocal()">Set</button>&nbsp;
+									<button mat-raised-button color="warn" (click)="removeLocal()">Remove</button>
+								</div>
+								<p>Stored: <strong>{{ storedLocalValue() }}</strong></p>
+							</mat-card-content>
+						</mat-card>
+					</div>
+					<div class="xcol-md-6">
+						<mat-card class="mat-elevation-z2">
+							<mat-card-content>
+								<h4>SessionStorage</h4>
+								<mat-form-field>
+									<mat-label>Key</mat-label>
+									<input matInput [(ngModel)]="storageKey">
+								</mat-form-field>
+								<mat-form-field>
+									<mat-label>Value</mat-label>
+									<input matInput [(ngModel)]="storageValue">
+								</mat-form-field>
+								<div>
+									<button mat-raised-button color="primary" (click)="setSession()">Set</button>&nbsp;
+									<button mat-raised-button color="warn" (click)="removeSession()">Remove</button>
+								</div>
+								<p>Stored: <strong>{{ storedSessionValue() }}</strong></p>
+							</mat-card-content>
+						</mat-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

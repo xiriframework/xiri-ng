@@ -1,0 +1,48 @@
+<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+	<mat-card-header>
+		@if (settings().headerIcon) {
+			<div mat-card-avatar class="header-image">
+				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+			</div>
+		}
+		@if (settings().header) {
+			<mat-card-title [class]="{hasHeaderSub: settings().headerSub}">{{ settings().header }}</mat-card-title>
+		}
+		@if (settings().headerSub) {
+			<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
+		}
+		@if (settings().buttonsTop) {
+			<xiri-buttonline [settings]="settings().buttonsTop"></xiri-buttonline>
+		}
+		@if (settings().reload && settings().url) {
+			<button mat-icon-button (click)="reload()" [disabled]="loading()" class="reload-btn" aria-label="Neu laden">
+				<mat-icon [class.spinning]="loading()">autorenew</mat-icon>
+			</button>
+		}
+	</mat-card-header>
+	@if (loading() && !cardData()) {
+		<mat-card-content>
+			<xiri-skeleton type="table-row" [columns]="2" [lines]="3"></xiri-skeleton>
+		</mat-card-content>
+	} @else if (errorMsg()) {
+		<mat-card-content>
+			<div class="load-error">{{ errorMsg() }}</div>
+		</mat-card-content>
+	} @else {
+		<mat-card-content class="hasTable">
+			@if (rawTable()) {
+				<xiri-raw-table [settings]="rawTable()!"></xiri-raw-table>
+			}
+		</mat-card-content>
+	}
+	@if (settings().buttonsBottom) {
+		<mat-card-actions align="end">
+			<xiri-buttonline [settings]="settings().buttonsBottom"></xiri-buttonline>
+		</mat-card-actions>
+	}
+	@else if (settings().buttons) {
+		<mat-card-actions align="end">
+			<xiri-buttonline [settings]="{buttons: settings().buttons, class: '' }"></xiri-buttonline>
+		</mat-card-actions>
+	}
+</mat-card>

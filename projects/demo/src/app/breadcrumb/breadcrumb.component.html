@@ -1,0 +1,46 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Basic Breadcrumbs -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionBasic">
+				<xiri-breadcrumb [items]="basicBreadcrumbs"></xiri-breadcrumb>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Deep Navigation -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDeep">
+				<xiri-breadcrumb [items]="longBreadcrumbs"></xiri-breadcrumb>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- External Links -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionExternal">
+				<xiri-breadcrumb [items]="externalBreadcrumbs"></xiri-breadcrumb>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- All Items with Icons -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionIcons">
+				<xiri-breadcrumb [items]="iconBreadcrumbs"></xiri-breadcrumb>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

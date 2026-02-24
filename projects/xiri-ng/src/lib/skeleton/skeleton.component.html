@@ -1,0 +1,34 @@
+@switch (type()) {
+	@case ('text') {
+		<div class="skeleton-text">
+			@for (_ of linesArray(); track $index) {
+				<div class="skeleton-line" [class.animate]="animate()"
+				     [style.width]="$last ? '60%' : width()"
+				     [style.height]="height()"></div>
+			}
+		</div>
+	}
+	@case ('circle') {
+		<div class="skeleton-circle" [class.animate]="animate()"
+		     [style.width]="width()"
+		     [style.height]="width()"></div>
+	}
+	@case ('rect') {
+		<div class="skeleton-rect" [class.animate]="animate()"
+		     [style.width]="width()"
+		     [style.height]="height()"></div>
+	}
+	@case ('table-row') {
+		<div class="skeleton-table">
+			@for (_ of linesArray(); track $index) {
+				<div class="skeleton-table-row">
+					@for (_ of columnsArray(); track $index) {
+						<div class="skeleton-table-cell">
+							<div class="skeleton-line" [class.animate]="animate()"></div>
+						</div>
+					}
+				</div>
+			}
+		</div>
+	}
+}

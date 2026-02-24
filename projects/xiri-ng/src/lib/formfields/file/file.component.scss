@@ -1,0 +1,13 @@
+
+.fileselect {
+	cursor: pointer;
+
+	mat-icon {
+		--mat-icon-color: var(--xiri-formfield-icon-color);
+	}
+
+	.form-field-button {
+		margin-left: 12px;
+		margin-right: 12px;
+	}
+}

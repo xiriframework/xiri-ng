@@ -1,0 +1,59 @@
+mat-spinner {
+	margin: 1rem;
+}
+
+.dynamic-form {
+	margin-bottom: 1rem;
+
+	.field {
+		width:      100%;
+		margin-top: 0.5rem;
+	}
+}
+
+.question, .waiting {
+
+	display: flex;
+
+	.left {
+		font-size:     var(--xiri-font-size-display);
+		padding-right: 1rem;
+	}
+}
+
+.waiting {
+	mat-icon {
+		color:     var(--color-success, #2ECC71);
+		font-size: var(--xiri-font-size-headline);
+	}
+}
+
+.error {
+	color:         var(--error, red);
+	font-size:     var(--xiri-font-size-title);
+	margin-top:    1rem;
+	margin-bottom: 1rem;
+}
+
+mat-dialog-actions {
+	justify-content: space-between;
+	padding-left:    24px;
+	padding-right:   24px;
+
+	&.one {
+		justify-content: end;
+	}
+}
+
+mat-dialog-content {
+	min-height: 4rem;
+}
+
+.done {
+	text-align: center;
+	font-size:  var(--xiri-font-size-display);
+}
+
+[hidden] {
+	display: none !important;
+}

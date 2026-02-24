@@ -1,0 +1,29 @@
+.page-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--xiri-spacing-md, 1rem);
+	padding: var(--xiri-spacing-md, 1rem) 0;
+
+	h1 {
+		font-size: var(--xiri-font-size-headline);
+		font-weight: 500;
+		margin: 0;
+		color: var(--on-surface);
+	}
+	p {
+		font-size: var(--xiri-font-size-body);
+		color: var(--on-surface-variant);
+		margin: 0.25rem 0 0;
+	}
+	.page-header-icon mat-icon {
+		font-size: var(--xiri-font-size-display);
+		width: var(--xiri-font-size-display);
+		height: var(--xiri-font-size-display);
+	}
+	.page-header-content {
+		display: flex;
+		align-items: center;
+		gap: var(--xiri-spacing-md, 1rem);
+	}
+}

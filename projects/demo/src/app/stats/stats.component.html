@@ -1,0 +1,62 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Dashboard Layout -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDashboard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<div class="xrow">
+							<div class="xcol-6">
+								<xiri-stat [settings]="stat1"></xiri-stat>
+							</div>
+							<div class="xcol-6">
+								<xiri-stat [settings]="stat2"></xiri-stat>
+							</div>
+							<div class="xcol-6">
+								<xiri-stat [settings]="stat3"></xiri-stat>
+							</div>
+							<div class="xcol-6">
+								<xiri-stat [settings]="stat4"></xiri-stat>
+							</div>
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goDashboardCode" title="Go: stat + statgrid"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Minimal Variant -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionMinimal">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<div class="xrow">
+							<div class="xcol-6">
+								<xiri-stat [settings]="{ value: '128', label: 'Open Tickets' }"></xiri-stat>
+							</div>
+							<div class="xcol-6">
+								<xiri-stat [settings]="{ value: '99.9%', label: 'SLA Compliance', color: 'success' }"></xiri-stat>
+							</div>
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goMinimalCode" title="Go: statgrid (minimal)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

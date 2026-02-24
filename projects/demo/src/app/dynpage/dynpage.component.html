@@ -1,0 +1,35 @@
+<div class="xcontainer-fluid">
+	<div class="xrow">
+		@if (bread) {
+			<div class="xcol bread">
+				test
+			</div>
+		}
+		<div class="xcol">
+			@if (loading) {
+				<div class="dynpage-loader">
+					<mat-spinner diameter="30"></mat-spinner>
+				</div>
+			}
+			@if (error) {
+				<div class="xcol error">
+					<h1>Page not found</h1>
+				</div>
+			}
+			<xiri-dyncomponent [data]="data()" [dyncomponent]="outdyncomponent" class="xrow"></xiri-dyncomponent>
+		</div>
+	</div>
+</div>
+
+<ng-template #outdyncomponent let-obj let-filter="filterData">
+	@switch (obj.type) {
+		@case ( 'test' ) {
+			<div class="xcol" [class]="obj.display">
+				test 123
+			</div>
+		}
+		@default {
+			<div class="xcol">unknown type OUT: {{ obj.type }}</div>
+		}
+	}
+</ng-template>

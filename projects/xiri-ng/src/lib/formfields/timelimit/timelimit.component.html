@@ -1,0 +1,62 @@
+<div class="timelimit" [formGroup]="parts">
+
+	<mat-checkbox id="check" formControlName="check" (change)="changed()">{{ _texts.check }}</mat-checkbox>
+
+	<div [hidden]="!parts.value.check" class="space">
+		<div class="xrow xsmall">
+			<div class="xcol-12">
+				<mat-label>{{ _texts.weekdays }}</mat-label>
+				<div class="form-group timelimit-weekdays">
+					<mat-checkbox id="wd0" formControlName="wd0" class="wd" (change)="changed()">{{ _texts.wd0 }}</mat-checkbox>
+					<mat-checkbox id="wd1" formControlName="wd1" class="wd" (change)="changed()">{{ _texts.wd1 }}</mat-checkbox>
+					<mat-checkbox id="wd2" formControlName="wd2" class="wd" (change)="changed()">{{ _texts.wd2 }}</mat-checkbox>
+					<mat-checkbox id="wd3" formControlName="wd3" class="wd" (change)="changed()">{{ _texts.wd3 }}</mat-checkbox>
+					<mat-checkbox id="wd4" formControlName="wd4" class="wd" (change)="changed()">{{ _texts.wd4 }}</mat-checkbox>
+					<mat-checkbox id="wd5" formControlName="wd5" class="wd" (change)="changed()">{{ _texts.wd5 }}</mat-checkbox>
+					<mat-checkbox id="wd6" formControlName="wd6" class="wd" (change)="changed()">{{ _texts.wd6 }}</mat-checkbox>
+				</div>
+			</div>
+			<div class="xcol-md-6">
+				<mat-label>{{ _texts.from }}</mat-label>
+				<div class="form-group">
+					<mat-form-field class="time">
+						<mat-select formControlName="fromhour" panelWidth="auto">
+							@for (h of hours; track h; let i = $index) {
+								<mat-option [value]="i">{{ h }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field class="time">
+						<mat-select formControlName="frommin" panelWidth="auto">
+							@for (m of minutes | keyvalue:onCompare; track m; let i = $index) {
+								<mat-option [value]="i">{{ m.value }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
+			</div>
+			<div class="xcol-md-6">
+				<mat-label>{{ _texts.to }}</mat-label>
+				<div class="form-group">
+					<mat-form-field class="time">
+						<mat-select formControlName="tohour" panelWidth="auto">
+							@for (h of hours; track h; let i = $index) {
+								<mat-option [value]="i">{{ h }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field class="time">
+						<mat-select formControlName="tomin" panelWidth="auto">
+							@for (m of minutes | keyvalue; track m; let i = $index) {
+								<mat-option [value]="i">{{ m.value }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
+			</div>
+			<div class="xcol-12">
+				<mat-checkbox id="inout" formControlName="inout" (change)="changed()">{{ _texts.inout }}</mat-checkbox>
+			</div>
+		</div>
+	</div>
+</div>

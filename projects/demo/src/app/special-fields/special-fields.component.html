@@ -1,0 +1,88 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- File Upload -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionFileUpload">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="fileForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Volume -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionVolume">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="volumeForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Timelimit -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTimelimit">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="timelimitForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Question -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionQuestion">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="questionForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Waiting -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionWaiting">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="waitingForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Chips / Tags -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionChips">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="chipsForm"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

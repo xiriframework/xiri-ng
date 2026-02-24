@@ -1,0 +1,235 @@
+
+mat-card.xiritablecard {
+	padding:       0;
+	margin-bottom: 2rem;
+}
+
+.xiritable {
+	width:    100%;
+	overflow: auto;
+
+	&.canbreak {
+		word-break: break-all;
+	}
+
+	.table-full {
+		display: inline-block;
+		width:   100%;
+
+		.tableout {
+			max-height: 60vh;
+			overflow-y: auto;
+			width:      100%;
+			min-width:  100%;
+			max-width:  100%;
+		}
+
+		.alert {
+			padding: 1rem;
+		}
+
+		mat-paginator {
+			--mat-paginator-container-background-color: transparent;
+			--mat-paginator-container-size:             51px;
+
+			--mat-form-field-container-height:           32px;
+			--mat-form-field-container-vertical-padding: 4px;
+		}
+
+		.bottomrow {
+			border-top: 1px solid var(--outline-variant, #C2C7CF);
+		}
+
+		div.bottomrow {
+			background-color:          var(--surface-container, #F3F3F6);
+			border-bottom-left-radius:  var(--mat-card-elevated-container-shape, 12px);
+			border-bottom-right-radius: var(--mat-card-elevated-container-shape, 12px);
+		}
+	}
+
+	.header {
+		background-color: var(--surface-container, #F3F3F6);
+		display:          flex;
+		justify-content:  space-between;
+		align-items:      center;
+		flex-wrap:        wrap;
+
+		min-height:       51px;
+		padding:          0 16px;
+		border-bottom:         1px solid var(--outline-variant, #C2C7CF);
+		border-top-left-radius:  var(--mat-card-elevated-container-shape, 12px);
+		border-top-right-radius: var(--mat-card-elevated-container-shape, 12px);
+
+		.buttons {
+			padding:     0 7px 0 0.5rem;
+			margin-left: -16px;
+
+			button {
+				z-index: 200;
+			}
+
+			&.saveInput {
+				padding-left: 21px;
+			}
+		}
+
+		.middle {
+			flex-grow: 1;
+			font-size: var(--xiri-font-size-title);
+			display:   flex;
+			padding:   0;
+		}
+
+		xiri-buttonline {
+			padding: 0 0 0 16px;
+		}
+	}
+
+	table {
+		width: 100%;
+		--mat-table-header-container-height: 42px;
+		--mat-table-footer-container-height: 42px;
+		--mat-table-row-item-container-height: 42px;
+
+		th.mat-mdc-header-cell:not(:first-of-type),
+		td.mat-mdc-cell:not(:first-of-type),
+		td.mat-mdc-footer-cell:not(:first-of-type) {
+			padding-left: 5px;
+		}
+
+		th.mat-mdc-header-cell:not(:last-of-type),
+		td.mat-mdc-cell:not(:last-of-type),
+		td.mat-mdc-footer-cell:not(:last-of-type) {
+			padding-right: 7px;
+		}
+
+		tr.mat-mdc-header-row {
+			&.dense {
+				height: 28px;
+			}
+		}
+
+		tr.mat-mdc-row:hover {
+			background: var(--surface-variant, #DEE3EB);
+		}
+
+		.tablelink {
+			text-decoration: underline;
+		}
+
+		td.buttons {
+			xiri-button, xiri-buttonstyle, .btnicon {
+				margin-right: 8px;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+		}
+
+		td, th {
+			&.right, &.align-right {
+				text-align: right;
+			}
+
+			&.center, &.align-center {
+				text-align: center;
+			}
+
+			&.left, &.align-left {
+				text-align: left;
+			}
+
+			&.vertical {
+				writing-mode:     sideways-rl;
+				text-orientation: sideways;
+
+				div {
+					max-height: 6rem;
+				}
+			}
+
+			&.sideways {
+				writing-mode:     sideways-lr;
+				text-orientation: sideways;
+
+				div {
+					max-height: 6rem;
+				}
+			}
+
+			&.upright {
+				writing-mode:     vertical-rl;
+				text-orientation: upright;
+			}
+		}
+
+		&.borders {
+			td + td {
+				border-left: 1px solid var(--outline-variant, #C2C7CF);
+			}
+		}
+
+		&.bordersHeader {
+			th + th {
+				border-left: 1px solid var(--outline-variant, #C2C7CF);
+			}
+		}
+
+		/* Compact form fields in table cells */
+		td.mat-mdc-cell {
+			mat-form-field {
+				--mat-form-field-container-height: 40px;
+				--mat-form-field-container-vertical-padding: 8px;
+			}
+		}
+	}
+
+	.mat-column-select {
+		overflow: initial;
+	}
+
+	.select-buttons {
+		padding:     0.3rem 0.8rem;
+		display:     flex;
+		align-items: center;
+
+		button {
+			margin-right: 0.5rem;
+		}
+	}
+
+	.nodata {
+		padding:          0.5rem 1.5rem;
+		font-size:        var(--xiri-font-size-label);
+		background-color: var(--surface, #FFFFFF);
+		animation:        fadeInUp 0.25s ease-out;
+	}
+
+	@keyframes fadeInUp {
+		from { opacity: 0; transform: translateY(8px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+
+	.loader {
+		position:         absolute;
+		top:              0;
+		left:             0;
+		width:            100%;
+		bottom:           0;
+		padding:          1rem;
+
+		background-color: var(--ripple, rgba(206, 212, 218, 0.5));
+		z-index:          200;
+
+		border-radius: var(--mat-card-elevated-container-shape, 12px);
+	}
+}
+
+xiri-dyncomponent {
+	margin-bottom: 2rem;
+}
+
+[hidden] {
+	display: none !important;
+}

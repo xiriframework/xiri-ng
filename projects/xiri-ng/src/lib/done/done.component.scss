@@ -1,0 +1,26 @@
+@keyframes bounceIn {
+	0% {
+		transform: scale(0.2);
+		opacity: 0;
+	}
+	70% {
+		transform: scale(1.4);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+:host {
+	margin: 1em;
+	min-height: 60px;
+}
+
+mat-icon {
+	color:     var(--color-success, #2ECC71);
+	font-size: 4rem;
+	height:    auto;
+	width:     auto;
+	animation: bounceIn 400ms 100ms cubic-bezier(.8, -0.6, 0.2, 1.5) both;
+}

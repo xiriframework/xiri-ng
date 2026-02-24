@@ -1,0 +1,49 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Field Types -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionFieldTypes">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="data"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Collapsible Sections & Dividers -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSections">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="sectionsData"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Conditional Fields -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionConditional">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form [settings]="conditionalData"></xiri-form>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

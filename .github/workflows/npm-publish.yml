@@ -1,0 +1,70 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger on tags starting with 'v' (e.g., v0.2.1)
+
+# Permissions needed for OIDC authentication
+permissions:
+  id-token: write  # Required for OIDC trusted publishing to npm
+  contents: read   # Required to read repository contents
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Use npm 11.5.1+ for OIDC support
+      - name: Update npm to latest version
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      # Extract version from the git tag
+      - name: Get version from tag
+        id: get-version
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG_NAME#v}"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Publishing version: $VERSION (from tag: $TAG_NAME)"
+
+      # Publish to npm
+      - name: Publish to npm
+        working-directory: ./dist/xiri-ng
+        run: npm publish --provenance --access public
+        env:
+          # OIDC authentication (preferred) - no token needed if configured on npmjs.com
+          # Falls back to NODE_AUTH_TOKEN if OIDC is not configured
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Create summary
+      - name: Summary
+        run: |
+          echo "## 🚀 Successfully published!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** @xiriframework/xiri-ng" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.get-version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ steps.get-version.outputs.TAG_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View on npm](https://www.npmjs.com/package/@xiriframework/xiri-ng)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "npm install @xiriframework/xiri-ng@${{ steps.get-version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,13 @@
+.stat-grid-title {
+	font-size: var(--xiri-font-size-title);
+	font-weight: 500;
+	margin: 0 0 var(--xiri-spacing-md);
+}
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(var(--stat-cols, 4), 1fr);
+	gap: var(--xiri-spacing-md);
+
+	@media (max-width: 992px) { grid-template-columns: repeat(2, 1fr); }
+	@media (max-width: 576px) { grid-template-columns: 1fr; }
+}

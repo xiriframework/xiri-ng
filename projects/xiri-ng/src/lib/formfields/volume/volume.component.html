@@ -1,0 +1,15 @@
+<mat-form-field [formGroup]="parts" floatLabel="auto">
+	<mat-label>{{ field.name }}</mat-label>
+	<div role="group" [formGroup]="parts">
+		<input matInput id="voll" formControlName="voll" type="number" [attr.min]="min" [attr.max]="max" [required]="required">
+		<input matInput id="volw" formControlName="volw" type="number" [attr.min]="min" [attr.max]="max" [required]="required">
+		<input matInput id="volh" formControlName="volh" type="number" [attr.min]="min" [attr.max]="max" [required]="required">
+	</div>
+
+	@if (field.hint) {
+		<mat-hint>{{ field.hint }}</mat-hint>
+	}
+	@if (parts.invalid) {
+		<mat-error>{{ getErrorMessage() }}</mat-error>
+	}
+</mat-form-field>

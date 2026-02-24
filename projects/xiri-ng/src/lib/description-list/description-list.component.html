@@ -1,0 +1,18 @@
+<dl class="description-list" [class]="layoutClass()" [style.--dl-cols]="settings().columns || 2">
+	@for (item of settings().items; track $index) {
+		<div class="dl-item">
+			<dt>
+				@if (item.icon) { <mat-icon [class]="item.color || ''">{{ item.icon }}</mat-icon> }
+				{{ item.label }}
+			</dt>
+			<dd>
+				@switch (item.type) {
+					@case ('link') { <a [href]="item.value" target="_blank" rel="noopener">{{ item.value }}</a> }
+					@case ('html') { <span [innerHTML]="item.value | safeHtml"></span> }
+					@case ('badge') { <span class="dl-badge" [class]="item.color || 'primary'">{{ item.value }}</span> }
+					@default { {{ item.value || '\u2014' }} }
+				}
+			</dd>
+		</div>
+	}
+</dl>

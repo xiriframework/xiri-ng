@@ -1,0 +1,19 @@
+<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+	<mat-card-header class="align-items-center">
+		@if (settings().headerIcon) {
+			<div mat-card-avatar class="header-image">
+				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+			</div>
+		}
+		@if (settings().header) {
+			<mat-card-title>{{ settings().header }}</mat-card-title>
+		}
+		@if (settings().headerSub) {
+			<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
+		}
+	</mat-card-header>
+	<mat-card-content>
+		<mat-spinner [hidden]="!loading()" diameter="30"></mat-spinner>
+		<img [hidden]="loading()" (load)="loading.set(false)" [src]="settings().url" [alt]="settings().info" id="ximg"/>
+	</mat-card-content>
+</mat-card>

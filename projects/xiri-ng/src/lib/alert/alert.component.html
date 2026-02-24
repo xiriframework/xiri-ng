@@ -1,0 +1,27 @@
+@if (!loading()) {
+	<h1 mat-dialog-title>{{ header() }}</h1>
+}
+<mat-dialog-content>
+	@if (loading()) {
+		<mat-spinner diameter="30"></mat-spinner>
+	} @else {
+		<div class="content">
+			<div class="icon">
+				<mat-icon class="warn" inline="true">{{ icon() }}</mat-icon>
+			</div>
+			<div class="text" [innerHtml]="text() | safeHtml"></div>
+		</div>
+	}
+</mat-dialog-content>
+@if (!loading()) {
+	<mat-divider></mat-divider>
+	<mat-dialog-actions>
+		@for (button of buttons(); track button) {
+			@if (button.default) {
+				<xiri-buttonstyle [button]="button" [disabled]="false" (click)="clickButton( button )"></xiri-buttonstyle>
+			} @else {
+				<xiri-buttonstyle [button]="button" [disabled]="false" (click)="clickButton( button )"></xiri-buttonstyle>
+			}
+		}
+	</mat-dialog-actions>
+}

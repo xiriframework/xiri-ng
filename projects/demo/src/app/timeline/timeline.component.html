@@ -1,0 +1,49 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Activity Log -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionActivityLog">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-timeline [settings]="activityTimeline"></xiri-timeline>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Order Status -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionOrderStatus">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-timeline [settings]="statusTimeline"></xiri-timeline>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Simple Steps -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSimpleSteps">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-timeline [settings]="simpleTimeline"></xiri-timeline>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

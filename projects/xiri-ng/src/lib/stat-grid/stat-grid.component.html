@@ -1,0 +1,8 @@
+@if (settings().title) {
+	<h3 class="stat-grid-title">{{ settings().title }}</h3>
+}
+<div class="stat-grid" [style.--stat-cols]="settings().columns || 4">
+	@for (stat of settings().stats; track $index) {
+		<xiri-stat [settings]="stat"></xiri-stat>
+	}
+</div>

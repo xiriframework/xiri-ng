@@ -1,0 +1,35 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Standalone -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionStandalone">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-empty-state [settings]="basicEmpty"></xiri-empty-state>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-empty-state [settings]="withButton"></xiri-empty-state>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table Integration -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTableIntegration">
+				<xiri-table [settings]="tableSettings"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

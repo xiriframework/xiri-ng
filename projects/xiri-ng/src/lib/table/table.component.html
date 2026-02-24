@@ -1,0 +1,292 @@
+<mat-card class="xiritablecard mat-mdc-elevation-specific mat-elevation-z3">
+	<div class="xiritable" [class]="options.class">
+		<div class="table-full">
+			<div class="header">
+				@if (options.reload) {
+					<div class="buttons">
+						<button mat-icon-button (click)="reload()" color="primary" aria-label="Tabelle neu laden">
+							<mat-icon>autorenew</mat-icon>
+						</button>
+					</div>
+				}
+				<div class="middle" [class.hasButtons]="options.buttons">{{ options.title }}</div>
+				@if (options.buttons) {
+					<xiri-buttonline [settings]="options.buttons" (result)="buttonReturn($event)"
+					                 [filterData]="_filterData()"></xiri-buttonline>
+				}
+				@if (options.search) {
+					<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchText"></xiri-search>
+				}
+				@if (options.saveInput) {
+					<div class="buttons saveInput">
+						<button mat-raised-button (click)="saveInputData()" color="primary">
+							{{ options.saveInput }}
+						</button>
+					</div>
+				}
+			</div>
+			<div class="tableout" [style.max-height]="options.scrollHeight || null">
+				<table mat-table [dataSource]="dataSource" matSort [style.min-width]="options.minWidth ?? '100%'"
+				       [class.borders]="options.borders" [class.bordersHeader]="options.bordersHeader">
+
+					@for (column of displayedColumns; track column.id) {
+						<ng-container [matColumnDef]="column.id" [sticky]="column.sticky">
+							<th mat-header-cell *matHeaderCellDef mat-sort-header="{{ column.id }}" [disabled]="!column.sort || !options.sort" disableClear
+							    [style.width]="column.width" [style.min-width]="column.minWidth"
+							    [class]="column.display + ' ' + (column.header || '')"> {{ column.name }}
+							</th>
+							@switch (column.format) {
+								@case ('buttons') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										@for (button of column.buttons; track button; let i = $index) {
+											@if (row[column.id][i] != false) {
+												@switch (button.action) {
+													@case ('link') {
+														<xiri-button [button]="button" [disabled]="false" [url]="row[column.id][ i ]"></xiri-button>
+													}
+													@case ('href') {
+														<xiri-button [button]="button" [disabled]="false" [url]="row[column.id][ i ]"></xiri-button>
+													}
+													@case ('download') {
+														<xiri-button [button]="button" [disabled]="false" [url]="row[column.id][ i ]"></xiri-button>
+													}
+													@case ('dialog') {
+														<xiri-buttonstyle [button]="button" [disabled]="false"
+														                  (click)="openDialog( $event, button, column.id, i, row)"></xiri-buttonstyle>
+													}
+													@case ('api') {
+														<xiri-buttonstyle [button]="button" [disabled]="false"
+														                  (click)="apiCall( $event, row[column.id][ i ] )"></xiri-buttonstyle>
+													}
+													@case ('save') {
+														<xiri-buttonstyle [button]="button" (click)="saveCall( $event, button, row, row[column.id][ i ] )"
+														                  [disabled]="!saveCallCheck( button, row )"></xiri-buttonstyle>
+													}
+													@case ('icon') {
+														<mat-icon class="btnicon" [class]="button.color || 'primary'" [matTooltip]="button.hint"
+														          [matTooltipDisabled]="!button.hint">{{ button.icon }}
+														</mat-icon>
+													}
+													@case ('menu') {
+														<button mat-icon-button [matMenuTriggerFor]="menuRef"
+														        [class]="button.color || 'primary'"
+														        [matTooltip]="button.hint"
+														        [matTooltipDisabled]="!button.hint"
+														        (click)="$event.stopPropagation()">
+															<mat-icon>{{ button.icon }}</mat-icon>
+														</button>
+														<mat-menu #menuRef="matMenu">
+															@for (item of button.menuItems; track item; let j = $index) {
+																@if (row[column.id][i][j] !== false) {
+																	@switch (item.action) {
+																		@case ('link') {
+																			<a mat-menu-item [routerLink]="row[column.id][i][j]">
+																				@if (item.icon) {
+																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+																				}
+																				<span>{{ item.text }}</span>
+																			</a>
+																		}
+																		@case ('href') {
+																			<a mat-menu-item [href]="row[column.id][i][j]" target="_blank">
+																				@if (item.icon) {
+																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+																				}
+																				<span>{{ item.text }}</span>
+																			</a>
+																		}
+																		@case ('dialog') {
+																			<button mat-menu-item (click)="openMenuDialog($event, item, column.id, i, j, row)">
+																				@if (item.icon) {
+																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+																				}
+																				<span>{{ item.text }}</span>
+																			</button>
+																		}
+																	}
+																}
+															}
+														</mat-menu>
+													}
+												}
+											}
+										}
+									</td>
+								}
+								@case ('icon') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										@if (column.icons[ row[ column.id ] ]) {
+											<mat-icon [class]="column.icons[ row[ column.id ] ][ 'color' ] || 'primary'"
+											          [matTooltip]="column.icons[ row[ column.id ] ][ 'hint' ] "
+											          [matTooltipDisabled]="!column.icons[ row[ column.id ] ][ 'hint' ]">{{ column.icons[row[column.id]]['icon'] }}
+											</mat-icon>
+										}
+									</td>
+								}
+								@case ('html') {
+									<td mat-cell *matCellDef="let row" [innerHtml]="row[column.id] | safeHtml" [class]="column.display"></td>
+								}
+								@case ('link') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										@if (row[column.id + 'Link']) {
+											<a [routerLink]="row[column.id + 'Link']" class="tablelink">{{ row[column.id] }}</a>
+										} @else {
+											<span>{{ row[column.id] }}</span>
+										}
+									</td>
+								}
+								@case ('input') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										<mat-form-field subscriptSizing="dynamic">
+											<input matInput
+											       [type]="column.inputType"
+											       [(ngModel)]="row[ column.id ]"
+											       [lang]="column.inputLang || ''"
+											       [required]="column.inputRequired || true"
+											       (paste)="pasteInput( $event, row, column )">
+										</mat-form-field>
+									</td>
+								}
+								@case ('text2') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										<div>{{ row[column.id][0] }}</div>
+										<div>{{ row[column.id][1] }}</div>
+									</td>
+								}
+								@case ('number') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										{{ column.textPrefix }}{{ row[column.id][0] }}{{ column.textSuffix }}
+									</td>
+								}
+								@case ('chips') {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										<div class="xiri-chips-display">
+											@for (chip of row[column.id]; track chip.label) {
+												<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
+											}
+										</div>
+									</td>
+								}
+								@default {
+									<td mat-cell *matCellDef="let row" [class]="column.display">
+										{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
+									</td>
+								}
+							}
+
+							<td mat-footer-cell *matFooterCellDef [hidden]="!options.footer"
+							    [style.width]="column.width" [style.min-width]="column.minWidth" class="bottomrow"
+							    [class]="column.display">
+									@if ( footer[ column.id ] ) {
+										{{ column.textPrefix }}{{ footer[ column.id ] }}{{ column.textSuffix }}
+									}
+							</td>
+						</ng-container>
+					}
+					@if (options.select) {
+						<ng-container matColumnDef="select" [sticky]="true">
+							<th mat-header-cell *matHeaderCellDef [style.width]="'65px'">
+								<mat-checkbox (change)="$event ? masterToggle() : null"
+								              [checked]="selection.hasValue() && isAllSelected()"
+								              [indeterminate]="selection.hasValue() && !isAllSelected()">
+								</mat-checkbox>
+							</th>
+							<td mat-cell *matCellDef="let row">
+								@if (row.select !== false) {
+									<mat-checkbox
+											(click)="$event.stopPropagation()"
+											(change)="$event ? selection.toggle(row) : null"
+											[checked]="selection.isSelected(row)">
+									</mat-checkbox>
+								}
+							</td>
+							<td mat-footer-cell *matFooterCellDef [style.width]="'65px'" class="bottomrow" [hidden]="!options.footer">
+								<mat-checkbox (change)="$event ? masterToggle() : null"
+								              [checked]="selection.hasValue() && isAllSelected()"
+								              [indeterminate]="selection.hasValue() && !isAllSelected()">
+								</mat-checkbox>
+							</td>
+						</ng-container>
+					}
+
+					@if (extraHeaderFields.length > 0) {
+						@for (column of extraHeaderFields; track column.id) {
+							<ng-container matColumnDef="{{ column.id }}" [sticky]="column.sticky">
+								<th mat-header-cell *matHeaderCellDef [attr.colspan]="column.headerSpan">{{ column.name }}</th>
+							</ng-container>
+						}
+						<tr mat-header-row *matHeaderRowDef="extraHeaders; sticky: true" [class.dense]="options.dense"></tr>
+					}
+
+					<tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" [class.dense]="options.dense"></tr>
+					<tr mat-row *matRowDef="let row; columns: columnsToDisplay;" (click)="clicked(row)"></tr>
+					<tr mat-footer-row *matFooterRowDef="columnsToDisplay; sticky: true" [hidden]="!options.footer"></tr>
+				</table>
+			</div>
+
+			@if (!loading()) {
+				@if (!errorMsg && dataSource.filteredData.length === 0) {
+					@if (options.emptyState) {
+						<xiri-empty-state [settings]="options.emptyState"></xiri-empty-state>
+					} @else {
+						<div class="nodata">{{ options.textNoData }}</div>
+					}
+				} @else if (errorMsg) {
+					<div class="alert alert-danger">{{ errorMsg }}</div>
+				}
+			}
+
+			<div class="loader" [hidden]="!loading()">
+				<xiri-skeleton type="table-row" [lines]="5" [columns]="columnsToDisplay.length || 4"></xiri-skeleton>
+			</div>
+
+			<div class="xrow xsmall" [class.bottomrow]="(options.select || options.pagination) && !options.footer">
+				@if (options.select) {
+					<div class="xcol xcol-md-2 select-buttons">
+						@for (button of options.selectButtons; track button) {
+							@switch (button.action) {
+								@case ('dialog') {
+									<button mat-icon-button
+									        (click)="openDialogSelection( $event, button )"
+									        [disabled]="selection.isEmpty()"
+									        [color]="button.color || 'primary'"
+									        [matTooltip]="button.hint"
+									        [matTooltipDisabled]="!button.hint">
+										<mat-icon>{{ button.icon }}</mat-icon>
+									</button>
+								}
+								@case ('api') {
+									<button mat-icon-button
+									        (click)="apiCallSelection( $event, button )"
+									        [disabled]="selection.isEmpty()"
+									        [color]="button.color || 'primary'"
+									        [matTooltip]="button.hint"
+									        [matTooltipDisabled]="!button.hint">
+										<mat-icon>{{ button.icon }}</mat-icon>
+									</button>
+								}
+								@case ('download') {
+									<button mat-icon-button
+									        (click)="downloadSelection( $event, button )"
+									        [disabled]="selection.isEmpty()"
+									        [color]="button.color || 'primary'"
+									        [matTooltip]="button.hint"
+									        [matTooltipDisabled]="!button.hint">
+										<mat-icon>{{ button.icon }}</mat-icon>
+									</button>
+								}
+							}
+						}
+					</div>
+				}
+				<div class="xcol xcol-right-md-10">
+					<mat-paginator [hidden]="!options.pagination" [pageSizeOptions]="options.pageSizes" showFirstLastButtons="true"></mat-paginator>
+				</div>
+			</div>
+		</div>
+	</div>
+</mat-card>
+
+@if (dynData.data) {
+	<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: dynData }"></ng-container>
+}

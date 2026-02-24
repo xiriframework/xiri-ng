@@ -1,0 +1,12 @@
+<div class="search" [class.open]="show">
+	@if (show) {
+		<input type="text" name="input" class="input lens" autocomplete="off"
+		       [cdkTrapFocusAutoCapture]="show" [cdkTrapFocus]="show"
+		       [placeholder]="placeholder()"
+		       [class.open]="show"
+		       (keyup)="searchDo()" [value]="_text" [(ngModel)]="_text">
+	}
+	<button mat-icon-button color="primary" (click)="click()" [attr.aria-label]="show ? 'Suche schließen' : 'Suche öffnen'">
+		<mat-icon>{{ show ? 'close' : 'search' }}</mat-icon>
+	</button>
+</div>

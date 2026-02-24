@@ -1,0 +1,100 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- XiriInfopointComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionInfopoint">
+				<div class="xrow">
+					<div class="xcol-3">
+						<xiri-infopoint [settings]="infopoint"></xiri-infopoint>
+					</div>
+					<div class="xcol-3">
+						<xiri-infopoint [settings]="infopoint2"></xiri-infopoint>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriImagetextComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionImagetext">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-imagetext [settings]="imagetext1"></xiri-imagetext>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-imagetext [settings]="imagetext2"></xiri-imagetext>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriLinksComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionLinks">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-links [settings]="linksSettings"></xiri-links>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriListComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionList">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<mat-card class="mat-elevation-z2">
+							<xiri-list [settings]="listSettings"></xiri-list>
+						</mat-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- XiriCardlinkComponent -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCardlink">
+				<div class="xrow">
+					@for (card of cardlinks; track card.link) {
+						<div class="xcol-md-6 xcol-xl-3">
+							<xiri-cardlink [settings]="card"></xiri-cardlink>
+						</div>
+					}
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- SafehtmlPipe -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSafeHtml">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<mat-card class="mat-elevation-z2" style="padding: 16px;">
+							<div [innerHTML]="safeHtmlExample | safeHtml"></div>
+						</mat-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

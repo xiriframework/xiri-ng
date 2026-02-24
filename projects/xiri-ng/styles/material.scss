@@ -1,0 +1,125 @@
+@use '@angular/material' as mat;
+@use 'sass:map';
+@use 'sass:color';
+@use 'colors' as *;
+@use 'material-vars' as vars;
+@use 'material-components';
+@use 'accessibility';
+@use '@angular/material/core/tokens/m3-utils' as m3-utils;
+
+@include mat.elevation-classes();
+@include mat.app-background();
+
+// M3 Theme creation function
+// Creates a Material 3 theme from a primary palette
+@function create-theme($primary-palette, $tertiary-palette: null, $type: light, $density: -1) {
+	@return mat.define-theme((
+			color: (
+					theme-type: $type,
+					primary: $primary-palette,
+					tertiary: if(sass($tertiary-palette): $tertiary-palette; else: $primary-palette),
+			),
+			density: (
+					scale: $density,
+			),
+			typography: (
+					brand-family: 'Roboto',
+					plain-family: 'Roboto, sans-serif',
+					regular-weight: 400,
+					medium-weight: 500,
+					bold-weight: 700,
+			),
+	));
+}
+
+// Apply theme from pre-defined theme object
+@mixin theming($theme, $primary, $secondary, $tertiary: #9B8AAF, $error: #FF5449) {
+	@include mat.all-component-themes($theme);
+
+	$system: m3-utils.get-system($theme);
+
+	:root {
+		// Primary colors - use tone 60 (closer to original design color)
+		--primary:              #{$primary};
+		--on-primary:           #{map.get($system, on-primary)};
+		--primary-container:    #{map.get($system, primary-container)};
+		--on-primary-container: #{map.get($system, on-primary-container)};
+		--primary-light:        #FFFFFF;
+		--primary-dark:         #3A4857;
+
+		// Secondary colors - use tone 60
+		--secondary:            #{$secondary};
+		--on-secondary:         #{map.get($system, on-secondary)};
+
+		// Tertiary colors - use tone 60
+		--tertiary:             #{$tertiary};
+		--on-tertiary:          #{map.get($system, on-tertiary)};
+
+		// Error colors - use tone 60
+		--error:                #{$error};
+		--on-error:             #{map.get($system, on-error)};
+		--error-container:      #{map.get($system, error-container)};
+		--on-error-container:   #{map.get($system, on-error-container)};
+
+		// Surface colors (keep M3 system values)
+		--surface:              #{map.get($system, surface)};
+		--on-surface:           #{map.get($system, on-surface)};
+		--surface-variant:      #{map.get($system, surface-variant)};
+		--on-surface-variant:   #{map.get($system, on-surface-variant)};
+		--surface-dim:          #{map.get($system, surface-dim)};
+		--surface-bright:       #{map.get($system, surface-bright)};
+
+		// Background colors
+		--background:           #{map.get($system, background)};
+		--on-background:        #{map.get($system, on-background)};
+
+		// Outline colors
+		--outline:              #{map.get($system, outline)};
+		--outline-variant:      #{map.get($system, outline-variant)};
+
+		--ripple:               rgba(7, 55, 99, 0.12);
+
+		// Custom app vars not in M3
+		--color-primary:        var(--primary);
+		--color-secondary:      var(--secondary);
+		--color-warning:        var(--error);
+		--color-success:        #{$color-success};
+		--color-info:           #{$color-info};
+
+		// Gray Scale Variables
+		--color-gray-100:       #{$color-gray-100};
+		--color-gray-200:       #{$color-gray-200};
+		--color-gray-300:       #{$color-gray-300};
+		--color-gray-400:       #{$color-gray-400};
+		--color-gray-500:       #{$color-gray-500};
+		--color-gray-600:       #{$color-gray-600};
+		--color-gray-700:       #{$color-gray-700};
+		--color-gray-800:       #{$color-gray-800};
+		--color-gray-900:       #{$color-gray-900};
+	}
+}
+
+// ============================================
+// Apply Themes Mixin (main entry point)
+// ============================================
+@mixin apply-themes() {
+
+	// Link styling
+	a {
+		color:           var(--primary);
+		text-decoration: none;
+
+		&:hover {
+			color:           color.adjust(#2892D9, $lightness: -20%);
+			text-decoration: none;
+		}
+	}
+
+	a:not([href]):not([class]) {
+		&,
+		&:hover {
+			color:           inherit;
+			text-decoration: none;
+		}
+	}
+}

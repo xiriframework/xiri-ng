@@ -1,0 +1,54 @@
+// Gray scale (Bootstrap-compatible)
+$color-gray-100: #F8F9FA;
+$color-gray-200: #E9ECEF;
+$color-gray-300: #DEE2E6;
+$color-gray-400: #CED4DA;
+$color-gray-500: #ADB5BD;
+$color-gray-600: #6C757D;
+$color-gray-700: #495057;
+$color-gray-800: #343A40;
+$color-gray-900: #212529;
+
+// Semantic colors
+$color-danger:  #E74C3C;
+$color-success: #2ECC71;
+$color-info:    #17A2B8;
+
+// Extended color palette (for icons and buttons)
+$color-emerald:   #2892D9;
+$color-red:       #E74C3C;
+$color-yellow:    #F1C40F;
+$color-green:     #2ECC71;
+$color-blue:      #3498DB;
+$color-purple:    #9B59B6;
+$color-gray:      #95A5A6;
+$color-lightgray: #BDC3C7;
+$color-darkgray:  #7F8C8D;
+$color-orange:    #E67E22;
+
+// Color variants map: (name: (bg-color, text-color))
+$color-variants: (
+	'emerald':   ($color-emerald, white),
+	'red':       ($color-red, white),
+	'yellow':    ($color-yellow, black),
+	'green':     ($color-green, white),
+	'blue':      ($color-blue, white),
+	'purple':    ($color-purple, white),
+	'gray':      ($color-gray, white),
+	'lightgray': ($color-lightgray, black),
+	'darkgray':  ($color-darkgray, white),
+	'orange':    ($color-orange, white),
+	'white':     (white, black),
+	'black':     (black, white),
+);
+
+// Theme color variants (use CSS variables for theme switching)
+$theme-color-variants: (
+	'primary':   (var(--primary), var(--on-primary)),
+	'secondary': (var(--secondary), var(--on-secondary, white)),
+	'tertiary':  (var(--tertiary), var(--on-tertiary, white)),
+	'accent':    (var(--secondary), var(--on-secondary, white)),
+	'warn':      (var(--error), var(--on-error)),
+	'error':     (var(--error), var(--on-error)),
+	'success':   (var(--color-success), var(--on-success, white)),
+);

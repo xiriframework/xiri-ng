@@ -1,0 +1,49 @@
+@if (loading) {
+	<div class="loading">
+		<mat-spinner diameter="30"></mat-spinner>
+	</div>
+}
+
+@for (nav of fields; track nav) {
+
+	@if ( nav.link ) {
+		<a mat-list-item [routerLink]="nav.link" [class.active]="nav.active">
+			@if (nav.iconSet) {
+				<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+			} @else {
+				<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+			}
+			<span matListItemTitle>{{ nav.name }}</span>
+		</a>
+	} @else if (nav.menu) {
+		<mat-list-item (click)="nav.showSubmenu = !nav.showSubmenu" (keydown.enter)="nav.showSubmenu = !nav.showSubmenu" (keydown.space)="nav.showSubmenu = !nav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="nav.showSubmenu" class="parent">
+			@if (nav.iconSet) {
+				<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+			} @else {
+				<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+			}
+			<span matListItemTitle>{{ nav.name }}</span>
+			<span matListItemMeta>
+				<mat-icon class="menu-button" [class.rotated]="nav.showSubmenu">expand_more</mat-icon>
+			</span>
+		</mat-list-item>
+		<div class="submenu" [class.expanded]="nav.showSubmenu">
+			@for (subnav of nav.sub; track subnav) {
+				@if (subnav.link) {
+					<a mat-list-item [routerLink]="subnav.link" [class.active]="subnav.active">{{ subnav.name }}</a>
+				} @else if (subnav.extern) {
+					<a mat-list-item [href]="subnav.extern">{{ subnav.name }}</a>
+				}
+			}
+		</div>
+	} @else if (nav.extern) {
+		<a mat-list-item [href]="nav.extern">
+			@if (nav.iconSet) {
+				<mat-icon matListItemIcon [fontSet]="nav.iconSet" class="accent">{{ nav.icon }}</mat-icon>
+			} @else {
+				<mat-icon matListItemIcon class="accent">{{ nav.icon }}</mat-icon>
+			}
+			<span matListItemTitle>{{ nav.name }}</span>
+		</a>
+	}
+}

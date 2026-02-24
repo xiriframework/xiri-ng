@@ -1,0 +1,125 @@
+
+:host {
+	animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+.spinning {
+	animation: spin 1s linear infinite;
+}
+
+.card {
+	overflow: hidden;
+
+	mat-card-header {
+		margin:      0 0 2px 0;
+		box-shadow:  0 3px 2px -2px var(--outline-variant, #C2C7CF);
+		padding:     4px 8px 4px 16px;
+		align-items: center;
+		min-height:  32px;
+
+		.header-image {
+			margin-bottom: 0;
+			width:         var(--xiri-icon-size-lg);
+			height:        var(--xiri-icon-size-lg);
+			align-items:   center;
+			display:       flex;
+
+			mat-icon {
+				font-size: var(--xiri-icon-size-lg);
+				height:    var(--xiri-icon-size-lg);
+				width:     var(--xiri-icon-size-lg);
+				color:     var(--primary);
+			}
+		}
+
+		mat-card-title.hasHeaderSub {
+			padding-top: 2px;
+		}
+
+		mat-card-subtitle {
+			padding-bottom: 2px;
+		}
+
+		xiri-buttonline {
+			display:         flex;
+			justify-content: flex-end;
+			flex:            1;
+
+			::ng-deep button {
+				width:  32px;
+				height: 32px;
+				padding: 4px;
+
+				mat-icon {
+					font-size: var(--xiri-icon-size-md);
+					width:     var(--xiri-icon-size-md);
+					height:    var(--xiri-icon-size-md);
+				}
+			}
+		}
+	}
+
+	.reload-btn {
+		margin-left: auto;
+		width:  32px;
+		height: 32px;
+		padding: 4px;
+
+		mat-icon {
+			font-size: var(--xiri-icon-size-md);
+			width:     var(--xiri-icon-size-md);
+			height:    var(--xiri-icon-size-md);
+		}
+	}
+
+	mat-card-content {
+		padding: 0;
+
+		&.hasTable {
+			max-height: 50vh;
+			overflow-x: auto;
+		}
+
+		xiri-skeleton {
+			padding: 16px;
+		}
+
+		.load-error {
+			padding: 16px;
+			color: var(--error, #B3261E);
+		}
+	}
+
+	mat-card-actions {
+		padding:    4px 8px;
+		min-height: 32px;
+		border-top: 1px solid var(--outline-variant, rgba(0, 0, 0, 0.12));
+
+		xiri-buttonline {
+			::ng-deep button {
+				width:  32px;
+				height: 32px;
+				padding: 4px;
+
+				mat-icon {
+					font-size: var(--xiri-icon-size-md);
+					width:     var(--xiri-icon-size-md);
+					height:    var(--xiri-icon-size-md);
+				}
+			}
+		}
+	}
+
+
+}
+

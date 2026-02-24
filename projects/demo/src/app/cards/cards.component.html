@@ -1,0 +1,97 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- DynComponent Cards -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDynCards">
+				<xiri-dyncomponent [data]="data" class="xrow"></xiri-dyncomponent>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table Card -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTableCard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="card"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Card with Buttons -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCardButtons">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="card2"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Dense Card -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDenseCard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="card3"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Card with Icon Values -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionIconCard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="cardIcon"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Card with Menu Button -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionMenuCard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="card4"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Card with Chips Column -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionChipsCard">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="cardChips"></xiri-card>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

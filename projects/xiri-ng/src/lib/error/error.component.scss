@@ -1,0 +1,17 @@
+
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.error {
+	padding:          1rem;
+	margin:           1rem 0;
+
+	border:           1px solid transparent;
+	border-radius:    5px;
+
+	background-color: var(--error-container, #FFDAD6);
+	color:            var(--on-error-container, #410002);
+	animation:        fadeInUp 0.25s ease-out;
+}

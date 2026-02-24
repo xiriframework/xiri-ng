@@ -1,0 +1,34 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Stepper -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionStepper">
+				<p>Steps: Personal Info → Contact → Summary.</p>
+				<xiri-stepper [settings]="stepperSettings"></xiri-stepper>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Query + Tabs -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionQueryTabs">
+				<xiri-query [settings]="querySettings" (change)="filterChanged($event)"></xiri-query>
+				<xiri-tabs [settings]="tabsSettings" [filterData]="filterData()" [dyncomponent]="dynTemplate"></xiri-tabs>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
+
+<ng-template #dynTemplate let-obj>
+	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>
+</ng-template>

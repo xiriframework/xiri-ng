@@ -1,0 +1,337 @@
+<form class="xrow dynamic-form" [formGroup]="formGroup" [class]="display()">
+	@for (field of fields(); track field.id) {
+		@if (isFieldVisible(field)) {
+		@switch (field.type) {
+			@case ('text') {
+				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+					@if (field.name) {
+						<mat-label>{{ field.name }}</mat-label>
+					}
+					<input matInput
+					       [formControlName]="field.id"
+					       [type]="field.subtype"
+					       [placeholder]="field.name"
+					       [autocomplete]="field.name"
+					       [attr.minlength]="field.min"
+					       [attr.maxlength]="field.max"
+					       [required]="field.required">
+					@if (field.textPrefix) {
+						<span matTextPrefix="">{{ field.textPrefix }}</span>
+					}
+					@if (field.textSuffix) {
+						<span matTextSuffix="">{{ field.textSuffix }}</span>
+					}
+					@if (field.iconPrefix) {
+						<mat-icon matPrefix>{{ field.iconPrefix }}</mat-icon>
+					}
+					@if (field.iconSuffix) {
+						<mat-icon matSuffix>{{ field.iconSuffix }}</mat-icon>
+					}
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id).value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (validation of field.validations; track validation) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(validation.id)) {
+								<mat-error>{{ validation.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('number') {
+				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+					@if (field.name) {
+						<mat-label>{{ field.name }}</mat-label>
+					}
+					<input matInput
+					       [formControlName]="field.id"
+					       [placeholder]="field.name || ''"
+					       [autocomplete]="field.name || field.id"
+					       [lang]="field.locale || ''"
+					       [type]="field.type"
+					       [attr.min]="field.min"
+					       [attr.max]="field.max"
+					       [required]="field.required">
+					@if (field.textPrefix) {
+						<span matTextPrefix="">{{ field.textPrefix }}</span>
+					}
+					@if (field.textSuffix) {
+						<span matTextSuffix="">{{ field.textSuffix }}</span>
+					}
+					@if (field.iconPrefix) {
+						<mat-icon matPrefix>{{ field.iconPrefix }}</mat-icon>
+					}
+					@if (field.iconSuffix) {
+						<mat-icon matSuffix>{{ field.iconSuffix }}</mat-icon>
+					}
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('password') {
+				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+					@if (field.name) {
+						<mat-label>{{ field.name }}</mat-label>
+					}
+					<input matInput
+					       [formControlName]="field.id"
+					       [type]="field.pwdhide ? 'password' : 'text'"
+					       [placeholder]="field.name"
+					       [autocomplete]="field.name"
+					       [attr.minlength]="field.min"
+					       [attr.maxlength]="field.max"
+					       [required]="field.required">
+					<button mat-icon-button matSuffix class="form-field-button" (click)="field.pwdhide = !field.pwdhide" [attr.aria-label]="'Hide password'"
+					        [attr.aria-pressed]="field.pwdhide">
+						<mat-icon>{{ field.pwdhide ? 'visibility_off' : 'visibility' }}</mat-icon>
+					</button>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id).value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (validation of field.validations; track validation) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(validation.id)) {
+								<mat-error>{{ validation.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('select') {
+				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+					<mat-label>{{ field.name }}</mat-label>
+					@if (field.search === false) {
+						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="field.required" panelClass="selectPanel">
+							@for (x of field.list; track x.id) {
+								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
+							}
+						</mat-select>
+					} @else {
+						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="field.required" panelClass="selectPanel">
+							<mat-option>
+								<ngx-mat-select-search [formControl]="xiriSelect.formControl" xiriSelect #xiriSelect="xiriSelect"
+								                       [values]="field.list" [searching]="xiriSelect.searching"
+								                       [serverSideSearch]="field.serverSideSearch" [serverUrl]="field.url"
+								                       [serverParams]="field.params"></ngx-mat-select-search>
+							</mat-option>
+							@for (x of xiriSelect.filter | async; track x.id) {
+								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
+							}
+						</mat-select>
+					}
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('treeselect') {
+				<div class="treeselect" [class]="field.class" [hidden]="field.hide">
+					<xiri-treeselect [field]="field" [formControlName]="field.id"
+					                 [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid"></xiri-treeselect>
+					<div class="xhint" [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid">
+						@if (field.hint) {
+							<mat-hint>{{ field.hint }}</mat-hint>
+						}
+						@if (field.max) {
+							<mat-hint align="end">{{ formGroup.get(field.id).value?.length || 0 }} / {{ field.max }}</mat-hint>
+						}
+						@for (vali of field.validations; track vali) {
+							<ng-container ngProjectAs="mat-error">
+								@if (formGroup.get(field.id).touched && formGroup.get(field.id).hasError(vali.id)) {
+									<mat-error>{{ vali.message }}</mat-error>
+								}
+							</ng-container>
+						}
+					</div>
+				</div>
+			}
+			@case ('date') {
+				<mat-form-field [formGroup]="formGroup" class="date" [class]="field.class" [hidden]="field.hide">
+					<mat-label>{{ field.name }}</mat-label>
+					<xiri-date [field]="field" [formControlName]="field.id"></xiri-date>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('daterange') {
+				<mat-form-field [formGroup]="formGroup" class="daterange" [class]="field.class" [hidden]="field.hide">
+					<mat-label>{{ field.name }}</mat-label>
+					<xiri-date-range [field]="field" [formControlName]="field.id"></xiri-date-range>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('datetimerange') {
+				<mat-form-field [formGroup]="formGroup" class="datetimerange" [class]="field.class" [hidden]="field.hide">
+					<mat-label>{{ field.name }}</mat-label>
+					<xiri-date-time-range [field]="field" [formControlName]="field.id"></xiri-date-time-range>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('bool') {
+				<div class="bool" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+					<mat-checkbox [formControlName]="field.id">{{ field.name }}</mat-checkbox>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</div>
+			}
+			@case ('volume') {
+				<div [class]="field.class" [hidden]="field.hide">
+					<xiri-volume [field]="field" [formControlName]="field.id"></xiri-volume>
+				</div>
+			}
+			@case ('timelimit') {
+				<div [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+					<xiri-timelimit matInput [formControlName]="field.id" [required]="field.required" [texts]="field.texts"></xiri-timelimit>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</div>
+			}
+			@case ('textarea') {
+				<mat-form-field [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+					@if (field.name) {
+						<mat-label>{{ field.name }}</mat-label>
+					}
+					<textarea matInput [formControlName]="field.id" [placeholder]="field.name" [required]="field.required" [rows]="field.rows || 5"></textarea>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (validation of field.validations; track validation) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id).hasError(validation.id)) {
+								<mat-error>{{ validation.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
+			@case ('file') {
+				<div [class]="field.class" [hidden]="field.hide">
+					<xiri-file [field]="field" [formControlName]="field.id"></xiri-file>
+				</div>
+			}
+			@case ('info') {
+				<div class="info" [class]="field.class">{{ field.value }}</div>
+			}
+			@case ('header') {
+				@if (field.collapsible) {
+					<div class="header collapsible" [class]="field.class" role="button" tabindex="0"
+					     [attr.aria-expanded]="!field.collapsed"
+					     (click)="toggleSection(field)" (keydown.enter)="toggleSection(field)" (keydown.space)="toggleSection(field); $event.preventDefault()">
+						<mat-icon class="collapse-icon" [class.collapsed]="field.collapsed">expand_more</mat-icon>
+						{{ field.value }}
+					</div>
+				} @else {
+					<div class="header" [class]="field.class">{{ field.value }}</div>
+				}
+			}
+			@case ('divider') {
+				<div class="divider" [class]="field.class">
+					@if (field.value) {
+						<span class="divider-text">{{ field.value }}</span>
+					}
+				</div>
+			}
+			@case ('html') {
+				<div class="html" [class]="field.class" [innerHtml]="field.value | safeHtml"></div>
+			}
+			@case ('question') {
+				<div class="xcol question" [class]="field.class" [hidden]="field.hide">
+					<div class="left">
+						<mat-icon [class]="field.iconColor || 'warn'" inline="true">{{ field.icon }}</mat-icon>
+					</div>
+					<div class="right">{{ field.value }}</div>
+				</div>
+			}
+			@case ('waiting') {
+				<div class="xcol waiting" [class]="field.class" [hidden]="field.hide">
+					<div class="left">
+						@if (!field.done) {
+							<mat-spinner diameter="40"></mat-spinner>
+						}
+						@if (field.done) {
+							<mat-icon inline="true">done</mat-icon>
+						}
+					</div>
+					<div class="right">{{ field.value }}</div>
+				</div>
+			}
+			@case ('chips') {
+				<div [class]="field.class" [hidden]="field.hide">
+					<xiri-chips [field]="field" [formControlName]="field.id"></xiri-chips>
+				</div>
+			}
+			@default {
+				<div>default: {{ field.type }}</div>
+			}
+		}
+		}
+	}
+</form>
+

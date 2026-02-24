@@ -1,0 +1,18 @@
+<div class="page-header">
+	<div class="page-header-content">
+		@if (settings().icon) {
+			<div class="page-header-icon" [class]="settings().iconColor || 'primary'">
+				<mat-icon>{{ settings().icon }}</mat-icon>
+			</div>
+		}
+		<div class="page-header-text">
+			<h1>{{ settings().title }}</h1>
+			@if (settings().subtitle) {
+				<p>{{ settings().subtitle }}</p>
+			}
+		</div>
+	</div>
+	@if (settings().buttons) {
+		<xiri-buttonline [settings]="settings().buttons!"></xiri-buttonline>
+	}
+</div>

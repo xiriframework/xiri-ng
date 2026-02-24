@@ -1,0 +1,47 @@
+import { OverviewComponent } from "./overview/overview.component";
+import { FormsComponent } from "./forms/forms.component";
+import { DatesComponent } from "./dates/dates.component";
+import { SelectsComponent } from "./selects/selects.component";
+import { SpecialFieldsComponent } from "./special-fields/special-fields.component";
+import { TablesComponent } from "./tables/tables.component";
+import { CardsComponent } from "./cards/cards.component";
+import { NavigationComponent } from "./navigation/navigation.component";
+import { FeedbackComponent } from "./feedback/feedback.component";
+import { SnackbarComponent } from "./snackbar/snackbar.component";
+import { SkeletonComponent } from "./skeleton/skeleton.component";
+import { EmptyStateComponent } from "./empty-state/empty-state.component";
+import { StatsComponent } from "./stats/stats.component";
+import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
+import { TimelineComponent } from "./timeline/timeline.component";
+import { DisplayComponent } from "./display/display.component";
+import { WorkflowComponent } from "./workflow/workflow.component";
+import { DynamicComponent } from "./dynamic/dynamic.component";
+import { ServicesComponent } from "./services/services.component";
+import { LayoutComponent } from "./layout/layout.component";
+import { DynpageComponent } from "./dynpage/dynpage.component";
+import { Routes } from "@angular/router";
+
+export const AppRoutes: Routes = [
+	{ path: '', redirectTo: 'Overview', pathMatch: 'full' },
+	{ path: 'Overview', component: OverviewComponent },
+	{ path: 'Forms', component: FormsComponent },
+	{ path: 'Dates', component: DatesComponent },
+	{ path: 'Selects', component: SelectsComponent },
+	{ path: 'SpecialFields', component: SpecialFieldsComponent },
+	{ path: 'Tables', component: TablesComponent },
+	{ path: 'Cards', component: CardsComponent },
+	{ path: 'Navigation', component: NavigationComponent },
+	{ path: 'Feedback', component: FeedbackComponent },
+	{ path: 'Snackbar', component: SnackbarComponent },
+	{ path: 'Skeleton', component: SkeletonComponent },
+	{ path: 'EmptyState', component: EmptyStateComponent },
+	{ path: 'Stats', component: StatsComponent },
+	{ path: 'Breadcrumb', component: BreadcrumbComponent },
+	{ path: 'Timeline', component: TimelineComponent },
+	{ path: 'Display', component: DisplayComponent },
+	{ path: 'Workflow', component: WorkflowComponent },
+	{ path: 'Dynamic', component: DynamicComponent },
+	{ path: 'Services', component: ServicesComponent },
+	{ path: 'Layout', component: LayoutComponent },
+
+	{ path: '**', component: DynpageComponent } ];

@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+@use "sass:map";
+
+// Fonts and icons
+$material-symbols-font-path: 'material-symbols/';
+@use 'material-symbols/outlined';
+@use "roboto";
+
+// M3 Theme definition
+@use "./m3-theme" as theme;
+
+// Library styles
+@use "../../../xiri-ng/styles/material" as xirimat;
+@use "../../../xiri-ng/styles/grid" as xirigrid;
+
+// Base styles
+html, body {
+	height:           100%;
+	margin:           0;
+	font-family:      'Roboto', sans-serif;
+	min-width:        350px;
+	background-color: var(--background);
+	color:            var(--on-surface);
+}
+
+// Grid system
+@include xirigrid.grid();

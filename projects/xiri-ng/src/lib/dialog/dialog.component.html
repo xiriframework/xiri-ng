@@ -1,0 +1,32 @@
+<div class="dialog">
+	<h1 mat-dialog-title>{{ header() }}</h1>
+	<mat-dialog-content>
+		@if (loading()) {
+			<mat-spinner diameter="30"></mat-spinner>
+		}
+		@if (formFields() !== null) {
+			@if (type() == 'table') {
+				<xiri-raw-table [settings]="rawTable"></xiri-raw-table>
+			} @else {
+				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [hidden]="loading()"
+				                  [check]="checkSubject.asObservable()"></xiri-form-fields>
+			}
+		}
+		@if (error()) {
+			<xiri-error class="error" [text]="error()"></xiri-error>
+		}
+		@if (done()) {
+			<div class="xcol done">
+				<xiri-done></xiri-done>
+			</div>
+		}
+	</mat-dialog-content>
+	@if (!loading() && !done()) {
+		<mat-divider></mat-divider>
+		<mat-dialog-actions [class.one]="buttons().length==1">
+			@for (button of buttons(); track $index) {
+				<xiri-buttonstyle [button]="button" (click)="clickButton( button )" [disabled]="button.default && !formValid()"></xiri-buttonstyle>
+			}
+		</mat-dialog-actions>
+	}
+</div>

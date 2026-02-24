@@ -1,0 +1,29 @@
+<div class="xrow">
+	<div class="xcol query">
+		<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
+		@if (error()) {
+			<div class="error">{{ error() }}</div>
+		}
+	</div>
+	@if (settings().buttonline) {
+		<div class="xcol formbtnline" [class]="settings().buttonline.display">
+			<xiri-buttonline [settings]="settings().buttonline.data" [filterData]="filterData()" [disabled]="!formValid()"
+			                 (result)="clickedButton($event)"></xiri-buttonline>
+		</div>
+		@if (loading()) {
+			<div class="xcol">
+				<mat-spinner diameter="30"></mat-spinner>
+			</div>
+		}
+	}
+	@if (dynData.data) {
+		<div class="xcol">
+			<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: dynData }"></ng-container>
+		</div>
+	}
+	@if (data()) {
+		<div class="xcol">
+			<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: data() }"></ng-container>
+		</div>
+	}
+</div>

@@ -1,0 +1,86 @@
+<div class="xcontainer-fluid">
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Text Lines -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTextLines">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-skeleton type="text" [lines]="1"></xiri-skeleton>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-skeleton type="text" [lines]="3"></xiri-skeleton>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Circle -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCircle">
+				<div class="xrow">
+					<div class="xcol-md-2">
+						<xiri-skeleton type="circle" width="48px"></xiri-skeleton>
+					</div>
+					<div class="xcol-md-2">
+						<xiri-skeleton type="circle" width="80px"></xiri-skeleton>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Rectangle -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionRect">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-skeleton type="rect" height="120px"></xiri-skeleton>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-skeleton type="rect" height="120px"></xiri-skeleton>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Table Rows -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTableRows">
+				<xiri-skeleton type="table-row" [lines]="5" [columns]="4"></xiri-skeleton>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Simulate Loading -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSimulate">
+				<button mat-raised-button color="primary" (click)="simulateLoad()">Simulate 2s Load</button>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						@if (!loaded()) {
+							<xiri-skeleton type="text" [lines]="4"></xiri-skeleton>
+						} @else {
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+								ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+						}
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

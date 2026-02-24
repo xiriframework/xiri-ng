@@ -1,0 +1,32 @@
+
+.time {
+	width: 5.5rem;
+	margin-left:  0.5rem;
+	margin-right: 0.5rem;
+}
+
+.timelimit-weekdays {
+
+	.wd + .wd {
+		margin-left: 1.2rem;
+	}
+}
+
+mat-label {
+	color: var(--on-surface-variant, rgba(0, 0, 0, 0.54));
+}
+
+.space {
+	margin-top: 1rem;
+	padding-left: 1rem;
+	padding-bottom: 1rem;
+	border-left: 1px solid var(--outline-variant, #C2C7CF);
+}
+
+.form-group {
+	padding-bottom: 7px;
+}
+
+[hidden] {
+	display: none !important;
+}

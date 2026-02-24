@@ -1,0 +1,22 @@
+<ng-container [formGroup]="parts">
+	<input matInput formControlName="date" class="date" [required]="required" [min]="minDate" [max]="maxDate" [matDatepicker]="picker">
+
+	@if (type == 'datetime') {
+		<mat-select formControlName="hour" class="time" [required]="required">
+			@for (h of hours; track h; let i = $index) {
+				<mat-option [value]="i">{{ h }}</mat-option>
+			}
+		</mat-select>
+		<span class="spacer">:</span>
+		<mat-select formControlName="minute" class="time" [required]="required">
+			@for (m of minutes; track m; let i = $index) {
+				<mat-option [value]="i">{{ m }}</mat-option>
+			}
+		</mat-select>
+	}
+
+	<mat-datepicker-toggle matIconSuffix [for]="picker">
+		<mat-icon matDatepickerToggleIcon>today</mat-icon>
+	</mat-datepicker-toggle>
+	<mat-datepicker #picker></mat-datepicker>
+</ng-container>

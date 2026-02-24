@@ -1,0 +1,27 @@
+<div class="timeline">
+	@for (item of settings().items; track $index; let last = $last) {
+		<div class="timeline-item" [class.last]="last">
+			<div class="timeline-marker">
+				<div class="timeline-dot" [class]="item.iconColor || 'primary'">
+					@if (item.icon) {
+						<mat-icon>{{ item.icon }}</mat-icon>
+					}
+				</div>
+				@if (!last) {
+					<div class="timeline-line"></div>
+				}
+			</div>
+			<div class="timeline-content">
+				<div class="timeline-header">
+					<span class="timeline-title">{{ item.title }}</span>
+					@if (item.datetime) {
+						<span class="timeline-datetime">{{ item.datetime }}</span>
+					}
+				</div>
+				@if (item.description) {
+					<div class="timeline-description">{{ item.description }}</div>
+				}
+			</div>
+		</div>
+	}
+</div>

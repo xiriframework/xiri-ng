@@ -1,0 +1,19 @@
+<div class="point" [class.isLink]="settings().url" [routerLink]="settings().url" [queryParams]="settings().urlParams">
+	<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+		<mat-card-content [class.dense]="settings().dense">
+			<div class="icon" [class]="settings().iconColor">
+				@if (settings().iconSet) {
+					<mat-icon [fontSet]="settings().iconSet">{{ settings().icon }}</mat-icon>
+				} @else {
+					<mat-icon>{{ settings().icon }}</mat-icon>
+				}
+			</div>
+			<div class="right">
+				@if (settings().text) {
+					<div class="text">{{ settings().text }}</div>
+				}
+				<div class="info">{{ settings().info }}</div>
+			</div>
+		</mat-card-content>
+	</mat-card>
+</div>

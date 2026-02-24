@@ -1,0 +1,211 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'colors' as *;
+
+// ============================================
+// Color Variant Mixins
+// ============================================
+
+// Button color variant - generates all button types for a color
+@mixin button-color-variant($name, $bg-color, $text-color) {
+	.mat-mdc-raised-button.mat-#{$name},
+	.mat-mdc-unelevated-button.mat-#{$name},
+	.mat-mdc-fab.mat-#{$name},
+	.mat-mdc-mini-fab.mat-#{$name} {
+		--mat-button-filled-container-color:     #{$bg-color};
+		--mat-button-filled-label-text-color:    #{$text-color};
+		--mat-button-protected-container-color:  #{$bg-color};
+		--mat-button-protected-label-text-color: #{$text-color};
+		--mat-fab-container-color:               #{$bg-color};
+		--mat-fab-foreground-color:              #{$text-color};
+		--mat-fab-state-layer-color:             #{$text-color};
+		--mat-fab-small-container-color:         #{$bg-color};
+		--mat-fab-small-foreground-color:        #{$text-color};
+		--mat-fab-small-state-layer-color:       #{$text-color};
+	}
+
+	.mat-mdc-outlined-button.mat-#{$name} {
+		--mat-button-outlined-label-text-color: #{$bg-color};
+		--mat-button-outlined-outline-color:    #{$bg-color};
+	}
+
+	.mat-mdc-icon-button.mat-#{$name} {
+		--mat-icon-button-state-layer-color: #{$bg-color};
+		--mat-icon-button-icon-color:        #{$bg-color};
+		color:                               #{$bg-color};
+		--mat-icon-button-background-color:  var(--xiri-icon-button-background-color, #{$color-gray-100});
+		background-color:                    var(--xiri-icon-button-background-color, #{$color-gray-100});
+		border-radius:                       50%;
+		box-shadow:                          var(--mat-app-elevation-shadow-level-2);
+	}
+}
+
+// Icon color variant - generates mat-icon class for a color
+@mixin icon-color-variant($name, $color) {
+	mat-icon.#{$name} {
+		color: #{$color};
+	}
+}
+
+// Badge color variant - generates mat-badge class for a color
+@mixin badge-color-variant($name, $bg-color, $text-color) {
+	.mat-badge-#{$name} {
+		--mat-badge-background-color: #{$bg-color};
+		--mat-badge-text-color:       #{$text-color};
+	}
+}
+
+// Progress bar color variant - M3 compatible (replaces [color] input)
+@mixin progress-color-variant($name, $color) {
+	mat-progress-bar.#{$name} {
+		--mat-progress-bar-active-indicator-color: #{$color};
+	}
+}
+
+// Chip color variant - form chips and display chips
+@mixin chip-color-variant($name, $bg-color, $text-color) {
+	mat-chip-row.chip-#{$name} {
+		--mdc-chip-elevated-container-color:                    #{$bg-color};
+		--mdc-chip-label-text-color:                            #{$text-color};
+		--mdc-chip-with-icon-icon-color:                        #{$text-color};
+		--mdc-chip-with-trailing-icon-trailing-icon-color:      #{$text-color};
+		--mat-chip-trailing-action-state-layer-color:           #{$text-color};
+	}
+
+	.xiri-chip-display.#{$name} {
+		background-color: #{$bg-color};
+		color:            #{$text-color};
+	}
+}
+
+// Infopoint icon color variant
+@mixin infopoint-color-variant($name, $bg-color, $text-color) {
+	xiri-infopoint .icon.#{$name} {
+		background-color: #{$bg-color};
+
+		mat-icon {
+			color: white;
+		}
+	}
+}
+
+// ============================================
+// Special Icon Classes (basic colors only)
+// ============================================
+mat-icon {
+	&.white {
+		--mat-icon-color: white;
+	}
+
+	&.black {
+		--mat-icon-color: black;
+	}
+
+	&.inherit {
+		--mat-icon-color: inherit;
+	}
+}
+
+// ============================================
+// M3 Icon Button Size Variants
+// Default M3 icon button is 40px at density -1
+// ============================================
+.mat-small-icon-button {
+	--mat-icon-button-state-layer-size:  28px;
+	--mat-icon-button-touch-target-size: 28px;
+	--mat-icon-button-icon-size:         18px;
+
+	.mat-icon {
+		font-size:   18px;
+		width:       18px;
+		height:      18px;
+		line-height: 1;
+	}
+}
+
+.mat-medium-icon-button {
+	--mat-icon-button-state-layer-size:  36px;
+	--mat-icon-button-touch-target-size: 36px;
+	--mat-icon-button-icon-size:         22px;
+
+	.mat-icon {
+		font-size:   22px;
+		width:       22px;
+		height:      22px;
+		line-height: 1;
+	}
+}
+
+// ============================================
+// Generate ALL Color Variants
+// Merge theme colors + extended colors into single loop
+// ============================================
+$all-color-variants: map.merge($theme-color-variants, $color-variants);
+
+@each $name, $colors in $all-color-variants {
+	$bg-color:   list.nth($colors, 1);
+	$text-color: list.nth($colors, 2);
+
+	@include button-color-variant($name, $bg-color, $text-color);
+	@include icon-color-variant($name, $bg-color);
+	@include badge-color-variant($name, $bg-color, $text-color);
+	@include progress-color-variant($name, $bg-color);
+	@include infopoint-color-variant($name, $bg-color, $text-color);
+	@include chip-color-variant($name, $bg-color, $text-color);
+
+	.#{$name} {
+		color: #{$bg-color};
+	}
+}
+
+// ============================================
+// Chip Display (in tables / card lists)
+// ============================================
+.xiri-chips-display {
+	display:   flex;
+	flex-wrap: wrap;
+	gap:       4px;
+	padding:   2px 0;
+}
+
+td.right .xiri-chips-display,
+td.align-right .xiri-chips-display {
+	justify-content: flex-end;
+}
+
+.xiri-chip-display {
+	display:          inline-block;
+	padding:          2px 8px;
+	border-radius:    12px;
+	font-size:        12px;
+	line-height:      1.6;
+	background-color: var(--surface-variant, #DEE3EB);
+	color:            var(--on-surface-variant, #42474E);
+}
+
+// ============================================
+// Snackbar Color Variants
+// ============================================
+.xiri-snackbar-success {
+	--mdc-snackbar-container-color: #{$color-success};
+	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-button-color: white;
+}
+
+.xiri-snackbar-error {
+	--mdc-snackbar-container-color: #{$color-red};
+	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-button-color: white;
+}
+
+.xiri-snackbar-info {
+	--mdc-snackbar-container-color: #{$color-info};
+	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-button-color: white;
+}
+
+.xiri-snackbar-warning {
+	--mdc-snackbar-container-color: #{$color-orange};
+	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-button-color: white;
+}

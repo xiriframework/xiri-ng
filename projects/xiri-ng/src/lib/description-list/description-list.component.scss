@@ -1,0 +1,39 @@
+.description-list {
+	display: grid;
+	grid-template-columns: repeat(var(--dl-cols, 2), 1fr);
+	gap: var(--xiri-spacing-md);
+	margin: 0;
+	padding: 0;
+
+	@media (max-width: 768px) { grid-template-columns: 1fr; }
+
+	.dl-item {
+		dt {
+			display: flex;
+			align-items: center;
+			gap: 0.25rem;
+			font-size: var(--xiri-font-size-label);
+			color: var(--on-surface-variant);
+			margin-bottom: 0.25rem;
+		}
+		dd {
+			font-size: var(--xiri-font-size-body);
+			color: var(--on-surface);
+			margin: 0;
+		}
+	}
+
+	&.horizontal .dl-item {
+		display: grid;
+		grid-template-columns: minmax(120px, auto) 1fr;
+		gap: var(--xiri-spacing-md);
+		dt { margin-bottom: 0; }
+	}
+
+	.dl-badge {
+		display: inline-block;
+		padding: 0.125rem 0.5rem;
+		border-radius: 4px;
+		font-size: var(--xiri-font-size-label);
+	}
+}

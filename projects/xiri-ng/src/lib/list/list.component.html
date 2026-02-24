@@ -1,0 +1,36 @@
+@for (section of settings().sections; track section) {
+	@if (section.name) {
+		<div mat-subheader>{{ section.name }}</div>
+	}
+	<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+		<mat-card-content>
+			<mat-nav-list>
+				@for (item of section.data; track item) {
+					<a mat-list-item [routerLink]="item.url" class="linelink">
+						<div matListItemIcon class="list-icon" [class]="item.iconColor">
+							@if (item.iconSet) {
+								<mat-icon [fontSet]="item.iconSet">{{ item.icon }}</mat-icon>
+							} @else {
+								<mat-icon>{{ item.icon }}</mat-icon>
+							}
+						</div>
+						<span matListItemTitle>{{ item.name }}</span>
+						<span matListItemLine>{{ item.info }}</span>
+						@if (item.hasFavorite) {
+							<div matListItemMeta class="list-fav">
+								<button mat-icon-button (click)="changeFavorite(item, $event)" [matTooltip]="item.favoriteHint">
+									@if (item.isFavorite) {
+										<mat-icon class="accent">star</mat-icon>
+									}
+									@if (!item.isFavorite) {
+										<mat-icon class="gray">star_outline</mat-icon>
+									}
+								</button>
+							</div>
+						}
+					</a>
+				}
+			</mat-nav-list>
+		</mat-card-content>
+	</mat-card>
+}

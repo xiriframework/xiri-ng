@@ -1,0 +1,49 @@
+
+mat-card.card {
+	padding: 20px;
+}
+
+mat-card-content {
+	padding: 0;
+}
+
+.header {
+	margin-top:      0;
+	margin-bottom:   12px;
+
+	display:         flex;
+	justify-content: space-between;
+
+	.title {
+		font-size:   var(--xiri-font-size-title);
+		font-weight: 500;
+	}
+}
+
+
+.item {
+	.line {
+		display:         flex;
+		justify-content: space-between;
+		padding-bottom:  0.3rem;
+
+		.text {
+			font-weight: 400;
+			word-break:  break-all;
+		}
+
+		.value {
+			font-size:    var(--xiri-font-size-label);
+			padding-left: 1rem;
+		}
+	}
+
+	.bar {
+		transform:        scaleY(1.5);
+		transform-origin: bottom;
+	}
+}
+
+.item + .item {
+	padding-top: 0.8rem;
+}

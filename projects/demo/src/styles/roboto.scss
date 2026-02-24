@@ -1,0 +1,11 @@
+@use '@fontsource-utils/scss' as fontsource;
+@use '@fontsource/roboto/scss' as roboto;
+
+@include fontsource.faces(
+		$metadata:  roboto.$metadata,
+		$weights:   (300, 400, 500),
+		$subsets:   latin,
+		$styles:    normal,
+		$display:   fallback,
+		$directory: "@fontsource/roboto/files"
+);

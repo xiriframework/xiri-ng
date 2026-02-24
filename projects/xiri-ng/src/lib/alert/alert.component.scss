@@ -1,0 +1,25 @@
+
+mat-spinner {
+	margin: 1rem;
+}
+
+.content {
+	display: flex;
+
+	.icon {
+		font-size:   2rem;
+		margin:      1rem 0;
+		flex-shrink: 0;
+		min-width:   2rem;
+		line-height: 1;
+	}
+
+	.text {
+		flex-grow: 1;
+		padding:   0 1rem;
+	}
+}
+
+.mat-mdc-dialog-actions {
+	justify-content: space-between;
+}

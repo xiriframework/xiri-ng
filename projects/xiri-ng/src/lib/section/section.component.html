@@ -1,0 +1,36 @@
+<section class="xiri-section">
+	@if (settings().title) {
+		<div class="section-header"
+		     [class.collapsible]="settings().collapsible"
+		     (click)="settings().collapsible && toggle()">
+			<div class="section-header-left">
+				@if (settings().icon) {
+					<mat-icon [class]="settings().iconColor || ''">{{ settings().icon }}</mat-icon>
+				}
+				<div>
+					<h2>{{ settings().title }}</h2>
+					@if (settings().subtitle) {
+						<span class="section-subtitle">{{ settings().subtitle }}</span>
+					}
+				</div>
+			</div>
+			<div class="section-header-right">
+				@if (settings().buttons) {
+					<xiri-buttonline [settings]="settings().buttons!"></xiri-buttonline>
+				}
+				@if (settings().collapsible) {
+					<mat-icon class="collapse-icon" [class.collapsed]="collapsed()">expand_more</mat-icon>
+				}
+			</div>
+		</div>
+		<mat-divider></mat-divider>
+	}
+	@if (!collapsed()) {
+		<div class="section-content">
+			<ng-content></ng-content>
+			@if (settings().components) {
+				<xiri-dyncomponent [data]="settings().components!" [dyncomponent]="dyncomponent()" class="xrow"></xiri-dyncomponent>
+			}
+		</div>
+	}
+</section>
