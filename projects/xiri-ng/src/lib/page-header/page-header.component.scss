@@ -3,11 +3,13 @@
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: var(--xiri-spacing-md, 1rem);
-	padding: var(--xiri-spacing-md, 1rem) 0;
+	padding: var(--xiri-spacing-lg, 1.5rem) 0 var(--xiri-spacing-sm, 0.5rem);
+	border-bottom: 3px solid var(--primary);
+	margin-bottom: var(--xiri-spacing-lg, 1.5rem);
 
 	h1 {
-		font-size: var(--xiri-font-size-headline);
-		font-weight: 500;
+		font-size: 1.7rem;
+		font-weight: 600;
 		margin: 0;
 		color: var(--on-surface);
 	}
@@ -17,9 +19,9 @@
 		margin: 0.25rem 0 0;
 	}
 	.page-header-icon mat-icon {
-		font-size: var(--xiri-font-size-display);
-		width: var(--xiri-font-size-display);
-		height: var(--xiri-font-size-display);
+		font-size: 1.7rem;
+		width: 1.7rem;
+		height: 1.7rem;
 	}
 	.page-header-content {
 		display: flex;

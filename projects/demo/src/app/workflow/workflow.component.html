@@ -34,6 +34,23 @@
 		</div>
 	</div>
 
+	<!-- Query Collapsed Demo -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionQueryCollapsed">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Query mit collapsed: true (Filter standardmäßig eingeklappt):</p>
+						<xiri-query [settings]="querySettingsCollapsed" (change)="filterChangedCollapsed($event)"></xiri-query>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goQueryCode" title="Go: query"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>
 
 <ng-template #dynTemplate let-obj>

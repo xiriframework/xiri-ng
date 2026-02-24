@@ -19,6 +19,8 @@ import { XiriDataService } from "../services/data.service";
 import { XiriFormService } from "../services/form.service";
 import { XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriButtonResult } from "../button/button.component";
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
+import { MatIcon } from "@angular/material/icon";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 export interface XiriQuerySettings {
@@ -29,13 +31,14 @@ export interface XiriQuerySettings {
 	extra?: any
 	saveState?: boolean
 	saveStateId?: string
+	collapsed?: boolean
 }
 
 @Component( {
 	            selector: 'xiri-query',
 	            templateUrl: './query.component.html',
 	            styleUrl: './query.component.scss',
-	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatProgressSpinner ],
+	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatProgressSpinner ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriQueryComponent implements OnInit, OnDestroy {

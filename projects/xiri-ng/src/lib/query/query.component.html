@@ -1,9 +1,18 @@
 <div class="xrow">
-	<div class="xcol query">
-		<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
-		@if (error()) {
-			<div class="error">{{ error() }}</div>
-		}
+	<div class="xcol">
+		<mat-expansion-panel [expanded]="!settings().collapsed" class="query-expansion">
+			<mat-expansion-panel-header>
+				<mat-panel-title>
+					<mat-icon>filter_list</mat-icon> Filter
+				</mat-panel-title>
+			</mat-expansion-panel-header>
+			<div class="query">
+				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
+				@if (error()) {
+					<div class="error">{{ error() }}</div>
+				}
+			</div>
+		</mat-expansion-panel>
 	</div>
 	@if (settings().buttonline) {
 		<div class="xcol formbtnline" [class]="settings().buttonline.display">

@@ -7,6 +7,7 @@ import { XiriQueryComponent, XiriQuerySettings } from 'projects/xiri-ng/src/lib/
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
 	            selector: 'app-workflow',
@@ -19,7 +20,8 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 		            XiriTabsComponent,
 		            XiriQueryComponent,
 		            XiriDynComponentComponent,
-		            XiriBreadcrumbComponent
+		            XiriBreadcrumbComponent,
+		            GoCodePanelComponent
 	            ]
             } )
 export class WorkflowComponent {
@@ -174,7 +176,52 @@ export class WorkflowComponent {
 		unload: true
 	};
 
+	// --- Query Collapsed ---
+	sectionQueryCollapsed: XiriSectionSettings = {
+		title: 'XiriQueryComponent (collapsed)',
+		subtitle: 'Query with collapsed: true — filter panel starts collapsed and can be expanded by the user.',
+		icon: 'filter_list_off',
+		iconColor: 'accent',
+	};
+
+	filterDataCollapsed = signal<any>( null );
+
+	querySettingsCollapsed: XiriQuerySettings = {
+		collapsed: true,
+		fields: [
+			{
+				id: 'daterange',
+				type: 'daterange',
+				name: 'Date Range',
+				value: {
+					start: Math.floor( ( Date.now() - 30 * 24 * 60 * 60 * 1000 ) / 1000 ),
+					end: Math.floor( Date.now() / 1000 )
+				}
+			},
+			{ id: 'search', type: 'text', name: 'Search' },
+			{
+				id: 'status', type: 'select', name: 'Status',
+				list: [
+					{ id: 1, name: 'Active' },
+					{ id: 2, name: 'Inactive' },
+					{ id: 3, name: 'Pending' }
+				]
+			}
+		]
+	};
+
+	goQueryCode = `// Query expanded (default)
+q := query.NewQueryWithFormGroup(fg, nil, u, bl, "stateId", nil)
+
+// Query collapsed
+q := query.NewQueryWithFormGroup(fg, nil, u, bl, "stateId", nil).
+    Collapsed(true)`;
+
 	filterChanged( event: any ) {
 		this.filterData.set( event );
+	}
+
+	filterChangedCollapsed( event: any ) {
+		this.filterDataCollapsed.set( event );
 	}
 }

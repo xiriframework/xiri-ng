@@ -1,6 +1,16 @@
 
 .query {
-	padding-top: 0.5rem;
 	padding-left: 1rem;
 	padding-right: 1rem;
+}
+
+.query-expansion {
+	.query {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	mat-panel-title mat-icon {
+		margin-right: 8px;
+	}
 }
