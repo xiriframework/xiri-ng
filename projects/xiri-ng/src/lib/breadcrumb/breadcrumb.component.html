@@ -1,8 +1,8 @@
 <nav class="breadcrumb" aria-label="Breadcrumb">
 	<ol>
-		@for (item of items(); track $index; let last = $last) {
+		@for (item of settings(); track $index; let last = $last) {
 			<li [class.active]="last">
-				@if (!last && item.link) {
+				@if (item.link) {
 					@if (item.extern) {
 						<a [href]="item.link" target="_blank" rel="noopener">
 							@if (item.icon) {

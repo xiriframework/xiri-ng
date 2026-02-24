@@ -18,5 +18,5 @@ export interface XiriBreadcrumbItem {
             } )
 export class XiriBreadcrumbComponent {
 
-	items = input.required<XiriBreadcrumbItem[]>();
+	settings = input.required<XiriBreadcrumbItem[]>();
 }
