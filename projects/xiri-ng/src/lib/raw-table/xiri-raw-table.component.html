@@ -34,6 +34,13 @@
 							<div>{{ row[column.id][1] }}</div>
 						</td>
 					}
+					@case ('textn') {
+						<td mat-cell *matCellDef="let row" [class]="column.display">
+							@for (line of row[column.id]; track $index) {
+								<div>{{ line }}</div>
+							}
+						</td>
+					}
 					@case ('linkrow') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
 							@if (row[column.id + 'Link']) {
