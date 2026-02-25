@@ -1,6 +1,10 @@
 @keyframes shimmer {
-	0% { background-position: -200px 0; }
-	100% { background-position: calc(200px + 100%) 0; }
+	0% {
+		background-position: -200px 0;
+	}
+	100% {
+		background-position: calc(200px + 100%) 0;
+	}
 }
 
 :host {
@@ -13,23 +17,23 @@
 
 .skeleton-line, .skeleton-circle, .skeleton-rect {
 	background-color: var(--color-gray-200, #E9ECEF);
-	border-radius: 4px;
+	border-radius:    4px;
 
 	&.animate {
 		background-image: linear-gradient(90deg,
-			var(--color-gray-200, #E9ECEF) 0px,
-			var(--color-gray-100, #F8F9FA) 40px,
-			var(--color-gray-200, #E9ECEF) 80px
-		);
-		background-size: 200px 100%;
-		animation: shimmer 1.5s ease-in-out infinite;
+				var(--color-gray-200, #E9ECEF) 0px,
+				var(--color-gray-100, #F8F9FA) 40px,
+				var(--color-gray-200, #E9ECEF) 80px
+		                  );
+		background-size:  200px 100%;
+		animation:        shimmer 1.5s ease-in-out infinite;
 	}
 }
 
 .skeleton-text {
-	display: flex;
+	display:        flex;
 	flex-direction: column;
-	gap: 8px;
+	gap:            8px;
 
 	.skeleton-line {
 		height: 1em;
@@ -45,16 +49,16 @@
 }
 
 .skeleton-table {
-	display: flex;
+	display:        flex;
 	flex-direction: column;
-	gap: 12px;
+	gap:            12px;
 
 	&.fill-height {
-		height: 100%;
+		height:   100%;
 		overflow: hidden;
 
 		.skeleton-table-row {
-			flex: 1;
+			flex:       1;
 			min-height: 0;
 		}
 	}
@@ -62,7 +66,7 @@
 
 .skeleton-table-row {
 	display: flex;
-	gap: 16px;
+	gap:     16px;
 }
 
 .skeleton-table-cell {
@@ -70,7 +74,7 @@
 
 	.skeleton-line {
 		height: 1em;
-		width: 100%;
+		width:  100%;
 	}
 }
 

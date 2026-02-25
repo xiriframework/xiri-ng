@@ -1,31 +1,34 @@
 .page-header {
-	display: flex;
-	align-items: flex-start;
+	display:         flex;
+	align-items:     flex-start;
 	justify-content: space-between;
-	gap: var(--xiri-spacing-md, 1rem);
-	padding: var(--xiri-spacing-lg, 1.5rem) 0 var(--xiri-spacing-sm, 0.5rem);
-	border-bottom: 3px solid var(--primary);
-	margin-bottom: var(--xiri-spacing-lg, 1.5rem);
+	gap:             var(--xiri-spacing-md, 1rem);
+	padding:         var(--xiri-spacing-lg, 1.5rem) 0 var(--xiri-spacing-sm, 0.5rem);
+	border-bottom:   3px solid var(--primary);
+	margin-bottom:   var(--xiri-spacing-lg, 1.5rem);
 
 	h1 {
-		font-size: 1.7rem;
-		font-weight: 600;
-		margin: 0;
-		color: var(--on-surface);
+		font-size:   1.7rem;
+		font-weight: 500;
+		margin:      0;
+		color:       var(--on-surface);
 	}
+
 	p {
 		font-size: var(--xiri-font-size-body);
-		color: var(--on-surface-variant);
-		margin: 0.25rem 0 0;
+		color:     var(--on-surface-variant);
+		margin:    0.25rem 0 0;
 	}
+
 	.page-header-icon mat-icon {
 		font-size: 1.7rem;
-		width: 1.7rem;
-		height: 1.7rem;
+		width:     1.7rem;
+		height:    1.7rem;
 	}
+
 	.page-header-content {
-		display: flex;
+		display:     flex;
 		align-items: center;
-		gap: var(--xiri-spacing-md, 1rem);
+		gap:         var(--xiri-spacing-md, 1rem);
 	}
 }
