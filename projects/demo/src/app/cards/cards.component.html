@@ -116,4 +116,26 @@
 		</div>
 	</div>
 
+	<!-- Collapsible Cards -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCollapsibleCard">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardCollapsible"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardCollapsed"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardMaxHeight"></xiri-card>
+					</div>
+					<div class="xcol">
+						<app-go-code [code]="goCollapsibleCardCode" title="Go: card (collapsible)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>
