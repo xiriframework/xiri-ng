@@ -1,3 +1,8 @@
+@use 'sass:list';
+@use 'sass:map';
+@use '../../../styles/colors' as *;
+
+$all-colors: map.merge($theme-color-variants, $color-variants);
 
 .card {
 	background-color: var(--surface, #FFFFFF);
@@ -41,32 +46,10 @@
 			--mat-icon-color: white;
 		}
 
-		&.emerald {
-			background-color: var(--primary, #2892D9) !important;
-		}
-
-		&.red {
-			background-color: #E74C3C !important;
-		}
-
-		&.yellow {
-			background-color: #F1C40F !important;
-		}
-
-		&.green {
-			background-color: var(--color-success, #2ECC71) !important;
-		}
-
-		&.purple {
-			background-color: #9B59B6 !important;
-		}
-
-		&.gray {
-			background-color: #95A5A6 !important;
-		}
-
-		&.white {
-			background-color: var(--surface, #FFFFFF) !important;
+		@each $name, $colors in $all-colors {
+			&.#{$name} {
+				background-color: #{list.nth($colors, 1)};
+			}
 		}
 	}
 

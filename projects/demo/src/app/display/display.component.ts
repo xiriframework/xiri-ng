@@ -189,7 +189,7 @@ export class DisplayComponent {
 				name: 'Notifications',
 				info: 'Recent messages',
 				icon: 'notifications',
-				iconColor: 'amber',
+				iconColor: 'orange',
 				url: '/Feedback',
 			} ]
 		} ]

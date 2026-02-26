@@ -40,6 +40,7 @@ $color-variants: (
 	'orange':    ($color-orange, white),
 	'white':     (white, black),
 	'black':     (black, white),
+	'inherit':   (inherit, inherit),
 );
 
 // Theme color variants (use CSS variables for theme switching)

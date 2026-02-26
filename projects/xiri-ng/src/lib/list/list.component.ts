@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDataService } from "../services/data.service";
+import { XiriColor } from '../types/color.type';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -30,7 +31,7 @@ export interface XiriListItem {
 	info: string;
 	icon: string;
 	iconSet?: string;
-	iconColor: string;
+	iconColor: XiriColor;
 	url: string;
 	hasFavorite?: boolean;
 	isFavorite?: boolean;

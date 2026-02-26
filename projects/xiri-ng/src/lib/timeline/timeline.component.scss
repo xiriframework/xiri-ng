@@ -1,3 +1,9 @@
+@use 'sass:list';
+@use 'sass:map';
+@use '../../../styles/colors' as *;
+
+$all-colors: map.merge($theme-color-variants, $color-variants);
+
 .timeline {
 	display:        flex;
 	flex-direction: column;
@@ -39,16 +45,10 @@
 		height:    1.25rem;
 	}
 
-	&.accent {
-		background: var(--accent, #69f0ae);
-	}
-
-	&.warn {
-		background: var(--warn, #f44336);
-	}
-
-	&.success {
-		background: var(--color-success, #4caf50);
+	@each $name, $colors in $all-colors {
+		&.#{$name} {
+			background: #{list.nth($colors, 1)};
+		}
 	}
 }
 
