@@ -20,9 +20,12 @@
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	min-width: 0;
 }
 
 .stat-icon {
+	flex-shrink: 0;
+
 	mat-icon {
 		font-size: 36px;
 		width: 36px;
@@ -33,6 +36,7 @@
 
 .stat-data {
 	flex: 1;
+	min-width: 0;
 }
 
 .stat-value {
@@ -40,6 +44,9 @@
 	font-weight: 600;
 	line-height: 1.2;
 	color: var(--on-surface, #1B1B1F);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 
 	.prefix, .suffix {
 		font-size: 1rem;
@@ -52,11 +59,15 @@
 	font-size: 0.875rem;
 	color: var(--on-surface-variant, #44474F);
 	margin-top: 2px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .stat-trend {
 	display: flex;
 	align-items: center;
+	flex-shrink: 0;
 	gap: 2px;
 	font-size: 0.875rem;
 	font-weight: 500;
