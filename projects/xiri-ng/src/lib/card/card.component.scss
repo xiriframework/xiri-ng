@@ -69,8 +69,19 @@
 		}
 	}
 
+	.collapse-btn {
+		width:  32px;
+		height: 32px;
+		padding: 4px;
+
+		mat-icon {
+			font-size: var(--xiri-icon-size-md);
+			width:     var(--xiri-icon-size-md);
+			height:    var(--xiri-icon-size-md);
+		}
+	}
+
 	.reload-btn {
-		margin-left: auto;
 		width:  32px;
 		height: 32px;
 		padding: 4px;
@@ -86,7 +97,6 @@
 		padding: 0;
 
 		&.hasTable {
-			max-height: 50vh;
 			overflow-x: auto;
 		}
 

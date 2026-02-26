@@ -33,6 +33,9 @@ export interface XiriCardSettings {
 	buttonsBottom?: XiriButtonlineSettings
 	dense?: number
 	forceMinWidth?: boolean
+	collapsible?: boolean
+	collapsed?: boolean
+	maxHeight?: string
 }
 
 @Component( {
@@ -63,6 +66,7 @@ export class XiriCardComponent implements OnDestroy {
 
 	loading = signal<boolean>( false );
 	errorMsg = signal<string>( '' );
+	isCollapsed = signal<boolean>( false );
 	private _data = signal<any>( null );
 
 	cardData = computed( () => this._data() ?? this.settings().data );
@@ -135,11 +139,21 @@ export class XiriCardComponent implements OnDestroy {
 
 	constructor() {
 		effect( () => {
+			const s = this.settings();
+			if ( s.collapsed !== undefined ) {
+				this.isCollapsed.set( s.collapsed );
+			}
+		} );
+		effect( () => {
 			const url = this.settings().url;
 			if ( url ) {
 				this.loadData();
 			}
 		} );
+	}
+
+	toggleCollapse(): void {
+		this.isCollapsed.update( v => !v );
 	}
 
 	private loadData() {
