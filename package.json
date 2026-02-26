@@ -11,7 +11,7 @@
     "version": "cd projects/xiri-ng && npm version patch",
     "demo": "ng serve --watch --port 4301 --ssl --hmr demo",
     "package": "npm run version && npm run build xiri-ng && cd dist/xiri-ng && npm pack",
-    "publish": "npm run version && npm run build && node -e \"const pkg = require('./projects/xiri-ng/package.json'); const v = pkg.version; const { execSync } = require('child_process'); execSync('git add projects/xiri-ng/package.json', { stdio: 'inherit' }); execSync('git commit -m \\\"Bump version to ' + v + '\\\"', { stdio: 'inherit' }); execSync('git tag -a v' + v + ' -m \"v' + v + '\"', { stdio: 'inherit' }); execSync('git push --follow-tags', { stdio: 'inherit' }); console.log('\\\\n✅ Released v' + v + ' - GitHub Actions will publish to npm\\\\n')\""
+    "publish": "npm run version && npm run build && node -e \"const pkg = require('./projects/xiri-ng/package.json'); const v = pkg.version; const { execSync } = require('child_process'); execSync('git add projects/xiri-ng/package.json', { stdio: 'inherit' }); execSync('git commit -m \\\"Bump version to ' + v + '\\\"', { stdio: 'inherit' }); execSync('git tag -a v' + v + ' -m \\\"v' + v + '\\\"', { stdio: 'inherit' }); execSync('git push --follow-tags', { stdio: 'inherit' }); console.log('\\\\n✅ Released v' + v + ' - GitHub Actions will publish to npm\\\\n')\""
   },
   "private": true,
   "dependencies": {
