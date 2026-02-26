@@ -1,15 +1,17 @@
 import {
 	ChangeDetectionStrategy,
 	Component,
+	DestroyRef,
 	effect,
 	ElementRef,
+	inject,
 	input,
-	OnDestroy,
 	OnInit,
 	output,
 	viewChild
 } from '@angular/core';
-import { debounceTime, distinctUntilChanged, Subject, Subscription } from "rxjs";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
@@ -30,19 +32,18 @@ import { FormsModule } from '@angular/forms';
 	            ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
-export class XiriSearchComponent implements OnInit, OnDestroy {
+export class XiriSearchComponent implements OnInit {
 
 	changed = output<string>();
 	placeholder = input<string>( '' );
-	
+
 	open = input<boolean>( false );
 	reset = input<number>( -1 );
 	escape = input<boolean>( true );
 	focus = input<number>( -1 );
-	
+
 	private _search = viewChild<ElementRef>( 'search' );
-	
-	private subs: Subscription = new Subscription();
+	private destroyRef = inject( DestroyRef );
 	private filter: Subject<string> = new Subject<string>();
 	
 	public _text: string = '';
@@ -76,10 +77,10 @@ export class XiriSearchComponent implements OnInit, OnDestroy {
 	}
 	
 	ngOnInit(): void {
-		this.subs.add( this.filter.pipe( debounceTime( 200 ), distinctUntilChanged() )
-			               .subscribe( value => {
-				               this.changed.emit( value );
-			               } ) );
+		this.filter.pipe( debounceTime( 200 ), distinctUntilChanged(), takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( value => {
+				this.changed.emit( value );
+			} );
 		
 		if ( this.open() )
 			this.show = true;
@@ -99,11 +100,7 @@ export class XiriSearchComponent implements OnInit, OnDestroy {
 	searchDo() {
 		this.filter.next( this._text );
 	}
-	
-	ngOnDestroy(): void {
-		this.subs.unsubscribe();
-	}
-	
+
 	click(): void {
 		this.show = this.open() ? true : !this.show;
 		this._text = '';

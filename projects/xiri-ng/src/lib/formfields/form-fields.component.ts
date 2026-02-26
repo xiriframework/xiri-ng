@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, input, OnDestroy, OnInit, output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, input, OnInit, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	AbstractControl,
 	FormsModule,
@@ -10,8 +11,7 @@ import {
 	Validators
 } from '@angular/forms';
 import { XiriFormField, XiriFormFieldCondition } from './field.interface';
-import { Observable, Subscription } from "rxjs";
-import { coerceBooleanProperty } from "@angular/cdk/coercion";
+import { Observable } from "rxjs";
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFileComponent } from './file/file.component';
 import { XiriTimelimitComponent } from './timelimit/timelimit.component';
@@ -71,10 +71,11 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            XiriChipsComponent,
 	            ]
             } )
-export class XiriFormFieldsComponent implements OnInit, OnDestroy {
-	
+export class XiriFormFieldsComponent implements OnInit {
+
 	private formBuilder = inject( UntypedFormBuilder );
 	protected _changeDetectorRef = inject( ChangeDetectorRef );
+	private destroyRef = inject( DestroyRef );
 	
 	form = input<XiriFormField[] | null>( null );
 	display = input<XiriFormFieldDisplay>( 'full' );
@@ -83,7 +84,6 @@ export class XiriFormFieldsComponent implements OnInit, OnDestroy {
 	
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;
-	private subs: Subscription = new Subscription();
 	private lastValue: any = null;
 	private _fields: XiriFormField[] | null = null;
 	private _fieldsLoaded: boolean = false;
@@ -112,19 +112,19 @@ export class XiriFormFieldsComponent implements OnInit, OnDestroy {
 	}
 	
 	ngOnInit(): void {
-		
-		this.subs.add( this.check()?.subscribe( () => {
+
+		this.check()?.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			this.validateAllFormFields();
-		} ) );
-		
-		this.subs.add( this.formGroup.valueChanges.subscribe( () => {
+		} );
+
+		this.formGroup.valueChanges.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			if ( this._fieldsLoaded ) {
 				if ( JSON.stringify( this.formGroup.value ) === this.lastValue )
 					return;
 				this.lastValue = JSON.stringify( this.formGroup.value );
 				this.formChange.emit( this.formGroup );
 			}
-		} ) );
+		} );
 	}
 
 	fields = computed( () => {
@@ -278,8 +278,8 @@ export class XiriFormFieldsComponent implements OnInit, OnDestroy {
 					field.value = false;
 			}
 			
-			field.required = coerceBooleanProperty( field.required );
-			field.disabled = coerceBooleanProperty( field.disabled );
+			field.required = !!field.required;
+			field.disabled = !!field.disabled;
 			
 			const control = this.formBuilder.control(
 				field.value,
@@ -390,10 +390,6 @@ export class XiriFormFieldsComponent implements OnInit, OnDestroy {
 		return validList.length ? Validators.compose( validList ) : null;
 	}
 	
-	ngOnDestroy() {
-		this.subs.unsubscribe();
-	}
-
 	private validateAllFormFields() {
 
 		this.formGroup.markAsDirty();

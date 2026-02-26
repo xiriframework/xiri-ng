@@ -152,10 +152,8 @@ export class XiriSelectDirective<T> {
 		this._filteredValuesSubject.pipe(take(1), takeUntil(this._onDestroy))
 			.subscribe(val => {
 				if (selectAllValue) {
-					console.log( val, selectAllValue, this );
 					this._filterFormControl.patchValue(val);
 				} else {
-					console.log( val, selectAllValue );
 					this._filterFormControl.patchValue([]);
 				}
 			});

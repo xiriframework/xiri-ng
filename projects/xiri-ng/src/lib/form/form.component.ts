@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
-import { Subject, Subscription } from "rxjs";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject } from "rxjs";
 import { Location } from '@angular/common';
 import { XiriButton } from "../button/button.component";
 import { XiriFormService, XiriFormServiceData, XiriFormServiceError } from "../services/form.service";
@@ -31,20 +32,19 @@ export interface XiriFormSettings {
 	                       XiriDoneComponent,
 	                       XiriButtonstyleComponent ]
             } )
-export class XiriFormComponent implements OnInit, OnDestroy {
-	
+export class XiriFormComponent implements OnInit {
+
 	settings = input.required<XiriFormSettings>();
-	
+
 	private location = inject( Location );
 	private formService = inject( XiriFormService );
-	
+	private destroyRef = inject( DestroyRef );
+
 	public formFields = signal<XiriFormField[]>( null );
 	public loading = signal<boolean>( true );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
-	
-	private subs: Subscription = new Subscription();
-	
+
 	private url: string;
 	public buttons: XiriButton[];
 	private extra = {};
@@ -68,7 +68,7 @@ export class XiriFormComponent implements OnInit, OnDestroy {
 		this.loading.set( true );
 		this.error.set( '' );
 		
-		this.subs.add( this.formService.get( this.url, data, this.extra ).subscribe(
+		this.formService.get( this.url, data, this.extra ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
 				next: ( res: XiriFormServiceData ) => {
 					this.loadData( res );
@@ -85,9 +85,9 @@ export class XiriFormComponent implements OnInit, OnDestroy {
 						} ];
 					}
 				}
-			} ) );
+			} );
 	}
-	
+
 	private loadData( res: XiriFormServiceData ): void {
 		
 		if ( res.buttons ) {
@@ -100,16 +100,14 @@ export class XiriFormComponent implements OnInit, OnDestroy {
 			this.done.set( true );
 			this.formFields.set( null );
 			this.buttons = [];
-			this.subs.add( res.done.subscribe() );
+			res.done.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe();
 		}
 		
 		this.loading.set( false );
 	}
 	
 	clickButton( button: XiriButton ): void {
-		
-		console.log( 'XiriFormComponent clickButton', button );
-		
+
 		if ( button.action == 'back' )
 			this.location.back();
 		else if ( button.action == 'get' ) {
@@ -120,10 +118,7 @@ export class XiriFormComponent implements OnInit, OnDestroy {
 			this.startSend( button.data );
 		} else if ( button.action == 'debug' ) {
 			this.checkSubject.next();
-			console.log( this.formValid, this.formValues );
 		} else if ( button.action == 'simulate' ) {
-			console.log( this.formValid, this.formValues );
-			
 			if ( this.formValid ) {
 				this.loading.set( true );
 				this.error.set( '' );
@@ -163,7 +158,4 @@ export class XiriFormComponent implements OnInit, OnDestroy {
 		// this.events.push( '' + this.formValid + ' => ' + JSON.stringify( event.value ) );
 	}
 	
-	ngOnDestroy() {
-		this.subs.unsubscribe();
-	}
 }

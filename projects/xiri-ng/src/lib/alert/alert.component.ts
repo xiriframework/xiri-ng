@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	MAT_DIALOG_DATA,
 	MatDialogRef,
@@ -6,7 +7,6 @@ import {
 	MatDialogContent,
 	MatDialogActions
 } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { XiriButton } from "../button/button.component";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
@@ -39,31 +39,31 @@ export interface XiriAlertConfig {
 	                       XiriButtonstyleComponent,
 	                       SafehtmlPipe ]
             } )
-export class XiriAlertComponent implements OnInit, OnDestroy {
+export class XiriAlertComponent implements OnInit {
 	dialogRef = inject<MatDialogRef<XiriAlertComponent>>( MatDialogRef );
 	initData = inject( MAT_DIALOG_DATA );
 	private breakpointObserver = inject( BreakpointObserver );
-	
-	
+	private destroyRef = inject( DestroyRef );
+
+
 	loading = signal(true);
 	header = signal('');
 	buttons = signal<XiriButton[]>([]);
 	text = signal('');
 	icon = signal('warning');
-	
-	private sub: Subscription = new Subscription();
-	
+
 	ngOnInit() {
-		
-		this.sub.add( this.breakpointObserver
-			              .observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
-			              .subscribe( ( state: BreakpointState ) => {
-				              if ( state.matches )
-					              this.dialogRef.updateSize( '80vw' );
-				              else
-					              this.dialogRef.updateSize( '600px' );
-			              } ) );
-		
+
+		this.breakpointObserver
+			.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( ( state: BreakpointState ) => {
+				if ( state.matches )
+					this.dialogRef.updateSize( '80vw' );
+				else
+					this.dialogRef.updateSize( '600px' );
+			} );
+
 		this.loadData( this.initData );
 	}
 	
@@ -82,11 +82,7 @@ export class XiriAlertComponent implements OnInit, OnDestroy {
 	}
 	
 	clickButton( button: XiriButton ): void {
-		
+
 		this.dialogRef.close( button );
-	}
-	
-	ngOnDestroy() {
-		this.sub.unsubscribe();
 	}
 }

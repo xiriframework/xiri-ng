@@ -406,6 +406,77 @@ content.SetDense(2)`;
     },
 )`;
 
+	sectionCollapsibleCard: XiriSectionSettings = {
+		title: 'Collapsible Cards',
+		subtitle: 'collapsible, collapsed, maxHeight — Cards that can be expanded/collapsed or have a scrollable content area.',
+		icon: 'unfold_less',
+		iconColor: 'accent',
+	};
+
+	cardCollapsible: XiriCardSettings = {
+		header: 'Collapsible Card',
+		headerIcon: 'unfold_less',
+		headerIconColor: 'primary',
+		collapsible: true,
+		fields: [
+			{ id: 'key', name: 'Setting', format: 'text', display: 'info' },
+			{ id: 'value', name: 'Value', format: 'text', display: 'right' },
+		],
+		data: [
+			{ key: 'Language', value: 'English' },
+			{ key: 'Timezone', value: 'Europe/Vienna' },
+			{ key: 'Theme', value: 'Dark' },
+			{ key: 'Notifications', value: 'Enabled' },
+		]
+	};
+
+	cardCollapsed: XiriCardSettings = {
+		header: 'Initially Collapsed',
+		headerIcon: 'visibility_off',
+		headerIconColor: 'warn',
+		collapsible: true,
+		collapsed: true,
+		fields: [
+			{ id: 'key', name: 'Detail', format: 'text', display: 'info' },
+			{ id: 'value', name: 'Info', format: 'text', display: 'right' },
+		],
+		data: [
+			{ key: 'CPU', value: '4 Cores' },
+			{ key: 'Memory', value: '16 GB' },
+			{ key: 'Disk', value: '512 GB SSD' },
+			{ key: 'Network', value: '1 Gbit/s' },
+		]
+	};
+
+	cardMaxHeight: XiriCardSettings = {
+		header: 'Card with Max Height',
+		headerIcon: 'height',
+		headerIconColor: 'tertiary',
+		collapsible: true,
+		maxHeight: '150px',
+		fields: [
+			{ id: 'key', name: 'Item', format: 'text', display: 'info' },
+			{ id: 'value', name: 'Status', format: 'text', display: 'right' },
+		],
+		data: [
+			{ key: 'Service A', value: 'Running' },
+			{ key: 'Service B', value: 'Stopped' },
+			{ key: 'Service C', value: 'Running' },
+			{ key: 'Service D', value: 'Degraded' },
+			{ key: 'Service E', value: 'Running' },
+			{ key: 'Service F', value: 'Running' },
+			{ key: 'Service G', value: 'Stopped' },
+			{ key: 'Service H', value: 'Running' },
+			{ key: 'Service I', value: 'Running' },
+			{ key: 'Service J', value: 'Degraded' },
+		]
+	};
+
+	goCollapsibleCardCode = `c := card.NewCardList(
+    card.Header{Header: "Collapsible Card", Icon: "unfold_less"},
+    card.NewCardListContent(...),
+).WithCollapsible(true).WithCollapsed(true).WithMaxHeight("150px")`;
+
 	goMenuCardCode = `menuBtn := button.Button{
     Action: "menu",
     Icon:   "more_vert",

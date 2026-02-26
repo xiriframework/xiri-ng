@@ -2,15 +2,16 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	DestroyRef,
 	inject,
 	input,
-	OnDestroy,
 	OnInit,
 	output,
 	signal,
 	TemplateRef
 } from '@angular/core';
-import { debounceTime, Subject, Subscription } from "rxjs";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, Subject } from "rxjs";
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { NgTemplateOutlet } from '@angular/common';
@@ -41,17 +42,17 @@ export interface XiriQuerySettings {
 	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatProgressSpinner ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
-export class XiriQueryComponent implements OnInit, OnDestroy {
-	
+export class XiriQueryComponent implements OnInit {
+
 	private dataService: XiriDataService = inject( XiriDataService );
 	private formService = inject( XiriFormService );
 	private cdr = inject( ChangeDetectorRef );
-	
+	private destroyRef = inject( DestroyRef );
+
 	settings = input.required<XiriQuerySettings>();
 	dyncomponent = input<TemplateRef<any>>();
 	change = output<any>();
-	
-	private subs: Subscription = new Subscription();
+
 	private waiter: Subject<any> = new Subject<any>();
 	
 	public dynData: {
@@ -82,7 +83,7 @@ export class XiriQueryComponent implements OnInit, OnDestroy {
 		this.formFields.set( this.formService.loadState( settings.saveStateId, settings.fields ) );
 		this.extra = settings.extra || null;
 		
-		this.subs.add( this.waiter.pipe( debounceTime( 300 ) ).subscribe( event => {
+		this.waiter.pipe( debounceTime( 300 ), takeUntilDestroyed( this.destroyRef ) ).subscribe( event => {
 
 			if ( event.valid ) {
 				this.dynData.filterData = this.filterData();
@@ -98,9 +99,9 @@ export class XiriQueryComponent implements OnInit, OnDestroy {
 				this.change.emit( null );
 			}
 			this.cdr.markForCheck();
-		} ) );
+		} );
 	}
-	
+
 	public formChanged( event: any ) {
 		this.formValid.set( event.valid );
 
@@ -126,10 +127,6 @@ export class XiriQueryComponent implements OnInit, OnDestroy {
 		}
 	}
 	
-	ngOnDestroy() {
-		this.subs.unsubscribe();
-	}
-	
 	public clickedButton( event: XiriButtonResult ) {
 		
 		if ( !event.loading && event.done ) {
@@ -151,7 +148,7 @@ export class XiriQueryComponent implements OnInit, OnDestroy {
 		
 		let call = this.dataService.post( this.settings().url, this.dynData.filterData );
 		
-		this.subs.add( call.subscribe(
+		call.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
 				next: ( res: any ) => {
 					if ( !res ) {
@@ -182,6 +179,6 @@ export class XiriQueryComponent implements OnInit, OnDestroy {
 					console.log( 'XiriQueryComponent error', err );
 					this.cdr.markForCheck();
 				}
-			} ) );
+			} );
 	}
 }

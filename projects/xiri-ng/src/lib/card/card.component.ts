@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, input, OnDestroy, signal, Signal } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal, Signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriButton } from "../button/button.component";
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriColor } from '../types/color.type';
@@ -56,11 +56,10 @@ export interface XiriCardSettings {
 	                       MatCardActions ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
-export class XiriCardComponent implements OnDestroy {
+export class XiriCardComponent {
 
 	private dataService = inject( XiriDataService );
-	private cdr = inject( ChangeDetectorRef );
-	private subs = new Subscription();
+	private destroyRef = inject( DestroyRef );
 
 	settings = input.required<XiriCardSettings>();
 
@@ -159,29 +158,23 @@ export class XiriCardComponent implements OnDestroy {
 	private loadData() {
 		this.loading.set( true );
 		this.errorMsg.set( '' );
-		this.subs.add(
-			this.dataService.post( this.settings().url!, null ).subscribe( {
+		this.dataService.post( this.settings().url!, null )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( {
 				next: ( res ) => {
 					this._data.set( res.data ?? res );
 					this.loading.set( false );
-					this.cdr.markForCheck();
 				},
 				error: ( err ) => {
 					this.errorMsg.set( err.error?.error || 'Fehler beim Laden' );
 					this.loading.set( false );
-					this.cdr.markForCheck();
 				}
-			} )
-		);
+			} );
 	}
 
 	reload() {
 		if ( this.loading() ) return;
 		this.loadData();
-	}
-
-	ngOnDestroy() {
-		this.subs.unsubscribe();
 	}
 
 }

@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnDestroy, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnDestroy, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriColor } from '../types/color.type';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { Subscription } from "rxjs";
 import { XiriDataService } from "../services/data.service";
 import { Router, RouterLink } from "@angular/router";
 import { Location } from "@angular/common";
@@ -78,7 +78,7 @@ export class XiriButtonComponent implements OnDestroy {
 	result = output<XiriButtonResult>();
 	
 	private dialogRef?: MatDialogRef<any> = undefined;
-	private subs: Subscription = new Subscription();
+	private destroyRef = inject( DestroyRef );
 	private loading = signal<boolean>( false );
 	
 	private dataService = inject( XiriDataService );
@@ -174,7 +174,7 @@ export class XiriButtonComponent implements OnDestroy {
 			data: data,
 		} );
 
-		this.subs.add( this.dialogRef.afterClosed().subscribe( result => {
+		this.dialogRef.afterClosed().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( result => {
 
 			if ( result ) {
 				if ( result.page == 'refresh' || result.refresh == 'page' )
@@ -192,7 +192,7 @@ export class XiriButtonComponent implements OnDestroy {
 				                  done: true,
 				                  loading: false,
 			                  } );
-		} ) );
+		} );
 	}
 
 	openMenuDialog( event: MouseEvent, item: any ) {
@@ -214,10 +214,10 @@ export class XiriButtonComponent implements OnDestroy {
 			                  loading: true,
 		                  } );
 		
-		this.subs.add(
-			this.dataService.post( this.button().url, data )
-				.subscribe( {
-					            next: ( result: any ) => {
+		this.dataService.post( this.button().url, data )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( {
+				            next: ( result: any ) => {
 						            
 						            if ( result ) {
 							            if ( result.page == 'refresh' || result.refresh == 'page' )
@@ -244,17 +244,17 @@ export class XiriButtonComponent implements OnDestroy {
 						                              } );
 						            this.loading.set( false );
 					            }
-				            } ) );
+				            } );
 	}
-	
+
 	private actionDownload() {
-		
+
 		let data = { ...this.filterData(), ...this.button().data };
 		this.loading.set( true );
-		
-		this.subs.add(
-			this.dataService.postFileResponse( this._url(), data )
-				.subscribe(
+
+		this.dataService.postFileResponse( this._url(), data )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe(
 					{
 						next: ( result: any ) => {
 							
@@ -285,14 +285,12 @@ export class XiriButtonComponent implements OnDestroy {
 							                  } );
 							this.loading.set( false );
 						}
-					} ) );
+					} );
 	}
-	
+
 	ngOnDestroy(): void {
 		if ( this.dialogRef ) {
 			this.dialogRef.close( null );
 		}
-		
-		this.subs.unsubscribe();
 	}
 }

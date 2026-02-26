@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	MAT_DIALOG_DATA,
 	MatDialogActions,
@@ -6,7 +7,7 @@ import {
 	MatDialogRef,
 	MatDialogTitle
 } from '@angular/material/dialog';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { XiriDataService } from '../services/data.service';
 import { XiriButton } from "../button/button.component";
@@ -62,8 +63,8 @@ export class XiriDialogComponent implements OnDestroy {
 	public buttons = signal<XiriButton[]>([]);
 	private url = '';
 	private extra = {};
-	private subs: Subscription = new Subscription();
-	
+	private destroyRef = inject( DestroyRef );
+
 	private downloadService = inject( XiriDownloadService );
 	
 	public formFields = signal<XiriFormField[]>( null );
@@ -81,14 +82,15 @@ export class XiriDialogComponent implements OnDestroy {
 	
 	constructor() {
 		
-		this.subs.add( this.breakpointObserver
-			               .observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
-			               .subscribe( ( state: BreakpointState ) => {
-				               if ( state.matches )
-					               this.dialogRef.updateSize( '90vw' );
-				               else
-					               this.dialogRef.updateSize( this.initData.size || '600px' );
-			               } ) );
+		this.breakpointObserver
+			.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( ( state: BreakpointState ) => {
+				if ( state.matches )
+					this.dialogRef.updateSize( '90vw' );
+				else
+					this.dialogRef.updateSize( this.initData.size || '600px' );
+			} );
 		
 		if ( this.initData.url )
 			this.url = this.initData.url;
@@ -115,7 +117,7 @@ export class XiriDialogComponent implements OnDestroy {
 		
 		// this.buttons = [];
 		
-		this.subs.add( req.subscribe(
+		req.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
 				next: ( res: any ) => {
 					if ( res )
@@ -126,7 +128,7 @@ export class XiriDialogComponent implements OnDestroy {
 				error: ( err ) => {
 					this.showError( err );
 				}
-			} ) );
+			} );
 	}
 	
 	private showError( err: any ) {
@@ -222,7 +224,7 @@ export class XiriDialogComponent implements OnDestroy {
 		this.to = setTimeout( () => {
 			this.to = null;
 			
-			this.subs.add( this.dataService.get( this.url ).subscribe(
+			this.dataService.get( this.url ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 				{
 					next: ( res: any ) => {
 						if ( res.done ) {
@@ -243,7 +245,7 @@ export class XiriDialogComponent implements OnDestroy {
 							this.refreshTime += 2000;
 						this.refresh();
 					}
-				} ) );
+				} );
 		}, this.refreshTime );
 	}
 	
@@ -266,9 +268,9 @@ export class XiriDialogComponent implements OnDestroy {
 			return;
 		}
 		
-		this.subs.add(
-			this.dataService.postFileResponse( this.url, data )
-				.subscribe(
+		this.dataService.postFileResponse( this.url, data )
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe(
 					{
 						next: ( result: any ) => {
 
@@ -288,7 +290,7 @@ export class XiriDialogComponent implements OnDestroy {
 							this.snackbar.error( err.error?.error || 'Unknown Error' );
 						}
 					}
-				) );
+				);
 	}
 	
 	clickButton( button: XiriButton ): void {
@@ -343,7 +345,6 @@ export class XiriDialogComponent implements OnDestroy {
 	}
 	
 	ngOnDestroy() {
-		this.subs.unsubscribe();
 		if ( this.to )
 			clearTimeout( this.to );
 	}

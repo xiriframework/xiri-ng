@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy } from '@angular/core';
-import { Subscription } from "rxjs";
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDataService } from "../services/data.service";
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIconButton } from '@angular/material/button';
@@ -59,24 +59,19 @@ export interface XiriListItem {
 	            ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
-export class XiriListComponent implements OnDestroy {
-	
+export class XiriListComponent {
+
 	settings = input.required<XiriListSettings>();
 	private dataService = inject( XiriDataService );
-	
-	private subs: Subscription = new Subscription();
-	
+	private destroyRef = inject( DestroyRef );
+
 	changeFavorite( item: XiriListItem, event: Event ) {
-		
+
 		event.stopPropagation();
 		event.preventDefault();
-		
+
 		let url = item.favoriteUrl + ( item.isFavorite ? '0' : '1' );
-		this.subs.add( this.dataService.get( url ).subscribe() );
+		this.dataService.get( url ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe();
 		item.isFavorite = !item.isFavorite;
-	}
-	
-	ngOnDestroy() {
-		this.subs.unsubscribe();
 	}
 }

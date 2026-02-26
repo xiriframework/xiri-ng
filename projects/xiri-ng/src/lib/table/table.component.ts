@@ -3,6 +3,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	computed,
+	DestroyRef,
 	effect,
 	inject,
 	input,
@@ -29,6 +30,7 @@ import {
 import { SelectionModel } from '@angular/cdk/collections';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, Subscription } from "rxjs";
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriDataService } from '../services/data.service';
 import { XiriButton, XiriButtonComponent, XiriButtonResult } from "../button/button.component";
@@ -142,6 +144,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private numberService: XiriNumberService = inject( XiriNumberService );
 	private snackbar = inject( XiriSnackbarService );
 	protected _changeDetectorRef: ChangeDetectorRef = inject( ChangeDetectorRef );
+	private destroyRef = inject( DestroyRef );
 	
 	dyncomponent = input<TemplateRef<any>>();
 	settings = input.required<XiriTableSettings>();
@@ -168,7 +171,6 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public selection = new SelectionModel<any>( true, [] );
 	private dialogRef?: MatDialogRef<any>;
 	private subs: Subscription = new Subscription();
-	private subsStatic: Subscription = new Subscription();
 	public options: XiriTableOptions = {
 		reload: false,
 		dense: false,
@@ -253,19 +255,19 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		}
 
 		if ( this.options.serverSide ) {
-			this.subsStatic.add(
-				this.paginator().page.subscribe( () => {
+			this.paginator().page
+				.pipe( takeUntilDestroyed( this.destroyRef ) )
+				.subscribe( () => {
 					this.reload();
-				} )
-			);
+				} );
 
 			if ( this.options.sort ) {
-				this.subsStatic.add(
-					this.sort().sortChange.subscribe( () => {
+				this.sort().sortChange
+					.pipe( takeUntilDestroyed( this.destroyRef ) )
+					.subscribe( () => {
 						this.paginator().firstPage();
 						this.reload();
-					} )
-				);
+					} );
 			}
 		}
 		
@@ -281,9 +283,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this.options.buttons )
 			this.options.buttons.class = 'small';
 		
-		this.subsStatic.add(
-			this.dataSource.connect()
-				.subscribe( data => {
+		this.dataSource.connect()
+			.pipe( takeUntilDestroyed( this.destroyRef ) )
+			.subscribe( data => {
 					this._displayeddata = data || [];
 					
 					if ( this.options.saveState && this._firstData === false ) {
@@ -317,8 +319,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 						} );
 					}
 					
-				} ) );
-		
+				} );
+
 		// if ( !this.settings().hasFilter )
 		//	this.loadData();
 	}
@@ -662,7 +664,6 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	
 	ngOnDestroy(): void {
 		this.cleanup();
-		this.subsStatic.unsubscribe();
 	}
 	
 	public pasteInput( $event: any, row: any, column: XiriTableField ) {

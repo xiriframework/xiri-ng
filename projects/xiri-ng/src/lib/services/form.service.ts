@@ -168,8 +168,7 @@ export class XiriFormService {
 				
 				case 'daterange':
 				case 'datetimerange':
-					console.log( 'query save check daterange', field, value );
-					break;
+						break;
 				
 				default:
 					break;

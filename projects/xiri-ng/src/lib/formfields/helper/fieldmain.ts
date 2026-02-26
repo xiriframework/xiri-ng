@@ -118,7 +118,6 @@ export abstract class XiriFieldMain
 	}
 	
 	set id( value: string ) {
-		console.log( 'id main', value );
 		this._id = value;
 	}
 	
@@ -186,7 +185,6 @@ export abstract class XiriFieldMain
 	 * Implemented as part of MatFormFieldControl.
 	 */
 	get empty() {
-		console.log( 'empty main', this._value === null );
 		return this._value === null;
 	}
 	
