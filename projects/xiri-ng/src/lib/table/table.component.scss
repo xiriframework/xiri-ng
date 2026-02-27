@@ -230,7 +230,13 @@ mat-card.xiritablecard {
 		align-items:      center;
 		background-color: var(--ripple, rgba(206, 212, 218, 0.5));
 		z-index:          200;
-		border-radius:    var(--mat-card-elevated-container-shape, 12px);
+		border-bottom-left-radius:  var(--mat-card-elevated-container-shape, 12px);
+		border-bottom-right-radius: var(--mat-card-elevated-container-shape, 12px);
+
+		&.has-bottombar {
+			border-bottom-left-radius:  0;
+			border-bottom-right-radius: 0;
+		}
 	}
 }
 
