@@ -4,7 +4,7 @@
 			<div class="xrow">
 				<div class="xcol">
 					@if (!step.load()) {
-						<xiri-form-fields [form]="step.fields()" (formChange)="formChanged(step, $event, i)"></xiri-form-fields>
+						<xiri-form-fields [form]="step.fields()" (formChange)="formChanged(step, $event, i)" [disabled]="step.check()"></xiri-form-fields>
 					}
 					@if (step.errorMsg()) {
 						<xiri-error class="error" [text]="step.errorMsg()"></xiri-error>
