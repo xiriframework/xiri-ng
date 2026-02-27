@@ -79,7 +79,7 @@ export class XiriButtonComponent implements OnDestroy {
 	
 	private dialogRef?: MatDialogRef<any> = undefined;
 	private destroyRef = inject( DestroyRef );
-	private loading = signal<boolean>( false );
+	protected loading = signal<boolean>( false );
 	
 	private dataService = inject( XiriDataService );
 	private location = inject( Location );

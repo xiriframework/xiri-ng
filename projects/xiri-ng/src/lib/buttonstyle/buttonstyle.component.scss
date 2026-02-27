@@ -1,0 +1,4 @@
+mat-spinner {
+	display: inline-block;
+	::ng-deep svg circle { stroke: currentColor; }
+}

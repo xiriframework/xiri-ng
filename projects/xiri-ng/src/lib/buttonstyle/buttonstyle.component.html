@@ -1,8 +1,12 @@
 @switch (button().type) {
 	@case ('icon') {
 		<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'" [disabled]="disabled()">
-			<mat-icon>{{ button().icon }}</mat-icon>
+		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()">
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				<mat-icon>{{ button().icon }}</mat-icon>
+			}
 		</button>
 	}
 	@case ('icontext') {
@@ -11,9 +15,13 @@
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        [color]="button().color || 'primary'"
-		        [disabled]="disabled()"
+		        [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			<mat-icon>{{ button().icon }}</mat-icon>
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				<mat-icon>{{ button().icon }}</mat-icon>
+			}
 			{{ button().text }}
 		</button>
 	}
@@ -22,8 +30,13 @@
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        [color]="button().color || 'primary'"
-		        [disabled]="disabled()"
-		        [tabIndex]="button().tabIndex">{{ button().text }}
+		        [disabled]="disabled() || loading()"
+		        [tabIndex]="button().tabIndex">
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				{{ button().text }}
+			}
 		</button>
 	}
 	@case ('basic') {
@@ -31,8 +44,13 @@
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        [color]="button().color || 'primary'"
-		        [disabled]="disabled()"
-		        [tabIndex]="button().tabIndex">{{ button().text }}
+		        [disabled]="disabled() || loading()"
+		        [tabIndex]="button().tabIndex">
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				{{ button().text }}
+			}
 		</button>
 	}
 	@case ('stroked') {
@@ -40,8 +58,13 @@
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        [color]="button().color || 'primary'"
-		        [disabled]="disabled()"
-		        [tabIndex]="button().tabIndex">{{ button().text }}
+		        [disabled]="disabled() || loading()"
+		        [tabIndex]="button().tabIndex">
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				{{ button().text }}
+			}
 		</button>
 	}
 	@case ('flat') {
@@ -49,30 +72,47 @@
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        [color]="button().color || 'primary'"
-		        [disabled]="disabled()"
-		        [tabIndex]="button().tabIndex">{{ button().text }}
+		        [disabled]="disabled() || loading()"
+		        [tabIndex]="button().tabIndex">
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				{{ button().text }}
+			}
 		</button>
 	}
 	@case ('minifab') {
 		<button mat-mini-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'" [disabled]="disabled()"
+		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			<mat-icon>{{ button().icon }}</mat-icon>
+			@if (loading()) {
+				<mat-spinner diameter="20"></mat-spinner>
+			} @else {
+				<mat-icon>{{ button().icon }}</mat-icon>
+			}
 		</button>
 	}
 	@case ('fab') {
 		<button mat-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'" [disabled]="disabled()"
+		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			<mat-icon>{{ button().icon }}</mat-icon>
+			@if (loading()) {
+				<mat-spinner diameter="24"></mat-spinner>
+			} @else {
+				<mat-icon>{{ button().icon }}</mat-icon>
+			}
 		</button>
 	}
 	@default {
 		@if (button().icon) {
 			<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-			        [color]="button().color || 'primary'" [disabled]="disabled()"
+			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 			        [tabIndex]="button().tabIndex">
-				<mat-icon>{{ button().icon }}</mat-icon>
+				@if (loading()) {
+					<mat-spinner diameter="20"></mat-spinner>
+				} @else {
+					<mat-icon>{{ button().icon }}</mat-icon>
+				}
 			</button>
 		}
 		@if (button().text) {
@@ -80,8 +120,13 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled()"
-			        [tabIndex]="button().tabIndex">{{ button().text }}
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				@if (loading()) {
+					<mat-spinner diameter="20"></mat-spinner>
+				} @else {
+					{{ button().text }}
+				}
 			</button>
 		}
 	}

@@ -46,7 +46,7 @@ export class XiriFormComponent implements OnInit {
 	public error = signal<string>( '' );
 
 	private url: string;
-	public buttons: XiriButton[];
+	public buttons: XiriButton[] = [];
 	private extra = {};
 	private formValues: any = null;
 	public formValid: boolean = true;

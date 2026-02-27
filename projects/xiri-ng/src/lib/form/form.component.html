@@ -1,6 +1,6 @@
 <div class="xrow" cdkTrapFocus>
 	<div class="xcol">
-		@if (loading()) {
+		@if (loading() && formFields() === null) {
 			<mat-spinner diameter="30"></mat-spinner>
 		}
 		@if (formFields() !== null) {
@@ -15,14 +15,13 @@
 		<div class="xcol done">
 			<xiri-done></xiri-done>
 		</div>
-	}
-	@else if (!loading()) {
+	} @else {
 		<div class="xcol formbtnline">
 			@for (button of buttons; track button) {
 				@if (button.default) {
-					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="!formValid"></xiri-buttonstyle>
+					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="!formValid" [loading]="loading()"></xiri-buttonstyle>
 				} @else {
-					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="false"></xiri-buttonstyle>
+					<xiri-buttonstyle (click)="clickButton( button )" [button]="button" [disabled]="false" [loading]="loading()"></xiri-buttonstyle>
 				}
 			}
 		</div>

@@ -1,12 +1,12 @@
 @switch (button().action) {
 	@case ('link') {
 		<a [routerLink]="_url()" [href]="_url()" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()"></xiri-buttonstyle>
+			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()"></xiri-buttonstyle>
 		</a>
 	}
 	@case ('href') {
 		<a [href]="_url()" [target]="button().target" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()"></xiri-buttonstyle>
+			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()"></xiri-buttonstyle>
 		</a>
 	}
 	@case ('menu') {
@@ -49,6 +49,6 @@
 		</mat-menu>
 	}
 	@default {
-		<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" (click)="clicked($event)"></xiri-buttonstyle>
+		<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()" (click)="clicked($event)"></xiri-buttonstyle>
 	}
 }
