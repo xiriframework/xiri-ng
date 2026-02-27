@@ -1,14 +1,14 @@
 <div class="dialog">
 	<h1 mat-dialog-title>{{ header() }}</h1>
 	<mat-dialog-content>
-		@if (loading()) {
+		@if (loading() && formFields() === null) {
 			<mat-spinner diameter="30"></mat-spinner>
 		}
 		@if (formFields() !== null) {
 			@if (type() == 'table') {
 				<xiri-raw-table [settings]="rawTable"></xiri-raw-table>
 			} @else {
-				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [hidden]="loading()"
+				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [disabled]="loading()"
 				                  [check]="checkSubject.asObservable()"></xiri-form-fields>
 			}
 		}
