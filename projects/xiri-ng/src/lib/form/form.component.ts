@@ -42,6 +42,7 @@ export class XiriFormComponent implements OnInit {
 
 	public formFields = signal<XiriFormField[]>( null );
 	public loading = signal<boolean>( true );
+	public loadingButton = signal<XiriButton | null>( null );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
 
@@ -75,6 +76,7 @@ export class XiriFormComponent implements OnInit {
 				},
 				error: ( err: XiriFormServiceError ) => {
 					this.loading.set( false );
+					this.loadingButton.set( null );
 					this.error.set( err.error ?? 'Unknown Error' );
 					
 					if ( this.buttons.length == 0 ) {
@@ -104,6 +106,7 @@ export class XiriFormComponent implements OnInit {
 		}
 		
 		this.loading.set( false );
+		this.loadingButton.set( null );
 	}
 	
 	clickButton( button: XiriButton ): void {
@@ -112,14 +115,17 @@ export class XiriFormComponent implements OnInit {
 			this.location.back();
 		else if ( button.action == 'get' ) {
 			this.url = <string> button.url;
+			this.loadingButton.set( button );
 			this.startSend( null );
 		} else if ( button.action == 'post' ) {
 			this.url = <string> button.url;
+			this.loadingButton.set( button );
 			this.startSend( button.data );
 		} else if ( button.action == 'debug' ) {
 			this.checkSubject.next();
 		} else if ( button.action == 'simulate' ) {
 			if ( this.formValid ) {
+				this.loadingButton.set( button );
 				this.loading.set( true );
 				this.error.set( '' );
 				setTimeout( () => {
@@ -129,12 +135,13 @@ export class XiriFormComponent implements OnInit {
 				}, 5000 );
 			} else
 				this.checkSubject.next();
-			
-			
+
+
 		} else {
 			if ( this.loading() )
 				return;
-			
+
+			this.loadingButton.set( button );
 			this.startSend( this.formValues );
 		}
 	}

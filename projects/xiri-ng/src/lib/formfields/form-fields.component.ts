@@ -1,4 +1,15 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, input, OnInit, output } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	computed,
+	DestroyRef,
+	effect,
+	inject,
+	input,
+	OnInit,
+	output
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	AbstractControl,
@@ -72,13 +83,14 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 	            ]
             } )
 export class XiriFormFieldsComponent implements OnInit {
-
+	
 	private formBuilder = inject( UntypedFormBuilder );
 	protected _changeDetectorRef = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	
 	form = input<XiriFormField[] | null>( null );
 	display = input<XiriFormFieldDisplay>( 'full' );
+	disabled = input<boolean>( false );
 	formChange = output<any>();
 	check = input<Observable<void>>( null );
 	
@@ -88,11 +100,28 @@ export class XiriFormFieldsComponent implements OnInit {
 	private _fields: XiriFormField[] | null = null;
 	private _fieldsLoaded: boolean = false;
 	private _initialEmitDone: boolean = false;
-
+	
 	constructor() {
-
+		
 		this.formGroup = this.formBuilder.group( {} );
-
+		
+		effect( () => {
+			const isDisabled = this.disabled();
+			if ( isDisabled ) {
+				this.formGroup.disable( { emitEvent: false } );
+			} else {
+				this.formGroup.enable( { emitEvent: false } );
+				// Felder die vom Backend als disabled kamen, wieder deaktivieren
+				if ( this._fields ) {
+					for ( const field of this._fields ) {
+						if ( field.disabled ) {
+							this.formGroup.get( field.id )?.disable( { emitEvent: false } );
+						}
+					}
+				}
+			}
+		} );
+		
 		// Track form input changes and emit after controls are created
 		effect( () => {
 			const formInput = this.form();
@@ -112,11 +141,11 @@ export class XiriFormFieldsComponent implements OnInit {
 	}
 	
 	ngOnInit(): void {
-
+		
 		this.check()?.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			this.validateAllFormFields();
 		} );
-
+		
 		this.formGroup.valueChanges.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			if ( this._fieldsLoaded ) {
 				if ( JSON.stringify( this.formGroup.value ) === this.lastValue )
@@ -126,9 +155,9 @@ export class XiriFormFieldsComponent implements OnInit {
 			}
 		} );
 	}
-
+	
 	fields = computed( () => {
-
+		
 		this._fieldsLoaded = false;
 		if ( this._fields !== null ) {
 			for ( let i = 0; i != this._fields.length; i++ ) {
@@ -136,16 +165,16 @@ export class XiriFormFieldsComponent implements OnInit {
 			}
 			this._fields = null;
 		}
-
+		
 		let fields = this.form();
 		if ( fields == null ) {
 			return null;
 		}
-
+		
 		this._fields = fields;
-
+		
 		this.createControl();
-
+		
 		this.lastValue = JSON.stringify( this.formGroup.value );
 		this._fieldsLoaded = true;
 		return this._fields;
@@ -391,40 +420,40 @@ export class XiriFormFieldsComponent implements OnInit {
 	}
 	
 	private validateAllFormFields() {
-
+		
 		this.formGroup.markAsDirty();
 		this.formGroup.markAllAsTouched();
 		this._changeDetectorRef.detectChanges();
 	}
-
+	
 	isFieldVisible( field: XiriFormField ): boolean {
-
+		
 		// Check if field is inside a collapsed section
 		if ( this.isInCollapsedSection( field ) )
 			return false;
-
+		
 		if ( !field.showWhen )
 			return true;
-
+		
 		const conditions: XiriFormFieldCondition[] = Array.isArray( field.showWhen )
-			? field.showWhen
-			: [ field.showWhen ];
-
+		                                             ? field.showWhen
+		                                             : [ field.showWhen ];
+		
 		return conditions.every( condition => this.evaluateCondition( condition ) );
 	}
-
+	
 	toggleSection( header: XiriFormField ): void {
 		header.collapsed = !header.collapsed;
 		this._changeDetectorRef.detectChanges();
 	}
-
+	
 	private isInCollapsedSection( field: XiriFormField ): boolean {
 		const fields = this._fields;
 		if ( !fields ) return false;
-
+		
 		const idx = fields.indexOf( field );
 		if ( idx <= 0 ) return false;
-
+		
 		// Walk backwards to find the nearest header or divider
 		for ( let i = idx - 1; i >= 0; i-- ) {
 			const f = fields[ i ];
@@ -435,18 +464,18 @@ export class XiriFormFieldsComponent implements OnInit {
 				return false; // Divider breaks the section
 			}
 		}
-
+		
 		return false;
 	}
-
+	
 	private evaluateCondition( condition: XiriFormFieldCondition ): boolean {
-
+		
 		const control = this.formGroup.get( condition.field );
 		if ( !control )
 			return false;
-
+		
 		const fieldValue = control.value;
-
+		
 		switch ( condition.operator ) {
 			case 'equals':
 				return fieldValue === condition.value;
