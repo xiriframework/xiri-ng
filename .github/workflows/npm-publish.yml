@@ -9,6 +9,7 @@ on:
 permissions:
   id-token: write  # Required for OIDC trusted publishing to npm
   contents: read   # Required to read repository contents
+  packages: write  # Required for publishing to GitHub Packages
 
 jobs:
   publish:
@@ -53,6 +54,15 @@ jobs:
           # Falls back to NODE_AUTH_TOKEN if OIDC is not configured
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Publish to GitHub Packages
+      - name: Publish to GitHub Packages
+        working-directory: ./dist/xiri-ng
+        run: |
+          npm config set registry https://npm.pkg.github.com
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # Create summary
       - name: Summary
         run: |
@@ -63,6 +73,7 @@ jobs:
           echo "**Tag:** ${{ steps.get-version.outputs.TAG_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 [View on npm](https://www.npmjs.com/package/@xiriframework/xiri-ng)" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View on GitHub Packages](https://github.com/xiriframework/xiri-ng/pkgs/npm/xiri-ng)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
