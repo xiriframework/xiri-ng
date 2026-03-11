@@ -18,6 +18,7 @@ import { WorkflowComponent } from "./workflow/workflow.component";
 import { DynamicComponent } from "./dynamic/dynamic.component";
 import { ServicesComponent } from "./services/services.component";
 import { LayoutComponent } from "./layout/layout.component";
+import { InlineEditTableComponent } from "./inline-edit-table/inline-edit-table.component";
 import { DynpageComponent } from "./dynpage/dynpage.component";
 import { Routes } from "@angular/router";
 
@@ -43,5 +44,6 @@ export const AppRoutes: Routes = [
 	{ path: 'Dynamic', component: DynamicComponent },
 	{ path: 'Services', component: ServicesComponent },
 	{ path: 'Layout', component: LayoutComponent },
+	{ path: 'InlineEditTable', component: InlineEditTableComponent },
 
 	{ path: '**', component: DynpageComponent } ];

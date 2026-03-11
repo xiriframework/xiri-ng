@@ -193,6 +193,61 @@ mat-card.xiritablecard {
 		}
 	}
 
+	.xiri-editable-cell {
+		cursor:        pointer;
+		display:       inline-flex;
+		align-items:   center;
+		border-radius: 4px;
+		padding:       2px 4px;
+
+		&:hover {
+			background-color: var(--surface-variant, #DEE3EB);
+
+			.xiri-edit-icon {
+				opacity: 1;
+			}
+		}
+	}
+
+	.xiri-edit-icon {
+		opacity:     0;
+		font-size:   14px;
+		width:       14px;
+		height:      14px;
+		margin-left: 4px;
+		color:       var(--on-surface-variant, #44474F);
+		transition:  opacity 0.15s ease;
+	}
+
+	.xiri-inline-edit {
+		--mat-form-field-container-height:           36px;
+		--mat-form-field-container-vertical-padding: 6px;
+		width: 100%;
+	}
+
+	.xiri-inline-edit-confirm {
+		--mdc-icon-button-icon-size:  18px;
+		--mdc-icon-button-state-layer-size: 28px;
+		width:        28px;
+		height:       28px;
+		padding:      0;
+		margin-right: 5px;
+		color:        var(--primary, #1976d2);
+
+		display:         inline-flex;
+		align-items:     center;
+		justify-content: center;
+
+		mat-icon {
+			display:         flex;
+			align-items:     center;
+			justify-content: center;
+			width:           18px;
+			height:          18px;
+			font-size:       18px;
+		}
+	}
+
 	.mat-column-select {
 		overflow: initial;
 	}

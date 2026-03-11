@@ -33,4 +33,7 @@ export interface XiriTableField {
 	align?: 'left' | 'center' | 'right'
 	footer?: 'no' | 'count' | 'sum' | 'static'
 	webformat?: string;
+	editable?: boolean;
+	editableOptions?: { value: string; label: string; color?: string }[];
+	editableOptionsUrl?: string;
 }

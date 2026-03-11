@@ -1,5 +1,5 @@
-import { HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { delay, of } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { delay, of, throwError } from 'rxjs';
 
 export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
@@ -75,6 +75,46 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	// Query result table
 	if ( req.url.includes( 'Test/Query/Table' ) ) {
 		return of( new HttpResponse( { status: 200, body: getQueryTableResult() } ) );
+	}
+
+	// Inline Edit Options (simulates backend delay for remote options loading)
+	if ( req.url.includes( 'Test/InlineEdit/Options' ) ) {
+		return of( new HttpResponse( {
+			status: 200,
+			body: [
+				{ value: 'Active', label: 'Active' },
+				{ value: 'Discontinued', label: 'Discontinued' },
+				{ value: 'On Sale', label: 'On Sale' },
+			]
+		} ) ).pipe( delay( 1000 ) );
+	}
+
+	// Inline Edit Save (simulates backend delay)
+	if ( req.url.includes( 'Test/InlineEdit/Save' ) ) {
+		const body = req.body as any;
+
+		// Simulate validation error for non-numeric price values
+		if ( body?.field === 'price' && isNaN( Number( String( body?.value ).replace( /,/g, '' ) ) ) ) {
+			return throwError( () => new HttpErrorResponse( {
+				status: 400,
+				statusText: 'Bad Request',
+				error: { error: 'Price must be a valid number' }
+			} ) ).pipe( delay( 500 ) );
+		}
+
+		const updates: any = {
+			[body?.field]: body?.value,
+			lastModified: new Date().toLocaleString( 'de-DE' ),
+		};
+		return of( new HttpResponse( {
+			status: 200,
+			body: {
+				done: true,
+				updates,
+				message: 'Saved: ' + body?.field + ' = ' + body?.value,
+				messageType: 'success',
+			}
+		} ) ).pipe( delay( 1000 ) );
 	}
 
 	// Pass through other requests

@@ -1,0 +1,27 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Page Header -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Inline Edit Table -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTable">
+				<xiri-table [settings]="tableSettings"></xiri-table>
+				<app-go-code [code]="goCode" title="Go: table (inline edit)"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

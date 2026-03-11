@@ -168,16 +168,82 @@
 								}
 								@case ('chips') {
 									<td mat-cell *matCellDef="let row" [class]="column.display">
-										<div class="xiri-chips-display">
-											@for (chip of row[column.id]; track chip.label) {
-												<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
+										@if (isSaving(row, column.id)) {
+											<mat-spinner diameter="20"></mat-spinner>
+										} @else if (column.editable && options.editUrl && isEditing(row, column.id)) {
+											@if (editableOptionsLoading()) {
+												<mat-spinner diameter="20"></mat-spinner>
+											} @else {
+												<mat-form-field class="xiri-inline-edit" subscriptSizing="dynamic">
+													<mat-select multiple
+													            [ngModel]="editingChipsValues()"
+													            (selectionChange)="onChipsSelectionChange(row, column, $event.value)"
+													            (keydown)="onInlineEditKeydown($event, row, column)"
+													            (openedChange)="!$event && saveInlineEdit(row, column)">
+														@for (opt of getEditableOptions(column); track opt.value) {
+															<mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+														}
+													</mat-select>
+												</mat-form-field>
 											}
-										</div>
+										} @else if (column.editable && options.editUrl) {
+											<div class="xiri-editable-cell" (click)="startInlineEdit(row, column); $event.stopPropagation()">
+												<div class="xiri-chips-display">
+													@for (chip of row[column.id]; track chip.label) {
+														<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
+													}
+												</div>
+												<mat-icon class="xiri-edit-icon">edit</mat-icon>
+											</div>
+										} @else {
+											<div class="xiri-chips-display">
+												@for (chip of row[column.id]; track chip.label) {
+													<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
+												}
+											</div>
+										}
 									</td>
 								}
 								@default {
 									<td mat-cell *matCellDef="let row" [class]="column.display">
-										{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
+										@if (isSaving(row, column.id)) {
+											<mat-spinner diameter="20"></mat-spinner>
+										} @else if (column.editable && options.editUrl && isEditing(row, column.id)) {
+											@if (column.editableOptions || column.editableOptionsUrl) {
+												@if (editableOptionsLoading()) {
+													<mat-spinner diameter="20"></mat-spinner>
+												} @else {
+													<mat-form-field class="xiri-inline-edit" subscriptSizing="dynamic">
+														<mat-select [(ngModel)]="row[column.id]"
+														            (keydown)="onInlineEditKeydown($event, row, column)"
+														            (openedChange)="!$event && saveInlineEdit(row, column)">
+															@for (opt of getEditableOptions(column); track opt.value) {
+																<mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+															}
+														</mat-select>
+													</mat-form-field>
+												}
+											} @else {
+												<mat-form-field class="xiri-inline-edit" subscriptSizing="dynamic">
+													<input matInput
+													       [(ngModel)]="row[column.id]"
+													       (blur)="saveInlineEdit(row, column)"
+													       (keydown)="onInlineEditKeydown($event, row, column)">
+													<button matSuffix mat-icon-button class="xiri-inline-edit-confirm"
+													        (mousedown)="$event.preventDefault(); saveInlineEdit(row, column)"
+													        tabindex="-1">
+														<mat-icon>check</mat-icon>
+													</button>
+												</mat-form-field>
+											}
+										} @else if (column.editable && options.editUrl) {
+											<span class="xiri-editable-cell" (click)="startInlineEdit(row, column); $event.stopPropagation()">
+												{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
+												<mat-icon class="xiri-edit-icon">edit</mat-icon>
+											</span>
+										} @else {
+											{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
+										}
 									</td>
 								}
 							}

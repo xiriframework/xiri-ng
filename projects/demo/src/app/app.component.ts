@@ -70,7 +70,17 @@ export class AppComponent implements OnInit, OnDestroy {
 		}, {
 			name: 'Tables',
 			icon: 'table_chart',
-			link: 'Tables'
+			menu: true,
+			regex: /^(Tables|InlineEditTable)/,
+			sub: [ {
+				name: 'Tables',
+				icon: 'table_chart',
+				link: 'Tables'
+			}, {
+				name: 'Inline Edit',
+				icon: 'edit_note',
+				link: 'InlineEditTable'
+			} ]
 		}, {
 			name: 'Cards',
 			icon: 'dashboard',

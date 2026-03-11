@@ -45,13 +45,14 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
-import { MatFormField } from '@angular/material/form-field';
+import { MatFormField, MatSuffix } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
 import { XiriButtonstyleComponent } from '../buttonstyle/buttonstyle.component';
 import { XiriSearchComponent } from '../search/search.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatSelect, MatOption } from '@angular/material/select';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatCard } from '@angular/material/card';
 import { XiriEmptyStateComponent } from '../empty-state/empty-state.component';
@@ -90,6 +91,7 @@ export interface XiriTableOptions {
 	footer?: boolean
 	serverSide?: boolean
 	scrollHeight?: string
+	editUrl?: string
 }
 
 export interface XiriTableSettings {
@@ -121,7 +123,7 @@ export interface XiriTableSettings {
 	                       RouterLink,
 	                       XiriButtonstyleComponent,
 	                       MatTooltip,
-	                       MatFormField,
+	                       MatFormField, MatSuffix,
 	                       MatInput,
 	                       FormsModule,
 	                       MatCheckbox,
@@ -133,6 +135,7 @@ export interface XiriTableSettings {
 	                       SafehtmlPipe, XiriButtonComponent, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
 	                       MatFooterRow, MatFooterRowDef, MatFooterCell, MatFooterCellDef,
 	                       MatMenu, MatMenuItem, MatMenuTrigger,
+	                       MatSelect, MatOption,
 	                       XiriEmptyStateComponent ]
             } )
 export class XiriTableComponent implements OnInit, OnDestroy {
@@ -197,9 +200,16 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		filterData: any,
 	} = { data: null, filterData: undefined };
 	public errorMsg: string = '';
-	// public _filterData: any;
 	private _firstData: boolean = true;
 	public searchText: string = '';
+
+	editingCell = signal<{ row: any; field: string } | null>( null );
+	editingChipsValues = signal<string[]>( [] );
+	editableOptionsLoading = signal( false );
+	loadedEditableOptions = signal<{ value: string; label: string; color?: string }[]>( [] );
+	savingCell = signal<{ row: any; field: string } | null>( null );
+	private editingOriginalValue: any = null;
+	private editableOptionsSub: Subscription | null = null;
 	
 	_filterData = computed( () => {
 		
@@ -662,6 +672,171 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 	}
 	
+	startInlineEdit( row: any, column: XiriTableField, skipSavingCheck = false ): void {
+		if ( !column.editable || !this.options.editUrl || ( !skipSavingCheck && this.savingCell() ) )
+			return;
+		const val = row[ column.id ];
+		this.editingOriginalValue = Array.isArray( val ) ? JSON.parse( JSON.stringify( val ) ) : val;
+		if ( column.format === 'chips' && Array.isArray( val ) && !column.editableOptionsUrl ) {
+			this.editingChipsValues.set( val.map( ( c: any ) => {
+				const opt = column.editableOptions?.find( o => o.label === c.label );
+				return opt?.value || c.label;
+			} ) );
+		}
+		this.editingCell.set( { row, field: column.id } );
+
+		if ( column.editableOptionsUrl ) {
+			this.editableOptionsLoading.set( true );
+			this.loadedEditableOptions.set( [] );
+			this.editableOptionsSub?.unsubscribe();
+			const separator = column.editableOptionsUrl.includes( '?' ) ? '&' : '?';
+			const optionsUrl = column.editableOptionsUrl + separator + 'id=' + encodeURIComponent( row.id ) + '&field=' + encodeURIComponent( column.id );
+			this.editableOptionsSub = this.dataService.get( optionsUrl ).subscribe( {
+				next: ( result: any ) => {
+					this.loadedEditableOptions.set( result );
+					this.editableOptionsLoading.set( false );
+					if ( column.format === 'chips' && Array.isArray( val ) ) {
+						this.editingChipsValues.set( val.map( ( c: any ) => {
+							const opt = result.find( ( o: any ) => o.label === c.label );
+							return opt?.value || c.label;
+						} ) );
+					}
+					this.editableOptionsSub = null;
+					this.focusInlineEdit();
+				},
+				error: () => {
+					this.editableOptionsLoading.set( false );
+					this.editableOptionsSub = null;
+					this.cancelInlineEdit();
+					this.snackbar.error( 'Optionen konnten nicht geladen werden' );
+				}
+			} );
+		} else {
+			this.focusInlineEdit();
+		}
+	}
+
+	cancelInlineEdit(): void {
+		const editing = this.editingCell();
+		if ( editing ) {
+			editing.row[ editing.field ] = this.editingOriginalValue;
+			this.editingCell.set( null );
+			this.editingOriginalValue = null;
+		}
+		this.editableOptionsSub?.unsubscribe();
+		this.editableOptionsSub = null;
+		this.loadedEditableOptions.set( [] );
+		this.editableOptionsLoading.set( false );
+	}
+
+	saveInlineEdit( row: any, column: XiriTableField ): void {
+		const editing = this.editingCell();
+		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
+		const newValue = row[ column.id ];
+		const originalValue = this.editingOriginalValue;
+		this.editingCell.set( null );
+		this.editingOriginalValue = null;
+		this.loadedEditableOptions.set( [] );
+		this.editableOptionsLoading.set( false );
+
+		const unchanged = Array.isArray( newValue )
+			? JSON.stringify( newValue ) === JSON.stringify( originalValue )
+			: newValue === originalValue;
+		if ( unchanged ) {
+			return;
+		}
+
+		const value = column.format === 'chips' && Array.isArray( newValue )
+			? newValue.map( ( c: any ) => c.label )
+			: newValue;
+		const payload = { id: row.id, field: column.id, value };
+		this.savingCell.set( { row, field: column.id } );
+		this.subs.add( this.dataService.post( this.options.editUrl, payload ).subscribe( {
+			next: ( result: any ) => {
+				this.savingCell.set( null );
+				if ( result?.updates ) {
+					Object.keys( result.updates ).forEach( key => {
+						row[ key ] = result.updates[ key ];
+					} );
+					this.dataSource._updateChangeSubscription();
+				}
+				this.callReturn( result );
+			},
+			error: ( err: any ) => {
+				this.savingCell.set( null );
+				row[ column.id ] = originalValue;
+				this.dataSource._updateChangeSubscription();
+				this.snackbar.error( err.error?.error || 'Unknown Error' );
+			}
+		} ) );
+	}
+
+	isEditing( row: any, fieldId: string ): boolean {
+		const editing = this.editingCell();
+		return editing !== null && editing.row === row && editing.field === fieldId;
+	}
+
+	isSaving( row: any, fieldId: string ): boolean {
+		const saving = this.savingCell();
+		return saving !== null && saving.row === row && saving.field === fieldId;
+	}
+
+	onInlineEditKeydown( event: KeyboardEvent, row: any, column: XiriTableField ): void {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			this.saveInlineEdit( row, column );
+		} else if ( event.key === 'Escape' ) {
+			event.preventDefault();
+			this.cancelInlineEdit();
+		} else if ( event.key === 'Tab' ) {
+			const matSelect = ( event.target as HTMLElement ).closest( 'mat-select' );
+			if ( matSelect && matSelect.classList.contains( 'mat-mdc-select-open' ) ) {
+				return;
+			}
+			event.preventDefault();
+			const direction = event.shiftKey ? -1 : 1;
+			const nextColumn = this.getAdjacentEditableColumn( column.id, direction );
+			this.saveInlineEdit( row, column );
+			if ( nextColumn ) {
+				this.startInlineEdit( row, nextColumn, true );
+			}
+		}
+	}
+
+	private focusInlineEdit(): void {
+		this._changeDetectorRef.detectChanges();
+		setTimeout( () => {
+			const el = document.querySelector( '.xiri-inline-edit input, .xiri-inline-edit mat-select' ) as HTMLElement;
+			el?.focus();
+		} );
+	}
+
+	private getAdjacentEditableColumn( currentField: string, direction: 1 | -1 ): XiriTableField | null {
+		const noInlineEdit = new Set( [ 'buttons', 'icon', 'html', 'link', 'input', 'text2', 'textn', 'number', 'header' ] );
+		const currentIndex = this.displayedColumns.findIndex( c => c.id === currentField );
+		if ( currentIndex === -1 ) return null;
+		for ( let i = currentIndex + direction; i >= 0 && i < this.displayedColumns.length; i += direction ) {
+			const col = this.displayedColumns[ i ];
+			if ( col.editable && !noInlineEdit.has( col.format ) ) {
+				return col;
+			}
+		}
+		return null;
+	}
+
+	getEditableOptions( column: XiriTableField ): { value: string; label: string; color?: string }[] {
+		return column.editableOptions ?? this.loadedEditableOptions();
+	}
+
+	onChipsSelectionChange( row: any, column: XiriTableField, selectedValues: string[] ): void {
+		this.editingChipsValues.set( selectedValues );
+		const opts = this.getEditableOptions( column );
+		row[ column.id ] = selectedValues.map( val => {
+			const opt = opts.find( o => o.value === val );
+			return { label: opt?.label || val, color: opt?.color || '' };
+		} );
+	}
+
 	ngOnDestroy(): void {
 		this.cleanup();
 	}
