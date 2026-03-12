@@ -22,11 +22,10 @@
 					}
 				},
 				"test": {
-					"builder": "@angular/build:karma",
+					"builder": "@angular/build:unit-test",
 					"options": {
-						"main": "projects/xiri-ng/src/test.ts",
 						"tsConfig": "projects/xiri-ng/tsconfig.spec.json",
-						"karmaConfig": "projects/xiri-ng/karma.conf.js"
+						"buildTarget": "xiri-ng:build"
 					}
 				}
 			}
