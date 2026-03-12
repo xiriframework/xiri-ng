@@ -79,12 +79,12 @@
 		}
 		@case ('multiprogress') {
 			<div class="xcol xcol-md-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-multiprogress [settings]="obj.data"></xiri-multiprogress>
+				@defer { <xiri-multiprogress [settings]="obj.data"></xiri-multiprogress> }
 			</div>
 		}
 		@case ('imagetext') {
 			<div class="xcol xcol-md-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-imagetext [settings]="obj.data"></xiri-imagetext>
+				@defer { <xiri-imagetext [settings]="obj.data"></xiri-imagetext> }
 			</div>
 		}
 		@case ('tabs') {
@@ -119,12 +119,12 @@
 		}
 		@case ('timeline') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-timeline [settings]="obj.data"></xiri-timeline>
+				@defer { <xiri-timeline [settings]="obj.data"></xiri-timeline> }
 			</div>
 		}
 		@case ('page-header') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-page-header [settings]="obj.data"></xiri-page-header>
+				@defer { <xiri-page-header [settings]="obj.data"></xiri-page-header> }
 			</div>
 		}
 		@case ('section') {
@@ -134,22 +134,22 @@
 		}
 		@case ('divider') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-divider [settings]="obj.data"></xiri-divider>
+				@defer { <xiri-divider [settings]="obj.data"></xiri-divider> }
 			</div>
 		}
 		@case ('stat-grid') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-stat-grid [settings]="obj.data"></xiri-stat-grid>
+				@defer { <xiri-stat-grid [settings]="obj.data"></xiri-stat-grid> }
 			</div>
 		}
 		@case ('toolbar') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-toolbar [settings]="obj.data" [filterData]="filterData()"></xiri-toolbar>
+				@defer { <xiri-toolbar [settings]="obj.data" [filterData]="filterData()"></xiri-toolbar> }
 			</div>
 		}
 		@case ('description-list') {
 			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<xiri-description-list [settings]="obj.data"></xiri-description-list>
+				@defer { <xiri-description-list [settings]="obj.data"></xiri-description-list> }
 			</div>
 		}
 		@default {

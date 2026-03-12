@@ -4,10 +4,11 @@ import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriColor } from '../types/color.type';
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { XiriDataService } from "../services/data.service";
-import { Router, RouterLink } from "@angular/router";
+import { RouterLink } from "@angular/router";
 import { Location } from "@angular/common";
 import { XiriButtonstyleComponent } from "../buttonstyle/buttonstyle.component";
 import { XiriDownloadService } from "../services/download.service";
+import { XiriResponseHandlerService } from "../services/response-handler.service";
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatIcon } from "@angular/material/icon";
 import { MatIconButton } from "@angular/material/button";
@@ -83,9 +84,9 @@ export class XiriButtonComponent implements OnDestroy {
 	
 	private dataService = inject( XiriDataService );
 	private location = inject( Location );
-	private router = inject( Router );
 	private dialog = inject( MatDialog );
 	private downloadService = inject( XiriDownloadService );
+	private responseHandler = inject( XiriResponseHandlerService );
 	
 	_disabled = computed( () => {
 		
@@ -175,16 +176,7 @@ export class XiriButtonComponent implements OnDestroy {
 		} );
 
 		this.dialogRef.afterClosed().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( result => {
-
-			if ( result ) {
-				if ( result.page == 'refresh' || result.refresh == 'page' )
-					this.router.navigate( [ this.router.url ] ).then();
-				else if ( result.table == 'refresh' || result.refresh == 'table' )
-					this.router.navigate( [ this.router.url ] ).then();
-				else if ( result.goto )
-					this.router.navigate( [ result.goto ] ).then();
-			}
-
+			this.responseHandler.handle( result );
 			this.loading.set( false );
 			this.result.emit( {
 				                  button: this.button(),
@@ -218,14 +210,7 @@ export class XiriButtonComponent implements OnDestroy {
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( {
 				            next: ( result: any ) => {
-						            
-						            if ( result ) {
-							            if ( result.page == 'refresh' || result.refresh == 'page' )
-								            this.router.navigate( [ this.router.url ] ).then();
-							            else if ( result.goto )
-								            this.router.navigate( [ result.goto ] ).then();
-						            }
-						            
+						            this.responseHandler.handle( result );
 						            this.result.emit( {
 							                              button: this.button(),
 							                              result: result,

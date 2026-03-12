@@ -1,29 +1,21 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ElementRef,
+	inject,
 	Input,
 	OnInit,
-	Optional,
-	Self
 } from '@angular/core';
 import {
 	ControlValueAccessor,
 	FormBuilder,
 	FormControl,
 	FormGroup,
-	FormGroupDirective,
 	FormsModule,
-	NgControl,
-	NgForm,
 	ReactiveFormsModule
 } from '@angular/forms';
 import { MatFormFieldControl, MatSuffix } from '@angular/material/form-field';
-import { FocusMonitor } from '@angular/cdk/a11y';
 import { XiriDateService } from "../../services/date.service";
 import { XiriFormField } from "../field.interface";
-import { ErrorStateMatcher } from "@angular/material/core";
 import { MatIcon } from '@angular/material/icon';
 import {
 	MatDatepickerToggle,
@@ -87,25 +79,17 @@ export class XiriDateRangeComponent extends XiriFieldMain implements OnInit,
 	
 	private _lastValue: DateRange | null = null;
 	
-	constructor( protected _focusMonitor: FocusMonitor,
-	             protected _elementRef: ElementRef<HTMLElement>,
-	             @Optional() _parentForm: NgForm,
-	             @Optional() _parentFormGroup: FormGroupDirective,
-	             protected _changeDetectorRef: ChangeDetectorRef,
-	             public _defaultErrorStateMatcher: ErrorStateMatcher,
-	             private dateService: XiriDateService,
-	             @Optional() @Self() public ngControl: NgControl,
-	             private fb: FormBuilder ) {
-		
-		super( _elementRef, _parentForm, _parentFormGroup,
-		       _changeDetectorRef, _defaultErrorStateMatcher,
-		       ngControl, _focusMonitor );
-		
+	private dateService = inject( XiriDateService );
+	private fb = inject( FormBuilder );
+
+	constructor() {
+		super();
+
 		this._id = this._uid;
-		
+
 		if ( this.ngControl != null )
 			this.ngControl.valueAccessor = this;
-		
+
 		this.parts = this.fb.group<DateRangeForm>( {
 			                                           start: new FormControl<Date | null>( null ),
 			                                           end: new FormControl<Date | null>( null ),

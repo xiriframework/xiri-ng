@@ -1,28 +1,21 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ElementRef,
+	inject,
 	Input,
-	Optional,
-	Self
 } from '@angular/core';
 import {
 	ControlValueAccessor,
 	FormBuilder,
 	FormControl,
 	FormGroup,
-	FormGroupDirective,
 	FormsModule,
-	NgControl,
-	NgForm,
 	ReactiveFormsModule
 } from '@angular/forms';
 import { MatFormFieldControl, MatSuffix } from '@angular/material/form-field';
-import { FocusMonitor } from '@angular/cdk/a11y';
 import { XiriDateService } from "../../services/date.service";
 import { XiriFormField } from "../field.interface";
-import { ErrorStateMatcher, MatOption } from "@angular/material/core";
+import { MatOption } from "@angular/material/core";
 import { MatIcon } from '@angular/material/icon';
 import { MatSelect } from '@angular/material/select';
 import {
@@ -97,25 +90,17 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain implements Control
 	            '20', '25', '30', '35',
 	            '40', '45', '50', '55', ];
 	
-	constructor( protected _focusMonitor: FocusMonitor,
-	             protected _elementRef: ElementRef<HTMLElement>,
-	             @Optional() _parentForm: NgForm,
-	             @Optional() _parentFormGroup: FormGroupDirective,
-	             protected _changeDetectorRef: ChangeDetectorRef,
-	             public _defaultErrorStateMatcher: ErrorStateMatcher,
-	             private dateService: XiriDateService,
-	             @Optional() @Self() public ngControl: NgControl,
-	             private fb: FormBuilder ) {
-		
-		super( _elementRef, _parentForm, _parentFormGroup,
-		       _changeDetectorRef, _defaultErrorStateMatcher,
-		       ngControl, _focusMonitor );
-		
+	private dateService = inject( XiriDateService );
+	private fb = inject( FormBuilder );
+
+	constructor() {
+		super();
+
 		this._id = this._uid;
-		
+
 		if ( this.ngControl != null )
 			this.ngControl.valueAccessor = this;
-		
+
 		this.parts = this.fb.group<DateTimeRangeForm>( {
 			                                               date: new FormControl<Date | null>( null ),
 			                                               fhour: new FormControl<number>( 0, { nonNullable: true } ),

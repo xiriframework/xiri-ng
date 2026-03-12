@@ -29,12 +29,16 @@ import {
 } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Router, RouterLink } from '@angular/router';
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriDataService } from '../services/data.service';
 import { XiriButton, XiriButtonComponent, XiriButtonResult } from "../button/button.component";
 import { XiriSnackbarService } from '../services/snackbar.service';
+import { XiriResponseHandlerService } from '../services/response-handler.service';
+import { XiriDownloadService } from '../services/download.service';
+import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/buttonline.component";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
@@ -108,6 +112,7 @@ export interface XiriTableSettings {
 	            styleUrl: './table.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            encapsulation: ViewEncapsulation.None,
+	            providers: [ XiriTableInlineEditService ],
 	            imports: [ MatCard,
 	                       MatIconButton,
 	                       MatIcon,
@@ -146,6 +151,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private sessionStorageService: XiriSessionStorageService = inject( XiriSessionStorageService );
 	private numberService: XiriNumberService = inject( XiriNumberService );
 	private snackbar = inject( XiriSnackbarService );
+	private responseHandler = inject( XiriResponseHandlerService );
+	private downloadService = inject( XiriDownloadService );
+	inlineEdit = inject( XiriTableInlineEditService );
 	protected _changeDetectorRef: ChangeDetectorRef = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	
@@ -173,7 +181,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	
 	public selection = new SelectionModel<any>( true, [] );
 	private dialogRef?: MatDialogRef<any>;
-	private subs: Subscription = new Subscription();
+	private reloadAbort$ = new Subject<void>();
 	public options: XiriTableOptions = {
 		reload: false,
 		dense: false,
@@ -203,13 +211,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private _firstData: boolean = true;
 	public searchText: string = '';
 
-	editingCell = signal<{ row: any; field: string } | null>( null );
-	editingChipsValues = signal<string[]>( [] );
-	editableOptionsLoading = signal( false );
-	loadedEditableOptions = signal<{ value: string; label: string; color?: string }[]>( [] );
-	savingCell = signal<{ row: any; field: string } | null>( null );
-	private editingOriginalValue: any = null;
-	private editableOptionsSub: Subscription | null = null;
+	trackByRowId = ( _: number, row: any ): any => row.id ?? _;
+
+	// Inline edit signals delegated to inlineEdit service
+	get editingCell() { return this.inlineEdit.editingCell; }
+	get editingChipsValues() { return this.inlineEdit.editingChipsValues; }
+	get editableOptionsLoading() { return this.inlineEdit.editableOptionsLoading; }
+	get loadedEditableOptions() { return this.inlineEdit.loadedEditableOptions; }
+	get savingCell() { return this.inlineEdit.savingCell; }
 	
 	_filterData = computed( () => {
 		
@@ -229,8 +238,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			const filterData = this._filterData();
 
 			this.loading.set( true );
-			this.cleanup();
-			this.subs = new Subscription();
+			this.reloadAbort$.next();
 
 			if ( filterData === null )
 				return;
@@ -252,7 +260,16 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.options = { ...this.options, ...this.settings().options };
 		if ( this.settings().fields )
 			this.loadFields( this.settings().fields );
-		
+
+		this.inlineEdit.init( {
+			getEditUrl: () => this.options.editUrl,
+			getDisplayedColumns: () => this.displayedColumns,
+			abort$: this.reloadAbort$,
+			onSaved: ( row, fieldId ) => this.inlineEdit.flashSaved( row, fieldId, this.dataSource ),
+			onDataUpdate: () => this.dataSource._updateChangeSubscription(),
+			onCallReturn: ( result ) => this.callReturn( result ),
+		} );
+
 		if ( this.options.pagination )
 			this.paginator().pageSize = <number> this.options.itemsPerPage;
 		if ( this.options.pagination && !this.options.serverSide )
@@ -364,41 +381,40 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 			api = this.dataService.post( this.settings().url, Object.keys( payload ).length > 0 ? payload : null );
 			
-			this.subs.add( api.subscribe(
-				{
-					next: ( res: any ) => {
+			api.pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+				next: ( res: any ) => {
 
-						if ( !res || !res.data ) {
-							this.errorMsg = 'ERROR: unknown server response';
-							this._alldata.set( [] );
-							this.loading.set( false );
-							this._changeDetectorRef.markForCheck();
-							return;
-						}
-
-						if ( res.fields )
-							this.loadFields( res.fields );
-						if ( res.summary )
-							this.dynData.data = res.summary;
-						else if ( res.components )
-							this.dynData.data = res.components;
-
-						if ( res.footer )
-							this.setFooter( res.footer );
-						if ( res.totalCount !== undefined && this.options.serverSide ) {
-							this._totalCount.set( res.totalCount );
-							this.paginator().length = res.totalCount;
-						}
-						this.setData( res.data );
-						this.loading.set( false );
-						this._changeDetectorRef.markForCheck();
-					}, error: ( err: any ) => {
-						this.errorMsg = err.error?.error ? err.error.error : err.statusText;
+					if ( !res || !res.data ) {
+						this.errorMsg = 'ERROR: unknown server response';
 						this._alldata.set( [] );
 						this.loading.set( false );
 						this._changeDetectorRef.markForCheck();
+						return;
 					}
-				} ) );
+
+					if ( res.fields )
+						this.loadFields( res.fields );
+					if ( res.summary )
+						this.dynData.data = res.summary;
+					else if ( res.components )
+						this.dynData.data = res.components;
+
+					if ( res.footer )
+						this.setFooter( res.footer );
+					if ( res.totalCount !== undefined && this.options.serverSide ) {
+						this._totalCount.set( res.totalCount );
+						this.paginator().length = res.totalCount;
+					}
+					this.setData( res.data );
+					this.loading.set( false );
+					this._changeDetectorRef.markForCheck();
+				}, error: ( err: any ) => {
+					this.errorMsg = err.error?.error ? err.error.error : err.statusText;
+					this._alldata.set( [] );
+					this.loading.set( false );
+					this._changeDetectorRef.markForCheck();
+				}
+			} );
 		}
 	}
 	
@@ -595,13 +611,13 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			data[ k ] = row[ k ];
 		}
 		
-		this.subs.add( this.dataService.post( url, data ).subscribe( {
-			                                                             next: ( result ) => this.callReturn( result ),
-			                                                             error: ( err: any ) => {
-				                                                             console.log( "table save error", err );
-				                                                             this.snackbar.error( err.error?.error || 'Unknown Error' );
-			                                                             }
-		                                                             } ) );
+		this.dataService.post( url, data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+			next: ( result ) => this.callReturn( result ),
+			error: ( err: any ) => {
+				console.log( "table save error", err );
+				this.snackbar.error( err.error?.error || 'Unknown Error' );
+			}
+		} );
 	}
 	
 	saveCallCheck( button: XiriButton, row ): boolean {
@@ -621,19 +637,27 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		event.stopPropagation();
 		if ( this.selection.isEmpty() )
 			return;
-		
-		this.dataService.postDownload( button.url ? button.url : '', this.getSelectionIDs() );
+
+		const url = button.url ? button.url : '';
+		this.dataService.postFileResponse( url, this.getSelectionIDs() ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+			next: ( result: any ) => {
+				this.downloadService.download( result, 'download.csv', false );
+			},
+			error: ( err: any ) => {
+				this.snackbar.error( err.error?.error || 'Download Error' );
+			}
+		} );
 	}
 	
 	private makeApiCall( apicall: Observable<object> ) {
 		
-		this.subs.add( apicall.subscribe( {
-			                                  next: ( result ) => this.callReturn( result ),
-			                                  error: ( err: any ) => {
-				                                  console.log( "table api error", err );
-				                                  this.snackbar.error( err.error?.error || 'Unknown Error' );
-			                                  }
-		                                  } ) );
+		apicall.pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+			next: ( result ) => this.callReturn( result ),
+			error: ( err: any ) => {
+				console.log( "table api error", err );
+				this.snackbar.error( err.error?.error || 'Unknown Error' );
+			}
+		} );
 	}
 	
 	public buttonReturn( event: XiriButtonResult ) {
@@ -645,24 +669,16 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	private callReturn( result: any ) {
-		
-		if ( !result )
-			return;
-		if ( result.page == 'refresh' || result.refresh == 'page' )
-			this.router.navigate( [ this.router.url ] ).then();
-		else if ( result.table == 'refresh' || result.refresh == 'table' )
-			this.reload();
-		else if ( result.goto )
-			this.router.navigate( [ result.goto ] ).then();
-		else if ( result.table == 'update' || result.update == 'table' ) {
-			const rowId = result.id;
-			const i = this.dataSource.data.findIndex( ( x: any ) => x.id === rowId );
-			if ( i == -1 )
-				return;
-			
-			this.dataSource.data[ i ][ result.field ] = result.content;
-			this.dataSource._updateChangeSubscription();
-		}
+		this.responseHandler.handle( result, {
+			onTableRefresh: () => this.reload(),
+			onTableUpdate: ( id, field, content ) => {
+				const i = this.dataSource.data.findIndex( ( x: any ) => x.id === id );
+				if ( i == -1 )
+					return;
+				this.dataSource.data[ i ][ field ] = content;
+				this.dataSource._updateChangeSubscription();
+			}
+		} );
 	}
 	
 	private getSelectionIDs(): number[] {
@@ -673,190 +689,42 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	startInlineEdit( row: any, column: XiriTableField, skipSavingCheck = false ): void {
-		if ( !column.editable || !this.options.editUrl || ( !skipSavingCheck && this.savingCell() ) )
-			return;
-		const val = row[ column.id ];
-		this.editingOriginalValue = Array.isArray( val ) ? JSON.parse( JSON.stringify( val ) ) : val;
-		if ( column.format === 'chips' && Array.isArray( val ) && !column.editableOptionsUrl ) {
-			this.editingChipsValues.set( val.map( ( c: any ) => {
-				const opt = column.editableOptions?.find( o => o.label === c.label );
-				return opt?.value || c.label;
-			} ) );
-		}
-		this.editingCell.set( { row, field: column.id } );
-
-		if ( column.editableOptionsUrl ) {
-			this.editableOptionsLoading.set( true );
-			this.loadedEditableOptions.set( [] );
-			this.editableOptionsSub?.unsubscribe();
-			const separator = column.editableOptionsUrl.includes( '?' ) ? '&' : '?';
-			const optionsUrl = column.editableOptionsUrl + separator + 'id=' + encodeURIComponent( row.id ) + '&field=' + encodeURIComponent( column.id );
-			this.editableOptionsSub = this.dataService.get( optionsUrl ).subscribe( {
-				next: ( result: any ) => {
-					this.loadedEditableOptions.set( result );
-					this.editableOptionsLoading.set( false );
-					if ( column.format === 'chips' && Array.isArray( val ) ) {
-						this.editingChipsValues.set( val.map( ( c: any ) => {
-							const opt = result.find( ( o: any ) => o.label === c.label );
-							return opt?.value || c.label;
-						} ) );
-					}
-					this.editableOptionsSub = null;
-					this.focusInlineEdit();
-				},
-				error: () => {
-					this.editableOptionsLoading.set( false );
-					this.editableOptionsSub = null;
-					this.cancelInlineEdit();
-					this.snackbar.error( 'Optionen konnten nicht geladen werden' );
-				}
-			} );
-		} else {
-			this.focusInlineEdit();
-		}
+		this.inlineEdit.start( row, column, skipSavingCheck );
 	}
 
 	cancelInlineEdit(): void {
-		const editing = this.editingCell();
-		if ( editing ) {
-			editing.row[ editing.field ] = this.editingOriginalValue;
-			this.editingCell.set( null );
-			this.editingOriginalValue = null;
-		}
-		this.editableOptionsSub?.unsubscribe();
-		this.editableOptionsSub = null;
-		this.loadedEditableOptions.set( [] );
-		this.editableOptionsLoading.set( false );
+		this.inlineEdit.cancel();
 	}
 
 	saveInlineEdit( row: any, column: XiriTableField ): void {
-		const editing = this.editingCell();
-		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
-		const newValue = row[ column.id ];
-		const originalValue = this.editingOriginalValue;
-		this.editingCell.set( null );
-		this.editingOriginalValue = null;
-		this.loadedEditableOptions.set( [] );
-		this.editableOptionsLoading.set( false );
-
-		const unchanged = Array.isArray( newValue )
-			? JSON.stringify( newValue ) === JSON.stringify( originalValue )
-			: newValue === originalValue;
-		if ( unchanged ) {
-			return;
-		}
-
-		const value = column.format === 'chips' && Array.isArray( newValue )
-			? newValue.map( ( c: any ) => c.label )
-			: newValue;
-		const payload = { id: row.id, field: column.id, value };
-		this.savingCell.set( { row, field: column.id } );
-		this.subs.add( this.dataService.post( this.options.editUrl, payload ).subscribe( {
-			next: ( result: any ) => {
-				this.savingCell.set( null );
-				if ( result?.updates ) {
-					Object.keys( result.updates ).forEach( key => {
-						row[ key ] = result.updates[ key ];
-					} );
-					this.dataSource._updateChangeSubscription();
-				}
-				this.flashSavedCell( row, column.id );
-				this.callReturn( result );
-			},
-			error: ( err: any ) => {
-				this.savingCell.set( null );
-				row[ column.id ] = originalValue;
-				this.dataSource._updateChangeSubscription();
-				this.snackbar.error( err.error?.error || 'Unknown Error' );
-			}
-		} ) );
+		this.inlineEdit.save( row, column );
 	}
 
 	isEditing( row: any, fieldId: string ): boolean {
-		const editing = this.editingCell();
-		return editing !== null && editing.row === row && editing.field === fieldId;
+		return this.inlineEdit.isEditing( row, fieldId );
 	}
 
 	isSaving( row: any, fieldId: string ): boolean {
-		const saving = this.savingCell();
-		return saving !== null && saving.row === row && saving.field === fieldId;
+		return this.inlineEdit.isSaving( row, fieldId );
 	}
 
 	onInlineEditKeydown( event: KeyboardEvent, row: any, column: XiriTableField ): void {
-		if ( event.key === 'Enter' ) {
-			event.preventDefault();
-			this.saveInlineEdit( row, column );
-		} else if ( event.key === 'Escape' ) {
-			event.preventDefault();
-			this.cancelInlineEdit();
-		} else if ( event.key === 'Tab' ) {
-			const matSelect = ( event.target as HTMLElement ).closest( 'mat-select' );
-			if ( matSelect && matSelect.classList.contains( 'mat-mdc-select-open' ) ) {
-				return;
-			}
-			event.preventDefault();
-			const direction = event.shiftKey ? -1 : 1;
-			const nextColumn = this.getAdjacentEditableColumn( column.id, direction );
-			this.saveInlineEdit( row, column );
-			if ( nextColumn ) {
-				this.startInlineEdit( row, nextColumn, true );
-			}
-		}
-	}
-
-	private focusInlineEdit(): void {
-		this._changeDetectorRef.detectChanges();
-		setTimeout( () => {
-			const el = document.querySelector( '.xiri-inline-edit input, .xiri-inline-edit mat-select' ) as HTMLElement;
-			el?.focus();
-		} );
-	}
-
-	private getAdjacentEditableColumn( currentField: string, direction: 1 | -1 ): XiriTableField | null {
-		const noInlineEdit = new Set( [ 'buttons', 'icon', 'html', 'link', 'input', 'text2', 'textn', 'number', 'header' ] );
-		const currentIndex = this.displayedColumns.findIndex( c => c.id === currentField );
-		if ( currentIndex === -1 ) return null;
-		for ( let i = currentIndex + direction; i >= 0 && i < this.displayedColumns.length; i += direction ) {
-			const col = this.displayedColumns[ i ];
-			if ( col.editable && !noInlineEdit.has( col.format ) ) {
-				return col;
-			}
-		}
-		return null;
-	}
-
-	private flashSavedCell( row: any, fieldId: string ): void {
-		this._changeDetectorRef.detectChanges();
-		setTimeout( () => {
-			const rowIndex = this.dataSource.data.indexOf( row );
-			const colIndex = this.displayedColumns.findIndex( c => c.id === fieldId );
-			if ( rowIndex === -1 || colIndex === -1 ) return;
-			const rows = document.querySelectorAll( '.xiritable tr.mat-mdc-row' );
-			const rowEl = rows[ rowIndex ];
-			if ( !rowEl ) return;
-			const cells = rowEl.querySelectorAll( 'td.mat-mdc-cell' );
-			const cell = cells[ colIndex ] as HTMLElement;
-			if ( !cell ) return;
-			cell.classList.add( 'xiri-cell-saved' );
-			setTimeout( () => cell.classList.remove( 'xiri-cell-saved' ), 500 );
-		} );
+		this.inlineEdit.onKeydown( event, row, column );
 	}
 
 	getEditableOptions( column: XiriTableField ): { value: string; label: string; color?: string }[] {
-		return column.editableOptions ?? this.loadedEditableOptions();
+		return this.inlineEdit.getOptions( column );
 	}
 
 	onChipsSelectionChange( row: any, column: XiriTableField, selectedValues: string[] ): void {
-		this.editingChipsValues.set( selectedValues );
-		const opts = this.getEditableOptions( column );
-		row[ column.id ] = selectedValues.map( val => {
-			const opt = opts.find( o => o.value === val );
-			return { label: opt?.label || val, color: opt?.color || '' };
-		} );
+		this.inlineEdit.onChipsChange( row, column, selectedValues );
 	}
 
 	ngOnDestroy(): void {
-		this.cleanup();
+		this.reloadAbort$.next();
+		this.reloadAbort$.complete();
+		if ( this.dialogRef )
+			this.dialogRef.close( null );
 	}
 	
 	public pasteInput( $event: any, row: any, column: XiriTableField ) {
@@ -918,33 +786,18 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		}
 		this._changeDetectorRef.markForCheck();
 		
-		this.subs.add(
-			this.dataService.post( this.options.saveInputUrl, data ).subscribe(
-				{
-					next: ( result ) => {
-						// this.loading.set( false );
-						this.callReturn( result );
-					},
-					error: ( err: any ) => {
-
-						this._alldata.set( data );
-						// this.dataSource.data = data;
-						// this.loading.set( false );
-						this.dataSource._updateChangeSubscription();
-
-						console.log( "table save error", err );
-						this.snackbar.error( err.error?.error || 'Unknown Error' );
-						this._changeDetectorRef.markForCheck();
-					}
-				} ) );
-	}
-	
-	private cleanup(): void {
-		
-		if ( this.dialogRef )
-			this.dialogRef.close( null );
-		
-		this.subs.unsubscribe();
+		this.dataService.post( this.options.saveInputUrl, data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+			next: ( result ) => {
+				this.callReturn( result );
+			},
+			error: ( err: any ) => {
+				this._alldata.set( data );
+				this.dataSource._updateChangeSubscription();
+				console.log( "table save error", err );
+				this.snackbar.error( err.error?.error || 'Unknown Error' );
+				this._changeDetectorRef.markForCheck();
+			}
+		} );
 	}
 	
 	private getSortingDataAccessor(): ( data: any, sortHeaderId: string ) => string | number {

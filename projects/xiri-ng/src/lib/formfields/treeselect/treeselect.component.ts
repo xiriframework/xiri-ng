@@ -1,20 +1,15 @@
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
-	ElementRef,
 	inject,
 	Input,
-	Optional,
-	Self,
 	signal,
 	viewChild
 } from '@angular/core';
 import { MatFormFieldControl } from "@angular/material/form-field";
-import { ControlValueAccessor, FormGroupDirective, NgControl, NgForm } from "@angular/forms";
+import { ControlValueAccessor } from "@angular/forms";
 import { BehaviorSubject } from "rxjs";
-import { FocusMonitor } from "@angular/cdk/a11y";
 import {
 	MatTree,
 	MatTreeNestedDataSource,
@@ -32,7 +27,6 @@ import { MatIconButton } from '@angular/material/button';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriSearchComponent } from '../../search/search.component';
 import { XiriFieldMain } from "../helper/fieldmain";
-import { ErrorStateMatcher } from "@angular/material/core";
 
 
 class XiriTreeselectTreeNode {
@@ -84,23 +78,14 @@ export class XiriTreeselectComponent extends XiriFieldMain implements ControlVal
 	public loading = signal<boolean>( true );
 	private _field: XiriFormField;
 	
-	constructor( protected _focusMonitor: FocusMonitor,
-	             protected _elementRef: ElementRef<HTMLElement>,
-	             @Optional() _parentForm: NgForm,
-	             @Optional() _parentFormGroup: FormGroupDirective,
-	             protected _changeDetectorRef: ChangeDetectorRef,
-	             public _defaultErrorStateMatcher: ErrorStateMatcher,
-	             @Optional() @Self() public ngControl: NgControl ) {
-		
-		super( _elementRef, _parentForm, _parentFormGroup,
-		       _changeDetectorRef, _defaultErrorStateMatcher,
-		       ngControl, _focusMonitor );
-		
+	constructor() {
+		super();
+
 		this._id = this._uid;
-		
+
 		if ( this.ngControl != null )
 			this.ngControl.valueAccessor = this;
-		
+
 		this.dataSource = new MatTreeNestedDataSource();
 		this.dataSource.data = [];
 	}

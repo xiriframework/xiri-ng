@@ -1,7 +1,13 @@
 
+export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'links' | 'form' |
+	'query' | 'stepper' | 'header' | 'list' | 'spacer' | 'container' | 'infopoint' |
+	'multiprogress' | 'imagetext' | 'tabs' | 'expansion' | 'infotext' | 'html' | 'stat' |
+	'empty-state' | 'timeline' | 'page-header' | 'section' | 'divider' | 'stat-grid' |
+	'toolbar' | 'description-list';
+
 export interface XiriDynData {
 	id?: number
-	type: string
+	type: XiriDynDataType | ( string & {} )
 	data?: any
 	display?: string
 	newRow?: boolean

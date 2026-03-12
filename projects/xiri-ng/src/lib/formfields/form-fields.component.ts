@@ -1,6 +1,5 @@
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	computed,
 	DestroyRef,
@@ -8,8 +7,10 @@ import {
 	inject,
 	input,
 	OnInit,
-	output
+	output,
+	signal
 } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	AbstractControl,
@@ -39,7 +40,7 @@ import { MatSelect } from '@angular/material/select';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 import { MatError, MatFormField, MatHint, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { SafehtmlPipe } from "../pipes/safehtml.pipe";
 import { XiriChipsComponent } from './chips/chips.component';
@@ -52,6 +53,18 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 	            templateUrl: './form-fields.component.html',
 	            styleUrl: './form-fields.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
+	            animations: [
+		            trigger( 'showWhenField', [
+			            transition( ':enter', [
+				            style( { opacity: 0, height: 0 } ),
+				            animate( '200ms ease-out', style( { opacity: 1, height: '*' } ) )
+			            ] ),
+			            transition( ':leave', [
+				            style( { overflow: 'hidden' } ),
+				            animate( '150ms ease-in', style( { opacity: 0, height: 0 } ) )
+			            ] )
+		            ] )
+	            ],
 	            imports: [
 		            FormsModule,
 		            ReactiveFormsModule,
@@ -80,12 +93,12 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            AsyncPipe,
 		            SafehtmlPipe,
 		            XiriChipsComponent,
+		            NgTemplateOutlet,
 	            ]
             } )
 export class XiriFormFieldsComponent implements OnInit {
 	
 	private formBuilder = inject( UntypedFormBuilder );
-	protected _changeDetectorRef = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	
 	form = input<XiriFormField[] | null>( null );
@@ -98,6 +111,7 @@ export class XiriFormFieldsComponent implements OnInit {
 	formGroup: UntypedFormGroup;
 	private lastValue: any = null;
 	private _fields: XiriFormField[] | null = null;
+	collapsedSections = signal<Set<string>>( new Set() );
 	private _fieldsLoaded: boolean = false;
 	private _initialEmitDone: boolean = false;
 	
@@ -148,9 +162,10 @@ export class XiriFormFieldsComponent implements OnInit {
 		
 		this.formGroup.valueChanges.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			if ( this._fieldsLoaded ) {
-				if ( JSON.stringify( this.formGroup.value ) === this.lastValue )
+				const currentValue = JSON.stringify( this.formGroup.value );
+				if ( currentValue === this.lastValue )
 					return;
-				this.lastValue = JSON.stringify( this.formGroup.value );
+				this.lastValue = currentValue;
 				this.formChange.emit( this.formGroup );
 			}
 		} );
@@ -420,10 +435,10 @@ export class XiriFormFieldsComponent implements OnInit {
 	}
 	
 	private validateAllFormFields() {
-		
+
 		this.formGroup.markAsDirty();
 		this.formGroup.markAllAsTouched();
-		this._changeDetectorRef.detectChanges();
+		this.formGroup.updateValueAndValidity();
 	}
 	
 	isFieldVisible( field: XiriFormField ): boolean {
@@ -443,28 +458,38 @@ export class XiriFormFieldsComponent implements OnInit {
 	}
 	
 	toggleSection( header: XiriFormField ): void {
-		header.collapsed = !header.collapsed;
-		this._changeDetectorRef.detectChanges();
+		this.collapsedSections.update( set => {
+			const next = new Set( set );
+			if ( next.has( header.id ) )
+				next.delete( header.id );
+			else
+				next.add( header.id );
+			return next;
+		} );
 	}
 	
+	isSectionCollapsed( headerId: string ): boolean {
+		return this.collapsedSections().has( headerId );
+	}
+
 	private isInCollapsedSection( field: XiriFormField ): boolean {
 		const fields = this._fields;
 		if ( !fields ) return false;
-		
+
 		const idx = fields.indexOf( field );
 		if ( idx <= 0 ) return false;
-		
+
 		// Walk backwards to find the nearest header or divider
 		for ( let i = idx - 1; i >= 0; i-- ) {
 			const f = fields[ i ];
 			if ( f.type === 'header' ) {
-				return f.collapsible && f.collapsed;
+				return f.collapsible && this.collapsedSections().has( f.id );
 			}
 			if ( f.type === 'divider' ) {
 				return false; // Divider breaks the section
 			}
 		}
-		
+
 		return false;
 	}
 	

@@ -40,7 +40,9 @@ export class XiriDataService {
 		return this.http.post( this.config.api + url, data, { observe: 'response', responseType: 'blob' } );
 	}
 	
+	/** @deprecated Use postFileResponse() + XiriDownloadService.download() instead */
 	public postDownload( url: string, data: any ) {
+		console.warn( 'XiriDataService.postDownload() is deprecated. Use postFileResponse() + XiriDownloadService.download() instead.' );
 		const downForm = <any> document.createElement( 'form' );
 		downForm.target = '_blank';
 		downForm.method = 'POST';

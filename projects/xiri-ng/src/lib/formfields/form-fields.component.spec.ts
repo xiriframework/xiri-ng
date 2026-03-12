@@ -597,16 +597,15 @@ describe( 'XiriFormFieldsComponent', () => {
 				id: 'section',
 				type: 'header',
 				collapsible: true,
-				collapsed: false,
 			};
 			host.fields.set( [ header, { id: 'name', type: 'text', value: '' } ] );
 			fixture.detectChanges();
 
 			component.toggleSection( header );
-			expect( header.collapsed ).toBe( true );
+			expect( component.isSectionCollapsed( 'section' ) ).toBe( true );
 
 			component.toggleSection( header );
-			expect( header.collapsed ).toBe( false );
+			expect( component.isSectionCollapsed( 'section' ) ).toBe( false );
 		} );
 
 		it( 'should hide fields in collapsed section', () => {
@@ -614,12 +613,12 @@ describe( 'XiriFormFieldsComponent', () => {
 				id: 'section',
 				type: 'header',
 				collapsible: true,
-				collapsed: true,
 			};
 			const field: XiriFormField = { id: 'name', type: 'text', value: '' };
 			host.fields.set( [ header, field ] );
 			fixture.detectChanges();
 
+			component.toggleSection( header );
 			expect( component.isFieldVisible( field ) ).toBe( false );
 		} );
 
@@ -628,13 +627,13 @@ describe( 'XiriFormFieldsComponent', () => {
 				id: 'section',
 				type: 'header',
 				collapsible: true,
-				collapsed: true,
 			};
 			const divider: XiriFormField = { id: 'div', type: 'divider' };
 			const field: XiriFormField = { id: 'name', type: 'text', value: '' };
 			host.fields.set( [ header, divider, field ] );
 			fixture.detectChanges();
 
+			component.toggleSection( header );
 			expect( component.isFieldVisible( field ) ).toBe( true );
 		} );
 	} );
