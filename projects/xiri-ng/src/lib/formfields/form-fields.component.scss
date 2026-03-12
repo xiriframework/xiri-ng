@@ -92,7 +92,7 @@
 			align-items:   center;
 			gap:           0.25rem;
 			user-select:   none;
-			border-radius: 4px;
+			border-radius: var(--xiri-radius-xs);
 			padding:       0.5rem 0.25rem;
 			margin:        0.25rem 0;
 
@@ -101,7 +101,7 @@
 			}
 
 			.collapse-icon {
-				transition: transform 200ms ease;
+				transition: transform var(--xiri-duration-fast) var(--xiri-easing-standard);
 
 				&.collapsed {
 					transform: rotate(-90deg);

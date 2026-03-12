@@ -22,6 +22,7 @@ import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDownloadService } from "../services/download.service";
+import { parseHttpError } from '../services/error.util';
 
 
 export interface XiriDialogSettings {
@@ -133,15 +134,7 @@ export class XiriDialogComponent implements OnDestroy {
 	
 	private showError( err: any ) {
 		this.loading.set( false );
-		
-		if ( err.status == 400 || err.status == 424 ) {
-			this.error.set( err.error.error || 'Format Error' );
-		} else {
-			if ( err.status == 403 )
-				this.error.set( 'Access denied' );
-			else
-				this.error.set( 'Unknown error' );
-		}
+		this.error.set( parseHttpError( err ) );
 		
 		// this.header = 'Error';
 		if ( this.buttons().length == 0 ) {

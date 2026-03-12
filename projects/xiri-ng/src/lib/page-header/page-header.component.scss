@@ -8,7 +8,7 @@
 	margin-bottom:   var(--xiri-spacing-lg, 1.5rem);
 
 	h1 {
-		font-size:   1.7rem;
+		font-size:   var(--xiri-font-size-headline);
 		font-weight: 500;
 		margin:      0;
 		color:       var(--on-surface);
@@ -17,13 +17,13 @@
 	p {
 		font-size: var(--xiri-font-size-body);
 		color:     var(--on-surface-variant);
-		margin:    0.25rem 0 0;
+		margin:    var(--xiri-spacing-xs) 0 0;
 	}
 
 	.page-header-icon mat-icon {
-		font-size: 1.7rem;
-		width:     1.7rem;
-		height:    1.7rem;
+		font-size: var(--xiri-font-size-headline);
+		width:     var(--xiri-font-size-headline);
+		height:    var(--xiri-font-size-headline);
 	}
 
 	.page-header-content {

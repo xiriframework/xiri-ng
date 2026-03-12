@@ -17,11 +17,7 @@
 	<mat-divider></mat-divider>
 	<mat-dialog-actions>
 		@for (button of buttons(); track button) {
-			@if (button.default) {
-				<xiri-buttonstyle [button]="button" [disabled]="false" (click)="clickButton( button )"></xiri-buttonstyle>
-			} @else {
-				<xiri-buttonstyle [button]="button" [disabled]="false" (click)="clickButton( button )"></xiri-buttonstyle>
-			}
+			<xiri-buttonstyle [button]="button" [disabled]="false" (click)="clickButton( button )"></xiri-buttonstyle>
 		}
 	</mat-dialog-actions>
 }

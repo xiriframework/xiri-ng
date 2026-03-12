@@ -150,7 +150,7 @@
 				<div class="treeselect" [class]="field.class" [hidden]="field.hide">
 					<xiri-treeselect [field]="field" [formControlName]="field.id"
 					                 [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid"></xiri-treeselect>
-					<div class="xhint" [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid">
+					<div class="xhint" aria-live="polite" [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid">
 						@if (field.hint) {
 							<mat-hint>{{ field.hint }}</mat-hint>
 						}

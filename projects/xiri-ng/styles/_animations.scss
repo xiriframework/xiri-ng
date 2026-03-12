@@ -1,4 +1,18 @@
 // ============================================
+// Animation Design Tokens
+// ============================================
+
+:root {
+	--xiri-duration-fast:       150ms;
+	--xiri-duration-normal:     250ms;
+	--xiri-duration-slow:       350ms;
+	--xiri-easing-standard:     cubic-bezier(0.4, 0, 0.2, 1);
+	--xiri-easing-decelerate:   cubic-bezier(0, 0, 0.2, 1);
+	--xiri-easing-accelerate:   cubic-bezier(0.4, 0, 1, 1);
+	--xiri-easing-bounce:       cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// ============================================
 // Micro-Animations System
 // ============================================
 
@@ -39,20 +53,84 @@
 	to { transform: rotate(360deg); }
 }
 
+@keyframes slideInUp {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideOut {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+}
+
+@keyframes pulse {
+	0% { box-shadow: 0 0 0 0 var(--primary-container, rgba(25, 118, 210, 0.3)); }
+	70% { box-shadow: 0 0 0 6px transparent; }
+	100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+// ============================================
+// Animation Mixins
+// ============================================
+
+@mixin interactive-hover {
+	transition: background-color var(--xiri-duration-fast) var(--xiri-easing-standard),
+	            box-shadow var(--xiri-duration-fast) var(--xiri-easing-standard);
+}
+
 // ============================================
 // Animation Utility Classes
 // ============================================
 
 .xiri-fade-in {
-	animation: fadeIn 0.2s ease-out;
+	animation: fadeIn var(--xiri-duration-fast) var(--xiri-easing-standard);
 }
 
 .xiri-fade-in-up {
-	animation: fadeInUp 0.25s ease-out;
+	animation: fadeInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
 }
 
 .xiri-scale-in {
-	animation: scaleIn 0.2s ease-out;
+	animation: scaleIn var(--xiri-duration-fast) var(--xiri-easing-standard);
+}
+
+.xiri-slide-in-up {
+	animation: slideInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
+}
+
+.xiri-stagger-children {
+	> * {
+		animation: fadeInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate) both;
+
+		@for $i from 1 through 12 {
+			&:nth-child(#{$i}) {
+				animation-delay: #{($i - 1) * 50}ms;
+			}
+		}
+	}
 }
 
 // ============================================

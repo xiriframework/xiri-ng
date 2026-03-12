@@ -20,7 +20,7 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 		border-radius: 0;
 
 		&::before {
-			border-radius: 8px;
+			border-radius: var(--xiri-radius-md);
 		}
 
 		&.mdc-list-item--with-two-lines ::ng-deep .mdc-list-item__content {
@@ -43,7 +43,7 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 		mat-icon {
 			text-align:       center;
 			font-size:        var(--xiri-icon-size-lg);
-			--mat-icon-color: white;
+			--mat-icon-color: var(--on-primary, white);
 		}
 
 		@each $name, $colors in $all-colors {
@@ -60,7 +60,7 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 		height:          100%;
 
 		mat-icon.gray {
-			--mat-icon-color: gray;
+			--mat-icon-color: var(--on-surface-variant, gray);
 		}
 
 		mat-icon.accent {

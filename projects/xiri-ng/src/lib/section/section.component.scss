@@ -17,7 +17,7 @@
 			color: var(--on-surface-variant);
 		}
 		&.collapsible { cursor: pointer; }
-		.collapse-icon { transition: transform 200ms ease; }
+		.collapse-icon { transition: transform var(--xiri-duration-normal, 300ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1)); }
 		.collapse-icon.collapsed { transform: rotate(-90deg); }
 		.section-header-left {
 			display: flex;
@@ -30,6 +30,23 @@
 			gap: var(--xiri-spacing-sm);
 		}
 	}
+	.collapse-wrapper {
+		display: grid;
+		grid-template-rows: 1fr;
+		transition: grid-template-rows var(--xiri-duration-normal, 300ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+
+		&.collapsed {
+			grid-template-rows: 0fr;
+		}
+	}
+
+	.collapse-inner {
+		overflow: hidden;
+		min-height: 0;
+		padding: 0 8px 8px;
+		margin: 0 -8px -8px;
+	}
+
 	.section-content {
 		padding-top: var(--xiri-spacing-md, 1rem);
 	}

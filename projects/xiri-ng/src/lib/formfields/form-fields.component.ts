@@ -285,12 +285,12 @@ export class XiriFormFieldsComponent implements OnInit {
 						field.required = true;
 					break;
 				
-				case 'bool': // TODO
+				case 'bool':
 					if ( field.name === undefined && field.placeholder )
 						field.name = field.placeholder;
 					break;
 				
-				case 'question': // TODO
+				case 'question':
 					if ( ( <any> field ).question )
 						field.value = ( <any> field ).question;
 					

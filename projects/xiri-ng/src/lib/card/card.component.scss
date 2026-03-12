@@ -1,16 +1,21 @@
 
 :host {
-	animation: fadeIn 0.2s ease-out;
+	animation: fadeIn var(--xiri-duration-fast) var(--xiri-easing-standard);
 }
 
-@keyframes fadeIn {
-	from { opacity: 0; }
-	to { opacity: 1; }
+.collapse-wrapper {
+	display:             grid;
+	grid-template-rows:  1fr;
+	transition:          grid-template-rows var(--xiri-duration-normal) var(--xiri-easing-standard);
+
+	&.collapsed {
+		grid-template-rows: 0fr;
+	}
 }
 
-@keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
+.collapse-inner {
+	overflow: hidden;
+	min-height: 0;
 }
 
 .spinning {
@@ -22,7 +27,7 @@
 
 	mat-card-header {
 		margin:      0 0 2px 0;
-		box-shadow:  0 3px 2px -2px var(--outline-variant, #C2C7CF);
+		box-shadow:  var(--xiri-shadow-xs);
 		padding:     4px 8px 4px 16px;
 		align-items: center;
 		min-height:  32px;

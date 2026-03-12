@@ -4,7 +4,7 @@
 }
 
 .loading {
-	margin: 1rem;
+	margin: var(--xiri-spacing-md);
 }
 
 .mat-mdc-list-item {
@@ -23,12 +23,12 @@
 	}
 
 	.mdc-list-item__start {
-		margin-right: 16px;
+		margin-right: var(--xiri-spacing-md);
 	}
 
 	.menu-button {
-		font-size:  1.2rem;
-		transition: 300ms ease-in-out;
+		font-size:  var(--xiri-font-size-title);
+		transition: var(--xiri-duration-slow) var(--xiri-easing-standard);
 		transform:  rotate(0deg);
 	}
 
@@ -48,12 +48,12 @@
 
 .submenu {
 	overflow-y:   hidden;
-	transition:   max-height 300ms cubic-bezier(0, 1.05, 0, 1);
+	transition:   max-height var(--xiri-duration-slow) var(--xiri-easing-decelerate);
 	max-height:   0;
-	padding-left: 2rem;
+	padding-left: var(--xiri-spacing-xl);
 }
 
 .submenu.expanded {
-	transition: max-height 300ms ease;
+	transition: max-height var(--xiri-duration-slow) var(--xiri-easing-standard);
 	max-height: 1000px;
 }

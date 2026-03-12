@@ -11,10 +11,10 @@
 		dt {
 			display: flex;
 			align-items: center;
-			gap: 0.25rem;
+			gap: var(--xiri-spacing-xs);
 			font-size: var(--xiri-font-size-label);
 			color: var(--on-surface-variant);
-			margin-bottom: 0.25rem;
+			margin-bottom: var(--xiri-spacing-xs);
 		}
 		dd {
 			font-size: var(--xiri-font-size-body);
@@ -33,7 +33,7 @@
 	.dl-badge {
 		display: inline-block;
 		padding: 0.125rem 0.5rem;
-		border-radius: 4px;
+		border-radius: var(--xiri-radius-xs);
 		font-size: var(--xiri-font-size-label);
 	}
 }

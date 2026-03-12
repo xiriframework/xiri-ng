@@ -5,13 +5,13 @@
 }
 
 .error {
-	padding:          1rem;
-	margin:           1rem 0;
+	padding:          var(--xiri-spacing-md);
+	margin:           var(--xiri-spacing-md) 0;
 
 	border:           1px solid transparent;
-	border-radius:    5px;
+	border-radius:    var(--xiri-radius-sm);
 
 	background-color: var(--error-container, #FFDAD6);
 	color:            var(--on-error-container, #410002);
-	animation:        fadeInUp 0.25s ease-out;
+	animation:        fadeInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
 }

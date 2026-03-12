@@ -11,7 +11,14 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 
 .timeline-item {
 	display: flex;
-	gap:     1rem;
+	gap:     var(--xiri-spacing-md);
+	animation: fadeInUp var(--xiri-duration-normal, 300ms) var(--xiri-easing-decelerate, cubic-bezier(0, 0, 0.2, 1)) both;
+
+	@for $i from 1 through 20 {
+		&:nth-child(#{$i}) {
+			animation-delay: #{($i - 1) * 50}ms;
+		}
+	}
 
 	&.last .timeline-marker {
 		.timeline-line {
@@ -37,7 +44,7 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 	justify-content: center;
 	flex-shrink:     0;
 	background:      var(--primary, #2892D9);
-	color:           white;
+	color:           var(--on-primary, white);
 
 	mat-icon {
 		font-size: 1.25rem;
@@ -55,12 +62,12 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 .timeline-line {
 	width:      2px;
 	flex:       1;
-	min-height: 1.5rem;
+	min-height: var(--xiri-spacing-lg);
 	background: var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
 }
 
 .timeline-content {
-	padding-bottom: 1.5rem;
+	padding-bottom: var(--xiri-spacing-lg);
 	flex:           1;
 	min-width:      0;
 }

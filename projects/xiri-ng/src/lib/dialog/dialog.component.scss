@@ -1,13 +1,13 @@
 mat-spinner {
-	margin: 1rem;
+	margin: var(--xiri-spacing-md);
 }
 
 .dynamic-form {
-	margin-bottom: 1rem;
+	margin-bottom: var(--xiri-spacing-md);
 
 	.field {
 		width:      100%;
-		margin-top: 0.5rem;
+		margin-top: var(--xiri-spacing-sm);
 	}
 }
 
@@ -17,7 +17,7 @@ mat-spinner {
 
 	.left {
 		font-size:     var(--xiri-font-size-display);
-		padding-right: 1rem;
+		padding-right: var(--xiri-spacing-md);
 	}
 }
 
@@ -31,14 +31,14 @@ mat-spinner {
 .error {
 	color:         var(--error, red);
 	font-size:     var(--xiri-font-size-title);
-	margin-top:    1rem;
-	margin-bottom: 1rem;
+	margin-top:    var(--xiri-spacing-md);
+	margin-bottom: var(--xiri-spacing-md);
 }
 
 mat-dialog-actions {
 	justify-content: space-between;
-	padding-left:    24px;
-	padding-right:   24px;
+	padding-left:    var(--xiri-spacing-lg);
+	padding-right:   var(--xiri-spacing-lg);
 
 	&.one {
 		justify-content: end;
@@ -47,6 +47,15 @@ mat-dialog-actions {
 
 mat-dialog-content {
 	min-height: 4rem;
+
+	> * {
+		animation: fadeIn var(--xiri-duration-fast, 150ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+	}
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to   { opacity: 1; }
 }
 
 .done {

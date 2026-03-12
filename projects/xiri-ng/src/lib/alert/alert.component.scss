@@ -1,14 +1,15 @@
 
 mat-spinner {
-	margin: 1rem;
+	margin: var(--xiri-spacing-md);
 }
 
 .content {
 	display: flex;
+	align-items: center;
 
 	.icon {
 		font-size:   2rem;
-		margin:      1rem 0;
+		margin:      var(--xiri-spacing-md) 0;
 		flex-shrink: 0;
 		min-width:   2rem;
 		line-height: 1;
@@ -16,7 +17,7 @@ mat-spinner {
 
 	.text {
 		flex-grow: 1;
-		padding:   0 1rem;
+		padding:   0 var(--xiri-spacing-md);
 	}
 }
 

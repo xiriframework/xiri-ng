@@ -1,4 +1,4 @@
 mat-spinner {
 	display: inline-block;
-	::ng-deep svg circle { stroke: currentColor; }
+	--mat-progress-spinner-active-indicator-color: currentColor;
 }

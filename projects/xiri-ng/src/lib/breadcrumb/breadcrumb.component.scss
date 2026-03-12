@@ -7,13 +7,13 @@
 		list-style:  none;
 		padding:     0;
 		margin:      0;
-		gap:         0.25rem;
+		gap:         var(--xiri-spacing-xs);
 	}
 
 	li {
 		display:     flex;
 		align-items: center;
-		gap:         0.25rem;
+		gap:         var(--xiri-spacing-xs);
 		font-size:   var(--xiri-font-size-body, 0.875rem);
 		color:       var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
 
@@ -23,7 +23,7 @@
 			gap:             0.25rem;
 			color:           var(--primary, #2892D9);
 			text-decoration: none;
-			border-radius:   4px;
+			border-radius:   var(--xiri-radius-xs);
 			padding:         0.125rem 0.25rem;
 			margin:          -0.125rem -0.25rem;
 
@@ -42,7 +42,7 @@
 		span {
 			display:     flex;
 			align-items: center;
-			gap:         0.25rem;
+			gap:         var(--xiri-spacing-xs);
 
 			mat-icon {
 				font-size: 1.125rem;

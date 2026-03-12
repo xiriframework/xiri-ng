@@ -181,28 +181,58 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
+// Tab Body Content Padding
+// ============================================
+
+.mat-mdc-tab-body-content {
+	padding: var(--xiri-spacing-md);
+}
+
+// ============================================
 // Snackbar Color Variants
 // ============================================
+.xiri-snackbar-success,
+.xiri-snackbar-error,
+.xiri-snackbar-info,
+.xiri-snackbar-warning {
+	animation: slideInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
+
+	.mdc-snackbar__label::before {
+		font-family: 'Material Icons';
+		font-size:   20px;
+		margin-right: 8px;
+		vertical-align: middle;
+	}
+}
+
 .xiri-snackbar-success {
 	--mdc-snackbar-container-color: #{$color-success};
 	--mdc-snackbar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
+
+	.mdc-snackbar__label::before { content: '\e876'; } // check_circle
 }
 
 .xiri-snackbar-error {
 	--mdc-snackbar-container-color: #{$color-red};
 	--mdc-snackbar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
+
+	.mdc-snackbar__label::before { content: '\e000'; } // error
 }
 
 .xiri-snackbar-info {
 	--mdc-snackbar-container-color: #{$color-info};
 	--mdc-snackbar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
+
+	.mdc-snackbar__label::before { content: '\e88e'; } // info
 }
 
 .xiri-snackbar-warning {
 	--mdc-snackbar-container-color: #{$color-orange};
 	--mdc-snackbar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
+
+	.mdc-snackbar__label::before { content: '\e002'; } // warning
 }

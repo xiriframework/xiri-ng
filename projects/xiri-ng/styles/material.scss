@@ -3,6 +3,7 @@
 @use 'sass:color';
 @use 'colors' as *;
 @use 'material-vars' as vars;
+@use 'animations';
 @use 'material-components';
 @use 'accessibility';
 @use '@angular/material/core/tokens/m3-utils' as m3-utils;

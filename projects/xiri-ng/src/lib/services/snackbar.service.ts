@@ -44,6 +44,7 @@ export class XiriSnackbarService {
 			horizontalPosition: 'center',
 			verticalPosition: 'bottom',
 			panelClass: [ `xiri-snackbar-${ type }` ],
+			politeness: type === 'error' ? 'assertive' : 'polite',
 		};
 
 		return this.snackbar.open( message, action || undefined, config );

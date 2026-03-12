@@ -28,7 +28,6 @@ export interface XiriCardSettings {
 	headerSub?: string
 	headerIcon?: string
 	headerIconColor?: XiriColor
-	buttons?: XiriButton[] // TODO: remove
 	buttonsTop?: XiriButtonlineSettings
 	buttonsBottom?: XiriButtonlineSettings
 	dense?: number

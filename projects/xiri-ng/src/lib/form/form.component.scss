@@ -1,20 +1,20 @@
 
 .formbtnline {
-	padding-top:     2rem;
+	padding-top:     var(--xiri-spacing-xl);
 	display:         flex;
 	justify-content: space-between;
-	padding-left: 1rem;
-	padding-right: 1rem;
+	padding-left: var(--xiri-spacing-md);
+	padding-right: var(--xiri-spacing-md);
 }
 
 .done {
 	text-align: center;
-	font-size:  2rem;
-	margin-bottom: 1rem;
+	font-size:  var(--xiri-font-size-display);
+	margin-bottom: var(--xiri-spacing-md);
 }
 
 mat-spinner {
-	margin: 2rem;
+	margin: var(--xiri-spacing-xl);
 }
 
 [hidden] {

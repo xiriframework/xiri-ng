@@ -6,6 +6,7 @@ import { XiriFormField } from "../formfields/field.interface";
 import { catchError, map, Observable, throwError, timer } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { XiriSessionStorageService } from "./sessionStorage.service";
+import { parseHttpError } from './error.util';
 
 
 interface XiriFormServiceReturn {
@@ -57,15 +58,8 @@ export class XiriFormService {
 		return req.pipe(
 			map( res => this.parse( res ) ),
 			catchError( ( err: HttpErrorResponse ): Observable<never> => {
-				console.log( 'XiriFormService error', err );
-				let error: string = 'Unknown error';
-				if ( err.status == 400 || err.status == 424 )
-					error = err.error?.error || 'Format Error';
-				else if ( err.status == 403 )
-					error = err.error?.error || 'Access denied';
-				
 				return throwError( () => <XiriFormServiceError>{
-					error: error
+					error: parseHttpError( err )
 				} );
 			} )
 		);

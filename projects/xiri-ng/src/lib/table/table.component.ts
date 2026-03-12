@@ -760,6 +760,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					} );
 					this.dataSource._updateChangeSubscription();
 				}
+				this.flashSavedCell( row, column.id );
 				this.callReturn( result );
 			},
 			error: ( err: any ) => {
@@ -822,6 +823,23 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			}
 		}
 		return null;
+	}
+
+	private flashSavedCell( row: any, fieldId: string ): void {
+		this._changeDetectorRef.detectChanges();
+		setTimeout( () => {
+			const rowIndex = this.dataSource.data.indexOf( row );
+			const colIndex = this.displayedColumns.findIndex( c => c.id === fieldId );
+			if ( rowIndex === -1 || colIndex === -1 ) return;
+			const rows = document.querySelectorAll( '.xiritable tr.mat-mdc-row' );
+			const rowEl = rows[ rowIndex ];
+			if ( !rowEl ) return;
+			const cells = rowEl.querySelectorAll( 'td.mat-mdc-cell' );
+			const cell = cells[ colIndex ] as HTMLElement;
+			if ( !cell ) return;
+			cell.classList.add( 'xiri-cell-saved' );
+			setTimeout( () => cell.classList.remove( 'xiri-cell-saved' ), 500 );
+		} );
 	}
 
 	getEditableOptions( column: XiriTableField ): { value: string; label: string; color?: string }[] {

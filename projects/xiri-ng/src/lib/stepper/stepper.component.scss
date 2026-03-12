@@ -1,20 +1,20 @@
 
 .error {
-	padding: 0.5rem 0;
+	padding: var(--xiri-spacing-sm) 0;
 }
 
 .xrow {
-	padding-top: 1rem;
+	padding-top: var(--xiri-spacing-md);
 }
 
 .checking {
-	padding:         1rem 0.5rem;
+	padding:         var(--xiri-spacing-md) var(--xiri-spacing-sm);
 	display:         flex;
 	justify-content: flex-end;
 }
 
 .buttons {
-	padding-top:     1rem;
+	padding-top:     var(--xiri-spacing-md);
 	display:         flex;
 	justify-content: space-between;
 }

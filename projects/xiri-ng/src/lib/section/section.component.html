@@ -25,12 +25,14 @@
 		</div>
 		<mat-divider></mat-divider>
 	}
-	@if (!collapsed()) {
-		<div class="section-content">
-			<ng-content></ng-content>
-			@if (settings().components) {
-				<xiri-dyncomponent [data]="settings().components!" [dyncomponent]="dyncomponent()" class="xrow"></xiri-dyncomponent>
-			}
+	<div class="collapse-wrapper" [class.collapsed]="collapsed()">
+		<div class="collapse-inner">
+			<div class="section-content">
+				<ng-content></ng-content>
+				@if (settings().components) {
+					<xiri-dyncomponent [data]="settings().components!" [dyncomponent]="dyncomponent()" class="xrow"></xiri-dyncomponent>
+				}
+			</div>
 		</div>
-	}
+	</div>
 </section>

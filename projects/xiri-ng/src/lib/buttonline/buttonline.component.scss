@@ -4,7 +4,7 @@
 		text-align: right;
 
 		> xiri-button, a {
-			margin-left: 0.5rem;
+			margin-left: var(--xiri-spacing-sm);
 		}
 	}
 
@@ -12,15 +12,15 @@
 		text-align: center;
 
 		button, a, xiri-button {
-			margin-left: 0.5rem;
-			margin-right: 0.5rem;
+			margin-left: var(--xiri-spacing-sm);
+			margin-right: var(--xiri-spacing-sm);
 		}
 	}
 
 	&.left {
 		button, a, xiri-button {
-			margin-left: 0.5rem;
-			margin-right: 0.5rem;
+			margin-left: var(--xiri-spacing-sm);
+			margin-right: var(--xiri-spacing-sm);
 		}
 	}
 
@@ -29,6 +29,6 @@
 	}
 
 	xiri-button + xiri-button {
-		margin-left: 0.4rem;
+		margin-left: var(--xiri-spacing-sm);
 	}
 }

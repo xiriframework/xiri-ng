@@ -1,8 +1,8 @@
 
 .main {
-	border:                  1px solid var(--outline-variant, #C2C7CF);
-	border-top-left-radius:  var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
-	border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
+	border:        1px solid var(--outline-variant, #C2C7CF);
+	border-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
+	overflow:      hidden;
 }
 
 :host {

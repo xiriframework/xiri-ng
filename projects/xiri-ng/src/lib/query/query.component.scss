@@ -1,7 +1,7 @@
 
 .query {
-	padding-left:  1rem;
-	padding-right: 1rem;
+	padding-left:  var(--xiri-spacing-md);
+	padding-right: var(--xiri-spacing-md);
 }
 
 .query-expansion {
@@ -11,6 +11,6 @@
 	}
 
 	mat-panel-title mat-icon {
-		margin-right: 8px;
+		margin-right: var(--xiri-spacing-sm);
 	}
 }

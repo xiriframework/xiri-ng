@@ -1,25 +1,28 @@
-@keyframes scaleIn {
-	from { opacity: 0; transform: scale(0.95); }
-	to { opacity: 1; transform: scale(1); }
-}
-
 :host {
 	display: block;
-	animation: scaleIn 0.2s ease-out;
+	animation: scaleIn var(--xiri-duration-normal) var(--xiri-easing-decelerate) both;
+}
+
+:host-context(.xiri-stat-grid) {
+	@for $i from 1 through 12 {
+		&:nth-child(#{$i}) {
+			animation-delay: #{($i - 1) * 50}ms;
+		}
+	}
 }
 
 .stat-card {
 	padding: 0;
 
 	mat-card-content {
-		padding: 1rem 1.25rem;
+		padding: var(--xiri-spacing-md) var(--xiri-spacing-md);
 	}
 }
 
 .stat-content {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	gap: var(--xiri-spacing-md);
 	min-width: 0;
 }
 
@@ -49,14 +52,14 @@
 	white-space: nowrap;
 
 	.prefix, .suffix {
-		font-size: 1rem;
+		font-size: var(--xiri-font-size-body);
 		font-weight: 400;
 		opacity: 0.7;
 	}
 }
 
 .stat-label {
-	font-size: 0.875rem;
+	font-size: var(--xiri-font-size-label);
 	color: var(--on-surface-variant, #44474F);
 	margin-top: 2px;
 	overflow: hidden;
@@ -69,10 +72,10 @@
 	align-items: center;
 	flex-shrink: 0;
 	gap: 2px;
-	font-size: 0.875rem;
+	font-size: var(--xiri-font-size-label);
 	font-weight: 500;
-	padding: 4px 8px;
-	border-radius: 4px;
+	padding: var(--xiri-spacing-xs) var(--xiri-spacing-sm);
+	border-radius: var(--xiri-radius-xs);
 
 	mat-icon {
 		font-size: 18px;
@@ -82,12 +85,12 @@
 
 	&.up {
 		color: var(--color-success, #2ECC71);
-		background-color: rgba(46, 204, 113, 0.1);
+		background-color: color-mix(in srgb, var(--color-success, #2ECC71) 10%, transparent);
 	}
 
 	&.down {
 		color: var(--error, #E74C3C);
-		background-color: rgba(231, 76, 60, 0.1);
+		background-color: color-mix(in srgb, var(--error, #E74C3C) 10%, transparent);
 	}
 
 	&.neutral {

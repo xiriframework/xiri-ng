@@ -19,6 +19,10 @@
 .point.isLink {
 	cursor: pointer;
 
+	mat-card {
+		transition: background-color var(--xiri-duration-fast, 150ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+	}
+
 	&:hover {
 		mat-card {
 			background-color: var(--surface-variant, #DEE3EB);

@@ -32,6 +32,20 @@ body {
 	--xiri-icon-size-md:                                                             1.25rem; /* 20px */
 	--xiri-icon-size-sm:                                                             1rem; /* 16px */
 
+	/* Border Radius Scale */
+	--xiri-radius-xs:    4px;    /* badges, inline-editable cells, trend badges */
+	--xiri-radius-sm:    6px;    /* form fields */
+	--xiri-radius-md:    8px;    /* skeleton rects, list avatars */
+	--xiri-radius-lg:    12px;   /* cards, buttons, dialogs (M3 default) */
+	--xiri-radius-xl:    16px;   /* große Container */
+	--xiri-radius-full:  9999px; /* Pills */
+
+	/* Shadow / Elevation Scale */
+	--xiri-shadow-xs:    0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	--xiri-shadow-sm:    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+	--xiri-shadow-md:    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+	--xiri-shadow-lg:    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
 	/* Form Field Icon Color */
 	--xiri-formfield-icon-color:                                                     var(inherit);
 
@@ -45,7 +59,7 @@ body {
 	--mat-form-field-container-height:                                               46px;
 	--mat-form-field-filled-with-label-container-padding-bottom:                     2px;
 	--mat-form-field-container-text-line-height:                                     1.4rem;
-	--mat-form-field-filled-container-shape:                                         6px;
+	--mat-form-field-filled-container-shape:                                         var(--xiri-radius-sm);
 
 	/* Toolbar */
 	--mat-toolbar-container-background-color:                                        var(--toolbar-background, var(--primary));
