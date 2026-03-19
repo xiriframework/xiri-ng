@@ -1,6 +1,6 @@
 {
 	"name": "@xiriframework/xiri-ng",
-	"version": "0.2.11",
+	"version": "0.2.12",
 	"description": "Angular UI component library for the Xiri Framework",
 	"license": "Apache-2.0",
 	"repository": {
