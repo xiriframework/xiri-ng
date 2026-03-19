@@ -221,12 +221,16 @@ export class XiriDialogComponent implements OnDestroy {
 				{
 					next: ( res: any ) => {
 						if ( res.done ) {
-							// this.formData.done = true;
-							// this.formData.text = res.blocked;
-							this.url = res.url;
-							this.extra = res;
-							
-							this.download( null );
+							if ( res.error ) {
+								this.dialogRef.disableClose = false;
+								this.error.set( res.error );
+								this.formFields.set( null );
+								this.snackbar.error( res.error );
+							} else {
+								this.url = res.url;
+								this.extra = res;
+								this.download( null );
+							}
 						} else
 							this.refresh();
 					},
