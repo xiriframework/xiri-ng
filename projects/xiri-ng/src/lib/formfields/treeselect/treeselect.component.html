@@ -16,7 +16,9 @@
 		<mat-tree [dataSource]="dataSource" [childrenAccessor]="getChildren">
 			<mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding="" matTreeNodePaddingIndent="20px" [hidden]="node.hidden"
 			               [class.notree]="!field.tree">
-				<button mat-icon-button disabled aria-hidden="true"></button>
+				<button mat-icon-button disabled aria-hidden="true">
+					<mat-icon style="visibility: hidden">chevron_right</mat-icon>
+				</button>
 				<mat-checkbox class="checklist-leaf-node" [checked]="node.state === 1"
 				              (change)="treeItemSelectionToggle(node)">{{ node.name }}
 				</mat-checkbox>
