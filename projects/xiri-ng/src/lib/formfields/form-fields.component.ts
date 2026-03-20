@@ -10,7 +10,6 @@ import {
 	output,
 	signal
 } from '@angular/core';
-import { animate, style, transition, trigger } from '@angular/animations';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	AbstractControl,
@@ -40,7 +39,7 @@ import { MatSelect } from '@angular/material/select';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { MatError, MatFormField, MatHint, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { SafehtmlPipe } from "../pipes/safehtml.pipe";
 import { XiriChipsComponent } from './chips/chips.component';
@@ -53,18 +52,6 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 	            templateUrl: './form-fields.component.html',
 	            styleUrl: './form-fields.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
-	            animations: [
-		            trigger( 'showWhenField', [
-			            transition( ':enter', [
-				            style( { opacity: 0, height: 0 } ),
-				            animate( '200ms ease-out', style( { opacity: 1, height: '*' } ) )
-			            ] ),
-			            transition( ':leave', [
-				            style( { overflow: 'hidden' } ),
-				            animate( '150ms ease-in', style( { opacity: 0, height: 0 } ) )
-			            ] )
-		            ] )
-	            ],
 	            imports: [
 		            FormsModule,
 		            ReactiveFormsModule,
@@ -93,7 +80,6 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            AsyncPipe,
 		            SafehtmlPipe,
 		            XiriChipsComponent,
-		            NgTemplateOutlet,
 	            ]
             } )
 export class XiriFormFieldsComponent implements OnInit {

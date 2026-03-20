@@ -1,36 +1,6 @@
-<ng-template #validationErrors let-field="field">
-	@for (vali of field.validations; track vali) {
-		<ng-container ngProjectAs="mat-error">
-			@if (formGroup.get(field.id)?.hasError(vali.id)) {
-				<mat-error>{{ vali.message }}</mat-error>
-			}
-		</ng-container>
-	}
-</ng-template>
-
-<ng-template #validationErrorsTouched let-field="field">
-	@for (vali of field.validations; track vali) {
-		<ng-container ngProjectAs="mat-error">
-			@if (formGroup.get(field.id)?.touched && formGroup.get(field.id)?.hasError(vali.id)) {
-				<mat-error>{{ vali.message }}</mat-error>
-			}
-		</ng-container>
-	}
-</ng-template>
-
-<ng-template #fieldHints let-field="field">
-	@if (field.hint) {
-		<mat-hint>{{ field.hint }}</mat-hint>
-	}
-	@if (field.max) {
-		<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
-	}
-</ng-template>
-
 <form class="xrow dynamic-form" [formGroup]="formGroup" [class]="display()">
 	@for (field of fields(); track field.id) {
 		@if (isFieldVisible(field)) {
-		<div @showWhenField>
 		@switch (field.type) {
 			@case ('text') {
 				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
@@ -57,8 +27,19 @@
 					@if (field.iconSuffix) {
 						<mat-icon matSuffix>{{ field.iconSuffix }}</mat-icon>
 					}
-					<ng-container *ngTemplateOutlet="fieldHints; context: { field }"></ng-container>
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('number') {
@@ -90,7 +71,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('password') {
@@ -110,8 +97,19 @@
 					        [attr.aria-pressed]="field.pwdhide">
 						<mat-icon>{{ field.pwdhide ? 'visibility_off' : 'visibility' }}</mat-icon>
 					</button>
-					<ng-container *ngTemplateOutlet="fieldHints; context: { field }"></ng-container>
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('select') {
@@ -139,7 +137,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('treeselect') {
@@ -147,8 +151,19 @@
 					<xiri-treeselect [field]="field" [formControlName]="field.id"
 					                 [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid"></xiri-treeselect>
 					<div class="xhint" aria-live="polite" [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid">
-						<ng-container *ngTemplateOutlet="fieldHints; context: { field }"></ng-container>
-						<ng-container *ngTemplateOutlet="validationErrorsTouched; context: { field }"></ng-container>
+						@if (field.hint) {
+							<mat-hint>{{ field.hint }}</mat-hint>
+						}
+						@if (field.max) {
+							<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
+						}
+						@for (vali of field.validations; track vali) {
+							<ng-container ngProjectAs="mat-error">
+								@if (formGroup.get(field.id)?.touched && formGroup.get(field.id)?.hasError(vali.id)) {
+									<mat-error>{{ vali.message }}</mat-error>
+								}
+							</ng-container>
+						}
 					</div>
 				</div>
 			}
@@ -159,7 +174,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('daterange') {
@@ -169,7 +190,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('datetimerange') {
@@ -179,7 +206,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('bool') {
@@ -188,7 +221,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</div>
 			}
 			@case ('volume') {
@@ -202,7 +241,13 @@
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</div>
 			}
 			@case ('textarea') {
@@ -211,8 +256,19 @@
 						<mat-label>{{ field.name }}</mat-label>
 					}
 					<textarea matInput [formControlName]="field.id" [placeholder]="field.name" [required]="field.required" [rows]="field.rows || 5"></textarea>
-					<ng-container *ngTemplateOutlet="fieldHints; context: { field }"></ng-container>
-					<ng-container *ngTemplateOutlet="validationErrors; context: { field }"></ng-container>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@if (field.max) {
+						<mat-hint align="end">{{ formGroup.get(field.id)?.value?.length || 0 }} / {{ field.max }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
 				</mat-form-field>
 			}
 			@case ('file') {
@@ -275,7 +331,6 @@
 				<div>default: {{ field.type }}</div>
 			}
 		}
-		</div>
 		}
 	}
 </form>
