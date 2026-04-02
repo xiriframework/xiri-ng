@@ -71,7 +71,6 @@ export class XiriSearchComponent implements OnInit {
 			if ( value ) {
 				this._text = value;
 				this.show = true;
-				this.filter.next( this._text );
 			}
 		} );
 	}

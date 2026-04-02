@@ -15,7 +15,7 @@
 					                 [filterData]="_filterData()"></xiri-buttonline>
 				}
 				@if (options.search) {
-					<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchText"></xiri-search>
+					<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchTextInit"></xiri-search>
 				}
 				@if (options.saveInput) {
 					<div class="buttons saveInput">

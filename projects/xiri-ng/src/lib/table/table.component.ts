@@ -210,6 +210,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public errorMsg: string = '';
 	private _firstData: boolean = true;
 	public searchText: string = '';
+	public searchTextInit: string = '';
 
 	trackByRowId = ( _: number, row: any ): any => row.id ?? _;
 
@@ -476,8 +477,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 				if ( !data )
 					return;
 				
-				if ( data.filter !== undefined )
+				if ( data.filter !== undefined ) {
 					this.searchText = data.filter;
+					this.searchTextInit = data.filter;
+				}
 				if ( data.sort !== undefined && data.sortDirection !== undefined )
 					this.sort().sort( ( { id: data.sort, start: data.sortDirection } ) as MatSortable );
 				if ( data.pageSize !== undefined && data.pageIndex !== undefined ) {

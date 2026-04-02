@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "version": "cd projects/xiri-ng && npm version patch",
-    "demo": "ng serve --watch --port 4301 --ssl --hmr demo",
+    "demo": "ng serve --watch --port 4301 --ssl --hmr --host 0.0.0.0 demo",
     "package": "npm run version && npm run build xiri-ng && cd dist/xiri-ng && npm pack",
     "publish": "./release.sh"
   },

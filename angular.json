@@ -108,25 +108,6 @@
 					"options": {
 						"buildTarget": "demo:build"
 					}
-				},
-				"test": {
-					"builder": "@angular/build:karma",
-					"options": {
-						"polyfills": [
-							"zone.js",
-							"zone.js/testing"
-						],
-						"tsConfig": "projects/demo/tsconfig.spec.json",
-						"inlineStyleLanguage": "scss",
-						"assets": [
-							"projects/demo/src/favicon.ico",
-							"projects/demo/src/assets"
-						],
-						"styles": [
-							"projects/demo/src/styles.scss"
-						],
-						"scripts": []
-					}
 				}
 			}
 		}

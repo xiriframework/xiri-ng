@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { XiriTableComponent, XiriTableSettings } from './table.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriNumberService } from '../services/number.service';
+import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component( {
@@ -41,12 +42,12 @@ describe( 'XiriTableComponent', () => {
 	};
 	let mockSnackbar: { error: ReturnType<typeof vi.fn> };
 	let mockDialog: { open: ReturnType<typeof vi.fn> };
-	let mockRouter: { navigate: ReturnType<typeof vi.fn>; url: string };
 	let mockSessionStorage: {
 		set: ReturnType<typeof vi.fn>;
 		getTimeout: ReturnType<typeof vi.fn>;
 	};
 	let mockNumberService: { formatNumber: ReturnType<typeof vi.fn> };
+	let mockResponseHandler: { handle: ReturnType<typeof vi.fn> };
 
 	function initMocks() {
 		mockDataService = {
@@ -56,12 +57,12 @@ describe( 'XiriTableComponent', () => {
 		};
 		mockSnackbar = { error: vi.fn() };
 		mockDialog = { open: vi.fn() };
-		mockRouter = { navigate: vi.fn().mockReturnValue( Promise.resolve() ), url: '/test' };
 		mockSessionStorage = {
 			set: vi.fn(),
 			getTimeout: vi.fn().mockReturnValue( null ),
 		};
 		mockNumberService = { formatNumber: vi.fn().mockReturnValue( '0' ) };
+		mockResponseHandler = { handle: vi.fn() };
 	}
 
 	function createFixture( settings?: XiriTableSettings ) {
@@ -70,12 +71,13 @@ describe( 'XiriTableComponent', () => {
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent, NoopAnimationsModule ],
 			providers: [
+				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: XiriSnackbarService, useValue: mockSnackbar },
 				{ provide: MatDialog, useValue: mockDialog },
-				{ provide: Router, useValue: mockRouter },
 				{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
 				{ provide: XiriNumberService, useValue: mockNumberService },
+				{ provide: XiriResponseHandlerService, useValue: mockResponseHandler },
 			],
 		} );
 
@@ -242,7 +244,13 @@ describe( 'XiriTableComponent', () => {
 
 		it( 'should reset paginator on search', () => {
 			const firstPageSpy = vi.fn();
-			component.dataSource.paginator = { firstPage: firstPageSpy } as any;
+			component.dataSource.paginator = {
+				firstPage: firstPageSpy,
+				page: new Subject(),
+				initialized: new Subject(),
+				pageIndex: 0,
+				pageSize: 50,
+			} as any;
 			component.searchDo( 'test' );
 			expect( firstPageSpy ).toHaveBeenCalled();
 		} );
@@ -562,14 +570,13 @@ describe( 'XiriTableComponent', () => {
 	} );
 
 	describe( 'callReturn behavior', () => {
-		it( 'should navigate on page refresh result', () => {
-			( component as any ).callReturn( { page: 'refresh' } );
-			expect( mockRouter.navigate ).toHaveBeenCalledWith( [ '/test' ] );
-		} );
-
-		it( 'should navigate on goto result', () => {
-			( component as any ).callReturn( { goto: '/other' } );
-			expect( mockRouter.navigate ).toHaveBeenCalledWith( [ '/other' ] );
+		it( 'should delegate to responseHandler.handle', () => {
+			const result = { page: 'refresh' };
+			( component as any ).callReturn( result );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( result, expect.objectContaining( {
+				onTableRefresh: expect.any( Function ),
+				onTableUpdate: expect.any( Function ),
+			} ) );
 		} );
 
 		it( 'should not fail on null result', () => {
@@ -580,14 +587,12 @@ describe( 'XiriTableComponent', () => {
 			expect( () => ( component as any ).callReturn( undefined ) ).not.toThrow();
 		} );
 
-		it( 'should update table row on update result', () => {
+		it( 'should update table row via onTableUpdate callback', () => {
 			component.dataSource.data = [ { id: 5, name: 'Old' } ];
-			( component as any ).callReturn( {
-				table: 'update',
-				id: 5,
-				field: 'name',
-				content: 'New',
+			mockResponseHandler.handle.mockImplementation( ( _result: any, callbacks: any ) => {
+				callbacks?.onTableUpdate?.( 5, 'name', 'New' );
 			} );
+			( component as any ).callReturn( { table: 'update', id: 5, field: 'name', content: 'New' } );
 			expect( component.dataSource.data[ 0 ].name ).toBe( 'New' );
 		} );
 	} );
@@ -595,12 +600,13 @@ describe( 'XiriTableComponent', () => {
 	describe( 'buttonReturn', () => {
 		it( 'should do nothing when event.done is false', () => {
 			component.buttonReturn( { done: false, result: { page: 'refresh' }, button: {} as any, loading: false } );
-			expect( mockRouter.navigate ).not.toHaveBeenCalled();
+			expect( mockResponseHandler.handle ).not.toHaveBeenCalled();
 		} );
 
 		it( 'should call callReturn when event.done is true', () => {
-			component.buttonReturn( { done: true, result: { goto: '/page' }, button: {} as any, loading: false } );
-			expect( mockRouter.navigate ).toHaveBeenCalledWith( [ '/page' ] );
+			const result = { goto: '/page' };
+			component.buttonReturn( { done: true, result, button: {} as any, loading: false } );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( result, expect.anything() );
 		} );
 	} );
 
