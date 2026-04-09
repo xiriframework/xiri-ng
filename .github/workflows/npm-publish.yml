@@ -41,14 +41,10 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Publishing version: $VERSION (from tag: $TAG_NAME)"
 
-      # Publish to npm
+      # Publish to npm (uses OIDC trusted publishing configured on npmjs.com)
       - name: Publish to npm
         working-directory: ./dist/xiri-ng
         run: npm publish --provenance --access public
-        env:
-          # OIDC authentication (preferred) - no token needed if configured on npmjs.com
-          # Falls back to NODE_AUTH_TOKEN if OIDC is not configured
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Publish to GitHub Packages
       - name: Publish to GitHub Packages
