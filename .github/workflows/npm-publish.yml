@@ -54,6 +54,7 @@ jobs:
       - name: Publish to GitHub Packages
         working-directory: ./dist/xiri-ng
         run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
           npm config set registry https://npm.pkg.github.com
           npm publish --access public
         env:
