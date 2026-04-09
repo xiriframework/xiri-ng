@@ -41,6 +41,10 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Publishing version: $VERSION (from tag: $TAG_NAME)"
 
+      # Remove _authToken from .npmrc so OIDC trusted publishing is used
+      - name: Configure npm for OIDC
+        run: sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
+
       # Publish to npm (uses OIDC trusted publishing configured on npmjs.com)
       - name: Publish to npm
         working-directory: ./dist/xiri-ng
