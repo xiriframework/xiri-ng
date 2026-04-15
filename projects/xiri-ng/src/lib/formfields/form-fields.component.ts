@@ -8,7 +8,8 @@ import {
 	input,
 	OnInit,
 	output,
-	signal
+	signal,
+	untracked
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -173,7 +174,14 @@ export class XiriFormFieldsComponent implements OnInit {
 		}
 		
 		this._fields = fields;
-		
+
+		const initialCollapsed = new Set<string>();
+		for ( const f of fields ) {
+			if ( f.type === 'header' && f.collapsible && f.collapsed )
+				initialCollapsed.add( f.id );
+		}
+		untracked( () => this.collapsedSections.set( initialCollapsed ) );
+
 		this.createControl();
 		
 		this.lastValue = JSON.stringify( this.formGroup.value );
