@@ -17,8 +17,12 @@ export class XiriResponseHandlerService {
 			return;
 		if ( result.page == 'refresh' || result.refresh == 'page' )
 			this.router.navigate( [ this.router.url ] ).then();
-		else if ( result.table == 'refresh' || result.refresh == 'table' )
-			callbacks?.onTableRefresh?.() ?? this.router.navigate( [ this.router.url ] ).then();
+		else if ( result.table == 'refresh' || result.refresh == 'table' ) {
+			if ( callbacks?.onTableRefresh )
+				callbacks.onTableRefresh();
+			else
+				this.router.navigate( [ this.router.url ] ).then();
+		}
 		else if ( result.goto )
 			this.router.navigate( [ result.goto ] ).then();
 		else if ( result.table == 'update' || result.update == 'table' )
