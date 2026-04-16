@@ -77,20 +77,23 @@ describe( 'XiriTimelineComponent', () => {
 		expect( dots[1].classList.contains( 'primary' ) ).toBe( true );
 	} );
 
-	it( 'should mark the last item with "last" class', () => {
+	it( 'should mark the first and last items with "first"/"last" classes', () => {
 		const items = fixture.nativeElement.querySelectorAll( '.timeline-item' );
-		expect( items[2].classList.contains( 'last' ) ).toBe( true );
+		expect( items[0].classList.contains( 'first' ) ).toBe( true );
 		expect( items[0].classList.contains( 'last' ) ).toBe( false );
+		expect( items[1].classList.contains( 'first' ) ).toBe( false );
+		expect( items[1].classList.contains( 'last' ) ).toBe( false );
+		expect( items[2].classList.contains( 'first' ) ).toBe( false );
+		expect( items[2].classList.contains( 'last' ) ).toBe( true );
 	} );
 
-	it( 'should render timeline-line for non-last items', () => {
+	it( 'should render line-before and line-after on every item', () => {
 		const items = fixture.nativeElement.querySelectorAll( '.timeline-item' );
 
-		const firstLine = items[0].querySelector( '.timeline-line' );
-		expect( firstLine ).toBeTruthy();
-
-		const lastLine = items[2].querySelector( '.timeline-line' );
-		expect( lastLine ).toBeFalsy();
+		for ( const item of items ) {
+			expect( item.querySelector( '.timeline-line.line-before' ) ).toBeTruthy();
+			expect( item.querySelector( '.timeline-line.line-after' ) ).toBeTruthy();
+		}
 	} );
 
 	it( 'should handle empty items array', () => {
@@ -101,16 +104,14 @@ describe( 'XiriTimelineComponent', () => {
 		expect( items.length ).toBe( 0 );
 	} );
 
-	it( 'should handle single item', () => {
+	it( 'should handle single item (marked both first and last)', () => {
 		host.settings.set( { items: [ { title: 'Only Item' } ] } );
 		fixture.detectChanges();
 
 		const items = fixture.nativeElement.querySelectorAll( '.timeline-item' );
 		expect( items.length ).toBe( 1 );
+		expect( items[0].classList.contains( 'first' ) ).toBe( true );
 		expect( items[0].classList.contains( 'last' ) ).toBe( true );
-
-		const line = items[0].querySelector( '.timeline-line' );
-		expect( line ).toBeFalsy();
 	} );
 
 	it( 'should update when settings change', () => {
@@ -122,5 +123,43 @@ describe( 'XiriTimelineComponent', () => {
 		const titles = fixture.nativeElement.querySelectorAll( '.timeline-title' );
 		expect( titles.length ).toBe( 1 );
 		expect( titles[0].textContent.trim() ).toBe( 'New Item' );
+	} );
+
+	it( 'should not apply "horizontal" class when orientation is unset', () => {
+		const root = fixture.nativeElement.querySelector( '.timeline' );
+		expect( root.classList.contains( 'horizontal' ) ).toBe( false );
+	} );
+
+	it( 'should apply "horizontal" class when orientation is "horizontal"', () => {
+		host.settings.set( {
+			orientation: 'horizontal',
+			items: [ { title: 'Step 1' }, { title: 'Step 2' } ]
+		} );
+		fixture.detectChanges();
+
+		const root = fixture.nativeElement.querySelector( '.timeline' );
+		expect( root.classList.contains( 'horizontal' ) ).toBe( true );
+	} );
+
+	it( 'should not apply "horizontal" class when orientation is "vertical"', () => {
+		host.settings.set( {
+			orientation: 'vertical',
+			items: [ { title: 'Step 1' } ]
+		} );
+		fixture.detectChanges();
+
+		const root = fixture.nativeElement.querySelector( '.timeline' );
+		expect( root.classList.contains( 'horizontal' ) ).toBe( false );
+	} );
+
+	it( 'should hide description when orientation is "horizontal"', () => {
+		host.settings.set( {
+			orientation: 'horizontal',
+			items: [ { title: 'Step 1', description: 'Hidden in horizontal' } ]
+		} );
+		fixture.detectChanges();
+
+		const descriptions = fixture.nativeElement.querySelectorAll( '.timeline-description' );
+		expect( descriptions.length ).toBe( 0 );
 	} );
 } );

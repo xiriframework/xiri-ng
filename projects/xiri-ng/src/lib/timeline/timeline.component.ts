@@ -12,6 +12,7 @@ export interface XiriTimelineItem {
 
 export interface XiriTimelineSettings {
 	items: XiriTimelineItem[];
+	orientation?: 'horizontal' | 'vertical';
 }
 
 @Component( {

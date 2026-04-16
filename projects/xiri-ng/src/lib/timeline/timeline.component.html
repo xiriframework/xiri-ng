@@ -1,15 +1,14 @@
-<div class="timeline">
-	@for (item of settings().items; track $index; let last = $last) {
-		<div class="timeline-item" [class.last]="last">
+<div class="timeline" [class.horizontal]="settings().orientation === 'horizontal'">
+	@for (item of settings().items; track $index; let last = $last; let first = $first) {
+		<div class="timeline-item" [class.last]="last" [class.first]="first">
 			<div class="timeline-marker">
+				<div class="timeline-line line-before"></div>
 				<div class="timeline-dot" [class]="item.iconColor || 'primary'">
 					@if (item.icon) {
 						<mat-icon>{{ item.icon }}</mat-icon>
 					}
 				</div>
-				@if (!last) {
-					<div class="timeline-line"></div>
-				}
+				<div class="timeline-line line-after"></div>
 			</div>
 			<div class="timeline-content">
 				<div class="timeline-header">
@@ -18,7 +17,7 @@
 						<span class="timeline-datetime">{{ item.datetime }}</span>
 					}
 				</div>
-				@if (item.description) {
+				@if (item.description && settings().orientation !== 'horizontal') {
 					<div class="timeline-description">{{ item.description }}</div>
 				}
 			</div>

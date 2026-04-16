@@ -4,6 +4,11 @@
 
 $all-colors: map.merge($theme-color-variants, $color-variants);
 
+:host {
+	display:        block;
+	container-type: inline-size;
+}
+
 .timeline {
 	display:        flex;
 	flex-direction: column;
@@ -20,10 +25,13 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 		}
 	}
 
-	&.last .timeline-marker {
-		.timeline-line {
-			display: none;
-		}
+	// Vertical default: only the line after the dot is shown, and only on non-last items.
+	.timeline-line.line-before {
+		display: none;
+	}
+
+	&.last .timeline-line.line-after {
+		display: none;
 	}
 }
 
@@ -73,11 +81,11 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 }
 
 .timeline-header {
-	display:     flex;
-	align-items: baseline;
-	gap:         0.75rem;
-	flex-wrap:   wrap;
-	min-height:  2.5rem;
+	display:       flex;
+	align-items:   baseline;
+	gap:           0.75rem;
+	flex-wrap:     wrap;
+	min-height:    2.5rem;
 	align-content: center;
 }
 
@@ -93,8 +101,81 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 }
 
 .timeline-description {
-	margin-top: 0.25rem;
-	font-size:  var(--xiri-font-size-body, 0.875rem);
-	color:      var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+	margin-top:  0.25rem;
+	font-size:   var(--xiri-font-size-body, 0.875rem);
+	color:       var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
 	line-height: 1.5;
+}
+
+// Horizontal layout — only applies when the host container is wide enough.
+// Below 480px the rule is inactive and .timeline.horizontal falls back to the
+// vertical defaults above.
+@container (min-width: 481px) {
+	.timeline.horizontal {
+		flex-direction: row;
+
+		.timeline-item {
+			flex:           1;
+			min-width:      0;
+			flex-direction: column;
+			align-items:    center;
+			gap:            var(--xiri-spacing-xs);
+			padding-bottom: 0;
+
+			.timeline-line.line-before {
+				display: block;
+			}
+
+			&.first .timeline-line.line-before {
+				visibility: hidden;
+			}
+
+			&.last .timeline-line.line-after {
+				display:    block;
+				visibility: hidden;
+			}
+		}
+
+		.timeline-content {
+			display:        contents;
+		}
+
+		.timeline-header {
+			display: contents;
+		}
+
+		.timeline-title {
+			order:           -2;
+			text-align:      center;
+			min-height:      2.5em;
+			display:         flex;
+			align-items:     center;
+			justify-content: center;
+			padding:         0 var(--xiri-spacing-xs);
+		}
+
+		.timeline-marker {
+			order:          -1;
+			width:          100%;
+			flex-direction: row;
+			align-items:    center;
+			gap:            0;
+		}
+
+		.timeline-datetime {
+			order:           1;
+			text-align:      center;
+			min-height:      1.5em;
+			display:         flex;
+			align-items:     center;
+			justify-content: center;
+		}
+
+		.timeline-line {
+			flex:       1;
+			width:      auto;
+			height:     2px;
+			min-height: 0;
+		}
+	}
 }

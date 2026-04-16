@@ -62,4 +62,22 @@
 		</div>
 	</div>
 
+	<!-- Horizontal Stepper -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionHorizontalStepper">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-timeline [settings]="horizontalStepperTimeline"></xiri-timeline>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goHorizontalCode" title="Go: timeline.WithOrientation(...)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

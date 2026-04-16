@@ -46,6 +46,13 @@ export class TimelineComponent {
 		icon: 'checklist',
 	};
 
+	sectionHorizontalStepper: XiriSectionSettings = {
+		title: 'Horizontal Stepper',
+		subtitle: 'Horizontal orientation. Collapses to vertical below ~480px container width.',
+		icon: 'linear_scale',
+		iconColor: 'primary',
+	};
+
 	activityTimeline: XiriTimelineSettings = {
 		items: [
 			{
@@ -126,6 +133,17 @@ export class TimelineComponent {
 		]
 	};
 
+	horizontalStepperTimeline: XiriTimelineSettings = {
+		orientation: 'horizontal',
+		items: [
+			{ title: 'Order Placed', datetime: '10:00', icon: 'shopping_cart', iconColor: 'success' },
+			{ title: 'Payment', datetime: '10:02', icon: 'paid', iconColor: 'success' },
+			{ title: 'Processing', datetime: '10:15', icon: 'inventory_2', iconColor: 'primary' },
+			{ title: 'Shipped', datetime: '14:30', icon: 'local_shipping', iconColor: 'accent' },
+			{ title: 'Delivered', icon: 'check_circle' },
+		]
+	};
+
 	goActivityCode = `tl := timeline.New()
 
 tl.Add("Project Created").
@@ -184,4 +202,26 @@ tl.Add("Step 2: Design")
 tl.Add("Step 3: Implementation")
 tl.Add("Step 4: Testing")
 tl.Add("Step 5: Deployment")`;
+
+	goHorizontalCode = `tl := timeline.New().
+    WithOrientation(core.TimelineOrientationHorizontal)
+
+tl.Add("Order Placed").
+    Datetime("10:00").
+    Icon("shopping_cart").IconColor("success")
+
+tl.Add("Payment").
+    Datetime("10:02").
+    Icon("paid").IconColor("success")
+
+tl.Add("Processing").
+    Datetime("10:15").
+    Icon("inventory_2").IconColor("primary")
+
+tl.Add("Shipped").
+    Datetime("14:30").
+    Icon("local_shipping").IconColor("accent")
+
+tl.Add("Delivered").
+    Icon("check_circle")`;
 }
