@@ -128,7 +128,7 @@ export class DashboardComponent {
 | Page Header | `page-header` | Modern page header with title, subtitle, icon, and color theming |
 | Section | `section` | Content section with optional title, subtitle, icon, and divider |
 | Toolbar | `toolbar` | Action toolbar with title and buttons |
-| Header | `header` | Legacy page header (consider using `page-header` instead) |
+| Header | `header` | Simple text header with color + size (e.g. for inline section titles) |
 | Breadcrumb | `breadcrumb` | Breadcrumb navigation trail |
 | Sidenav | - | Side navigation |
 | Tabs | `tabs` | Tabbed content |
@@ -172,7 +172,7 @@ export class DashboardComponent {
 
 | Service | Description |
 |---------|-------------|
-| `XiriDataService` | Central HTTP service. Prepends the configured `api` base URL to all requests. Methods: `get()`, `post()`, `postFile()`, `postDownload()` |
+| `XiriDataService` | Central HTTP service. Prepends the configured `api` base URL to all requests. Methods: `get()`, `post()`, `postFile()`, `postFileResponse()` |
 | `XiriDateService` | Date manipulation utilities wrapping date-fns with timezone support |
 | `XiriNumberService` | Number formatting and validation |
 | `ThemeService` | Material Design 3 theme management. Supports `light`, `dark`, and `auto` modes. Persists preference to localStorage |
@@ -248,48 +248,59 @@ The backend returns `{ data: XiriDynData[] }` and `xiri-dyncomponent` renders ca
 package main
 
 import (
+    "time"
+
+    "github.com/labstack/echo/v4"
+    "github.com/xiriframework/xiri-go/component/core"
+    "github.com/xiriframework/xiri-go/component/page"
     "github.com/xiriframework/xiri-go/component/pageheader"
     "github.com/xiriframework/xiri-go/component/stat"
     "github.com/xiriframework/xiri-go/component/statgrid"
     "github.com/xiriframework/xiri-go/component/table"
-    "github.com/xiriframework/xiri-go/response"
-    "github.com/labstack/echo/v4"
+    xurl "github.com/xiriframework/xiri-go/component/url"
 )
 
+type User struct {
+    ID        int64
+    Name      string
+    Email     string
+    LastLogin time.Time
+}
+
 func dashboardPage(c echo.Context) error {
-    // Page header
-    header := pageheader.New().
-        SetTitle("User Dashboard").
-        SetSubtitle("Overview of all users").
-        SetIcon("dashboard").
-        SetIconColor("primary")
+    // Page header with title, subtitle, icon
+    header := pageheader.New("User Dashboard").
+        Subtitle("Overview of all users").
+        Icon("dashboard", core.ColorPrimary)
 
-    // Statistics grid
-    stats := statgrid.New().
-        AddStat(stat.New().
-            SetLabel("Total Users").
-            SetValue("1,234").
-            SetIcon("people").
-            SetTrend("+12%").
-            SetTrendUp(true)).
-        AddStat(stat.New().
-            SetLabel("Active Today").
-            SetValue("892").
-            SetIcon("trending_up").
-            SetColor("accent"))
+    // Statistics grid — stat.New(value, label)
+    stats := statgrid.New().Columns(2)
+    stats.Add(stat.New("1,234", "Total Users").
+        Icon("people").
+        SetTrend(12.0, stat.TrendUp))
+    stats.Add(stat.New("892", "Active Today").
+        Icon("trending_up").
+        IconColor("accent"))   // stat.IconColor takes a string (not core.Color)
 
-    // Data table
-    usersTable := table.New().
-        SetURL("/api/users/data").
-        AddField(table.Field{ID: "name", Name: "Name", Sort: true}).
-        AddField(table.Field{ID: "email", Name: "Email", Sort: true}).
-        AddField(table.Field{ID: "lastLogin", Name: "Last Login", Format: "datetime", Sort: true})
+    // Data table — generic builder over Row type
+    b := table.NewBuilder[User]()
+    b.IdField  ("id",        "ID",         func(r User) int64     { return r.ID })
+    b.TextField("name",      "Name",       func(r User) string    { return r.Name }).WithSort(true)
+    b.TextField("email",     "Email",      func(r User) string    { return r.Email }).WithSort(true)
+    b.DateTimeField("login", "Last Login", func(r User) time.Time { return r.LastLogin }).WithSort(true)
+    tbl := b.Build()
+    tbl.SetURL(xurl.NewUrlPrefix("/users/data", "/api"))
 
-    return response.Page(c, header, stats, usersTable)
+    // Assemble page and return
+    p := page.NewPage()
+    p.Add(header)
+    p.Add(stats)
+    p.Add(tbl)
+    return c.JSON(200, p.Print(nil))
 }
 ```
 
-This Go code produces the JSON that xiri-ng's `xiri-dyncomponent` automatically renders into a complete dashboard page with header, statistics, and data table.
+This Go code produces the JSON that xiri-ng's `xiri-dyncomponent` automatically renders into a complete dashboard page with header, statistics, and data table. See the [xiri-go-expert Claude skill](https://github.com/xiriframework/xiri-go#claude-code-integration--xiri-go-expert-skill) bundled in that repo for a full API reference.
 
 ### Getting Started with xiri-go
 
@@ -399,8 +410,7 @@ The demo proxies `/api` requests to `http://localhost:8080`, so you can run a ba
 
 ## API Reference
 
-- [API.md](projects/xiri-ng/API.md) -- Component interfaces, `XiriDynData` types, form field types, and JSON examples
-- [REST_API.md](projects/xiri-ng/REST_API.md) -- REST endpoint specifications for backend implementation
+For a deep API reference (every component's inputs/outputs, services, pipes, types) use the bundled Claude Code skill — see [Claude Code Integration](#claude-code-integration) below. The skill has 7 reference files covering setup, dyncomponent, form fields, tables, components, and theming.
 
 ## Requirements
 
@@ -414,6 +424,92 @@ The demo proxies `/api` requests to `http://localhost:8080`, so you can run a ba
 | RxJS | ^7.8.1 |
 | ngx-mat-select-search | ^8.0.4 |
 | material-symbols | >= 0.40 |
+
+## Claude Code Integration — `xiri-ng-expert` Skill
+
+Dieses Repo enthält einen bundled [Claude Code](https://claude.com/claude-code) Skill unter `skills/xiri-ng-expert/`, der Claude beim Schreiben von Angular-Code mit xiri-ng unterstützt. Der Skill wird **mit jedem Library-Release mit-versioniert**, sodass die Skill-Inhalte (Komponenten-APIs, Interfaces, Patterns) zur installierten Library-Version passen.
+
+### Was der Skill kann
+
+Sobald aktiviert, triggert der Skill automatisch, wenn du Angular-Code schreibst oder Fragen stellst zu:
+
+- **Setup**: `provideXiriServices`, `XiriDataService`, `XiriSnackbarService`, `XiriResponseHandlerService`, Theme + Storage Services
+- **`xiri-dyncomponent`**: Rendering von `XiriDynData[]`, alle 27 type-Werte, Custom-Rendering via TemplateRef
+- **Formulare**: `XiriFormFieldsComponent`, alle 19 Feldtypen, `showWhen`-Conditional-Visibility, `select`-Directive
+- **Tabellen**: `XiriTableComponent` und `XiriRawTableComponent` — Settings, Fields, Server-Side-Pagination, Inline-Edit
+- **Komponenten**: Card, Dialog, Stepper, Tabs, Expansion, Timeline, Stat/StatGrid, Page-Header, Toolbar, …
+- **Farben/Types**: `XiriColor` (Theme + Extended), `XiriButton`, `XiriButtonResult`, etc.
+- **Theming & i18n**: Material Design 3, `ThemeService`-Signals, Locale-Propagation
+
+### Installation — Variante A: via `skills-lock.json`
+
+Wenn dein Projekt den standardisierten `skills-lock.json`-Mechanismus nutzt, trage einen Eintrag ein, der auf einen Release-Tag verweist:
+
+```json
+{
+  "version": 1,
+  "skills": {
+    "xiri-ng-expert": {
+      "source": "xiriframework/xiri-ng",
+      "sourceType": "github",
+      "ref": "v0.2.18"
+    }
+  }
+}
+```
+
+Ersetze `v0.2.18` durch den Tag, der zu deiner installierten `@xiriframework/xiri-ng`-Version passt (`npm list @xiriframework/xiri-ng`).
+
+### Installation — Variante B: Direkt aus `node_modules`
+
+Weil der Skill nicht im npm-Package liegt (er lebt im Git-Repo), clone oder sparse-checkout das Repo und verlinke den Skill-Ordner:
+
+```bash
+# Sparse clone (nur skills/ holen)
+git clone --depth 1 --branch v0.2.18 --filter=blob:none --sparse \
+  https://github.com/xiriframework/xiri-ng.git /tmp/xiri-ng-skill
+cd /tmp/xiri-ng-skill && git sparse-checkout set skills
+cd -
+
+# Als Symlink in dein Projekt
+mkdir -p .claude/skills
+ln -s /tmp/xiri-ng-skill/skills/xiri-ng-expert .claude/skills/xiri-ng-expert
+
+# ODER Kopieren (statisch):
+cp -r /tmp/xiri-ng-skill/skills/xiri-ng-expert .claude/skills/
+```
+
+### Installation — Variante C: Global als User-Skill
+
+Wenn du xiri-ng in mehreren Projekten nutzt:
+
+```bash
+git clone --depth 1 --branch v0.2.18 https://github.com/xiriframework/xiri-ng.git /tmp/xiri-ng
+cp -r /tmp/xiri-ng/skills/xiri-ng-expert ~/.claude/skills/
+rm -rf /tmp/xiri-ng
+```
+
+Aktualisieren nach einem `npm update`: den globalen Skill-Ordner mit dem passenden Tag neu ziehen.
+
+### Skill-Struktur
+
+```
+skills/xiri-ng-expert/
+├── SKILL.md                    # Navigation + Quick-Refs (always-loaded sobald Skill triggert)
+├── references/                  # On-demand (nur wenn Claude liest)
+│   ├── setup.md                 # provideXiriServices + alle Services im Detail
+│   ├── dyncomponent.md          # xiri-dyncomponent + alle XiriDynData-Typen
+│   ├── form-fields.md           # XiriFormFieldsComponent + 19 Feldtypen + showWhen
+│   ├── table.md                 # XiriTable + XiriRawTable + Server-Side-Flow
+│   ├── components.md            # Kompakt-Signaturen aller weiteren Komponenten
+│   └── theming-i18n.md          # XiriColor, ThemeService, Locale-Setup
+└── evals/
+    └── evals.json               # Test-Prompts für skill-creator
+```
+
+### Kompatibilität
+
+Der Skill ist an den Source-Code **dieses Tags** gekoppelt. Skill und Library-Version sollten immer synchron sein.
 
 ## License
 

@@ -1,0 +1,64 @@
+{
+  "skill_name": "xiri-ng-expert",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Erstelle eine Angular-Standalone-Komponente, die vom Backend ein JSON-Array von XiriDynData lädt (/api/dashboard) und per xiri-dyncomponent rendert. Nutze XiriDataService, OnPush und Signals.",
+      "expected_output": "Standalone component with @Component decorator, imports XiriDynComponentComponent, injects XiriDataService, uses signal<XiriDynData[]>, loads via data.get(), uses OnPush change detection.",
+      "assertions": [
+        {"name": "standalone_component", "type": "code_check", "description": "Component ist standalone: true (Default in Angular 21) oder imports[] ist gesetzt"},
+        {"name": "uses_xiri_dyncomponent", "type": "code_check", "description": "Template enthält <xiri-dyncomponent [data]=... und XiriDynComponentComponent ist in imports"},
+        {"name": "uses_data_service", "type": "code_check", "description": "Injects XiriDataService via inject() oder constructor und ruft .get('/api/dashboard') auf"},
+        {"name": "uses_signals", "type": "code_check", "description": "Nutzt signal<XiriDynData[]>([]) für Daten-State und .set() zum Aktualisieren"},
+        {"name": "onpush_strategy", "type": "code_check", "description": "changeDetection: ChangeDetectionStrategy.OnPush"},
+        {"name": "correct_types", "type": "code_check", "description": "Importiert XiriDynData und nutzt es als Typ, keine any-Flut"},
+        {"name": "no_invented_api", "type": "code_check", "description": "Nutzt nur public-api.ts-Exports, keine erfundenen Services/Methoden"}
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Baue ein Add-Formular mit XiriFormFieldsComponent für ein Fahrzeug: Felder name (text, required), group (model via /api/groups), active (bool, default true), note (textarea, nur sichtbar wenn active=false). Submit-Button postet an /api/vehicles/add und handled die Response.",
+      "expected_output": "Component with XiriFormFieldsComponent in template, defines XiriFormField[] with correct types and validations, showWhen for note, submit method uses fieldsCmp.formGroup.valid + fieldsCmp.formGroup.value, posts via XiriDataService, handles response via XiriResponseHandlerService.",
+      "assertions": [
+        {"name": "uses_form_fields_component", "type": "code_check", "description": "Template enthält <xiri-form-fields [form]=... (formChange)=..."},
+        {"name": "correct_field_types", "type": "code_check", "description": "name: type='text', group: type='model' mit url, active: type='bool', note: type='textarea'"},
+        {"name": "has_required_validation", "type": "code_check", "description": "name hat required: true oder validations mit type: 'required'"},
+        {"name": "uses_show_when", "type": "code_check", "description": "note-Feld hat showWhen mit field: 'active', operator: 'equals', value: false"},
+        {"name": "viewchild_form_group", "type": "code_check", "description": "@ViewChild auf XiriFormFieldsComponent und Zugriff auf .formGroup.valid / .formGroup.value beim Submit"},
+        {"name": "submits_via_data_service", "type": "code_check", "description": "XiriDataService.post('/api/vehicles/add', ...) wird im Submit-Handler aufgerufen"},
+        {"name": "handles_response", "type": "code_check", "description": "XiriResponseHandlerService.handle(res) wird nach erfolgreichem Submit aufgerufen"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Baue eine Device-Übersicht mit xiri-page-header, einem xiri-query als Filter, und darunter einer xiri-table mit Server-Side-Pagination. Bei Klick auf eine Row öffnet sich ein Edit-Dialog. Nach erfolgreichem Edit wird die Tabelle reloaded.",
+      "expected_output": "Component with XiriPageHeaderComponent, XiriQueryComponent and XiriTableComponent in template. Filter from query drives filterData on table. clickedRow output opens XiriDialogComponent via MatDialog. afterClosed reloads table.",
+      "assertions": [
+        {"name": "uses_page_header", "type": "code_check", "description": "xiri-page-header mit settings.title gesetzt"},
+        {"name": "uses_xiri_query", "type": "code_check", "description": "xiri-query mit XiriQuerySettings (fields, url, collapsed optional)"},
+        {"name": "server_side_table", "type": "code_check", "description": "xiri-table mit settings.options.serverSide: true, pagination aktiv, settings.url gesetzt"},
+        {"name": "filter_wiring", "type": "code_check", "description": "query (change)-Output wird an table [filterData] oder einer Signal/Property gebunden"},
+        {"name": "row_click_opens_dialog", "type": "code_check", "description": "(clickedRow) Event-Handler öffnet via MatDialog.open(XiriDialogComponent, { data: { type: 'form', url: ... } })"},
+        {"name": "reload_after_edit", "type": "code_check", "description": "dialogRef.afterClosed().subscribe ruft @ViewChild XiriTableComponent.reload() auf"},
+        {"name": "correct_imports", "type": "code_check", "description": "Alle benötigten Komponenten in imports[] deklariert"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Schreibe einen app.config.ts Eintrag, der xiri-ng korrekt initialisiert (api base '/api/v2/'), mit HttpClient, Router, und einem ThemeService-Toggle-Button in einer Header-Komponente die den aktuellen Theme-Mode-Signal anzeigt.",
+      "expected_output": "ApplicationConfig mit provideHttpClient, provideRouter, provideXiriServices({ api: '/api/v2/' }). Separate Header-Component injects ThemeService, uses theme.mode() signal in template for conditional display, calls theme.toggle() on button click.",
+      "assertions": [
+        {"name": "provide_xiri_services", "type": "code_check", "description": "appConfig.providers enthält provideXiriServices({ api: '/api/v2/' })"},
+        {"name": "provide_http_client", "type": "code_check", "description": "provideHttpClient() ist vor provideXiriServices registriert"},
+        {"name": "injects_theme_service", "type": "code_check", "description": "Header-Component nutzt inject(ThemeService)"},
+        {"name": "uses_mode_signal", "type": "code_check", "description": "Template liest theme.mode() oder theme.isDark() als Signal-Call"},
+        {"name": "toggle_method", "type": "code_check", "description": "Button ruft theme.toggle() auf"},
+        {"name": "correct_provider_import", "type": "code_check", "description": "provideXiriServices importiert aus '@xiriframework/xiri-ng'"}
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # @xiriframework/xiri-ng
 
-Angular UI component library for the Xiri Framework.
+Angular UI component library for the [Xiri Framework](https://github.com/xiriframework) — a JSON-driven approach where your backend defines the UI and `xiri-ng` renders it. Pairs with [xiri-go](https://github.com/xiriframework/xiri-go) (Go backend) or any backend that emits the expected JSON shape.
 
 ## Installation
 
@@ -8,61 +8,156 @@ Angular UI component library for the Xiri Framework.
 npm install @xiriframework/xiri-ng
 ```
 
-## Configuration
+## Setup
+
+Register the Xiri services in your application config. `api` is the base URL prepended to HTTP requests made by `XiriDataService`:
 
 ```typescript
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import { provideXiriServices } from '@xiriframework/xiri-ng';
 
-bootstrapApplication(AppComponent, {
+export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(),
+    provideRouter(routes),
     provideXiriServices({ api: '/api/' }),
-  ]
-});
+  ],
+};
 ```
 
-The `api` configuration sets the base URL for the `XiriDataService`, which prepends this path to all HTTP requests.
+## The main entry point: `xiri-dyncomponent`
+
+`xiri-ng` is designed around a central component that dynamically renders an array of JSON component definitions:
+
+```html
+<xiri-dyncomponent [data]="components"></xiri-dyncomponent>
+```
+
+```typescript
+import { XiriDynComponentComponent, XiriDynData } from '@xiriframework/xiri-ng';
+
+components: XiriDynData[] = [
+  { type: 'page-header', data: { title: 'Dashboard' } },
+  { type: 'stat-grid',   data: { stats: [...], columns: 4 } },
+  { type: 'table',       data: { url: '/api/devices', ... } },
+];
+```
+
+Individual components can also be used directly (all are standalone):
+
+```typescript
+import { XiriTableComponent } from '@xiriframework/xiri-ng';
+
+@Component({
+  selector: 'app-devices',
+  imports: [XiriTableComponent],
+  template: `<xiri-table [settings]="tableSettings" />`,
+})
+export class DevicesComponent { /* ... */ }
+```
 
 ## Components
 
-Import components individually for optimal tree-shaking:
+40+ standalone Material-Design components. Import individually for tree-shaking.
 
-```typescript
-import { XiriTableComponent, XiriFormComponent } from '@xiriframework/xiri-ng';
-```
+### Forms & data
 
-### Available Components
+| Component                    | Use case                                           |
+| ---------------------------- | -------------------------------------------------- |
+| `XiriFormComponent`          | Dynamic form with backend-driven fields + submit    |
+| `XiriFormFieldsComponent`    | Just the fields — full control over submit flow    |
+| `XiriQueryComponent`         | Filter form + live results via `xiri-dyncomponent` |
+| `XiriTableComponent`         | Full data table — sort, paginate, filter, inline-edit, export |
+| `XiriRawTableComponent`      | Minimal table for static data                      |
+| `XiriDialogComponent`        | Modal dialogs (question / form / table / waiting)  |
+| `XiriStepperComponent`       | Multi-step wizard                                  |
 
-- **XiriFormComponent** - Dynamic form generation from configuration
-- **XiriTableComponent** - Feature-rich data table with server-side operations
-- **XiriRawTableComponent** - Basic table for simple use cases
-- **XiriCardComponent** - Card-based layouts
-- **XiriDialogComponent** - Modal dialogs
-- **XiriStepperComponent** - Multi-step workflows
-- **XiriTabsComponent** - Tabbed layouts
-- **XiriHeaderComponent** - Page headers
-- **XiriSidenavComponent** - Navigation sidebar
-- **XiriButtonlineComponent** - Button groups
-- **XiriSearchComponent** - Search input
-- **XiriQueryComponent** - Query/filter component
-- **XiriAlertComponent** - Status messages
-- **XiriListComponent** - List display
+### Layout & navigation
 
-### Available Services
+| Component                    | Use case                                           |
+| ---------------------------- | -------------------------------------------------- |
+| `XiriPageHeaderComponent`    | Page title + subtitle + actions                    |
+| `XiriToolbarComponent`       | Toolbar with title, search, buttons                |
+| `XiriSectionComponent`       | Collapsible content sections                       |
+| `XiriDividerComponent`       | Section divider with optional text/icon            |
+| `XiriTabsComponent`          | Material tabs with lazy-loading                    |
+| `XiriExpansionComponent`     | Accordion panels with lazy-loading                 |
+| `XiriSidenavComponent`       | Side navigation with nested items                  |
+| `XiriBreadcrumbComponent`    | Breadcrumb trail                                   |
 
-- **XiriDataService** - Central HTTP service
-- **XiriDateService** - Date manipulation (wraps date-fns)
-- **XiriFormService** - Form state management
-- **XiriNumberService** - Number formatting
-- **XiriLocalStorageService** - Type-safe localStorage wrapper
-- **XiriSessionStorageService** - Type-safe sessionStorage wrapper
-- **ThemeService** - Theme management
+### Cards, lists, info
 
-## Peer Dependencies
+| Component                         | Use case                                      |
+| --------------------------------- | --------------------------------------------- |
+| `XiriCardComponent`               | Card container with header + content          |
+| `XiriCardlinkComponent`           | Clickable card as a navigation link           |
+| `XiriLinksComponent`              | List of navigation links/buttons              |
+| `XiriListComponent`               | Sectioned list with favorites                 |
+| `XiriInfopointComponent`          | Info card (icon + text + optional link)       |
+| `XiriImagetextComponent`          | Image + text card                             |
+| `XiriDescriptionListComponent`    | Key/value pairs in 1-3 columns                |
+
+### Stats, progress, feedback
+
+| Component                     | Use case                                          |
+| ----------------------------- | ------------------------------------------------- |
+| `XiriStatComponent`           | Single KPI tile with value + label + trend        |
+| `XiriStatGridComponent`       | Grid of KPI tiles                                 |
+| `XiriMultiprogressComponent`  | Multi-row progress bars                           |
+| `XiriTimelineComponent`       | Vertical or horizontal timeline                   |
+| `XiriEmptyStateComponent`     | Empty-state placeholder with optional action      |
+| `XiriSkeletonComponent`       | Loading skeleton (text/circle/rect/table-row)     |
+| `XiriAlertComponent`          | Alert / confirmation dialog content               |
+| `XiriDoneComponent`           | Success checkmark                                  |
+| `XiriErrorComponent`          | Error message display                              |
+| `XiriHeaderComponent`         | In-page section header                             |
+
+### Buttons & search
+
+| Component                     | Use case                                          |
+| ----------------------------- | ------------------------------------------------- |
+| `XiriButtonComponent`         | Single button with action handling                |
+| `XiriButtonlineComponent`     | Horizontal button line                            |
+| `XiriButtonstyleComponent`    | Internal — button visual renderer                 |
+| `XiriSearchComponent`         | Debounced search input                            |
+
+## Services
+
+All services are `providedIn: 'root'` and are activated by `provideXiriServices()`:
+
+| Service                         | Purpose                                                           |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `XiriDataService`               | HTTP client with automatic snackbar response handling             |
+| `XiriSnackbarService`           | Toast notifications (success, error, info, warning)               |
+| `XiriResponseHandlerService`    | Parses backend responses (refresh, goto, table-update) centrally  |
+| `XiriFormService`               | Form data fetch/submit + state persistence                        |
+| `XiriDownloadService`           | File download handling (blob → browser)                           |
+| `XiriDateService`               | Unix timestamp ↔ locale-formatted strings (via `date-fns`)        |
+| `XiriNumberService`             | Locale-aware number formatting                                    |
+| `XiriLocalStorageService`       | Typed localStorage wrapper with timestamp-based expiry            |
+| `XiriSessionStorageService`     | Typed sessionStorage wrapper                                      |
+| `ThemeService`                  | Theme management (light / dark / auto) via signals                |
+
+## Pipes
+
+- `SafehtmlPipe` (`| safeHtml`) — bypass DomSanitizer for trusted HTML. Never feed user input into this pipe.
+
+## Claude Code support
+
+The main repository ships a [Claude Code](https://claude.com/claude-code) skill (`xiri-ng-expert`) that teaches Claude the full API, patterns, and conventions. See the [main README](https://github.com/xiriframework/xiri-ng#claude-code-integration) for installation.
+
+## Peer dependencies
 
 - Angular 21+
 - Angular Material 21+
-- date-fns 4+
-- RxJS 7+
+- Angular CDK 21+
+- RxJS 7.8+
+- `date-fns` 4+
+- `@date-fns/tz` 1+
+- `ngx-mat-select-search` 8+
+- `material-symbols` ≥ 0.40
 
 ## License
 

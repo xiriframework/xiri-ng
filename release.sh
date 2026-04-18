@@ -3,6 +3,12 @@ set -euo pipefail
 
 export GIT_SSH_COMMAND="ssh -F /workspace/xiri/.ssh/config -i /workspace/xiri/.ssh/github/id_ed25519 -o StrictHostKeyChecking=accept-new"
 
+# Check that the bundled Claude skill is present
+if [[ ! -f skills/xiri-ng-expert/SKILL.md ]]; then
+  echo "Error: skills/xiri-ng-expert/SKILL.md missing — refuse to release."
+  exit 1
+fi
+
 # Bump version
 npm run version
 VERSION="v$(node -p "require('./projects/xiri-ng/package.json').version")"
