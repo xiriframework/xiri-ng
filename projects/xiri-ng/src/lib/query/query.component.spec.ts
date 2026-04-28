@@ -196,7 +196,7 @@ describe( 'XiriQueryComponent', () => {
 
 			component.formChanged( { valid: true, value: { f: 'saved' } } );
 
-			expect( mockFormService.saveState ).toHaveBeenCalledWith( 'test-id', { f: 'saved' } );
+			expect( mockFormService.saveState ).toHaveBeenCalledWith( 'test-id:filter', { f: 'saved' } );
 		} );
 	} );
 

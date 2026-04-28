@@ -64,6 +64,10 @@ export class XiriQueryComponent implements OnInit {
 	private saveStateId: string | null = null;
 	private extra: any = null;
 	private _initialChangeDone: boolean = false;
+
+	private get effectiveSaveKey(): string | null {
+		return this.saveStateId ? this.saveStateId + ':filter' : null;
+	}
 	
 	public data = signal<XiriDynData[] | null>( null );
 	public error = signal<string | null>( null );
@@ -80,7 +84,7 @@ export class XiriQueryComponent implements OnInit {
 		
 		this.saveState = settings.saveState === undefined ? false : settings.saveState;
 		this.saveStateId = settings.saveStateId === undefined ? null : settings.saveStateId;
-		this.formFields.set( this.formService.loadState( settings.saveStateId, settings.fields ) );
+		this.formFields.set( this.formService.loadState( this.effectiveSaveKey, settings.fields ) );
 		this.extra = settings.extra || null;
 		
 		this.waiter.pipe( debounceTime( 300 ), takeUntilDestroyed( this.destroyRef ) ).subscribe( event => {
@@ -89,7 +93,7 @@ export class XiriQueryComponent implements OnInit {
 				this.dynData.filterData = this.filterData();
 				this.change.emit( this.filterData() );
 				if ( this.saveState )
-					this.formService.saveState( this.saveStateId, event.value );
+					this.formService.saveState( this.effectiveSaveKey, event.value );
 
 				if ( this.settings().url )
 					this.load();
@@ -119,7 +123,7 @@ export class XiriQueryComponent implements OnInit {
 			this.dynData.filterData = this.filterData();
 			this.change.emit( this.filterData() );
 			if ( this.saveState )
-				this.formService.saveState( this.saveStateId, event.value );
+				this.formService.saveState( this.effectiveSaveKey, event.value );
 			if ( this.settings().url )
 				this.load();
 		} else {

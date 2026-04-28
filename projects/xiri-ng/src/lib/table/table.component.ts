@@ -212,6 +212,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public searchText: string = '';
 	public searchTextInit: string = '';
 
+	private tableStateKey(): string | null {
+		return this.options.saveStateId ? this.options.saveStateId + ':table' : null;
+	}
+
 	trackByRowId = ( _: number, row: any ): any => row.id ?? _;
 
 	// Inline edit signals delegated to inlineEdit service
@@ -316,8 +320,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			.subscribe( data => {
 					this._displayeddata = data || [];
 					
-					if ( this.options.saveState && this._firstData === false ) {
-						this.sessionStorageService.set( this.options.saveStateId, {
+					if ( this.options.saveState && this._firstData === false && this.tableStateKey() ) {
+						this.sessionStorageService.set( this.tableStateKey(), {
 							pageIndex: this.paginator()?.pageIndex,
 							pageSize: this.paginator()?.pageSize,
 							filter: this.searchText,
@@ -472,8 +476,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this._firstData ) {
 			this._firstData = false;
 			
-			if ( this.options.saveState ) {
-				let data = this.sessionStorageService.getTimeout( this.options.saveStateId, 3600 );
+			if ( this.options.saveState && this.tableStateKey() ) {
+				let data = this.sessionStorageService.getTimeout( this.tableStateKey(), 3600 );
 				if ( !data )
 					return;
 				
