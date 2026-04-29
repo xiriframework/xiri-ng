@@ -50,13 +50,17 @@ jobs:
         working-directory: ./dist/xiri-ng
         run: npm publish --provenance --access public
 
-      # Publish to GitHub Packages
+      # Reconfigure registry for GitHub Packages
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@xiriframework'
+
       - name: Publish to GitHub Packages
         working-directory: ./dist/xiri-ng
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
-          npm config set registry https://npm.pkg.github.com
-          npm publish --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
