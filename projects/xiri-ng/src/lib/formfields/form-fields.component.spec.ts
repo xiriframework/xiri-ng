@@ -230,6 +230,21 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.fields()[ 0 ].type ).toBe( 'date' );
 			expect( component.fields()[ 0 ].class ).toContain( 'datetime' );
 		} );
+
+		it( 'should keep type yearmonth and add yearmonth class', () => {
+			host.fields.set( [ { id: 'ym', type: 'yearmonth', value: '' } ] );
+			fixture.detectChanges();
+
+			expect( component.fields()[ 0 ].type ).toBe( 'yearmonth' );
+			expect( component.fields()[ 0 ].class ).toContain( 'yearmonth' );
+			expect( component.fields()[ 0 ].required ).toBe( true );
+		} );
+
+		it( 'should not force required when explicitly set false on yearmonth', () => {
+			host.fields.set( [ { id: 'ym', type: 'yearmonth', required: false, value: '' } ] );
+			fixture.detectChanges();
+			expect( component.fields()[ 0 ].required ).toBe( false );
+		} );
 	} );
 
 	describe( 'bool field handling', () => {

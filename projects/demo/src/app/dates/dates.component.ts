@@ -58,6 +58,15 @@ export class DatesComponent {
 			hint: 'test',
 			required: false,
 		}, {
+			type: 'yearmonth',
+			subtype: 'yearmonth',
+			name: 'billing period',
+			value: ( new Date().getTime() ) / 1000,
+			class: 'xcol-start xcol-md-6 xcol-xl-3',
+			id: 'yearmonth',
+			hint: 'Jahr + Monat',
+			required: false,
+		}, {
 			type: 'daterange',
 			name: 'daterange',
 			class: 'xcol-start xcol-md-6 xcol-xl-3',
@@ -131,6 +140,9 @@ export class DatesComponent {
         SetSubtype("datetime").
         SetMin(now - 14*day).
         SetMax(now + day).
+        SetClass("xcol-md-6 xcol-xl-3"),
+
+    field.NewYearMonthField("yearmonth", "billing period", false, now).
         SetClass("xcol-md-6 xcol-xl-3"),
 
     field.NewDateRangeField("daterange", "daterange", false).

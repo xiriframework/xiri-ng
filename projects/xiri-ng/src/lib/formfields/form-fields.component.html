@@ -183,6 +183,22 @@
 					}
 				</mat-form-field>
 			}
+			@case ('yearmonth') {
+				<mat-form-field [formGroup]="formGroup" class="yearmonth" [class]="field.class" [hidden]="field.hide">
+					<mat-label>{{ field.name }}</mat-label>
+					<xiri-yearmonth [field]="field" [formControlName]="field.id"></xiri-yearmonth>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</mat-form-field>
+			}
 			@case ('daterange') {
 				<mat-form-field [formGroup]="formGroup" class="daterange" [class]="field.class" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>

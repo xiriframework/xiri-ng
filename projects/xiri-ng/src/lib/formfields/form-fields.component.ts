@@ -32,6 +32,7 @@ import { MatCheckbox } from '@angular/material/checkbox';
 import { XiriDateTimeRangeComponent } from './datetimerange/datetimerange.component';
 import { XiriDateRangeComponent } from './daterange/daterange.component';
 import { XiriDateComponent } from './date/date.component';
+import { XiriYearMonthComponent } from './yearmonth/yearmonth.component';
 import { XiriTreeselectComponent } from './treeselect/treeselect.component';
 import { XiriSelectDirective } from './select/select.directive';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
@@ -71,6 +72,7 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            XiriSelectDirective,
 		            XiriTreeselectComponent,
 		            XiriDateComponent,
+		            XiriYearMonthComponent,
 		            XiriDateRangeComponent,
 		            XiriDateTimeRangeComponent,
 		            MatCheckbox,
@@ -286,6 +288,12 @@ export class XiriFormFieldsComponent implements OnInit {
 						field.required = true;
 					if ( field.subtype == 'datetime' )
 						field.class += ' datetime';
+					break;
+
+				case 'yearmonth':
+					if ( field.required === undefined )
+						field.required = true;
+					field.class += ' yearmonth';
 					break;
 				
 				case 'daterange':

@@ -69,12 +69,12 @@ export class XiriDateComponent extends XiriFieldMain implements OnInit,
                                                                 MatFormFieldControl<number | null | undefined> {
 	
 	protected _uid = `xiri-date-${ nextUniqueIdXiriDate++ }`;
-	
+
 	public minDate: Date | null = null;
 	public maxDate: Date | null = null;
-	
+
 	parts: FormGroup<DateForm>;
-	
+
 	private _lastValue: number | null = null;
 	public type: string = 'date';
 	
@@ -150,7 +150,7 @@ export class XiriDateComponent extends XiriFieldMain implements OnInit,
 	}
 	
 	set value( input: number | null | undefined ) {
-		
+
 		if ( input === null || input === undefined ) {
 			if ( !this.required ) {
 				this.parts.setValue( {
@@ -158,22 +158,22 @@ export class XiriDateComponent extends XiriFieldMain implements OnInit,
 					                     hour: 0,
 					                     minute: 0,
 				                     } );
-				
+
 				this.startChangeValue();
 				return;
 			}
 		}
-		
+
 		const current = this.dateService.unixToLocal( input );
 		const hour = current?.getHours() ?? 0;
 		const minute = current?.getMinutes() ?? 0;
-		
+
 		this.parts.setValue( {
 			                     date: current,
 			                     hour: hour,
 			                     minute: minute,
 		                     } );
-		
+
 		this.startChangeValue();
 	}
 	
