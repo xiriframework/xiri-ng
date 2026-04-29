@@ -135,6 +135,7 @@ export interface XiriFormField {
 | `datetime`      | Date + Time Picker                                | `min`, `max`                       |
 | `daterange`     | Start- + End-Date                                 | `min`, `max`                       |
 | `datetimerange` | Start- + End-DateTime                             |                                    |
+| `yearmonth`     | Monats-Picker (Multi-Year-View, MM.yyyy)          | `min`, `max` (Unix), `required`    |
 | `file`          | File-Upload Button                                | `accept`                           |
 | `volume`        | Volume-Slider (mit Einheit via `textSuffix`)      | `min`, `max`                       |
 | `timelimit`     | Time-Limit Auswahl                                | `texts` (Label-Overrides)          |
@@ -142,6 +143,23 @@ export interface XiriFormField {
 | `question`      | Read-Only Frage + Icon (z.B. Confirmation-Dialog) | `icon`, `iconColor`, `done`        |
 | `waiting`       | Loading-Spinner                                   |                                    |
 | `header`        | Sektions-Header (mit optional Collapse)           | `collapsible`, `collapsed`         |
+
+#### `yearmonth` — Monats-Auswahl
+
+Render: eigener `<xiri-yearmonth>`, intern Mat-Datepicker mit `startView="multi-year"`.
+Value wird auf den **1. des Monats 00:00 (lokal)** normalisiert und als Unix-Timestamp
+(Sekunden) zurückgegeben. Anzeige-Format `MM.yyyy`, Picker-Labels `MMM yyyy` /
+`MMMM yyyy`. Default `required: true`, wenn nicht explizit gesetzt.
+
+```typescript
+{ id: 'period', type: 'yearmonth', name: 'Berichtsmonat',
+  required: true,
+  min: <unixSeconds>,   // optional, untere Schranke
+  max: <unixSeconds>    // optional, obere Schranke
+}
+```
+
+Backend-Pendant: `field.NewYearMonthField(...)` (siehe xiri-go-expert).
 
 ### showWhen — Conditional Visibility
 
