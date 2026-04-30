@@ -245,6 +245,8 @@ buttons: XiriButton[] = [
 
 `action`: `'api' | 'dialog' | 'download' | 'link' | 'back' | 'close' | 'return' | 'menu' | …`.
 
+`data?: Record<string, any>` — Custom-Payload, das beim Klick mit `filterData` gemerged in den POST-Body geht (für `action: 'api'` / `'download'`). Der Backend-Builder (`xiri-go`) setzt das via `button.WithData(...)`. Beispiel: CSV-Download-Button hat `data: { _csv: true }`, das Backend liest das Flag in `LoadFilterData` und schaltet auf CSV-Output.
+
 ## xiri-stepper — Multi-Step Wizard
 
 ```typescript

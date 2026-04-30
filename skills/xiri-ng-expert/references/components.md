@@ -138,6 +138,8 @@ interface XiriButtonResult {
 }
 ```
 
+**Custom-Payload (`button.data`):** Für `action: 'api'` und `action: 'download'` baut die Button-Komponente den POST-Body als `{ ...filterData, ...button.data }`. `data` ist `Record<string, any>`. Klassisches Beispiel: CSV-Download-Buttons des `xiri-go`-Tabellen-Builders setzen `data: { _csv: true }`, das Backend (`LoadFilterData`) erkennt das Flag und liefert CSV statt Web-JSON. Backend-Setter: `button.WithData(map[string]any{...})` (siehe xiri-go-expert).
+
 ### xiri-buttonline
 
 ```typescript

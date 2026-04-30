@@ -34,17 +34,17 @@ export interface XiriButton {
 	inline?: boolean
 	disabled?: boolean
 	
-	data?: any
+	data?: Record<string, any>
 	target?: string
 	loading?: boolean
 	filename?: string
-	
+
 	// send btns
 	check?: any
 	send?: any
 
 	// menu items (for action "menu")
-	menuItems?: { action: string, url?: string, icon?: string, color?: string, text?: string, data?: any }[]
+	menuItems?: { action: string, url?: string, icon?: string, color?: string, text?: string, data?: Record<string, any> }[]
 }
 
 export interface XiriButtonResult {
