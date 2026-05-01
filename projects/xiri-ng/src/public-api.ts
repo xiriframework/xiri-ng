@@ -48,6 +48,11 @@ export * from './lib/barchart/barchart.component';
 export * from './lib/linechart/linechart.component';
 export * from './lib/piechart/piechart.component';
 export * from './lib/gaugechart/gaugechart.component';
+export * from './lib/heatmap/heatmap.component';
+export * from './lib/calendar/calendar.component';
+export * from './lib/tree/tree.component';
+export * from './lib/sankey/sankey.component';
+export * from './lib/gantt/gantt.component';
 export * from './lib/echarts';
 
 export * from './lib/page-header/page-header.component';

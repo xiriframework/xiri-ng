@@ -141,4 +141,108 @@
 		</div>
 	</div>
 
+	<!-- 8: Nightingale -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionNightingale">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-piechart [settings]="nightingale"></xiri-piechart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goNightingaleCode" title="Go: piechart.New + Nightingale()"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 9: Heatmap Matrix -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionHeatmap2">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-heatmap [settings]="heatmapMatrix"></xiri-heatmap>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goHeatmapCode2" title="Go: heatmap.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 10: Calendar -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCalendar">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-calendar [settings]="calendar"></xiri-calendar>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goCalendarCode" title="Go: calendar.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 11: Tree -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTree">
+				<div class="xrow">
+					<div class="xcol-md-7">
+						<xiri-tree [settings]="tree"></xiri-tree>
+					</div>
+					<div class="xcol-md-5">
+						<app-go-code [code]="goTreeCode" title="Go: tree.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 12: Sankey -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSankey">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-sankey [settings]="sankey"></xiri-sankey>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goSankeyCode" title="Go: sankey.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 13: Gantt -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionGantt">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-gantt [settings]="gantt"></xiri-gantt>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goGanttCode" title="Go: gantt.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

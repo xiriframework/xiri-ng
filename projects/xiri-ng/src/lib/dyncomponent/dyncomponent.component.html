@@ -172,6 +172,31 @@
 				@defer { <xiri-gaugechart [settings]="obj.data"></xiri-gaugechart> }
 			</div>
 		}
+		@case ('heatmap') {
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-heatmap [settings]="obj.data"></xiri-heatmap> }
+			</div>
+		}
+		@case ('calendar') {
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-calendar [settings]="obj.data"></xiri-calendar> }
+			</div>
+		}
+		@case ('tree') {
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-tree [settings]="obj.data"></xiri-tree> }
+			</div>
+		}
+		@case ('sankey') {
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-sankey [settings]="obj.data"></xiri-sankey> }
+			</div>
+		}
+		@case ('gantt') {
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-gantt [settings]="obj.data"></xiri-gantt> }
+			</div>
+		}
 		@default {
 			<ng-container *ngTemplateOutlet="dyncomponent() || defaultComponentUnknown; context: { $implicit: obj, filterData: filterData() }"></ng-container>
 		}

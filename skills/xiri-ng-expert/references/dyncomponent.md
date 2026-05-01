@@ -40,7 +40,8 @@ export type XiriDynDataType =
   | 'stat' | 'empty-state' | 'timeline'
   | 'page-header' | 'section' | 'divider'
   | 'stat-grid' | 'toolbar' | 'description-list'
-  | 'barchart' | 'linechart' | 'piechart' | 'gaugechart';
+  | 'barchart' | 'linechart' | 'piechart' | 'gaugechart'
+  | 'heatmap' | 'calendar' | 'tree' | 'sankey' | 'gantt';
 ```
 
 ## Mapping type → Komponente
@@ -75,6 +76,11 @@ export type XiriDynDataType =
 | `linechart`         | `xiri-linechart`       | `XiriLineChartSettings`              |
 | `piechart`          | `xiri-piechart`        | `XiriPieChartSettings`               |
 | `gaugechart`        | `xiri-gaugechart`      | `XiriGaugeChartSettings`             |
+| `heatmap`           | `xiri-heatmap`         | `XiriHeatmapSettings`                |
+| `calendar`          | `xiri-calendar`        | `XiriCalendarSettings`               |
+| `tree`              | `xiri-tree`            | `XiriTreeSettings`                   |
+| `sankey`            | `xiri-sankey`          | `XiriSankeySettings`                 |
+| `gantt`             | `xiri-gantt`           | `XiriGanttSettings`                  |
 | `spacer`            | vertical spacer div    | `{ size?: string }`                  |
 | `container`         | wrapper div            | `{ components: XiriDynData[] }`      |
 | `infotext`          | Text-Absatz            | `{ text: string }`                   |

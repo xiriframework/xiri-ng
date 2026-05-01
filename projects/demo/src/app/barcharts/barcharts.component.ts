@@ -6,6 +6,11 @@ import { XiriBarChartComponent, XiriBarChartSettings } from 'projects/xiri-ng/sr
 import { XiriLineChartComponent, XiriLineChartSettings } from 'projects/xiri-ng/src/lib/linechart/linechart.component';
 import { XiriPieChartComponent, XiriPieChartSettings } from 'projects/xiri-ng/src/lib/piechart/piechart.component';
 import { XiriGaugeChartComponent, XiriGaugeChartSettings } from 'projects/xiri-ng/src/lib/gaugechart/gaugechart.component';
+import { XiriHeatmapComponent, XiriHeatmapSettings } from 'projects/xiri-ng/src/lib/heatmap/heatmap.component';
+import { XiriCalendarComponent, XiriCalendarSettings } from 'projects/xiri-ng/src/lib/calendar/calendar.component';
+import { XiriTreeComponent, XiriTreeSettings } from 'projects/xiri-ng/src/lib/tree/tree.component';
+import { XiriSankeyComponent, XiriSankeySettings } from 'projects/xiri-ng/src/lib/sankey/sankey.component';
+import { XiriGanttComponent, XiriGanttSettings } from 'projects/xiri-ng/src/lib/gantt/gantt.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component({
@@ -20,6 +25,11 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		XiriLineChartComponent,
 		XiriPieChartComponent,
 		XiriGaugeChartComponent,
+		XiriHeatmapComponent,
+		XiriCalendarComponent,
+		XiriTreeComponent,
+		XiriSankeyComponent,
+		XiriGanttComponent,
 		GoCodePanelComponent,
 	],
 })
@@ -291,4 +301,254 @@ donut := piechart.New("storage").
 	goGaugeCode = `g := gaugechart.New("cpu").
     Title("CPU").Value(72).Range(0, 100).
     Color(core.ColorWarning).Label("%")`;
+
+	// --- Nightingale (Pie variant) ---
+
+	sectionNightingale: XiriSectionSettings = {
+		title: '8: Nightingale (Pie-Variante)',
+		subtitle: 'piechart mit nightingale:true — die Slice-Radien skalieren mit dem Wert. Variante "radius" (Default) oder "area".',
+		icon: 'donut_small',
+		iconColor: 'accent',
+	};
+
+	nightingale: XiriPieChartSettings = {
+		title: 'Bug severity',
+		nightingale: true,
+		slices: [
+			{ name: 'Critical', value: 8,  color: 'red' },
+			{ name: 'High',     value: 22, color: 'warn' },
+			{ name: 'Medium',   value: 41, color: 'yellow' },
+			{ name: 'Low',      value: 73, color: 'green' },
+			{ name: 'Trivial',  value: 12, color: 'gray' },
+		],
+	};
+
+	goNightingaleCode = `pc := piechart.New("severity").
+    Title("Bug severity").
+    Nightingale().
+    Slice("Critical", 8,  core.ColorRed).
+    Slice("High",     22, core.ColorWarning).
+    Slice("Medium",   41, core.ColorYellow).
+    Slice("Low",      73, core.ColorGreen).
+    Slice("Trivial",  12, core.ColorGray)`;
+
+	// --- Heatmap (Matrix) ---
+
+	sectionHeatmap2: XiriSectionSettings = {
+		title: '9: Heatmap (Matrix)',
+		subtitle: 'xiri-heatmap: 2D-Matrix mit X/Y-Kategorien und Werten — z. B. Aktivitäts-Verteilung pro Wochentag und Stunde.',
+		icon: 'grid_on',
+		iconColor: 'primary',
+	};
+
+	heatmapMatrix: XiriHeatmapSettings = (() => {
+		const days = [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun' ];
+		const hours = [ '00', '02', '04', '06', '08', '10', '12', '14', '16', '18', '20', '22' ];
+		const cells: { x: number; y: number; value: number }[] = [];
+		for ( let y = 0; y < days.length; y++ ) {
+			for ( let x = 0; x < hours.length; x++ ) {
+				const business = x >= 4 && x <= 9 && y < 5 ? 1 : 0.2;
+				cells.push( { x, y, value: Math.round( business * (10 + Math.random() * 20) ) } );
+			}
+		}
+		return {
+			title: 'Activity by hour and weekday',
+			xLabels: hours,
+			yLabels: days,
+			cells,
+			min: 0,
+			max: 30,
+		};
+	})();
+
+	goHeatmapCode2 = `h := heatmap.New("activity").
+    Title("Activity by hour and weekday").
+    XLabels("00","02","04","06","08","10","12","14","16","18","20","22").
+    YLabels("Mon","Tue","Wed","Thu","Fri","Sat","Sun").
+    Range(0, 30)
+
+for _, m := range measurements {
+    h.Cell(m.HourIdx, m.DayIdx, m.Value)
+}`;
+
+	// --- Calendar Heatmap ---
+
+	sectionCalendar: XiriSectionSettings = {
+		title: '10: Calendar Heatmap',
+		subtitle: 'xiri-calendar: GitHub-Style Aktivitäts-Kalender für ein Jahr.',
+		icon: 'calendar_month',
+		iconColor: 'success',
+	};
+
+	calendar: XiriCalendarSettings = (() => {
+		const cells: { date: string; value: number }[] = [];
+		const start = new Date( '2025-01-01' ).getTime();
+		for ( let i = 0; i < 365; i++ ) {
+			const d = new Date( start + i * 86400000 );
+			const yyyy = d.getFullYear();
+			const mm = String( d.getMonth() + 1 ).padStart( 2, '0' );
+			const dd = String( d.getDate() ).padStart( 2, '0' );
+			const dow = d.getDay();
+			const value = dow === 0 || dow === 6 ? Math.round( Math.random() * 2 ) : Math.round( Math.random() * 8 );
+			if ( value > 0 ) cells.push( { date: `${ yyyy }-${ mm }-${ dd }`, value } );
+		}
+		return {
+			title: '2025 contributions',
+			range: '2025',
+			cells,
+			min: 0,
+			max: 8,
+		};
+	})();
+
+	goCalendarCode = `c := calendar.New("contributions").
+    Title("2025 contributions").
+    Year("2025").
+    MinMax(0, 8)
+
+for _, day := range days {
+    c.Cell(day.Date, day.Count)
+}`;
+
+	// --- Tree ---
+
+	sectionTree: XiriSectionSettings = {
+		title: '11: Tree',
+		subtitle: 'xiri-tree: Hierarchischer Baum mit recursive children.',
+		icon: 'account_tree',
+		iconColor: 'tertiary',
+	};
+
+	tree: XiriTreeSettings = {
+		title: 'Org chart',
+		orient: 'LR',
+		root: {
+			name: 'Company',
+			value: 200,
+			children: [
+				{
+					name: 'Engineering', value: 80, children: [
+						{ name: 'Frontend', value: 30 },
+						{ name: 'Backend',  value: 30 },
+						{ name: 'DevOps',   value: 20 },
+					]
+				},
+				{
+					name: 'Sales', value: 60, children: [
+						{ name: 'EMEA', value: 30 },
+						{ name: 'AMER', value: 20 },
+						{ name: 'APAC', value: 10 },
+					]
+				},
+				{
+					name: 'Operations', value: 40, children: [
+						{ name: 'HR',      value: 12 },
+						{ name: 'Finance', value: 18 },
+						{ name: 'Legal',   value: 10 },
+					]
+				},
+				{ name: 'Other', value: 20 },
+			]
+		}
+	};
+
+	goTreeCode = `root := tree.NewNode("Company").WithValue(200).AppendChild(
+    tree.NewNode("Engineering").WithValue(80).AppendChild(
+        tree.NewNode("Frontend").WithValue(30),
+        tree.NewNode("Backend").WithValue(30),
+        tree.NewNode("DevOps").WithValue(20),
+    ),
+    tree.NewNode("Sales").WithValue(60).AppendChild(...),
+    tree.NewNode("Operations").WithValue(40).AppendChild(...),
+    tree.NewNode("Other").WithValue(20),
+)
+
+t := tree.New("org").Title("Org chart").Root(root).Orient("LR")`;
+
+	// --- Sankey ---
+
+	sectionSankey: XiriSectionSettings = {
+		title: '12: Sankey',
+		subtitle: 'xiri-sankey: Flussdiagramm mit nodes + links{source, target, value}.',
+		icon: 'linear_scale',
+		iconColor: 'primary',
+	};
+
+	sankey: XiriSankeySettings = {
+		title: 'Energy flow',
+		nodes: [
+			{ name: 'Coal',  color: 'gray' },
+			{ name: 'Gas',   color: 'blue' },
+			{ name: 'Solar', color: 'yellow' },
+			{ name: 'Wind',  color: 'green' },
+			{ name: 'Grid',  color: 'purple' },
+			{ name: 'Industry'    },
+			{ name: 'Residential' },
+			{ name: 'Commercial'  },
+		],
+		links: [
+			{ source: 'Coal',  target: 'Grid', value: 30 },
+			{ source: 'Gas',   target: 'Grid', value: 25 },
+			{ source: 'Solar', target: 'Grid', value: 15 },
+			{ source: 'Wind',  target: 'Grid', value: 20 },
+			{ source: 'Grid',  target: 'Industry',    value: 38 },
+			{ source: 'Grid',  target: 'Residential', value: 30 },
+			{ source: 'Grid',  target: 'Commercial',  value: 22 },
+		],
+	};
+
+	goSankeyCode = `s := sankey.New("energy").Title("Energy flow")
+
+s.Node("Coal", core.ColorGray).Node("Gas", core.ColorBlue).
+  Node("Solar", core.ColorYellow).Node("Wind", core.ColorGreen).
+  Node("Grid", core.ColorPurple).
+  Node("Industry", "").Node("Residential", "").Node("Commercial", "")
+
+s.Link("Coal", "Grid", 30).Link("Gas", "Grid", 25).
+  Link("Solar", "Grid", 15).Link("Wind", "Grid", 20).
+  Link("Grid", "Industry", 38).Link("Grid", "Residential", 30).
+  Link("Grid", "Commercial", 22)`;
+
+	// --- Gantt ---
+
+	sectionGantt: XiriSectionSettings = {
+		title: '13: Gantt',
+		subtitle: 'xiri-gantt: Tasks mit Start/Ende auf Zeitachse pro Kategorie.',
+		icon: 'view_timeline',
+		iconColor: 'warn',
+	};
+
+	gantt: XiriGanttSettings = (() => {
+		const day = 86400000;
+		const t0 = new Date( '2025-03-01' ).getTime();
+		return {
+			title: 'Project plan',
+			rows: [ 'Design', 'Build', 'Test', 'Release' ],
+			tasks: [
+				{ row: 0, name: 'Wireframes',  start: t0,            end: t0 + 7  * day,  color: 'blue' },
+				{ row: 0, name: 'Mockups',     start: t0 + 5 * day,  end: t0 + 12 * day,  color: 'purple' },
+				{ row: 1, name: 'API',         start: t0 + 7 * day,  end: t0 + 24 * day,  color: 'green' },
+				{ row: 1, name: 'Frontend',    start: t0 + 12 * day, end: t0 + 30 * day,  color: 'emerald' },
+				{ row: 2, name: 'QA',          start: t0 + 24 * day, end: t0 + 32 * day,  color: 'warn' },
+				{ row: 2, name: 'UAT',         start: t0 + 30 * day, end: t0 + 35 * day,  color: 'yellow' },
+				{ row: 3, name: 'Go-live',     start: t0 + 35 * day, end: t0 + 36 * day,  color: 'red' },
+			],
+			rangeStart: t0,
+			rangeEnd:   t0 + 40 * day,
+		};
+	})();
+
+	goGanttCode = `t0 := time.Date(2025, 3, 1, 0, 0, 0, 0, time.UTC).UnixMilli()
+day := int64(86400000)
+
+g := gantt.New("project").Title("Project plan").
+    Rows("Design", "Build", "Test", "Release").
+    Task(0, "Wireframes", t0,         t0+7*day,  core.ColorBlue).
+    Task(0, "Mockups",    t0+5*day,   t0+12*day, core.ColorPurple).
+    Task(1, "API",        t0+7*day,   t0+24*day, core.ColorGreen).
+    Task(1, "Frontend",   t0+12*day,  t0+30*day, core.ColorEmerald).
+    Task(2, "QA",         t0+24*day,  t0+32*day, core.ColorWarning).
+    Task(2, "UAT",        t0+30*day,  t0+35*day, core.ColorYellow).
+    Task(3, "Go-live",    t0+35*day,  t0+36*day, core.ColorRed).
+    XRange(t0, t0+40*day)`;
 }

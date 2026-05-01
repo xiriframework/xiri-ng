@@ -740,7 +740,9 @@ Im dyncomponent: `{ type: 'linechart', data: XiriLineChartSettings }`.
 interface XiriPieChartSettings {
   title?: string;
   slices: XiriPieChartSlice[];
-  donut?: boolean;           // Ring statt Pie
+  donut?: boolean;             // Ring statt Pie
+  nightingale?: boolean;       // Rose-Style: Slice-Radien skalieren mit Wert
+  nightingaleType?: 'radius' | 'area';   // Default 'radius'
   compact?: boolean;
 }
 
@@ -770,6 +772,113 @@ interface XiriGaugeChartSettings {
 ```
 
 Im dyncomponent: `{ type: 'gaugechart', data: XiriGaugeChartSettings }`.
+
+### xiri-heatmap
+
+```typescript
+@input.required settings: XiriHeatmapSettings;
+
+interface XiriHeatmapSettings {
+  title?: string;
+  xLabels: string[];
+  yLabels: string[];
+  cells: XiriHeatmapCell[];        // [{x: number, y: number, value: number}]
+  min?: number;
+  max?: number;
+  colorRange?: [string, string];   // CSS low → high (Default light → purple)
+  showValues?: boolean;            // Werte in Zellen anzeigen
+  compact?: boolean;
+}
+
+interface XiriHeatmapCell { x: number; y: number; value: number; label?: string; }
+```
+
+Im dyncomponent: `{ type: 'heatmap', data: XiriHeatmapSettings }`.
+
+### xiri-calendar
+
+```typescript
+@input.required settings: XiriCalendarSettings;
+
+interface XiriCalendarSettings {
+  title?: string;
+  range: string | [string, string];   // 'YYYY' oder ['YYYY-MM-DD', 'YYYY-MM-DD']
+  cells: XiriCalendarCell[];          // [{date: 'YYYY-MM-DD', value: number}]
+  min?: number;
+  max?: number;
+  colorRange?: [string, string];      // Default light-green → dark-green (GitHub-Style)
+  cellSize?: number;                  // px (Default 16, compact 12)
+  compact?: boolean;
+}
+```
+
+Im dyncomponent: `{ type: 'calendar', data: XiriCalendarSettings }`.
+
+### xiri-tree
+
+```typescript
+@input.required settings: XiriTreeSettings;
+
+interface XiriTreeSettings {
+  title?: string;
+  root: XiriTreeNode;
+  orient?: 'LR' | 'RL' | 'TB' | 'BT';   // Default 'LR'
+  layout?: 'orthogonal' | 'radial';      // Default 'orthogonal'
+  compact?: boolean;
+}
+
+interface XiriTreeNode {
+  name: string;
+  value?: number;
+  children?: XiriTreeNode[];
+  collapsed?: boolean;          // initial eingeklappt
+}
+```
+
+Im dyncomponent: `{ type: 'tree', data: XiriTreeSettings }`.
+
+### xiri-sankey
+
+```typescript
+@input.required settings: XiriSankeySettings;
+
+interface XiriSankeySettings {
+  title?: string;
+  nodes: { name: string; color?: XiriColor }[];
+  links: { source: string; target: string; value: number }[];
+  orient?: 'horizontal' | 'vertical';   // Default 'horizontal'
+  compact?: boolean;
+}
+```
+
+Im dyncomponent: `{ type: 'sankey', data: XiriSankeySettings }`.
+
+### xiri-gantt
+
+Echarts-Custom-Series-basierter Gantt. Zeiten in unix milliseconds.
+
+```typescript
+@input.required settings: XiriGanttSettings;
+
+interface XiriGanttSettings {
+  title?: string;
+  rows: string[];                       // Y-Achsen-Kategorien (top-down)
+  tasks: XiriGanttTask[];
+  rangeStart?: number;                  // unix ms (optional X-Achsen-Range)
+  rangeEnd?: number;
+  compact?: boolean;
+}
+
+interface XiriGanttTask {
+  row: number;        // Index in rows[]
+  name: string;
+  start: number;      // unix ms
+  end: number;        // unix ms
+  color?: XiriColor;
+}
+```
+
+Im dyncomponent: `{ type: 'gantt', data: XiriGanttSettings }`.
 
 ### xiri-echarts-host (geteilte Basis)
 

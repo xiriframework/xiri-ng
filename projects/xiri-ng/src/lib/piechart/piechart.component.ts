@@ -13,7 +13,9 @@ export interface XiriPieChartSlice {
 export interface XiriPieChartSettings {
 	title?: string;
 	slices: XiriPieChartSlice[];
-	donut?: boolean;     // ring instead of full pie
+	donut?: boolean;             // ring instead of full pie
+	nightingale?: boolean;       // rose/nightingale: slice radius scales with value
+	nightingaleType?: 'radius' | 'area';   // 'radius' (default) or 'area'
 	compact?: boolean;
 }
 
@@ -38,7 +40,30 @@ export class XiriPieChartComponent {
 	option = computed( () => {
 		const s = this.settings();
 		const slices = s.slices ?? [];
-		const radius: [ string, string ] = s.donut ? [ '55%', '78%' ] : [ '0', '78%' ];
+		// nightingale: smaller inner radius even on full pie so the rose has a visible center
+		const radius: [ string, string ] = s.donut
+			? [ '55%', '78%' ]
+			: ( s.nightingale ? [ '20%', '78%' ] : [ '0', '78%' ] );
+
+		const series: any = {
+			type: 'pie',
+			radius,
+			center: [ '50%', '45%' ],
+			avoidLabelOverlap: true,
+			label: {
+				show: !s.donut && !this.compact(),
+				formatter: '{b}\n{d}%',
+			},
+			labelLine: { show: !s.donut && !this.compact() },
+			data: slices.map( ( slice, i ) => ( {
+				name: slice.name,
+				value: slice.value,
+				itemStyle: { color: resolveColor( slice.color, FALLBACK_COLORS[ i % FALLBACK_COLORS.length ] ) }
+			} ) )
+		};
+		if ( s.nightingale ) {
+			series.roseType = s.nightingaleType ?? 'radius';
+		}
 
 		return {
 			tooltip: {
@@ -49,22 +74,7 @@ export class XiriPieChartComponent {
 				}
 			},
 			legend: { bottom: 0, type: 'scroll' },
-			series: [ {
-				type: 'pie',
-				radius,
-				center: [ '50%', '45%' ],
-				avoidLabelOverlap: true,
-				label: {
-					show: !s.donut && !this.compact(),
-					formatter: '{b}\n{d}%',
-				},
-				labelLine: { show: !s.donut && !this.compact() },
-				data: slices.map( ( slice, i ) => ( {
-					name: slice.name,
-					value: slice.value,
-					itemStyle: { color: resolveColor( slice.color, FALLBACK_COLORS[ i % FALLBACK_COLORS.length ] ) }
-				} ) )
-			} ]
+			series: [ series ]
 		};
 	} );
 }

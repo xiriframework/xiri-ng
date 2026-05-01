@@ -31,6 +31,11 @@ import { XiriBarChartComponent } from '../barchart/barchart.component';
 import { XiriLineChartComponent } from '../linechart/linechart.component';
 import { XiriPieChartComponent } from '../piechart/piechart.component';
 import { XiriGaugeChartComponent } from '../gaugechart/gaugechart.component';
+import { XiriHeatmapComponent } from '../heatmap/heatmap.component';
+import { XiriCalendarComponent } from '../calendar/calendar.component';
+import { XiriTreeComponent } from '../tree/tree.component';
+import { XiriSankeyComponent } from '../sankey/sankey.component';
+import { XiriGanttComponent } from '../gantt/gantt.component';
 
 
 @Component( {
@@ -71,7 +76,12 @@ import { XiriGaugeChartComponent } from '../gaugechart/gaugechart.component';
 	                       XiriBarChartComponent,
 	                       XiriLineChartComponent,
 	                       XiriPieChartComponent,
-	                       XiriGaugeChartComponent ]
+	                       XiriGaugeChartComponent,
+	                       XiriHeatmapComponent,
+	                       XiriCalendarComponent,
+	                       XiriTreeComponent,
+	                       XiriSankeyComponent,
+	                       XiriGanttComponent ]
             } )
 export class XiriDynComponentComponent {
 	
