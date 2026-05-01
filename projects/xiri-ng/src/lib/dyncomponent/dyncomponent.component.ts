@@ -27,6 +27,7 @@ import { XiriDividerComponent } from '../divider/divider.component';
 import { XiriStatGridComponent } from '../stat-grid/stat-grid.component';
 import { XiriToolbarComponent } from '../toolbar/toolbar.component';
 import { XiriDescriptionListComponent } from '../description-list/description-list.component';
+import { XiriBarChartComponent } from '../barchart/barchart.component';
 
 
 @Component( {
@@ -63,7 +64,8 @@ import { XiriDescriptionListComponent } from '../description-list/description-li
 	                       XiriDividerComponent,
 	                       XiriStatGridComponent,
 	                       XiriToolbarComponent,
-	                       XiriDescriptionListComponent ]
+	                       XiriDescriptionListComponent,
+	                       XiriBarChartComponent ]
             } )
 export class XiriDynComponentComponent {
 	

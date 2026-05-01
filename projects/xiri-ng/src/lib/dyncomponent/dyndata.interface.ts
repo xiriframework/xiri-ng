@@ -3,7 +3,7 @@ export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'li
 	'query' | 'stepper' | 'header' | 'list' | 'spacer' | 'container' | 'infopoint' |
 	'multiprogress' | 'imagetext' | 'tabs' | 'expansion' | 'infotext' | 'html' | 'stat' |
 	'empty-state' | 'timeline' | 'page-header' | 'section' | 'divider' | 'stat-grid' |
-	'toolbar' | 'description-list';
+	'toolbar' | 'description-list' | 'barchart';
 
 export interface XiriDynData {
 	id?: number
@@ -11,4 +11,5 @@ export interface XiriDynData {
 	data?: any
 	display?: string
 	newRow?: boolean
+	mode?: string
 }

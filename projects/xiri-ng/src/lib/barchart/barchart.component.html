@@ -1,0 +1,11 @@
+<mat-card class="xiri-barchart mat-mdc-elevation-specific mat-elevation-z2">
+	<mat-card-content>
+		@if (settings().title) {
+			<div class="xiri-barchart-title">{{ settings().title }}</div>
+		}
+		<div #chartHost class="xiri-barchart-host"></div>
+		@if (error()) {
+			<div class="xiri-barchart-error">{{ error() }}</div>
+		}
+	</mat-card-content>
+</mat-card>

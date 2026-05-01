@@ -35,7 +35,13 @@
 		"@date-fns/tz": "^1.4",
 		"material-symbols": ">=0.40",
 		"ngx-mat-select-search": "^8.0.4",
-		"rxjs": "^7.8.1"
+		"rxjs": "^7.8.1",
+		"echarts": "^6"
+	},
+	"peerDependenciesMeta": {
+		"echarts": {
+			"optional": true
+		}
 	},
 	"sideEffects": false
 }

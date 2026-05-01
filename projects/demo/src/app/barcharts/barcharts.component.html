@@ -1,0 +1,83 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- 1: Simple -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSimple1">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-barchart mode="simple" [settings]="simple1"></xiri-barchart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goSimpleCode" title="Go: barchart.ModeSimple"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 2: Simple variant -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSimple2">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-barchart mode="simple" [settings]="simple2"></xiri-barchart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goSimpleCode" title="Go: barchart.ModeSimple (analog)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 3: Stacked -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionStacked">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-barchart mode="stacked" [settings]="stacked"></xiri-barchart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goStackedCode" title="Go: barchart.ModeStacked"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 4: Heatmap -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionHeatmap">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-barchart mode="heatmap" [settings]="heatmap"></xiri-barchart>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goHeatmapCode" title="Go: barchart.ModeHeatmap"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

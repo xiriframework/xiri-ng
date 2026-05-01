@@ -124,7 +124,7 @@ export interface XiriTableOptions {
 export interface XiriTableField {
   id: string;
   name: string;
-  format?: string;              // 'text' | 'number' | 'html' | 'icon' | 'button' | ...
+  format?: string;              // 'text' | 'number' | 'html' | 'icon' | 'button' | 'chips' | ...
   search?: boolean;
   sort?: boolean;
 
@@ -159,6 +159,31 @@ export interface XiriTableField {
   editableOptionsUrl?: string;
 }
 ```
+
+### Chips-Format (Status-Tags pro Zelle)
+
+`format: 'chips'` rendert pro Zelle ein Array farbiger Pills. Der Cell-Wert ist `Array<{label: string, color?: XiriColor}>`. Single-Value-Spalten liefern ein 1-elementiges Array (z. B. `[{ label: '45%', color: 'red' }]`).
+
+```typescript
+fields: [
+  { id: 'state',  name: 'State',         format: 'chips' },
+  { id: 'metric', name: 'Battery',       format: 'chips' },
+  { id: 'tags',   name: 'Tags',          format: 'chips' },
+],
+data: [
+  { id: 1,
+    state:  [ { label: 'Attention',     color: 'warn' } ],
+    metric: [ { label: '45%',           color: 'red' } ],
+    tags:   [ { label: 'Frontend', color: 'primary' },
+              { label: 'Angular',  color: 'emerald' } ] },
+]
+```
+
+CSS-Klasse pro Chip: `.xiri-chip-display.<color>` (z. B. `.xiri-chip-display.red`). Theme-Farben (`primary`/`accent`/`warn`/…) und Extended-Farben (`red`/`green`/`yellow`/`gray`/…) werden vom Theming bereitgestellt.
+
+**Editierbar (Multi-Select-Chips):** zusätzlich `editable: true` + `editableOptions` (oder `editableOptionsUrl`) auf dem Field — der Inline-Editor öffnet einen Multi-Select. Der Cell-Wert beim Edit-Save ist das Array der ausgewählten Labels.
+
+**Backend-Pendant in xiri-go:** `b.ChipsField(id, name, accessor)` wo `accessor func(T) []table.Chip` (siehe `xiri-go-expert references/table-builder.md`).
 
 ## Server-Side-Pagination — Flow
 

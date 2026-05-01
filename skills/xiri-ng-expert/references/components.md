@@ -615,3 +615,46 @@ interface XiriDescriptionListItem {
   type?: 'text' | 'link' | 'html' | 'badge';
 }
 ```
+
+### xiri-barchart
+
+```typescript
+@input            mode: XiriBarChartMode = 'simple';   // 'simple' | 'stacked' | 'heatmap'
+@input.required   settings: XiriBarChartSettings;
+
+interface XiriBarChartSettings {
+  title?: string;
+  yMin?: number;
+  yMax?: number;
+  color?: XiriColor;                  // Default-Farbe (simple/heatmap)
+  bars?: XiriBarChartBar[];           // simple + stacked
+  points?: XiriBarChartPoint[];       // heatmap
+}
+
+interface XiriBarChartBar {
+  label: string;                      // Achsen-Label (kurz)
+  value?: number;                     // simple
+  segments?: XiriBarChartSegment[];   // stacked
+  name?: string;                      // optionaler Tooltip-Name (Vollbezeichnung)
+}
+
+interface XiriBarChartSegment {
+  value: number;
+  color?: XiriColor;
+  name?: string;                      // Tooltip-Name pro Segment ("Low strain" …)
+}
+
+interface XiriBarChartPoint {
+  time: number;                       // unix milliseconds
+  value: number;
+  name?: string;                      // optionaler Tooltip-Name (z. B. "Repeat #3")
+}
+```
+
+**Rendering:** Verwendet **echarts v6**. Die Library deklariert `echarts` als optionale `peerDependency` — Apps installieren `echarts` nur, wenn sie `xiri-barchart` (oder `type: 'barchart'`) verwenden. Der Component lädt echarts lazy via `await import('echarts')` (eigener Bundle-Chunk).
+
+**Tooltip:** Pro Mode eigener Formatter. Wenn `bar.name` / `segment.name` / `point.name` gesetzt sind, erscheinen sie im Tooltip; sonst Fallback auf `label` bzw. echarts-Default. Demo-Pattern: `label: 'M', name: 'Monday'` → X-Achse zeigt "M", Tooltip zeigt "Monday".
+
+**Resize:** intern via `ResizeObserver` — kein manuelles `resize()` nötig.
+
+**Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.

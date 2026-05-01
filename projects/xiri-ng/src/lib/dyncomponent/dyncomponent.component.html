@@ -152,6 +152,11 @@
 				@defer { <xiri-description-list [settings]="obj.data"></xiri-description-list> }
 			</div>
 		}
+		@case ('barchart') {
+			<div class="xcol xcol-md-6 xcol-xl-3" [class]="obj.display" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-barchart [mode]="obj.mode" [settings]="obj.data"></xiri-barchart> }
+			</div>
+		}
 		@default {
 			<ng-container *ngTemplateOutlet="dyncomponent() || defaultComponentUnknown; context: { $implicit: obj, filterData: filterData() }"></ng-container>
 		}

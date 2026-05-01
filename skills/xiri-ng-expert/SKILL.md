@@ -99,7 +99,7 @@ components: XiriDynData[] = [
 // stepper | header | list | spacer | container | infopoint | multiprogress
 // imagetext | tabs | expansion | infotext | html | stat | empty-state
 // timeline | page-header | section | divider | stat-grid | toolbar
-// description-list
+// description-list | barchart   (barchart benötigt zusätzlich `mode`)
 ```
 
 ## xiri-form-fields — Forms
@@ -284,6 +284,12 @@ stepperSettings = {
                          trend: { value: 12, direction: 'up' } }"/>
 <xiri-stat-grid [settings]="{ stats: [...], columns: 4, title: 'KPIs' }"/>
 <xiri-timeline [settings]="{ items: [...], orientation: 'vertical' }"/>
+<xiri-barchart mode="simple"  [settings]="{ title: 'Weekly', yMin: 0, yMax: 12, color: 'purple',
+                                            bars: [{ label: 'M', name: 'Monday', value: 3 }, ...] }"/>
+<xiri-barchart mode="stacked" [settings]="{ bars: [{ label: 'M', name: 'Monday',
+                                            segments: [{ value: 2, color: 'green', name: 'Low strain' }, ...] }] }"/>
+<xiri-barchart mode="heatmap" [settings]="{ points: [{ time: 1700000000000, value: 1, name: 'Repeat #1' }, ...] }"/>
+<!-- echarts ist optional peerDependency: nur installieren wenn xiri-barchart genutzt wird -->
 <xiri-description-list [settings]="{ items: [...], columns: 2, layout: 'horizontal' }"/>
 <xiri-list [settings]="{ sections: [...] }"/>
 <xiri-infopoint [settings]="{ text: 'Info', info: 'Detail', icon: 'info', iconColor: 'primary' }"/>

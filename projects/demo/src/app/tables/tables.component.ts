@@ -75,6 +75,12 @@ export class TablesComponent {
 		icon: 'height',
 	};
 
+	sectionTable8: XiriSectionSettings = {
+		title: '8: Status Chips per Cell',
+		subtitle: "Multiple columns with format: 'chips'. Each cell renders an array of colored pills. Single-value rows produce one chip; supports compact status dashboards.",
+		icon: 'label',
+	};
+
 	sectionRawTable: XiriSectionSettings = {
 		title: 'XiriRawTableComponent',
 		subtitle: 'Simple table without server connection. Suitable for static data. Supports dense, number, icon formats.',
@@ -266,6 +272,65 @@ export class TablesComponent {
 		hasFilter: false
 	};
 
+	public data8: XiriTableSettings = {
+		data: [
+			{
+				id: 1, item: 'A-422',
+				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
+				issues: <XiriTagChip[]>[ { label: 'Channel 1', color: 'red' } ],
+				metric1: <XiriTagChip[]>[ { label: '90%', color: 'lightgray' } ],
+				metric2: <XiriTagChip[]>[ { label: '70%', color: 'lightgray' } ],
+				metric3: <XiriTagChip[]>[ { label: '45%', color: 'red' } ],
+			},
+			{
+				id: 2, item: 'B-689',
+				state: <XiriTagChip[]>[ { label: 'Not available', color: 'gray' } ],
+				issues: <XiriTagChip[]>[ { label: 'Channel 2', color: 'red' } ],
+				metric1: <XiriTagChip[]>[ { label: '100%', color: 'success' } ],
+				metric2: <XiriTagChip[]>[ { label: '85%', color: 'lightgray' } ],
+				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+			},
+			{
+				id: 3, item: 'C-310',
+				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
+				issues: <XiriTagChip[]>[ { label: 'Channel 3', color: 'red' } ],
+				metric1: <XiriTagChip[]>[ { label: '88%', color: 'lightgray' } ],
+				metric2: <XiriTagChip[]>[ { label: '90%', color: 'success' } ],
+				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+			},
+			{
+				id: 4, item: 'D-431',
+				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
+				issues: <XiriTagChip[]>[ { label: 'Channel 4', color: 'red' } ],
+				metric1: <XiriTagChip[]>[ { label: '32%', color: 'red' } ],
+				metric2: <XiriTagChip[]>[ { label: '7%', color: 'red' } ],
+				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+			},
+			{
+				id: 5, item: 'E-59',
+				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
+				issues: <XiriTagChip[]>[ { label: 'Channel 5', color: 'warn' } ],
+				metric1: <XiriTagChip[]>[ { label: '48%', color: 'red' } ],
+				metric2: <XiriTagChip[]>[ { label: '90%', color: 'success' } ],
+				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+			},
+		],
+		fields: [
+			{ id: 'item', name: 'Item', sticky: true },
+			{ id: 'state', name: 'State', format: 'chips' },
+			{ id: 'issues', name: 'Issues', format: 'chips' },
+			{ id: 'metric1', name: 'Metric 1', format: 'chips' },
+			{ id: 'metric2', name: 'Metric 2', format: 'chips' },
+			{ id: 'metric3', name: 'Metric 3', format: 'chips' },
+		],
+		options: {
+			sort: true, search: true, borders: true, bordersHeader: true,
+			title: '8: Status Chips per Cell',
+			textNoData: 'No items',
+		},
+		hasFilter: false
+	};
+
 	public data6: XiriTableSettings = {
 		url: 'Test/Table/ServerData',
 		options: {
@@ -419,6 +484,29 @@ tb.SetOptions(table.TableOptions{
     Sort: true, Search: true,
     Pagination: false,
     ScrollHeight: "300px",
+})`;
+
+	goTable8Code = `tb := table.NewBuilder[Row](ctx, t)
+
+tb.TextField("item", "Item", itemAcc).Sticky()
+
+tb.ChipsField("state", "State", func(r Row) []table.Chip {
+    if r.OK { return []table.Chip{{Label: "OK", Color: core.ColorSuccess}} }
+    return []table.Chip{{Label: "Attention", Color: core.ColorWarning}}
+})
+
+tb.ChipsField("issues", "Issues", func(r Row) []table.Chip {
+    out := make([]table.Chip, 0, len(r.Issues))
+    for _, i := range r.Issues {
+        out = append(out, table.Chip{Label: i.Label, Color: i.Severity})
+    }
+    return out
+})
+
+tb.ChipsField("metric1", "Metric 1", func(r Row) []table.Chip {
+    color := core.ColorLightGray
+    if r.M1 < 50 { color = core.ColorRed }
+    return []table.Chip{{Label: fmt.Sprintf("%d%%", r.M1), Color: color}}
 })`;
 
 	goRawTableCode = `// RawTable = clientseitige Tabelle ohne Server-Anbindung

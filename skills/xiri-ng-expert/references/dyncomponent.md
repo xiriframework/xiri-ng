@@ -28,6 +28,7 @@ export interface XiriDynData {
   data?: any;                             // Settings-Objekt der Ziel-Komponente.
   display?: string;                       // CSS-Klassen für Wrapper.
   newRow?: boolean;                       // Grid-Layout: neue Zeile beginnen.
+  mode?: string;                          // Nur für 'barchart': 'simple' | 'stacked' | 'heatmap'
 }
 
 export type XiriDynDataType =
@@ -38,7 +39,8 @@ export type XiriDynDataType =
   | 'tabs' | 'expansion' | 'infotext' | 'html'
   | 'stat' | 'empty-state' | 'timeline'
   | 'page-header' | 'section' | 'divider'
-  | 'stat-grid' | 'toolbar' | 'description-list';
+  | 'stat-grid' | 'toolbar' | 'description-list'
+  | 'barchart';
 ```
 
 ## Mapping type → Komponente
@@ -69,6 +71,7 @@ export type XiriDynDataType =
 | `stat-grid`         | `xiri-stat-grid`       | `XiriStatGridSettings`               |
 | `toolbar`           | `xiri-toolbar`         | `XiriToolbarSettings`                |
 | `description-list`  | `xiri-description-list`| `XiriDescriptionListSettings`        |
+| `barchart`          | `xiri-barchart`        | `XiriBarChartSettings` (+ `mode` auf XiriDynData) |
 | `spacer`            | vertical spacer div    | `{ size?: string }`                  |
 | `container`         | wrapper div            | `{ components: XiriDynData[] }`      |
 | `infotext`          | Text-Absatz            | `{ text: string }`                   |

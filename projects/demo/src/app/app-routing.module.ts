@@ -13,6 +13,7 @@ import { EmptyStateComponent } from "./empty-state/empty-state.component";
 import { StatsComponent } from "./stats/stats.component";
 import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
 import { TimelineComponent } from "./timeline/timeline.component";
+import { BarChartsComponent } from "./barcharts/barcharts.component";
 import { DisplayComponent } from "./display/display.component";
 import { WorkflowComponent } from "./workflow/workflow.component";
 import { DynamicComponent } from "./dynamic/dynamic.component";
@@ -39,6 +40,7 @@ export const AppRoutes: Routes = [
 	{ path: 'Stats', component: StatsComponent },
 	{ path: 'Breadcrumb', component: BreadcrumbComponent },
 	{ path: 'Timeline', component: TimelineComponent },
+	{ path: 'BarCharts', component: BarChartsComponent },
 	{ path: 'Display', component: DisplayComponent },
 	{ path: 'Workflow', component: WorkflowComponent },
 	{ path: 'Dynamic', component: DynamicComponent },

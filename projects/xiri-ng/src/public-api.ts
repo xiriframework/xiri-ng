@@ -44,6 +44,7 @@ export * from './lib/skeleton/skeleton.component';
 export * from './lib/empty-state/empty-state.component';
 export * from './lib/stat/stat.component';
 export * from './lib/timeline/timeline.component';
+export * from './lib/barchart/barchart.component';
 
 export * from './lib/page-header/page-header.component';
 export * from './lib/section/section.component';

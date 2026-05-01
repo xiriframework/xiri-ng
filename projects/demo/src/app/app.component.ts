@@ -129,7 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Data Display',
 			icon: 'visibility',
 			menu: true,
-			regex: /^(Display|Stats|Timeline)/,
+			regex: /^(Display|Stats|Timeline|BarCharts)/,
 			sub: [ {
 				name: 'Components',
 				icon: 'visibility',
@@ -138,6 +138,10 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: 'Stats / KPI',
 				icon: 'bar_chart',
 				link: 'Stats'
+			}, {
+				name: 'Bar Charts',
+				icon: 'stacked_bar_chart',
+				link: 'BarCharts'
 			}, {
 				name: 'Timeline',
 				icon: 'timeline',
