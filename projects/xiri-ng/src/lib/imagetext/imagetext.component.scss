@@ -11,3 +11,28 @@
 [hidden] {
 	display: none !important;
 }
+
+:host(.compact) {
+	.xiri-imagetext-flat {
+		background: transparent;
+		box-shadow: none;
+		padding: 0;
+		margin-bottom: 0;
+	}
+
+	.xiri-imagetext-header {
+		display: flex;
+		gap: var(--xiri-spacing-sm, 8px);
+		margin-bottom: var(--xiri-spacing-sm, 8px);
+	}
+
+	.header-title {
+		font-size: var(--xiri-font-size-body);
+		font-weight: 500;
+	}
+
+	.header-sub {
+		font-size: var(--xiri-font-size-label);
+		color: var(--mat-sys-on-surface-variant, #555);
+	}
+}

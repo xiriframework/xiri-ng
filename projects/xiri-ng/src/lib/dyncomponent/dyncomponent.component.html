@@ -2,32 +2,32 @@
 
 	@switch (obj.type) {
 		@case ('card') {
-			<div class="xcol xcol-md-6 xcol-xl-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
 				<xiri-card [settings]="obj.data"></xiri-card>
 			</div>
 		}
 		@case ('buttonline') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-buttonline [settings]="obj.data" [filterData]="filterData()"></xiri-buttonline>
 			</div>
 		}
 		@case ('table') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-table [settings]="obj.data" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-table>
 			</div>
 		}
 		@case ('cardlink') {
-			<div class="xcol xcol-md-4 xcol-lg-3" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-4 xcol-lg-3'" [class.xcol-start]="obj.newRow">
 				<xiri-cardlink [settings]="obj.data"></xiri-cardlink>
 			</div>
 		}
 		@case ('links') {
-			<div class="xcol xcol-md-4 xcol-lg-3" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-4 xcol-lg-3'" [class.xcol-start]="obj.newRow">
 				<xiri-links [settings]="obj.data"></xiri-links>
 			</div>
 		}
 		@case ('form') {
-			<div class="xcol form" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol form'" [class.xcol-start]="obj.newRow">
 				<mat-card class="mat-mdc-elevation-specific mat-elevation-z2">
 					@if (obj.data.header) {
 						<mat-card-header>
@@ -41,119 +41,119 @@
 			</div>
 		}
 		@case ('query') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-query [settings]="obj.data" [dyncomponent]="selfdyncomponent"></xiri-query>
 			</div>
 		}
 		@case ('stepper') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-stepper [settings]="obj.data"></xiri-stepper>
 			</div>
 		}
 		@case ('header') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-header [settings]="obj.data"></xiri-header>
 			</div>
 		}
 		@case ('list') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-list [settings]="obj.data"></xiri-list>
 			</div>
 		}
 		@case ('spacer') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
-				<div class="spacer" [class]="obj.display">&nbsp;</div>
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				<div class="spacer">&nbsp;</div>
 			</div>
 		}
 		@case ('container') {
 			@if (obj.data) {
-				<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+				<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 					<xiri-dyncomponent [data]="obj.data" [dyncomponent]="dyncomponent()" class="row"></xiri-dyncomponent>
 				</div>
 			}
 		}
 		@case ('infopoint') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-infopoint [settings]="obj.data"></xiri-infopoint>
 			</div>
 		}
 		@case ('multiprogress') {
-			<div class="xcol xcol-md-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-multiprogress [settings]="obj.data"></xiri-multiprogress> }
 			</div>
 		}
 		@case ('imagetext') {
-			<div class="xcol xcol-md-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-imagetext [settings]="obj.data"></xiri-imagetext> }
 			</div>
 		}
 		@case ('tabs') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-tabs [settings]="obj.data" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-tabs>
 			</div>
 		}
 		@case ('expansion') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-expansion [settings]="obj.data" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-expansion>
 			</div>
 		}
 		@case ('infotext') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<div class="infotext">{{ obj.data.text }}</div>
 			</div>
 		}
 		@case ('html') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<div class="html" [innerHtml]="obj.data.html | safeHtml"></div>
 			</div>
 		}
 		@case ('stat') {
-			<div class="xcol xcol-md-6 xcol-xl-4" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
 				<xiri-stat [settings]="obj.data"></xiri-stat>
 			</div>
 		}
 		@case ('empty-state') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-empty-state [settings]="obj.data"></xiri-empty-state>
 			</div>
 		}
 		@case ('timeline') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-timeline [settings]="obj.data"></xiri-timeline> }
 			</div>
 		}
 		@case ('page-header') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-page-header [settings]="obj.data"></xiri-page-header> }
 			</div>
 		}
 		@case ('section') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				<xiri-section [settings]="obj.data" [dyncomponent]="dyncomponent()"></xiri-section>
 			</div>
 		}
 		@case ('divider') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-divider [settings]="obj.data"></xiri-divider> }
 			</div>
 		}
 		@case ('stat-grid') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-stat-grid [settings]="obj.data"></xiri-stat-grid> }
 			</div>
 		}
 		@case ('toolbar') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-toolbar [settings]="obj.data" [filterData]="filterData()"></xiri-toolbar> }
 			</div>
 		}
 		@case ('description-list') {
-			<div class="xcol" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-description-list [settings]="obj.data"></xiri-description-list> }
 			</div>
 		}
 		@case ('barchart') {
-			<div class="xcol xcol-md-6 xcol-xl-3" [class]="obj.display" [class.xcol-start]="obj.newRow">
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-barchart [mode]="obj.mode" [settings]="obj.data"></xiri-barchart> }
 			</div>
 		}

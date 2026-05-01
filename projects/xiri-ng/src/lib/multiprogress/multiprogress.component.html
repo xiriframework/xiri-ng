@@ -1,32 +1,59 @@
-<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
-	<div class="header align-items-center">
-		@if (settings().headerIcon) {
-			<div mat-card-avatar class="header-image">
-				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
-			</div>
-		}
-		<span class="title">{{ settings().header }}</span>
-		@if (settings().show && settings().data.length > settings().show) {
-			<span class="open">
-		        <button mat-icon-button class="d-btn" (click)="isOpen.set(!isOpen())" [attr.aria-label]="isOpen() ? 'Weniger anzeigen' : 'Mehr anzeigen'" [attr.aria-expanded]="isOpen()">
-		            @if (isOpen()) {
-			            <mat-icon>expand_less</mat-icon>
-		            } @else {
-			            <mat-icon>expand_more</mat-icon>
-		            }
-		        </button>
-            </span>
-		}
-	</div>
-	<mat-card-content>
-		@for (item of settings().data | slice:0:(isOpen() ? 999 : settings().show); track item) {
-			<div class="item">
-				<div class="line">
-					<span class="text">{{ item.text }}</span>
-					<span class="value">{{ item.value }}</span>
+@if (compact()) {
+	<div class="card xiri-multiprogress-flat">
+		<div class="header align-items-center">
+			@if (settings().headerIcon) {
+				<div class="header-image">
+					<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
 				</div>
-				<mat-progress-bar mode="determinate" [class]="item.color" [value]="item.progress" class="bar"></mat-progress-bar>
-			</div>
-		}
-	</mat-card-content>
-</mat-card>
+			}
+			<span class="title">{{ settings().header }}</span>
+			@if (settings().show && settings().data.length > settings().show) {
+				<span class="open">
+					<button mat-icon-button class="d-btn" (click)="isOpen.set(!isOpen())" [attr.aria-label]="isOpen() ? 'Weniger anzeigen' : 'Mehr anzeigen'" [attr.aria-expanded]="isOpen()">
+						@if (isOpen()) { <mat-icon>expand_less</mat-icon> } @else { <mat-icon>expand_more</mat-icon> }
+					</button>
+				</span>
+			}
+		</div>
+		<div class="xiri-multiprogress-content">
+			@for (item of settings().data | slice:0:(isOpen() ? 999 : settings().show); track item) {
+				<div class="item">
+					<div class="line">
+						<span class="text">{{ item.text }}</span>
+						<span class="value">{{ item.value }}</span>
+					</div>
+					<mat-progress-bar mode="determinate" [class]="item.color" [value]="item.progress" class="bar"></mat-progress-bar>
+				</div>
+			}
+		</div>
+	</div>
+} @else {
+	<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+		<div class="header align-items-center">
+			@if (settings().headerIcon) {
+				<div mat-card-avatar class="header-image">
+					<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+				</div>
+			}
+			<span class="title">{{ settings().header }}</span>
+			@if (settings().show && settings().data.length > settings().show) {
+				<span class="open">
+					<button mat-icon-button class="d-btn" (click)="isOpen.set(!isOpen())" [attr.aria-label]="isOpen() ? 'Weniger anzeigen' : 'Mehr anzeigen'" [attr.aria-expanded]="isOpen()">
+						@if (isOpen()) { <mat-icon>expand_less</mat-icon> } @else { <mat-icon>expand_more</mat-icon> }
+					</button>
+				</span>
+			}
+		</div>
+		<mat-card-content>
+			@for (item of settings().data | slice:0:(isOpen() ? 999 : settings().show); track item) {
+				<div class="item">
+					<div class="line">
+						<span class="text">{{ item.text }}</span>
+						<span class="value">{{ item.value }}</span>
+					</div>
+					<mat-progress-bar mode="determinate" [class]="item.color" [value]="item.progress" class="bar"></mat-progress-bar>
+				</div>
+			}
+		</mat-card-content>
+	</mat-card>
+}

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, OnDestroy } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { MatLine } from "@angular/material/core";
 import { XiriButton } from "../button/button.component";
 import { XiriColor } from '../types/color.type';
@@ -23,6 +24,7 @@ export interface XiriLinksSettings {
 	headerIconColor?: XiriColor
 	headerSub?: string
 	header?: string
+	compact?: boolean
 }
 
 @Component( {
@@ -40,12 +42,15 @@ export interface XiriLinksSettings {
 	                       MatListItem,
 	                       RouterLink,
 	                       MatLine,
-	                       MatIconButton ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
+	                       MatIconButton,
+	                       NgTemplateOutlet ],
+	            changeDetection: ChangeDetectionStrategy.OnPush,
+	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriLinksComponent implements OnDestroy {
-	
+
 	settings = input.required<XiriLinksSettings>();
+	compact = computed<boolean>( () => !!this.settings().compact );
 	private dialog = inject( MatDialog );
 	private router = inject( Router );
 	

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';
 import { MatCard, MatCardHeader, MatCardAvatar, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
@@ -10,6 +10,7 @@ export interface XiriCardlinkSettings {
 	iconSet: string
 	text?: string
 	sub?: string
+	compact?: boolean
 }
 
 @Component( {
@@ -24,10 +25,13 @@ export interface XiriCardlinkSettings {
 	                       MatIcon,
 	                       MatCardTitle,
 	                       MatCardSubtitle ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
+	            changeDetection: ChangeDetectionStrategy.OnPush,
+	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriCardlinkComponent {
-	
+
 	settings = input.required<XiriCardlinkSettings>();
-	
+
+	compact = computed<boolean>( () => !!this.settings().compact );
+
 }

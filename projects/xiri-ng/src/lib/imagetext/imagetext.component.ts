@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriColor } from '../types/color.type';
 import { MatIcon } from '@angular/material/icon';
@@ -14,11 +14,12 @@ import {
 export interface XiriImagetextSettings {
 	url: string;
 	info: string;
-	
+
 	headerIcon?: string
 	headerIconColor?: XiriColor
 	headerSub?: string
 	header?: string
+	compact?: boolean
 }
 
 
@@ -34,10 +35,12 @@ export interface XiriImagetextSettings {
 	                       MatCardSubtitle,
 	                       MatCardContent,
 	                       MatProgressSpinner ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
+	            changeDetection: ChangeDetectionStrategy.OnPush,
+	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriImagetextComponent {
-	
+
 	settings = input.required<XiriImagetextSettings>();
 	loading = signal<boolean>( true )
+	compact = computed<boolean>( () => !!this.settings().compact );
 }

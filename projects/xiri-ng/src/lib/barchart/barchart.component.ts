@@ -2,6 +2,7 @@ import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
+	computed,
 	DestroyRef,
 	effect,
 	ElementRef,
@@ -45,6 +46,7 @@ export interface XiriBarChartSettings {
 	color?: XiriColor;
 	bars?: XiriBarChartBar[];
 	points?: XiriBarChartPoint[];
+	compact?: boolean;
 }
 
 const COLOR_CSS_VAR: Record<string, string> = {
@@ -81,12 +83,15 @@ function resolveColor(color: XiriColor | string | undefined, fallback = '#8b5cf6
 	styleUrl: './barchart.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
-	imports: [MatCard, MatCardContent]
+	imports: [MatCard, MatCardContent],
+	host: { '[class.compact]': 'compact()' }
 })
 export class XiriBarChartComponent implements AfterViewInit, OnDestroy {
 
 	mode = input<XiriBarChartMode | string>('simple');
 	settings = input.required<XiriBarChartSettings>();
+
+	compact = computed<boolean>(() => !!this.settings().compact);
 
 	chartHost = viewChild.required<ElementRef<HTMLDivElement>>('chartHost');
 
@@ -160,6 +165,12 @@ export class XiriBarChartComponent implements AfterViewInit, OnDestroy {
 	}
 
 	private baseGrid() {
+		// In compact mode the surrounding card already provides padding,
+		// so we shrink the echarts grid to avoid a "double margin" look.
+		// containLabel: true ensures axis labels still get the space they need.
+		if (this.compact()) {
+			return { left: 0, right: 0, top: 4, bottom: 0, containLabel: true };
+		}
 		return { left: 32, right: 16, top: 24, bottom: 24, containLabel: true };
 	}
 

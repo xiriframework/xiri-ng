@@ -7,6 +7,12 @@ mat-card-content {
 	padding: 0;
 }
 
+:host(.compact) .xiri-multiprogress-flat {
+	background: transparent;
+	box-shadow: none;
+	padding: 0;
+}
+
 .header {
 	margin-top:      0;
 	margin-bottom:   12px;

@@ -11,6 +11,22 @@ mat-card {
 	}
 }
 
+:host(.compact) {
+	margin-bottom: 0;
+
+	.xiri-cardlink-flat {
+		background: transparent;
+		box-shadow: none;
+		padding: 0;
+		display: block;
+		transition: background-color var(--xiri-duration-fast, 150ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
+
+		&:hover {
+			background-color: var(--surface-variant, #DEE3EB);
+		}
+	}
+}
+
 .mat-mdc-card-avatar {
 	background-color: var(--primary, #2892D9);
 	border-radius: 50%;

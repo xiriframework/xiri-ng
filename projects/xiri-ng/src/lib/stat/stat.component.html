@@ -1,35 +1,45 @@
-<mat-card class="stat-card mat-mdc-elevation-specific mat-elevation-z2">
-	<mat-card-content>
-		<div class="stat-content">
-			@if (settings().icon) {
-				<div class="stat-icon">
-					<mat-icon [class]="settings().iconColor || 'primary'">{{ settings().icon }}</mat-icon>
-				</div>
-			}
-			<div class="stat-data">
-				<div class="stat-value" [class]="settings().color || ''">
-					@if (settings().prefix) {
-						<span class="prefix">{{ settings().prefix }}</span>
-					}
-					{{ settings().value }}
-					@if (settings().suffix) {
-						<span class="suffix">{{ settings().suffix }}</span>
-					}
-				</div>
-				<div class="stat-label">{{ settings().label }}</div>
+@if (compact()) {
+	<div class="stat-flat">
+		<ng-container *ngTemplateOutlet="statBody"></ng-container>
+	</div>
+} @else {
+	<mat-card class="stat-card mat-mdc-elevation-specific mat-elevation-z2">
+		<mat-card-content>
+			<ng-container *ngTemplateOutlet="statBody"></ng-container>
+		</mat-card-content>
+	</mat-card>
+}
+
+<ng-template #statBody>
+	<div class="stat-content">
+		@if (settings().icon) {
+			<div class="stat-icon">
+				<mat-icon [class]="settings().iconColor || 'primary'">{{ settings().icon }}</mat-icon>
 			</div>
-			@if (settings().trend) {
-				<div class="stat-trend" [class]="settings().trend.direction">
-					<mat-icon>
-						@switch (settings().trend.direction) {
-							@case ('up') { trending_up }
-							@case ('down') { trending_down }
-							@default { trending_flat }
-						}
-					</mat-icon>
-					<span>{{ settings().trend.value > 0 ? '+' : '' }}{{ settings().trend.value }}%</span>
-				</div>
-			}
+		}
+		<div class="stat-data">
+			<div class="stat-value" [class]="settings().color || ''">
+				@if (settings().prefix) {
+					<span class="prefix">{{ settings().prefix }}</span>
+				}
+				{{ settings().value }}
+				@if (settings().suffix) {
+					<span class="suffix">{{ settings().suffix }}</span>
+				}
+			</div>
+			<div class="stat-label">{{ settings().label }}</div>
 		</div>
-	</mat-card-content>
-</mat-card>
+		@if (settings().trend) {
+			<div class="stat-trend" [class]="settings().trend.direction">
+				<mat-icon>
+					@switch (settings().trend.direction) {
+						@case ('up') { trending_up }
+						@case ('down') { trending_down }
+						@default { trending_flat }
+					}
+				</mat-icon>
+				<span>{{ settings().trend.value > 0 ? '+' : '' }}{{ settings().trend.value }}%</span>
+			</div>
+		}
+	</div>
+</ng-template>

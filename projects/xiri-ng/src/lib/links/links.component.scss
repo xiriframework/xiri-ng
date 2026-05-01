@@ -13,3 +13,27 @@ mat-card {
 		}
 	}
 }
+
+:host(.compact) {
+	.xiri-links-flat {
+		background: transparent;
+		box-shadow: none;
+		padding: 0;
+		margin-bottom: 0;
+	}
+
+	.xiri-links-header {
+		display: flex;
+		gap: var(--xiri-spacing-sm, 8px);
+		align-items: center;
+		margin-bottom: var(--xiri-spacing-sm, 8px);
+
+		.header-title { font-size: var(--xiri-font-size-body); font-weight: 500; }
+		.header-sub   { font-size: var(--xiri-font-size-label); color: var(--mat-sys-on-surface-variant, #555); }
+	}
+
+	mat-nav-list .mat-mdc-list-item {
+		border-bottom: 1px solid var(--outline-variant, #E7EBEE);
+		text-decoration: underline;
+	}
+}

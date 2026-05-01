@@ -16,6 +16,20 @@
 	}
 }
 
+:host(.compact) .point .xiri-infopoint-flat {
+	display:        flex;
+	flex-direction: row;
+	align-items:    center;
+	overflow:       hidden;
+	background:     transparent;
+	box-shadow:     none;
+	padding:        var(--xiri-spacing-sm, 8px);
+
+	&.dense {
+		padding: 4px 8px;
+	}
+}
+
 .point.isLink {
 	cursor: pointer;
 

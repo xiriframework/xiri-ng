@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, forwardRef, inject, input, signal, Signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriButton } from "../button/button.component";
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
@@ -7,6 +7,8 @@ import { XiriRawTableSettings, XiriRawTableComponent } from "../raw-table/xiri-r
 import { XiriTableField } from "../raw-table/tabefield.interface";
 import { XiriDataService } from '../services/data.service';
 import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
+import { XiriDynData } from '../dyncomponent/dyndata.interface';
+import { XiriDynComponentComponent } from '../dyncomponent/dyncomponent.component';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import {
@@ -24,6 +26,7 @@ export interface XiriCardSettings {
 	reload?: boolean
 	data?: any
 	fields?: XiriTableField[]
+	components?: XiriDynData[]
 	header?: string
 	headerSub?: string
 	headerIcon?: string
@@ -35,6 +38,9 @@ export interface XiriCardSettings {
 	collapsible?: boolean
 	collapsed?: boolean
 	maxHeight?: string
+	padding?: string  // Token 'xs'|'sm'|'md'|'lg'|'xl' oder freier CSS-Wert ('16px', '1rem', 'var(--…)').
+	                  // Wirkt nur im Multi-Component-Modus (settings.components).
+	                  // Auf xs-Viewport (<576px) immer 8px.
 }
 
 @Component( {
@@ -52,7 +58,8 @@ export interface XiriCardSettings {
 	                       MatCardContent,
 	                       XiriRawTableComponent,
 	                       XiriSkeletonComponent,
-	                       MatCardActions ],
+	                       MatCardActions,
+	                       forwardRef( () => XiriDynComponentComponent ) ],
 	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriCardComponent {
@@ -68,6 +75,22 @@ export class XiriCardComponent {
 	private _data = signal<any>( null );
 
 	cardData = computed( () => this._data() ?? this.settings().data );
+
+	hasComponents = computed( () => ( this.settings().components?.length ?? 0 ) > 0 );
+
+	/** Resolves padding setting (token or free CSS value) into a CSS length string. */
+	componentsPadding = computed<string>( () => {
+		const v = this.settings().padding;
+		if ( !v ) return 'var(--xiri-spacing-md, 16px)';
+		switch ( v ) {
+			case 'xs': return 'var(--xiri-spacing-xs, 4px)';
+			case 'sm': return 'var(--xiri-spacing-sm, 8px)';
+			case 'md': return 'var(--xiri-spacing-md, 16px)';
+			case 'lg': return 'var(--xiri-spacing-lg, 24px)';
+			case 'xl': return 'var(--xiri-spacing-xl, 32px)';
+			default:   return v; // freier CSS-Wert
+		}
+	} );
 
 	rawTable: Signal<XiriRawTableSettings | null> = computed( () => {
 

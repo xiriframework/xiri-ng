@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, input, TemplateRef } from '@angular/core';
 import { XiriDynData } from "./dyndata.interface";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { XiriImagetextComponent } from '../imagetext/imagetext.component';
@@ -35,7 +35,7 @@ import { XiriBarChartComponent } from '../barchart/barchart.component';
 	            templateUrl: './dyncomponent.component.html',
 	            styleUrl: './dyncomponent.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
-	            imports: [ XiriCardComponent,
+	            imports: [ forwardRef( () => XiriCardComponent ),
 	                       XiriButtonlineComponent,
 	                       XiriTableComponent,
 	                       XiriCardlinkComponent,

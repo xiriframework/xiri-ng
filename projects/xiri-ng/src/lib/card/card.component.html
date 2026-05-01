@@ -35,6 +35,10 @@
 				<mat-card-content>
 					<div class="load-error">{{ errorMsg() }}</div>
 				</mat-card-content>
+			} @else if (hasComponents()) {
+				<mat-card-content class="hasComponents" [style.--xiri-card-padding]="componentsPadding()">
+					<xiri-dyncomponent [data]="settings().components!" class="xrow"></xiri-dyncomponent>
+				</mat-card-content>
 			} @else {
 				<mat-card-content class="hasTable" [style.max-height]="settings().maxHeight || '50vh'">
 					@if (rawTable()) {

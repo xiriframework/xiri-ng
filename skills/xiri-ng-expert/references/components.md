@@ -76,6 +76,7 @@ interface XiriCardSettings {
   reload?: boolean;
   data?: any;
   fields?: XiriTableField[];       // Card als Mini-Table
+  components?: XiriDynData[];      // Multi-Component-Modus (xcol-Grid mit Sub-Components)
   header?: string;
   headerSub?: string;
   headerIcon?: string;
@@ -87,8 +88,45 @@ interface XiriCardSettings {
   collapsible?: boolean;
   collapsed?: boolean;
   maxHeight?: string;
+  padding?: string;                // 'xs'|'sm'|'md'|'lg'|'xl' Token oder CSS-Wert.
+                                   // Wirkt nur im Multi-Component-Modus.
+                                   // Default 'md'. Auf xs-Viewport (<576px) immer 8px.
 }
 ```
+
+**Render-Reihenfolge im Card-Body:**
+
+1. Wenn `components` befüllt ist → `<xiri-dyncomponent class="xrow">` (Multi-Component-Modus). Layout pro Sub-Component via `display: 'xcol-…'` auf jedem `XiriDynData`-Eintrag. Card-Header bleibt darüber. Beispiel:
+   ```ts
+   {
+     header: 'Activity', headerIcon: 'show_chart', headerIconColor: 'primary',
+     components: [
+       { type: 'barchart', mode: 'simple', display: 'xcol-12', data: { /* XiriBarChartSettings */ } },
+       { type: 'stat',                    display: 'xcol-6',  data: { value: '18h', label: 'Today',       compact: true } },
+       { type: 'stat',                    display: 'xcol-6',  data: { value: '32h', label: 'Last 7 days', compact: true } },
+     ],
+   }
+   ```
+2. Sonst wenn `data` + `fields` vorhanden → bestehendes `xiri-raw-table`-Rendering (Mini-Table-Card).
+3. Sonst → bestehendes Content-Rendering.
+
+Das **Vorhandensein** von `components` schaltet automatisch in den Multi-Component-Modus — kein eigener `cardType` nötig.
+
+#### `compact?: boolean` auf Sub-Components
+
+Die folgenden Components zeichnen sonst eine eigene `<mat-card>` mit Schatten — in einer `xiri-card` ergibt das einen Card-in-Card-Look. `compact: true` lässt die innere mat-card weg:
+
+| Type | Settings-Interface | Wo |
+| --- | --- | --- |
+| `stat` | `XiriStatSettings.compact` | jede Stat-Verwendung |
+| `barchart` | `XiriBarChartSettings.compact` | jede BarChart-Verwendung |
+| `cardlink` | `XiriCardlinkSettings.compact` | jede Cardlink-Verwendung |
+| `imagetext` | `XiriImagetextSettings.compact` | jede Imagetext-Verwendung |
+| `infopoint` | `XiriInfopointSettings.compact` | jede InfoPoint-Verwendung |
+| `links` | `XiriLinksSettings.compact` | jede Links-Verwendung |
+| `multiprogress` | `XiriMultiprogressSettings.compact` | jede MultiProgress-Verwendung |
+
+Implementierung pro Component: `[class.compact]` auf dem Host, `:host(.compact)`-Selectoren in SCSS (transparenter Background, kein Schatten, reduziertes Padding).
 
 ### xiri-cardlink
 
@@ -101,6 +139,7 @@ interface XiriCardlinkSettings {
   iconSet: string;
   text?: string;
   sub?: string;
+  compact?: boolean;        // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 ```
 
@@ -115,6 +154,7 @@ interface XiriLinksSettings {
   headerSub?: string;
   headerIcon?: string;
   headerIconColor?: XiriColor;
+  compact?: boolean;        // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 ```
 
@@ -357,6 +397,7 @@ interface XiriInfopointSettings {
   iconSet?: string;
   iconColor: XiriColor;
   dense?: boolean;
+  compact?: boolean;            // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 ```
 
@@ -371,6 +412,7 @@ interface XiriMultiprogressSettings {
   headerIcon?: string;
   headerIconColor?: XiriColor;
   show?: number;                // initiale Zahl sichtbarer Items
+  compact?: boolean;            // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 
 interface XiriMultiprogressItem {
@@ -393,6 +435,7 @@ interface XiriImagetextSettings {
   headerSub?: string;
   headerIcon?: string;
   headerIconColor?: XiriColor;
+  compact?: boolean;            // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 ```
 
@@ -557,6 +600,9 @@ interface XiriStatSettings {
   prefix?: string;
   suffix?: string;
   color?: XiriColor;
+  compact?: boolean;            // Skipt eigene mat-card-Hülle, kleinere Schrift —
+                                // für Stats die in einer äußeren Card geschachtelt sind
+                                // (Card-in-Card-Look vermeiden).
 }
 
 interface XiriStatTrend {
@@ -629,6 +675,7 @@ interface XiriBarChartSettings {
   color?: XiriColor;                  // Default-Farbe (simple/heatmap)
   bars?: XiriBarChartBar[];           // simple + stacked
   points?: XiriBarChartPoint[];       // heatmap
+  compact?: boolean;                  // Skipt eigene mat-card-Hülle (nesting in xiri-card).
 }
 
 interface XiriBarChartBar {

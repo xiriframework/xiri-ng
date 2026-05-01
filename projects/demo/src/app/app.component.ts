@@ -89,7 +89,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Navigation & Layout',
 			icon: 'menu_open',
 			menu: true,
-			regex: /^(Navigation|Breadcrumb|Layout)/,
+			regex: /^(Navigation|Breadcrumb|Layout|MultiCard)/,
 			sub: [ {
 				name: 'Layout',
 				icon: 'menu_open',
@@ -98,6 +98,10 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: 'Page Layout',
 				icon: 'space_dashboard',
 				link: 'Layout'
+			}, {
+				name: 'Multi-Component Cards',
+				icon: 'view_quilt',
+				link: 'MultiCard'
 			}, {
 				name: 'Breadcrumb',
 				icon: 'chevron_right',

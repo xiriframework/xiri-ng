@@ -1,40 +1,67 @@
-<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
-	<mat-card-header>
-		@if (settings().headerIcon) {
-			<div mat-card-avatar class="header-image">
-				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+@if (compact()) {
+	<div class="card xiri-links-flat">
+		@if (settings().header || settings().headerIcon) {
+			<div class="xiri-links-header">
+				@if (settings().headerIcon) {
+					<div class="header-image">
+						<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+					</div>
+				}
+				<div class="header-text">
+					@if (settings().header) {
+						<div class="header-title">{{ settings().header }}</div>
+					}
+					@if (settings().headerSub) {
+						<div class="header-sub">{{ settings().headerSub }}</div>
+					}
+				</div>
 			</div>
 		}
-		@if (settings().headerSub) {
-			<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
-		}
-		@if (settings().header) {
-			<mat-card-title>{{ settings().header }}</mat-card-title>
-		}
-	</mat-card-header>
-	<mat-card-content>
-		<mat-nav-list>
-			@for (item of settings().data; track item) {
-				@if (!item.action || item.action == 'link') {
-					<a mat-list-item [routerLink]="item.url">
-						<div matLine>{{ item.text }}</div>
-						@if (item.icon) {
-							<button mat-icon-button [attr.aria-label]="item.text">
-								<mat-icon>{{ item.icon }}</mat-icon>
-							</button>
-						}
-					</a>
-				} @else if (item.action == 'dialog') {
-					<mat-list-item (click)="openDialog( item ) && $event.stopPropagation()" (keydown.enter)="openDialog( item )" (keydown.space)="openDialog( item ); $event.preventDefault()">
-						<div matLine>{{ item.text }}</div>
-						@if (item.icon) {
-							<button mat-icon-button [attr.aria-label]="item.text">
-								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
-							</button>
-						}
-					</mat-list-item>
-				}
+		<ng-container *ngTemplateOutlet="linkList"></ng-container>
+	</div>
+} @else {
+	<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+		<mat-card-header>
+			@if (settings().headerIcon) {
+				<div mat-card-avatar class="header-image">
+					<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+				</div>
 			}
-		</mat-nav-list>
-	</mat-card-content>
-</mat-card>
+			@if (settings().headerSub) {
+				<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
+			}
+			@if (settings().header) {
+				<mat-card-title>{{ settings().header }}</mat-card-title>
+			}
+		</mat-card-header>
+		<mat-card-content>
+			<ng-container *ngTemplateOutlet="linkList"></ng-container>
+		</mat-card-content>
+	</mat-card>
+}
+
+<ng-template #linkList>
+	<mat-nav-list>
+		@for (item of settings().data; track item) {
+			@if (!item.action || item.action == 'link') {
+				<a mat-list-item [routerLink]="item.url">
+					<div matLine>{{ item.text }}</div>
+					@if (item.icon) {
+						<button mat-icon-button [attr.aria-label]="item.text">
+							<mat-icon>{{ item.icon }}</mat-icon>
+						</button>
+					}
+				</a>
+			} @else if (item.action == 'dialog') {
+				<mat-list-item (click)="openDialog( item ) && $event.stopPropagation()" (keydown.enter)="openDialog( item )" (keydown.space)="openDialog( item ); $event.preventDefault()">
+					<div matLine>{{ item.text }}</div>
+					@if (item.icon) {
+						<button mat-icon-button [attr.aria-label]="item.text">
+							<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+						</button>
+					}
+				</mat-list-item>
+			}
+		}
+	</mat-nav-list>
+</ng-template>

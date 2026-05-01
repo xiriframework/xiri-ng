@@ -19,6 +19,35 @@
 	}
 }
 
+:host(.compact) {
+	animation: none;
+
+	.stat-flat {
+		padding: var(--xiri-spacing-sm) var(--xiri-spacing-sm);
+		background: transparent;
+		box-shadow: none;
+	}
+
+	.stat-icon mat-icon {
+		font-size: 24px;
+		width: 24px;
+		height: 24px;
+	}
+
+	.stat-value {
+		font-size: 1.25rem;
+		font-weight: 600;
+
+		.prefix, .suffix {
+			font-size: var(--xiri-font-size-label);
+		}
+	}
+
+	.stat-label {
+		font-size: var(--xiri-font-size-label);
+	}
+}
+
 .stat-content {
 	display: flex;
 	align-items: center;

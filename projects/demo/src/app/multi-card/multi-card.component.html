@@ -1,0 +1,63 @@
+<div class="xcontainer-fluid">
+
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- 1: Chart + 2 Compact-Stats -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="section1">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="cardChartAndStats"></xiri-card>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="go1Code" title="Go: card.Add(barchart) + Add(stat.Compact())"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 2: Three Compact Stats -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="section2">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="cardThreeStats"></xiri-card>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="go2Code" title="Go: card.Add(stat) x 3"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 3: Chart + Description-List -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="section3">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-card [settings]="cardChartAndList"></xiri-card>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="go3Code" title="Go: card.Add(barchart.Stacked) + Add(descriptionlist)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
