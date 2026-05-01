@@ -28,6 +28,9 @@ import { XiriStatGridComponent } from '../stat-grid/stat-grid.component';
 import { XiriToolbarComponent } from '../toolbar/toolbar.component';
 import { XiriDescriptionListComponent } from '../description-list/description-list.component';
 import { XiriBarChartComponent } from '../barchart/barchart.component';
+import { XiriLineChartComponent } from '../linechart/linechart.component';
+import { XiriPieChartComponent } from '../piechart/piechart.component';
+import { XiriGaugeChartComponent } from '../gaugechart/gaugechart.component';
 
 
 @Component( {
@@ -65,7 +68,10 @@ import { XiriBarChartComponent } from '../barchart/barchart.component';
 	                       XiriStatGridComponent,
 	                       XiriToolbarComponent,
 	                       XiriDescriptionListComponent,
-	                       XiriBarChartComponent ]
+	                       XiriBarChartComponent,
+	                       XiriLineChartComponent,
+	                       XiriPieChartComponent,
+	                       XiriGaugeChartComponent ]
             } )
 export class XiriDynComponentComponent {
 	

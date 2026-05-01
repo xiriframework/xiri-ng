@@ -143,8 +143,8 @@ export class AppComponent implements OnInit, OnDestroy {
 				icon: 'bar_chart',
 				link: 'Stats'
 			}, {
-				name: 'Bar Charts',
-				icon: 'stacked_bar_chart',
+				name: 'Charts',
+				icon: 'insert_chart',
 				link: 'BarCharts'
 			}, {
 				name: 'Timeline',

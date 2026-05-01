@@ -157,6 +157,21 @@
 				@defer { <xiri-barchart [mode]="obj.mode" [settings]="obj.data"></xiri-barchart> }
 			</div>
 		}
+		@case ('linechart') {
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-linechart [settings]="obj.data"></xiri-linechart> }
+			</div>
+		}
+		@case ('piechart') {
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-piechart [settings]="obj.data"></xiri-piechart> }
+			</div>
+		}
+		@case ('gaugechart') {
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-gaugechart [settings]="obj.data"></xiri-gaugechart> }
+			</div>
+		}
 		@default {
 			<ng-container *ngTemplateOutlet="dyncomponent() || defaultComponentUnknown; context: { $implicit: obj, filterData: filterData() }"></ng-container>
 		}

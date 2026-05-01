@@ -1,0 +1,37 @@
+@if (compact()) {
+	<div class="xiri-echarts xiri-echarts-flat">
+		@if (hasHeader()) {
+			<div class="xiri-echarts-header">
+				@if (headerIcon()) {
+					<mat-icon [class]="headerIconColor() || 'primary'">{{ headerIcon() }}</mat-icon>
+				}
+				@if (title()) {
+					<div class="xiri-echarts-title">{{ title() }}</div>
+				}
+			</div>
+		}
+		<div #chartHost class="xiri-echarts-host" [style.height]="chartHeight()"></div>
+		@if (error()) {
+			<div class="xiri-echarts-error">{{ error() }}</div>
+		}
+	</div>
+} @else {
+	<mat-card class="xiri-echarts mat-mdc-elevation-specific mat-elevation-z2">
+		<mat-card-content>
+			@if (hasHeader()) {
+				<div class="xiri-echarts-header">
+					@if (headerIcon()) {
+						<mat-icon [class]="headerIconColor() || 'primary'">{{ headerIcon() }}</mat-icon>
+					}
+					@if (title()) {
+						<div class="xiri-echarts-title">{{ title() }}</div>
+					}
+				</div>
+			}
+			<div #chartHost class="xiri-echarts-host" [style.height]="chartHeight()"></div>
+			@if (error()) {
+				<div class="xiri-echarts-error">{{ error() }}</div>
+			}
+		</mat-card-content>
+	</mat-card>
+}

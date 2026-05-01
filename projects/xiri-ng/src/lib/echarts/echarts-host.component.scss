@@ -1,0 +1,39 @@
+.xiri-echarts {
+	height: 100%;
+
+	.xiri-echarts-header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 8px;
+
+		mat-icon {
+			font-size: var(--xiri-icon-size-md, 24px);
+			width: var(--xiri-icon-size-md, 24px);
+			height: var(--xiri-icon-size-md, 24px);
+		}
+	}
+
+	.xiri-echarts-title {
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--mat-sys-on-surface-variant, #555);
+	}
+
+	.xiri-echarts-host {
+		width: 100%;
+		min-height: 160px;
+	}
+
+	.xiri-echarts-error {
+		font-size: 12px;
+		color: var(--mat-sys-error, #b00020);
+		padding: 8px 0;
+	}
+}
+
+.xiri-echarts-flat {
+	background: transparent;
+	box-shadow: none;
+	padding: 0;
+}

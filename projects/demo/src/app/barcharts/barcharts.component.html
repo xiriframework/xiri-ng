@@ -80,4 +80,65 @@
 		</div>
 	</div>
 
+	<!-- 5: Line Chart -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionLine">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-linechart [settings]="line"></xiri-linechart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goLineCode" title="Go: linechart.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 6: Pie & Donut -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionPie">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-piechart [settings]="pie"></xiri-piechart>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-piechart [settings]="donut"></xiri-piechart>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goPieCode" title="Go: piechart.New + Donut"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 7: Gauge -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionGauge">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-gaugechart [settings]="gaugeCpu"></xiri-gaugechart>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-gaugechart [settings]="gaugeMem"></xiri-gaugechart>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-gaugechart [settings]="gaugeDisk"></xiri-gaugechart>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goGaugeCode" title="Go: gaugechart.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

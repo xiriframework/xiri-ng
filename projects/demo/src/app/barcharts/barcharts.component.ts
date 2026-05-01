@@ -3,6 +3,9 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriBarChartComponent, XiriBarChartSettings } from 'projects/xiri-ng/src/lib/barchart/barchart.component';
+import { XiriLineChartComponent, XiriLineChartSettings } from 'projects/xiri-ng/src/lib/linechart/linechart.component';
+import { XiriPieChartComponent, XiriPieChartSettings } from 'projects/xiri-ng/src/lib/piechart/piechart.component';
+import { XiriGaugeChartComponent, XiriGaugeChartSettings } from 'projects/xiri-ng/src/lib/gaugechart/gaugechart.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component({
@@ -14,6 +17,9 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		XiriSectionComponent,
 		XiriBreadcrumbComponent,
 		XiriBarChartComponent,
+		XiriLineChartComponent,
+		XiriPieChartComponent,
+		XiriGaugeChartComponent,
 		GoCodePanelComponent,
 	],
 })
@@ -22,13 +28,13 @@ export class BarChartsComponent {
 	breadcrumbs: XiriBreadcrumbItem[] = [
 		{ label: 'Home', link: '/Overview', icon: 'home' },
 		{ label: 'Data Display' },
-		{ label: 'Bar Charts' },
+		{ label: 'Charts' },
 	];
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
-		title: 'Bar Charts',
-		subtitle: 'Simple, stacked und heatmap bar-charts (echarts, optional peerDependency)',
-		icon: 'bar_chart',
+		title: 'Charts',
+		subtitle: 'Bar, Line, Pie und Gauge charts — alle auf einer geteilten echarts-Basis (xiri-echarts-host).',
+		icon: 'insert_chart',
 		iconColor: 'primary',
 	};
 
@@ -173,4 +179,116 @@ export class BarChartsComponent {
 for _, s := range samples {
     bc.Point(s.TimestampMs, s.Value)
 }`;
+
+	// --- Line Chart Sections ---
+
+	sectionLine: XiriSectionSettings = {
+		title: '5: Line — multi-series + smoothed',
+		subtitle: 'xiri-linechart: gemeinsame X-Achse, mehrere Linien, optional dashed/area/smooth.',
+		icon: 'show_chart',
+		iconColor: 'primary',
+	};
+
+	line: XiriLineChartSettings = {
+		title: 'Monthly revenue',
+		xLabels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug' ],
+		smooth: true,
+		yMin: 0,
+		yMax: 220,
+		lines: [
+			{ name: 'Product A', values: [ 100, 120, 150, 180, 170, 195, 205, 210 ], color: 'blue' },
+			{ name: 'Product B', values: [ 80,  95,  110, 130, 125, 145, 150, 160 ], color: 'green' },
+			{ name: 'Forecast',  values: [ 90,  108, 130, 155, 148, 170, 178, 185 ], color: 'purple', dashed: true },
+		],
+	};
+
+	goLineCode = `lc := linechart.New("revenue").
+    Title("Monthly revenue").
+    XLabels("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug").
+    Line("Product A", []float64{100,120,150,180,170,195,205,210}).Color(core.ColorBlue).Done().
+    Line("Product B", []float64{80,95,110,130,125,145,150,160}).Color(core.ColorGreen).Done().
+    Line("Forecast",  []float64{90,108,130,155,148,170,178,185}).Color(core.ColorPurple).Dashed().Done().
+    Smooth().YAxis(0, 220)`;
+
+	// --- Pie / Donut Sections ---
+
+	sectionPie: XiriSectionSettings = {
+		title: '6: Pie & Donut',
+		subtitle: 'xiri-piechart: Anteile/Verteilung. donut:true rendert als Ring.',
+		icon: 'pie_chart',
+		iconColor: 'accent',
+	};
+
+	pie: XiriPieChartSettings = {
+		title: 'Traffic sources',
+		slices: [
+			{ name: 'Direct', value: 1234, color: 'blue' },
+			{ name: 'Search', value: 856,  color: 'green' },
+			{ name: 'Social', value: 423,  color: 'purple' },
+			{ name: 'Email',  value: 187,  color: 'orange' },
+			{ name: 'Other',  value: 92,   color: 'gray' },
+		],
+	};
+
+	donut: XiriPieChartSettings = {
+		title: 'Storage usage',
+		donut: true,
+		slices: [
+			{ name: 'Used',  value: 78, color: 'warn' },
+			{ name: 'Free',  value: 22, color: 'lightgray' },
+		],
+	};
+
+	goPieCode = `pc := piechart.New("traffic").
+    Title("Traffic sources").
+    Slice("Direct", 1234, core.ColorBlue).
+    Slice("Search", 856,  core.ColorGreen).
+    Slice("Social", 423,  core.ColorPurple).
+    Slice("Email",  187,  core.ColorOrange).
+    Slice("Other",  92,   core.ColorGray)
+
+donut := piechart.New("storage").
+    Title("Storage usage").Donut().
+    Slice("Used", 78, core.ColorWarning).
+    Slice("Free", 22, core.ColorLightGray)`;
+
+	// --- Gauge Sections ---
+
+	sectionGauge: XiriSectionSettings = {
+		title: '7: Gauge',
+		subtitle: 'xiri-gaugechart: Einzelwert auf einem Bogen. Compact-Modus rendert ohne Achsen-Beschriftung.',
+		icon: 'speed',
+		iconColor: 'tertiary',
+	};
+
+	gaugeCpu: XiriGaugeChartSettings = {
+		title: 'CPU',
+		value: 72,
+		min: 0,
+		max: 100,
+		label: '%',
+		color: 'warn',
+	};
+
+	gaugeMem: XiriGaugeChartSettings = {
+		title: 'Memory',
+		value: 4.2,
+		min: 0,
+		max: 8,
+		label: 'GB',
+		color: 'blue',
+	};
+
+	gaugeDisk: XiriGaugeChartSettings = {
+		title: 'Disk',
+		value: 91,
+		min: 0,
+		max: 100,
+		label: '%',
+		color: 'red',
+	};
+
+	goGaugeCode = `g := gaugechart.New("cpu").
+    Title("CPU").Value(72).Range(0, 100).
+    Color(core.ColorWarning).Label("%")`;
 }

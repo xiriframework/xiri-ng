@@ -705,3 +705,100 @@ interface XiriBarChartPoint {
 **Resize:** intern via `ResizeObserver` — kein manuelles `resize()` nötig.
 
 **Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.
+
+### xiri-linechart
+
+```typescript
+@input.required settings: XiriLineChartSettings;
+
+interface XiriLineChartSettings {
+  title?: string;
+  xLabels: string[];
+  lines: XiriLineChartLine[];
+  yMin?: number;
+  yMax?: number;
+  smooth?: boolean;          // alle Linien als geglättete Kurve
+  compact?: boolean;
+}
+
+interface XiriLineChartLine {
+  name: string;
+  values: number[];          // Werte parallel zu xLabels
+  color?: XiriColor;
+  dashed?: boolean;
+  area?: boolean;            // Fläche unter der Linie füllen
+}
+```
+
+Im dyncomponent: `{ type: 'linechart', data: XiriLineChartSettings }`.
+
+### xiri-piechart
+
+```typescript
+@input.required settings: XiriPieChartSettings;
+
+interface XiriPieChartSettings {
+  title?: string;
+  slices: XiriPieChartSlice[];
+  donut?: boolean;           // Ring statt Pie
+  compact?: boolean;
+}
+
+interface XiriPieChartSlice {
+  name: string;
+  value: number;
+  color?: XiriColor;
+}
+```
+
+Im dyncomponent: `{ type: 'piechart', data: XiriPieChartSettings }`.
+
+### xiri-gaugechart
+
+```typescript
+@input.required settings: XiriGaugeChartSettings;
+
+interface XiriGaugeChartSettings {
+  title?: string;
+  value: number;
+  min?: number;              // Default 0
+  max?: number;              // Default 100
+  color?: XiriColor;
+  label?: string;            // Einheits-Label unter dem Wert ('%', 'GB', …)
+  compact?: boolean;
+}
+```
+
+Im dyncomponent: `{ type: 'gaugechart', data: XiriGaugeChartSettings }`.
+
+### xiri-echarts-host (geteilte Basis)
+
+Internes Plumbing für alle echarts-basierten Charts. Public exportiert, falls eigene Custom-Charts gebaut werden sollen.
+
+```typescript
+@input.required option: any;             // Vollständige echarts-Option
+@input          compact: boolean = false;
+@input          title?: string;
+@input          headerIcon?: string;
+@input          headerIconColor?: XiriColor;
+@input          chartHeight: string = '200px';
+```
+
+Übernimmt: Lazy `await import('echarts')`, ResizeObserver, mat-card-Hülle (mit Compact-Modus = flat), Title-Header, Error-Display. Re-render via `effect` auf `option()`.
+
+Eigenes Chart bauen:
+
+```typescript
+@Component({
+  selector: 'app-my-chart',
+  template: `<xiri-echarts-host [option]="option()" [compact]="compact()" [title]="settings().title"/>`,
+  imports: [XiriEchartsHostComponent]
+})
+export class MyChart {
+  settings = input.required<MySettings>();
+  compact  = computed(() => !!this.settings().compact);
+  option   = computed(() => buildMyEchartsOption(this.settings(), this.compact()));
+}
+```
+
+Helper-Funktionen aus `lib/echarts/`: `resolveColor(token, fallback)` — XiriColor → CSS-Wert; `escapeHtml(s)` — für Tooltip-Strings.
