@@ -36,6 +36,8 @@ interface XiriDialogSettings {
 }
 ```
 
+Bei `type: 'table'` wird der Backend-`content` (mit `data` + `fields`) direkt als `XiriRawTableSettings` an die eingebettete `xiri-raw-table` durchgereicht. Optionales `showHeader: true` im content (Backend: `dialog.Dialog.WithTableHeader()`) aktiviert die Spalten-Header-Zeile — Default aus.
+
 ### xiri-query
 
 ```typescript
@@ -85,6 +87,9 @@ interface XiriCardSettings {
   buttonsBottom?: XiriButtonlineSettings;
   dense?: number;
   forceMinWidth?: boolean;
+  showHeader?: boolean;            // Default false. Bei true zeigt die eingebettete
+                                   // xiri-raw-table die <thead>-Zeile mit Spalten-Headern.
+                                   // Backend setzt es via card.*Card.WithTableHeader().
   collapsible?: boolean;
   collapsed?: boolean;
   maxHeight?: string;

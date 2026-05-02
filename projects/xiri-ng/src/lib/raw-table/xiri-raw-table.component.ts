@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import {
 	MatTableDataSource,
 	MatTable,
@@ -7,6 +7,8 @@ import {
 	MatHeaderCell,
 	MatCellDef,
 	MatCell,
+	MatHeaderRowDef,
+	MatHeaderRow,
 	MatRowDef,
 	MatRow
 } from "@angular/material/table";
@@ -23,6 +25,7 @@ export interface XiriRawTableSettings {
 	fields?: XiriTableField[]
 	dense?: number
 	forceMinWidth?: boolean
+	showHeader?: boolean
 }
 
 @Component( {
@@ -38,6 +41,8 @@ export interface XiriRawTableSettings {
 	                       MatIcon,
 	                       MatTooltip,
 	                       RouterLink,
+	                       MatHeaderRowDef,
+	                       MatHeaderRow,
 	                       MatRowDef,
 	                       MatRow,
 	                       SafehtmlPipe ],
@@ -46,7 +51,8 @@ export interface XiriRawTableSettings {
 export class XiriRawTableComponent {
 	
 	settings = input.required<XiriRawTableSettings>();
-	
+	showHeader = computed( () => this.settings().showHeader === true );
+
 	displayedColumns: any[] = [];
 	columnsToDisplay: string[] = [];
 	dataSource: MatTableDataSource<any> = new MatTableDataSource();

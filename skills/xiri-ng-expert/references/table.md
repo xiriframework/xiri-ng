@@ -18,6 +18,8 @@ export interface XiriRawTableSettings {
   fields?: XiriTableField[];      // Spalten
   dense?: number;                 // 6-12, CSS-Klasse 'dense-X'
   forceMinWidth?: boolean;
+  showHeader?: boolean;           // Default false. Bei true wird die <thead>-Zeile mit
+                                  // Spalten-Headern (column.header) gerendert.
 }
 ```
 
@@ -26,6 +28,8 @@ export interface XiriRawTableSettings {
 Keine.
 
 Kein Sorting, kein Paging, kein Editing. Nur Daten rendern.
+
+**Header-Zeile standardmäßig aus.** Aufrufer (xiri-card, xiri-dialog) setzen `showHeader` aus dem Backend-Payload (xiri-go: `*Card.WithTableHeader()` bzw. `Dialog.WithTableHeader()`).
 
 ## XiriTableComponent
 

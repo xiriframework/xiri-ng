@@ -35,6 +35,7 @@ export interface XiriCardSettings {
 	buttonsBottom?: XiriButtonlineSettings
 	dense?: number
 	forceMinWidth?: boolean
+	showHeader?: boolean
 	collapsible?: boolean
 	collapsed?: boolean
 	maxHeight?: string
@@ -102,6 +103,7 @@ export class XiriCardComponent {
 			fields: this.settings().fields,
 			dense: this.settings().dense,
 			forceMinWidth: this.settings().forceMinWidth,
+			showHeader: this.settings().showHeader,
 		};
 
 		if ( !this.settings().fields && data.length !== 0 ) {
