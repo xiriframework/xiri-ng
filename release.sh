@@ -4,8 +4,8 @@ set -euo pipefail
 export GIT_SSH_COMMAND="ssh -F /workspace/xiri/.ssh/config -i /workspace/xiri/.ssh/github/id_ed25519 -o StrictHostKeyChecking=accept-new"
 
 # Check that the bundled Claude skill is present
-if [[ ! -f skills/xiri-ng-expert/SKILL.md ]]; then
-  echo "Error: skills/xiri-ng-expert/SKILL.md missing — refuse to release."
+if [[ ! -f projects/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
+  echo "Error: projects/xiri-ng/skills/xiri-ng-expert/SKILL.md missing — refuse to release."
   exit 1
 fi
 
@@ -17,6 +17,12 @@ echo "Releasing $VERSION..."
 
 # Build library
 npm run build
+
+# Verify skill landed in the dist bundle
+if [[ ! -f dist/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
+  echo "Error: dist/xiri-ng/skills/xiri-ng-expert/SKILL.md missing after build — refuse to release."
+  exit 1
+fi
 
 # Commit, tag, push
 git add projects/xiri-ng/package.json
