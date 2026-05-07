@@ -246,10 +246,10 @@ function getDialogsPage(): any {
 				data: {
 					class: '',
 					buttons: [
-						{ text: 'DialogTable', type: 'raised', action: 'dialog', url: 'Test/Test/DialogTable' },
-						{ text: 'DialogForm', type: 'raised', action: 'dialog', url: 'Test/Test/DialogForm' },
-						{ text: 'DialogWaiting', type: 'raised', action: 'dialog', url: 'Test/Test/DialogWaiting/0' },
-						{ text: 'DialogDelete', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete' }
+						{ text: 'DialogTable (sm)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogTable', size: 'sm' },
+						{ text: 'DialogForm (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogForm', size: 'lg' },
+						{ text: 'DialogWaiting (xl)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogWaiting/0', size: 'xl' },
+						{ text: 'DialogDelete (full)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete', size: 'full' }
 					]
 				}
 			}
