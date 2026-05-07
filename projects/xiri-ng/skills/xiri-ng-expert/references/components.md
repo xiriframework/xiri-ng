@@ -27,14 +27,18 @@ dialog.open(XiriDialogComponent, {
   data: XiriDialogSettings,
 });
 
+type XiriDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
 interface XiriDialogSettings {
   url?: string;
-  size?: string;                                              // Default '600px'
+  size?: XiriDialogSize | string;                             // Token oder rohes CSS, Default 'md' (600px)
   type: 'form' | 'data' | 'question' | 'waiting' | 'table';
   data?: any;
   filter?: any;
 }
 ```
+
+Größen-Tokens (Desktop): `sm`=400px, `md`=600px, `lg`=900px, `xl`=1200px, `full`=95vw (mit `xiri-dialog-full` Panel-Class, hebt MatDialogs `max-width: 80vw` auf). Mobile-Breakpoints (XSmall/Small) ignorieren `size` und nutzen `90vw`. Unbekannte Werte werden als rohes CSS durchgereicht (Backward-Compat). Im Backend bevorzugt typsicher via `dialog.WithSize(dialog.SizeLg)`.
 
 Bei `type: 'table'` wird der Backend-`content` (mit `data` + `fields`) direkt als `XiriRawTableSettings` an die eingebettete `xiri-raw-table` durchgereicht. Optionales `showHeader: true` im content (Backend: `dialog.Dialog.WithTableHeader()`) aktiviert die Spalten-Header-Zeile — Default aus.
 
