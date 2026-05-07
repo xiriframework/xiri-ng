@@ -189,8 +189,12 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
-// Dialog full-size variant (panel class added by XiriDialogComponent)
+// Dialog sizing (panel classes added by XiriDialogComponent)
+// xiri-dialog-sized: applied to all xiri dialogs so updateSize() is not
+// clamped by Material's default --mat-dialog-container-max-width (560px).
+// xiri-dialog-full: additionally applied for size="full".
 // ============================================
+.xiri-dialog-sized,
 .xiri-dialog-full {
 	max-width: none !important;
 

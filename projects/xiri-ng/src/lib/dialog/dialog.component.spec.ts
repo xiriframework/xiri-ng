@@ -366,10 +366,18 @@ describe( 'XiriDialogComponent', () => {
 			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( expected );
 		} );
 
+		it( 'should always add xiri-dialog-sized panel class', () => {
+			createComponent( { type: 'load', url: 'test', size: 'lg' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.addPanelClass ).toHaveBeenCalledWith( 'xiri-dialog-sized' );
+		} );
+
 		it( 'should add xiri-dialog-full panel class when size is full', () => {
 			createComponent( { type: 'load', url: 'test', size: 'full' } );
 			fixture.detectChanges();
 
+			expect( mockDialogRef.addPanelClass ).toHaveBeenCalledWith( 'xiri-dialog-sized' );
 			expect( mockDialogRef.addPanelClass ).toHaveBeenCalledWith( 'xiri-dialog-full' );
 		} );
 
@@ -377,7 +385,7 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test', size: 'lg' } );
 			fixture.detectChanges();
 
-			expect( mockDialogRef.addPanelClass ).not.toHaveBeenCalled();
+			expect( mockDialogRef.addPanelClass ).not.toHaveBeenCalledWith( 'xiri-dialog-full' );
 		} );
 	} );
 

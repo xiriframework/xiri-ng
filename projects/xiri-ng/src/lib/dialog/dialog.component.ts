@@ -92,7 +92,9 @@ export class XiriDialogComponent implements OnDestroy {
 	rawTable: XiriRawTableSettings;
 	
 	constructor() {
-		
+
+		this.dialogRef.addPanelClass( 'xiri-dialog-sized' );
+
 		this.breakpointObserver
 			.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
