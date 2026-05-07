@@ -16,6 +16,7 @@ describe( 'XiriDialogComponent', () => {
 	let mockDialogRef: {
 		close: ReturnType<typeof vi.fn>;
 		updateSize: ReturnType<typeof vi.fn>;
+		addPanelClass: ReturnType<typeof vi.fn>;
 		disableClose: boolean;
 	};
 	let mockDataService: {
@@ -33,6 +34,7 @@ describe( 'XiriDialogComponent', () => {
 		mockDialogRef = {
 			close: vi.fn(),
 			updateSize: vi.fn(),
+			addPanelClass: vi.fn(),
 			disableClose: false,
 		};
 		mockDataService = {
@@ -349,6 +351,33 @@ describe( 'XiriDialogComponent', () => {
 			fixture.detectChanges();
 
 			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( '600px' );
+		} );
+
+		it.each( [
+			[ 'sm', '400px' ],
+			[ 'md', '600px' ],
+			[ 'lg', '900px' ],
+			[ 'xl', '1200px' ],
+			[ 'full', '95vw' ],
+		] )( 'should map size token "%s" to %s', ( token, expected ) => {
+			createComponent( { type: 'load', url: 'test', size: token } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( expected );
+		} );
+
+		it( 'should add xiri-dialog-full panel class when size is full', () => {
+			createComponent( { type: 'load', url: 'test', size: 'full' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.addPanelClass ).toHaveBeenCalledWith( 'xiri-dialog-full' );
+		} );
+
+		it( 'should not add full panel class for other sizes', () => {
+			createComponent( { type: 'load', url: 'test', size: 'lg' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.addPanelClass ).not.toHaveBeenCalled();
 		} );
 	} );
 

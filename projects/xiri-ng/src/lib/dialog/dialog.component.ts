@@ -25,14 +25,24 @@ import { XiriDownloadService } from "../services/download.service";
 import { parseHttpError } from '../services/error.util';
 
 
+export type XiriDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
 export interface XiriDialogSettings {
 	url?: string
-	size?: string
-	
+	size?: XiriDialogSize | string
+
 	type: "form" | "data" | "question" | "waiting" | "table"
 	data?: any
 	filter?: any
 }
+
+const DIALOG_SIZE_MAP: Record<string, string> = {
+	sm: '400px',
+	md: '600px',
+	lg: '900px',
+	xl: '1200px',
+	full: '95vw',
+};
 
 @Component( {
 	            selector: 'xiri-dialog',
@@ -87,10 +97,15 @@ export class XiriDialogComponent implements OnDestroy {
 			.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( ( state: BreakpointState ) => {
-				if ( state.matches )
+				if ( state.matches ) {
 					this.dialogRef.updateSize( '90vw' );
-				else
-					this.dialogRef.updateSize( this.initData.size || '600px' );
+					return;
+				}
+				const raw = this.initData.size;
+				const width = DIALOG_SIZE_MAP[ raw ] ?? raw ?? '600px';
+				this.dialogRef.updateSize( width );
+				if ( raw === 'full' )
+					this.dialogRef.addPanelClass( 'xiri-dialog-full' );
 			} );
 		
 		if ( this.initData.url )

@@ -189,6 +189,18 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
+// Dialog full-size variant (panel class added by XiriDialogComponent)
+// ============================================
+.xiri-dialog-full {
+	max-width: none !important;
+
+	.mat-mdc-dialog-surface,
+	.mat-mdc-dialog-container {
+		max-width: none !important;
+	}
+}
+
+// ============================================
 // Snackbar Color Variants
 // ============================================
 .xiri-snackbar-success,
