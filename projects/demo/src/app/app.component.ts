@@ -111,14 +111,18 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Feedback & Status',
 			icon: 'notifications',
 			menu: true,
-			regex: /^(Feedback|Snackbar|Skeleton|EmptyState)/,
+			regex: /^(Feedback|Snackbar|Skeleton|EmptyState|Test\/Test\/Dialogs)/,
 			sub: [ {
 				name: 'Alerts & Status',
 				icon: 'report',
 				link: 'Feedback'
 			}, {
-				name: 'Snackbar',
+				name: 'Dialogs',
 				icon: 'chat_bubble',
+				link: 'Test/Test/Dialogs'
+			}, {
+				name: 'Snackbar',
+				icon: 'chat',
 				link: 'Snackbar'
 			}, {
 				name: 'Skeleton',
@@ -173,10 +177,6 @@ export class AppComponent implements OnInit, OnDestroy {
 				icon: 'login',
 				link: 'Home/Login/Test',
 				path: 'Home/Login/'
-			}, {
-				name: 'Dialogs',
-				icon: 'chat_bubble',
-				link: 'Test/Test/Dialogs'
 			}, {
 				name: 'Query',
 				icon: 'search',
