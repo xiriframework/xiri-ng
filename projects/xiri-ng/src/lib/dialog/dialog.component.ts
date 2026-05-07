@@ -90,24 +90,19 @@ export class XiriDialogComponent implements OnDestroy {
 	private to = null;
 	private refreshTime = 2000;
 	rawTable: XiriRawTableSettings;
-	
+
+	private effectiveSize: string | undefined;
+
 	constructor() {
 
 		this.dialogRef.addPanelClass( 'xiri-dialog-sized' );
+		this.effectiveSize = this.initData.size;
 
 		this.breakpointObserver
 			.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( ( state: BreakpointState ) => {
-				if ( state.matches ) {
-					this.dialogRef.updateSize( '90vw' );
-					return;
-				}
-				const raw = this.initData.size;
-				const width = DIALOG_SIZE_MAP[ raw ] ?? raw ?? '600px';
-				this.dialogRef.updateSize( width );
-				if ( raw === 'full' )
-					this.dialogRef.addPanelClass( 'xiri-dialog-full' );
+				this.applyDialogSize( state.matches );
 			} );
 		
 		if ( this.initData.url )
@@ -163,12 +158,28 @@ export class XiriDialogComponent implements OnDestroy {
 		}
 	}
 	
+	private applyDialogSize( isMobile: boolean ): void {
+		if ( isMobile ) {
+			this.dialogRef.updateSize( '90vw' );
+			return;
+		}
+		const raw = this.effectiveSize;
+		const width = DIALOG_SIZE_MAP[ raw ] ?? raw ?? '600px';
+		this.dialogRef.updateSize( width );
+		if ( raw === 'full' )
+			this.dialogRef.addPanelClass( 'xiri-dialog-full' );
+	}
+
 	private loadData( res: any ): void {
-		
+
 		if ( res.buttons ) {
+			if ( res.size && res.size !== this.effectiveSize ) {
+				this.effectiveSize = res.size;
+				this.applyDialogSize( this.breakpointObserver.isMatched( [ Breakpoints.XSmall, Breakpoints.Small ] ) );
+			}
 			if ( res.url )
 				this.url = res.url;
-			
+
 			let formData = [];
 			let inFields = res.content || res.fields;
 			const model = res.model || {};

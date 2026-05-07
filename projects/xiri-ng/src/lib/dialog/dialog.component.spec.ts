@@ -27,7 +27,7 @@ describe( 'XiriDialogComponent', () => {
 	};
 	let mockSnackbar: { error: ReturnType<typeof vi.fn> };
 	let mockRouter: { navigate: ReturnType<typeof vi.fn> };
-	let mockBreakpointObserver: { observe: ReturnType<typeof vi.fn> };
+	let mockBreakpointObserver: { observe: ReturnType<typeof vi.fn>; isMatched: ReturnType<typeof vi.fn> };
 	let mockDownloadService: { download: ReturnType<typeof vi.fn> };
 
 	function initMocks() {
@@ -47,6 +47,7 @@ describe( 'XiriDialogComponent', () => {
 		mockRouter = { navigate: vi.fn().mockReturnValue( Promise.resolve() ) };
 		mockBreakpointObserver = {
 			observe: vi.fn().mockReturnValue( of( { matches: false } ) ),
+			isMatched: vi.fn().mockReturnValue( false ),
 		};
 		mockDownloadService = { download: vi.fn().mockReturnValue( true ) };
 	}
@@ -386,6 +387,84 @@ describe( 'XiriDialogComponent', () => {
 			fixture.detectChanges();
 
 			expect( mockDialogRef.addPanelClass ).not.toHaveBeenCalledWith( 'xiri-dialog-full' );
+		} );
+	} );
+
+	describe( 'loadData size from backend response', () => {
+		it( 'should apply res.size when initData has no size', () => {
+			mockDataService.get.mockReturnValue( of( {
+				size: 'lg',
+				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				fields: [],
+				header: 'Backend-sized',
+			} ) );
+
+			createComponent( { type: 'load', url: 'test/lg' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( '900px' );
+		} );
+
+		it( 'should let res.size override initData.size', () => {
+			mockDataService.get.mockReturnValue( of( {
+				size: 'xl',
+				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				fields: [],
+				header: 'Override',
+			} ) );
+
+			createComponent( { type: 'load', url: 'test/override', size: 'sm' } );
+			fixture.detectChanges();
+
+			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: any[] ) => c[ 0 ] );
+			expect( calls[ calls.length - 1 ] ).toBe( '1200px' );
+		} );
+
+		it( 'should add xiri-dialog-full when res.size is full', () => {
+			mockDataService.get.mockReturnValue( of( {
+				size: 'full',
+				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				fields: [],
+				header: 'Full from backend',
+			} ) );
+
+			createComponent( { type: 'load', url: 'test/full' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( '95vw' );
+			expect( mockDialogRef.addPanelClass ).toHaveBeenCalledWith( 'xiri-dialog-full' );
+		} );
+
+		it( 'should not re-apply when res.size matches initData.size', () => {
+			mockDataService.get.mockReturnValue( of( {
+				size: 'lg',
+				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				fields: [],
+				header: 'Same',
+			} ) );
+
+			createComponent( { type: 'load', url: 'test/same', size: 'lg' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.updateSize ).toHaveBeenCalledTimes( 1 );
+			expect( mockDialogRef.updateSize ).toHaveBeenCalledWith( '900px' );
+		} );
+
+		it( 'should override to 90vw on mobile even when res.size is set', () => {
+			mockBreakpointObserver.observe.mockReturnValue( of( { matches: true } ) );
+			mockBreakpointObserver.isMatched.mockReturnValue( true );
+			mockDataService.get.mockReturnValue( of( {
+				size: 'xl',
+				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				fields: [],
+				header: 'Mobile',
+			} ) );
+
+			createComponent( { type: 'load', url: 'test/mobile' } );
+			fixture.detectChanges();
+
+			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: any[] ) => c[ 0 ] );
+			expect( calls[ calls.length - 1 ] ).toBe( '90vw' );
 		} );
 	} );
 
