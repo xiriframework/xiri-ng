@@ -139,30 +139,35 @@ export function flatten( roots: XiriTreeNode[], expandedIds: Set<any> ): any[] {
 }
 
 /**
- * Search projection: returns matches plus their ancestor path (everything else hidden).
- * Ancestor-only nodes are flagged dimmed; all shown nodes are treated as expanded. The
- * `matches` predicate decides whether a single row is a hit.
+ * Search projection: returns each match together with its full subtree (all descendants)
+ * plus the ancestor path leading to it; everything else is hidden. Matches and their
+ * descendants are shown fully; ancestor-only context nodes are flagged dimmed. All shown
+ * nodes are treated as expanded. The `matches` predicate decides whether a single row is a hit.
  */
 export function searchProjection( roots: XiriTreeNode[], matches: ( row: any ) => boolean ): any[] {
 	const visible = new Set<XiriTreeNode>();
-	const matched = new Set<XiriTreeNode>();
+	const inMatchSubtree = new Set<XiriTreeNode>(); // node matches itself or sits under a match → shown fully
 
-	const mark = ( node: XiriTreeNode ): boolean => {
+	// underMatch: an ancestor of this node already matched, so the whole subtree is shown.
+	const mark = ( node: XiriTreeNode, underMatch: boolean ): boolean => {
 		const selfMatch = matches( node.row );
-		let descendantMatch = false;
-		for ( const child of node.children )
-			descendantMatch = mark( child ) || descendantMatch;
+		const inSubtree = underMatch || selfMatch;
+		if ( inSubtree )
+			inMatchSubtree.add( node );
 
-		if ( selfMatch )
-			matched.add( node );
-		if ( selfMatch || descendantMatch ) {
+		let descendantVisible = false;
+		for ( const child of node.children )
+			descendantVisible = mark( child, inSubtree ) || descendantVisible;
+
+		// Visible if part of a matched subtree, or an ancestor on the path to a deeper match.
+		if ( inSubtree || descendantVisible ) {
 			visible.add( node );
 			return true;
 		}
 		return false;
 	};
 	for ( const root of roots )
-		mark( root );
+		mark( root, false );
 
 	const out: any[] = [];
 	const walk = ( nodes: XiriTreeNode[] ) => {
@@ -175,7 +180,7 @@ export function searchProjection( roots: XiriTreeNode[], matches: ( row: any ) =
 				hasChildren: visibleChildren.length > 0,
 				expanded:   true,
 				childCount: visibleChildren.length,
-				dimmed:     !matched.has( node ),
+				dimmed:     !inMatchSubtree.has( node ),
 			};
 			out.push( node.row );
 			walk( node.children );

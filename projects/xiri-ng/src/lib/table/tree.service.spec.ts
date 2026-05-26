@@ -114,6 +114,24 @@ describe( 'tree pure functions', () => {
 			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.dimmed ).toBe( false );
 		} );
 
+		it( 'shows the full subtree of a match (descendants included, not dimmed)', () => {
+			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const rows = searchProjection( roots, byName( 'Wien' ) );
+			// Wien matches (root) → it and all descendants are shown, in tree order.
+			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
+			// Nothing is dimmed: every shown node is inside the matched subtree.
+			expect( rows.every( r => r._tree.dimmed === false ) ).toBe( true );
+		} );
+
+		it( 'shows dimmed ancestors AND full descendants for a mid-level match', () => {
+			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const rows = searchProjection( roots, byName( 'Favoriten' ) );
+			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
+			expect( rows.find( r => r.name === 'Wien' )!._tree.dimmed ).toBe( true );  // ancestor → context
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree.dimmed ).toBe( false ); // match
+			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.dimmed ).toBe( false ); // descendant of match
+		} );
+
 		it( 'returns empty when nothing matches', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
 			expect( searchProjection( roots, byName( 'nope' ) ) ).toEqual( [] );
