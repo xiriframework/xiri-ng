@@ -107,7 +107,7 @@ describe( 'tree pure functions', () => {
 	describe( 'searchProjection', () => {
 		it( 'shows matches plus their ancestor path, dimming ancestors', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
-			const rows = searchProjection( roots, byName( 'Inzersdorf' ) );
+			const rows = searchProjection( roots, byName( 'Inzersdorf' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
 			expect( rows.find( r => r.name === 'Wien' )!._tree.dimmed ).toBe( true );
 			expect( rows.find( r => r.name === 'Favoriten' )!._tree.dimmed ).toBe( true );
@@ -116,7 +116,7 @@ describe( 'tree pure functions', () => {
 
 		it( 'shows the full subtree of a match (descendants included, not dimmed)', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
-			const rows = searchProjection( roots, byName( 'Wien' ) );
+			const rows = searchProjection( roots, byName( 'Wien' ), collectExpandableIds( roots ) );
 			// Wien matches (root) → it and all descendants are shown, in tree order.
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
 			// Nothing is dimmed: every shown node is inside the matched subtree.
@@ -125,16 +125,27 @@ describe( 'tree pure functions', () => {
 
 		it( 'shows dimmed ancestors AND full descendants for a mid-level match', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
-			const rows = searchProjection( roots, byName( 'Favoriten' ) );
+			const rows = searchProjection( roots, byName( 'Favoriten' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
 			expect( rows.find( r => r.name === 'Wien' )!._tree.dimmed ).toBe( true );  // ancestor → context
 			expect( rows.find( r => r.name === 'Favoriten' )!._tree.dimmed ).toBe( false ); // match
 			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.dimmed ).toBe( false ); // descendant of match
 		} );
 
+		it( 'collapses a branch within the search result when its node is not in expandedIds', () => {
+			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			// Search "Wien" with everything expanded EXCEPT Favoriten (id 2) → Inzersdorf hidden.
+			const expanded = collectExpandableIds( roots );
+			expanded.delete( 2 );
+			const rows = searchProjection( roots, byName( 'Wien' ), expanded );
+			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten' ] );
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree.expanded ).toBe( false );
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree.hasChildren ).toBe( true );
+		} );
+
 		it( 'returns empty when nothing matches', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
-			expect( searchProjection( roots, byName( 'nope' ) ) ).toEqual( [] );
+			expect( searchProjection( roots, byName( 'nope' ), collectExpandableIds( roots ) ) ).toEqual( [] );
 		} );
 	} );
 } );
@@ -161,20 +172,20 @@ describe( 'XiriTableTreeService', () => {
 
 	afterEach( () => vi.unstubAllGlobals() );
 
-	it( 'is collapsed by default (only roots visible)', () => {
+	it( 'is fully expanded by default (all nodes visible)', () => {
 		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name' }, 'name' );
-		service.build( sampleRows() );
-		expect( service.visibleRows().map( r => r.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
-	} );
-
-	it( 'honours expandAllByDefault', () => {
-		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', expandAllByDefault: true }, 'name' );
 		service.build( sampleRows() );
 		expect( service.visibleRows().length ).toBe( 6 );
 	} );
 
+	it( 'honours collapseAllByDefault (only roots visible)', () => {
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true }, 'name' );
+		service.build( sampleRows() );
+		expect( service.visibleRows().map( r => r.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
+	} );
+
 	it( 'toggles a single node', () => {
-		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name' }, 'name' );
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true }, 'name' );
 		service.build( sampleRows() );
 		service.toggle( { id: 1 } ); // expand Wien
 		expect( service.visibleRows().some( r => r.name === 'Favoriten' ) ).toBe( true );
@@ -192,7 +203,7 @@ describe( 'XiriTableTreeService', () => {
 	} );
 
 	it( 'persists expand-state to localStorage and restores it on rebuild', () => {
-		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', persistStateKey: 'demo' }, 'name' );
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true, persistStateKey: 'demo' }, 'name' );
 		service.build( sampleRows() );
 		service.toggle( { id: 1 } ); // expand Wien → persisted
 
@@ -204,7 +215,7 @@ describe( 'XiriTableTreeService', () => {
 	} );
 
 	it( 'saves and restores expand-state across a search (Spec §5)', () => {
-		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name' }, 'name' );
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true }, 'name' );
 		service.build( sampleRows() );
 		service.toggle( { id: 1 } ); // expand Wien
 
@@ -216,6 +227,39 @@ describe( 'XiriTableTreeService', () => {
 		const restored = service.applySearch( null );
 		expect( restored.some( r => r.name === 'Favoriten' ) ).toBe( true );
 		expect( restored.some( r => r.name === 'Inzersdorf' ) ).toBe( false ); // Favoriten not expanded
+	} );
+
+	it( 'allows collapse/expand within an active search (re-uses the expanded state)', () => {
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name' }, 'name' );
+		service.build( sampleRows() );
+
+		const matcher = byName( 'Wien' );
+		// Search starts fully expanded → match + whole subtree visible.
+		expect( service.applySearch( matcher ).map( r => r.name ) )
+			.toEqual( [ 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
+
+		// Collapse Favoriten (id 2) during the search → Inzersdorf disappears.
+		service.toggle( { id: 2 } );
+		expect( service.applySearch( matcher ).map( r => r.name ) )
+			.toEqual( [ 'Wien', 'Döbling', 'Favoriten' ] );
+
+		// Expand again → Inzersdorf back.
+		service.toggle( { id: 2 } );
+		expect( service.applySearch( matcher ).some( r => r.name === 'Inzersdorf' ) ).toBe( true );
+	} );
+
+	it( 'does not persist toggles made during a search and restores the pre-search state on reset', () => {
+		service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true, persistStateKey: 'demo2' }, 'name' );
+		service.build( sampleRows() ); // collapsed by default (collapseAllByDefault)
+
+		service.applySearch( byName( 'Wien' ) ); // activates search (fully expanded internally)
+		service.toggle( { id: 2 } );             // collapse during search
+
+		// Transient search toggle must not hit localStorage.
+		expect( mockLocalStorage[ 'xiri-tree-state-demo2' ] ).toBeUndefined();
+
+		// Reset → pre-search state (collapsed: only roots).
+		expect( service.applySearch( null ).map( r => r.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
 	} );
 
 	it( 'resolves the +sub url with the {id} placeholder', () => {

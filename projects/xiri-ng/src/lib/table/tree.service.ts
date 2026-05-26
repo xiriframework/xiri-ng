@@ -10,7 +10,7 @@ export interface XiriTableTreeSettings {
 	idField: string                          // row field holding the node ID
 	parentIdField: string                    // row field holding the parent ID; null/undefined/0 = root
 	treeColumn?: string                      // column that renders the indentation; default: first column
-	expandAllByDefault?: boolean             // default: false
+	collapseAllByDefault?: boolean           // default: false → tree starts fully expanded
 	persistStateKey?: string                 // localStorage key; without it no persistence
 	showCounts?: boolean                     // "(5)" badge when collapsed; default: true
 	addSubHandler?: ( parentRow: any ) => void // when set → "+ sub" button per row (Angular consumers)
@@ -141,10 +141,11 @@ export function flatten( roots: XiriTreeNode[], expandedIds: Set<any> ): any[] {
 /**
  * Search projection: returns each match together with its full subtree (all descendants)
  * plus the ancestor path leading to it; everything else is hidden. Matches and their
- * descendants are shown fully; ancestor-only context nodes are flagged dimmed. All shown
- * nodes are treated as expanded. The `matches` predicate decides whether a single row is a hit.
+ * descendants are shown fully; ancestor-only context nodes are flagged dimmed. Within the
+ * filtered result, expand/collapse follows `expandedIds` (same state model as the flat view) —
+ * pass an all-expanded set to show everything. The `matches` predicate decides hits.
  */
-export function searchProjection( roots: XiriTreeNode[], matches: ( row: any ) => boolean ): any[] {
+export function searchProjection( roots: XiriTreeNode[], matches: ( row: any ) => boolean, expandedIds: Set<any> ): any[] {
 	const visible = new Set<XiriTreeNode>();
 	const inMatchSubtree = new Set<XiriTreeNode>(); // node matches itself or sits under a match → shown fully
 
@@ -175,15 +176,18 @@ export function searchProjection( roots: XiriTreeNode[], matches: ( row: any ) =
 			if ( !visible.has( node ) )
 				continue;
 			const visibleChildren = node.children.filter( c => visible.has( c ) );
+			const hasChildren = visibleChildren.length > 0;
+			const expanded = hasChildren && expandedIds.has( node.id );
 			node.row._tree = <XiriTreeMeta> {
 				level:      node.level,
-				hasChildren: visibleChildren.length > 0,
-				expanded:   true,
+				hasChildren,
+				expanded,
 				childCount: visibleChildren.length,
 				dimmed:     !inMatchSubtree.has( node ),
 			};
 			out.push( node.row );
-			walk( node.children );
+			if ( expanded )
+				walk( node.children );
 		}
 	};
 	walk( roots );
@@ -243,31 +247,34 @@ export class XiriTableTreeService {
 
 		const persisted = this.loadPersisted();
 		if ( persisted )
-			this.expanded = new Set( persisted );
-		else if ( this.config.expandAllByDefault )
-			this.expanded = collectExpandableIds( this.roots );
+			this.expanded = new Set( persisted );           // persisted state wins
+		else if ( this.config.collapseAllByDefault )
+			this.expanded = new Set();                       // opt-in: start collapsed
 		else
-			this.expanded = new Set();
+			this.expanded = collectExpandableIds( this.roots ); // default: start fully expanded
 	}
 
 	/** Returns the visible rows: search projection when searching, otherwise the expand-state flatten. */
 	visibleRows( matches?: ( row: any ) => boolean ): any[] {
 		if ( this.searchActive && matches )
-			return searchProjection( this.roots, matches );
+			return searchProjection( this.roots, matches, this.expanded );
 		return flatten( this.roots, this.expanded );
 	}
 
 	/**
 	 * Applies (or clears) a search. On the empty→active transition the current expand-state is
-	 * snapshotted; on active→empty it is restored (Spec §5). Returns the new visible rows.
+	 * snapshotted and the tree is fully expanded (so all matches are visible); during the search
+	 * the same `expanded` state drives expand/collapse, so the arrows work. On active→empty the
+	 * pre-search state is restored (Spec §5). Returns the new visible rows.
 	 */
 	applySearch( matches: ( ( row: any ) => boolean ) | null ): any[] {
 		if ( matches ) {
 			if ( !this.searchActive ) {
 				this.savedExpanded = new Set( this.expanded );
+				this.expanded = collectExpandableIds( this.roots ); // start fully expanded
 				this.searchActive = true;
 			}
-			return searchProjection( this.roots, matches );
+			return searchProjection( this.roots, matches, this.expanded );
 		}
 
 		if ( this.searchActive ) {
@@ -285,7 +292,10 @@ export class XiriTableTreeService {
 			this.expanded.delete( id );
 		else
 			this.expanded.add( id );
-		this.persist();
+		// Don't persist transient expand changes made while searching — savedExpanded holds the
+		// real state and is restored on reset.
+		if ( !this.searchActive )
+			this.persist();
 	}
 
 	expandAll(): void {
