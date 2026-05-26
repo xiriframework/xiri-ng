@@ -182,6 +182,8 @@ export interface XiriTableTreeSettings {
   showCounts?: boolean;                     // "(5)" bei collapsed; Default: true
   addSubHandler?: (parentRow: any) => void; // gesetzt → "+ Sub"-Button pro Zeile (Angular-Consumer)
   addSubUrl?: string;                       // gesetzt → "+ Sub"-Button navigiert hierhin ({id}-Platzhalter)
+  addSubField?: string;                     // "+" nur bei Zeilen mit truthy row[addSubField] (xiri-go-Pfad)
+  addSubWhen?: (row: any) => boolean;       // "+" nur wenn Predicate true (Angular; hat Vorrang vor addSubField)
 }
 ```
 
@@ -193,6 +195,10 @@ Verhalten:
   ausgeklappt, Zweige lassen sich aber während der Suche per Pfeil auf-/zuklappen. Reset stellt
   den vorherigen (Vor-Such-)Expand-State wieder her.
 - **Multi-Root** unterstützt; fehlende Parents → Root; Zyklen werden abgefangen.
+- **„+ Sub"-Button**: erscheint pro Zeile, sobald `addSubHandler` (Angular) bzw. `addSubUrl`
+  gesetzt ist. Mit `addSubWhen` (Predicate) oder `addSubField` (Daten-Flag, vom xiri-go-Builder
+  via `TreeAddSubWhen` als `_addSub` geliefert) wird pro Zeile gesteuert, wo er erscheint —
+  ohne beides auf allen Zeilen.
 
 ```typescript
 settings: XiriTableSettings = {
