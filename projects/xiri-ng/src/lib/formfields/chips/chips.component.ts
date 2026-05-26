@@ -43,21 +43,21 @@ export class XiriChipsComponent implements ControlValueAccessor {
 
 	field = input.required<XiriFormField>();
 
-	chips = signal<string[]>( [] );
+	chips = signal<( string | number )[]>( [] );
 	filteredOptions = signal<XiriFormFieldSelectOption[]>( [] );
 
 	readonly separatorKeyCodes = [ ENTER, COMMA ] as const;
 
 	chipInput = viewChild<ElementRef<HTMLInputElement>>( 'chipInput' );
 
-	private onChange: ( value: string[] ) => void = () => {};
+	private onChange: ( value: ( string | number )[] ) => void = () => {};
 	private onTouched: () => void = () => {};
 
-	writeValue( value: string[] ): void {
+	writeValue( value: ( string | number )[] ): void {
 		this.chips.set( value || [] );
 	}
 
-	registerOnChange( fn: ( value: string[] ) => void ): void {
+	registerOnChange( fn: ( value: ( string | number )[] ) => void ): void {
 		this.onChange = fn;
 	}
 
@@ -78,17 +78,17 @@ export class XiriChipsComponent implements ControlValueAccessor {
 		event.chipInput.clear();
 	}
 
-	remove( chip: string ): void {
+	remove( chip: string | number ): void {
 		const current = this.chips().filter( c => c !== chip );
 		this.chips.set( current );
 		this.onChange( current );
 	}
 
 	selected( event: MatAutocompleteSelectedEvent ): void {
-		const value = event.option.viewValue;
+		const option = event.option.value as XiriFormFieldSelectOption;
 		const current = [ ...this.chips() ];
-		if ( !current.includes( value ) ) {
-			current.push( value );
+		if ( !current.includes( option.id ) ) {
+			current.push( option.id );
 			this.chips.set( current );
 			this.onChange( current );
 		}
@@ -119,8 +119,16 @@ export class XiriChipsComponent implements ControlValueAccessor {
 		this.filterOptions( '' );
 	}
 
-	chipColor( chip: string ): string {
-		const option = this.field().list?.find( o => o.name === chip );
+	chipColor( chip: string | number ): string {
+		const option = this.field().list?.find( o => o.id === chip );
 		return option?.color ? 'chip-' + option.color : '';
+	}
+
+	displayLabel( chip: string | number ): string {
+		if ( typeof chip === 'number' ) {
+			const option = this.field().list?.find( o => o.id === chip );
+			return option?.name ?? String( chip );
+		}
+		return chip;
 	}
 }

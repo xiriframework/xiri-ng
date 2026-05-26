@@ -5,7 +5,7 @@
 	<mat-chip-grid #chipGrid>
 		@for (chip of chips(); track chip) {
 			<mat-chip-row (removed)="remove(chip)" [class]="chipColor(chip)">
-				{{ chip }}
+				{{ displayLabel(chip) }}
 				<button matChipRemove>
 					<mat-icon>cancel</mat-icon>
 				</button>
@@ -23,7 +23,7 @@
 	       [placeholder]="field().hint || ''">
 	<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
 		@for (option of filteredOptions(); track option.id) {
-			<mat-option [value]="option.name">{{ option.name }}</mat-option>
+			<mat-option [value]="option">{{ option.name }}</mat-option>
 		}
 	</mat-autocomplete>
 </mat-form-field>
