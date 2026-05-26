@@ -177,7 +177,7 @@ export interface XiriTableTreeSettings {
   idField: string;                          // Zeilen-Feld mit Knoten-ID
   parentIdField: string;                    // Zeilen-Feld mit Parent-ID; null/undefined/0 → Root
   treeColumn?: string;                      // welche Spalte die Einrückung rendert; Default: erste Spalte
-  expandAllByDefault?: boolean;             // Default: false
+  collapseAllByDefault?: boolean;           // Default: false → Tree startet voll ausgeklappt
   persistStateKey?: string;                 // localStorage-Key (xiri-tree-state-<key>); ohne Key keine Persistenz
   showCounts?: boolean;                     // "(5)" bei collapsed; Default: true
   addSubHandler?: (parentRow: any) => void; // gesetzt → "+ Sub"-Button pro Zeile (Angular-Consumer)
@@ -189,8 +189,9 @@ Verhalten:
 - **Sortierung** anderer Spalten ist im Tree-Modus deaktiviert; Geschwister werden alphabetisch
   nach der Tree-Spalte sortiert.
 - **Suche** zeigt jeden Treffer samt komplettem Subtree (Nachfahren) plus den Vorfahren-Pfad
-  (Vorfahren gedimmt als Kontext); alles andere ausgeblendet, relevante Knoten auto-expandiert.
-  Reset stellt den vorherigen Expand-State wieder her.
+  (Vorfahren gedimmt als Kontext); alles andere ausgeblendet. Die Suche startet voll
+  ausgeklappt, Zweige lassen sich aber während der Suche per Pfeil auf-/zuklappen. Reset stellt
+  den vorherigen (Vor-Such-)Expand-State wieder her.
 - **Multi-Root** unterstützt; fehlende Parents → Root; Zyklen werden abgefangen.
 
 ```typescript
