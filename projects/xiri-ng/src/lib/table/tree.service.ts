@@ -15,6 +15,8 @@ export interface XiriTableTreeSettings {
 	showCounts?: boolean                     // "(5)" badge when collapsed; default: true
 	addSubHandler?: ( parentRow: any ) => void // when set → "+ sub" button per row (Angular consumers)
 	addSubUrl?: string                       // when set → "+ sub" button that navigates here ({id} placeholder)
+	addSubField?: string                     // per-row field whose truthy value gates the "+ sub" button (xiri-go path)
+	addSubWhen?: ( row: any ) => boolean     // predicate gating the "+ sub" button per row (Angular consumers)
 }
 
 /** Per-row tree metadata, attached as row._tree by flatten()/searchProjection(). */
@@ -306,6 +308,20 @@ export class XiriTableTreeService {
 	collapseAll(): void {
 		this.expanded = new Set();
 		this.persist();
+	}
+
+	/**
+	 * Whether the "+ sub" button should be shown for a given row. Opt-in: an addSubWhen predicate
+	 * or a truthy addSubField value gates it; without either, the button shows on every row.
+	 */
+	canAddSub( row: any ): boolean {
+		if ( !this.config )
+			return false;
+		if ( this.config.addSubWhen )
+			return this.config.addSubWhen( row );
+		if ( this.config.addSubField )
+			return !!row[ this.config.addSubField ];
+		return true;
 	}
 
 	/** Resolves the "+ sub" target URL for a row, substituting the {id} placeholder. */

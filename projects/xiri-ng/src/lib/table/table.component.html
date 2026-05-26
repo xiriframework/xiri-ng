@@ -412,7 +412,7 @@
 	@if (treeShowCounts && row._tree && !row._tree.expanded && row._tree.childCount > 0) {
 		<span class="xiri-tree-count">({{ row._tree.childCount }})</span>
 	}
-	@if (treeHasAddSub) {
+	@if (treeHasAddSub && treeCanAddSub(row)) {
 		<button type="button" class="xiri-tree-iconbtn xiri-tree-addsub" (click)="addSub($event, row)"
 		        tabindex="-1" matTooltip="Sub-Eintrag hinzufügen" aria-label="Sub-Eintrag hinzufügen">
 			<mat-icon color="primary">add</mat-icon>

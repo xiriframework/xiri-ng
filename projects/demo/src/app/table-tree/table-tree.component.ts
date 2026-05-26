@@ -78,8 +78,8 @@ export class TableTreeComponent {
 	};
 
 	sectionAddSub: XiriSectionSettings = {
-		title:    '2: Mit "+ Sub-Eintrag" und collapseAllByDefault',
-		subtitle: 'addSubHandler aktiviert einen Plus-Button pro Zeile (beim Hover sichtbar). Mit collapseAllByDefault startet dieser Baum eingeklappt (Standard wäre ausgeklappt).',
+		title:    '2: "+ Sub-Eintrag" nur bei bestimmten Zeilen + collapseAllByDefault',
+		subtitle: 'addSubWhen steuert, bei welchen Einträgen das "+" erscheint — hier nur bei Top-Level-Regionen (parentId 0). Mit collapseAllByDefault startet der Baum eingeklappt.',
 		icon:     'add_circle',
 	};
 
@@ -97,6 +97,7 @@ export class TableTreeComponent {
 			treeColumn:          'name',
 			collapseAllByDefault: true,
 			showCounts:          true,
+			addSubWhen:          ( row: any ) => row.parentId === 0, // "+" nur bei Top-Level-Regionen
 			addSubHandler:       ( parentRow: any ) =>
 				this._snackBar.open( `Sub-Eintrag unter "${ parentRow.name }" (id ${ parentRow.id }) anlegen`, 'OK', { duration: 3000 } ),
 		},

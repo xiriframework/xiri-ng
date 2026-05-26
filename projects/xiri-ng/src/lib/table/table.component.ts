@@ -557,6 +557,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	get treeColumnId(): string { return this.tree.treeColumn; }
 	get treeShowCounts(): boolean { return this.tree.showCounts; }
 	get treeHasAddSub(): boolean { return this.tree.hasAddSub; }
+	treeCanAddSub( row: any ): boolean { return this.tree.canAddSub( row ); }
 
 	/** Recomputes the visible rows from the tree (respecting the active search), into the data source. */
 	private refreshTree(): void {

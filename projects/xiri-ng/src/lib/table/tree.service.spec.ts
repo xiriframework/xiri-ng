@@ -267,4 +267,28 @@ describe( 'XiriTableTreeService', () => {
 		service.build( sampleRows() );
 		expect( service.addSubUrlFor( { id: 42 } ) ).toBe( '/Group/Add?parent=42' );
 	} );
+
+	describe( 'canAddSub', () => {
+		it( 'returns true for every row when neither addSubField nor addSubWhen is set', () => {
+			service.init( { idField: 'id', parentIdField: 'parentId', addSubUrl: '/x' }, 'name' );
+			expect( service.canAddSub( { id: 1 } ) ).toBe( true );
+		} );
+
+		it( 'gates on a truthy addSubField value', () => {
+			service.init( { idField: 'id', parentIdField: 'parentId', addSubUrl: '/x', addSubField: '_addSub' }, 'name' );
+			expect( service.canAddSub( { id: 1, _addSub: true } ) ).toBe( true );
+			expect( service.canAddSub( { id: 2, _addSub: false } ) ).toBe( false );
+			expect( service.canAddSub( { id: 3 } ) ).toBe( false ); // missing → falsy
+		} );
+
+		it( 'gates on the addSubWhen predicate (takes precedence over addSubField)', () => {
+			service.init( {
+				idField: 'id', parentIdField: 'parentId', addSubUrl: '/x',
+				addSubField: '_addSub',
+				addSubWhen: ( row ) => row.id === 1,
+			}, 'name' );
+			expect( service.canAddSub( { id: 1, _addSub: false } ) ).toBe( true );  // predicate wins
+			expect( service.canAddSub( { id: 2, _addSub: true } ) ).toBe( false );
+		} );
+	} );
 } );
