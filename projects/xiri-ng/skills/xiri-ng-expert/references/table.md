@@ -77,6 +77,7 @@ export interface XiriTableSettings {
   fields?: XiriTableField[];
   options?: XiriTableOptions;
   hasFilter?: boolean;                // True wenn filterData extern gesetzt
+  tree?: XiriTableTreeSettings;       // Opt-in Tree-Modus (s. unten). Auch via options.tree (xiri-go-Output)
 }
 ```
 
@@ -162,6 +163,46 @@ export interface XiriTableField {
   editableOptions?: { value: string; label: string; color?: string }[];
   editableOptionsUrl?: string;
 }
+```
+
+### Tree-Modus (Hierarchie mit Einrückung + Expand/Collapse)
+
+Opt-in über `settings.tree` (direkte Angular-Consumer) **oder** `options.tree` (so liefert es
+der xiri-go-Builder). Die Zeilen bleiben flach; die Tabelle baut den Baum aus `idField`/
+`parentIdField` und rendert Einrückung, Expand/Collapse-Pfeile, Expand-All/Collapse-All,
+Child-Count-Badges und optional einen „+ Sub"-Button. Ohne `tree` unverändertes Verhalten.
+
+```typescript
+export interface XiriTableTreeSettings {
+  idField: string;                          // Zeilen-Feld mit Knoten-ID
+  parentIdField: string;                    // Zeilen-Feld mit Parent-ID; null/undefined/0 → Root
+  treeColumn?: string;                      // welche Spalte die Einrückung rendert; Default: erste Spalte
+  expandAllByDefault?: boolean;             // Default: false
+  persistStateKey?: string;                 // localStorage-Key (xiri-tree-state-<key>); ohne Key keine Persistenz
+  showCounts?: boolean;                     // "(5)" bei collapsed; Default: true
+  addSubHandler?: (parentRow: any) => void; // gesetzt → "+ Sub"-Button pro Zeile (Angular-Consumer)
+  addSubUrl?: string;                       // gesetzt → "+ Sub"-Button navigiert hierhin ({id}-Platzhalter)
+}
+```
+
+Verhalten:
+- **Sortierung** anderer Spalten ist im Tree-Modus deaktiviert; Geschwister werden alphabetisch
+  nach der Tree-Spalte sortiert.
+- **Suche** zeigt jeden Treffer samt komplettem Subtree (Nachfahren) plus den Vorfahren-Pfad
+  (Vorfahren gedimmt als Kontext); alles andere ausgeblendet, relevante Knoten auto-expandiert.
+  Reset stellt den vorherigen Expand-State wieder her.
+- **Multi-Root** unterstützt; fehlende Parents → Root; Zyklen werden abgefangen.
+
+```typescript
+settings: XiriTableSettings = {
+  data: regions,                            // flache Zeilen mit id + parentId
+  fields: [
+    { id: 'id',       name: 'ID',     format: 'id' },   // format 'id' → in Daten, nicht angezeigt
+    { id: 'parentId', name: 'Parent', format: 'id' },
+    { id: 'name',     name: 'Region' },
+  ],
+  tree: { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', persistStateKey: 'regions' },
+};
 ```
 
 ### Chips-Format (Status-Tags pro Zelle)
