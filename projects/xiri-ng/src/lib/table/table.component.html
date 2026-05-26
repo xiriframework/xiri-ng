@@ -9,6 +9,18 @@
 						</button>
 					</div>
 				}
+				@if (treeEnabled) {
+					<div class="buttons xiri-tree-actions">
+						<button mat-icon-button (click)="expandAllNodes()" color="primary"
+						        matTooltip="Alle ausklappen" aria-label="Alle ausklappen">
+							<mat-icon>unfold_more</mat-icon>
+						</button>
+						<button mat-icon-button (click)="collapseAllNodes()" color="primary"
+						        matTooltip="Alle einklappen" aria-label="Alle einklappen">
+							<mat-icon>unfold_less</mat-icon>
+						</button>
+					</div>
+				}
 				<div class="middle" [class.hasButtons]="options.buttons">{{ options.title }}</div>
 				@if (options.buttons) {
 					<xiri-buttonline [settings]="options.buttons" (result)="buttonReturn($event)"
@@ -129,11 +141,18 @@
 									<td mat-cell *matCellDef="let row" [innerHtml]="row[column.id] | safeHtml" [class]="column.display"></td>
 								}
 								@case ('link') {
-									<td mat-cell *matCellDef="let row" [class]="column.display">
+									<td mat-cell *matCellDef="let row" [class]="column.display"
+									    [class.xiri-tree-td]="treeEnabled && column.id === treeColumnId">
+										@if (treeEnabled && column.id === treeColumnId) {
+											<ng-container *ngTemplateOutlet="treePrefix; context: { $implicit: row }"></ng-container>
+										}
 										@if (row[column.id + 'Link']) {
 											<a [routerLink]="row[column.id + 'Link']" class="tablelink">{{ row[column.id] }}</a>
 										} @else {
 											<span>{{ row[column.id] }}</span>
+										}
+										@if (treeEnabled && column.id === treeColumnId) {
+											<ng-container *ngTemplateOutlet="treeSuffix; context: { $implicit: row }"></ng-container>
 										}
 									</td>
 								}
@@ -206,7 +225,11 @@
 									</td>
 								}
 								@default {
-									<td mat-cell *matCellDef="let row" [class]="column.display">
+									<td mat-cell *matCellDef="let row" [class]="column.display"
+									    [class.xiri-tree-td]="treeEnabled && column.id === treeColumnId">
+										@if (treeEnabled && column.id === treeColumnId) {
+											<ng-container *ngTemplateOutlet="treePrefix; context: { $implicit: row }"></ng-container>
+										}
 										@if (isSaving(row, column.id)) {
 											<mat-spinner diameter="20"></mat-spinner>
 										} @else if (column.editable && options.editUrl && isEditing(row, column.id)) {
@@ -244,6 +267,9 @@
 											</span>
 										} @else {
 											{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
+										}
+										@if (treeEnabled && column.id === treeColumnId) {
+											<ng-container *ngTemplateOutlet="treeSuffix; context: { $implicit: row }"></ng-container>
 										}
 									</td>
 								}
@@ -294,7 +320,8 @@
 					}
 
 					<tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true" [class.dense]="options.dense"></tr>
-					<tr mat-row *matRowDef="let row; columns: columnsToDisplay;" (click)="clicked(row)"></tr>
+					<tr mat-row *matRowDef="let row; columns: columnsToDisplay;" (click)="clicked(row)"
+					    [class.xiri-tree-dimmed]="treeEnabled && row._tree?.dimmed"></tr>
 					<tr mat-footer-row *matFooterRowDef="columnsToDisplay; sticky: true" [hidden]="!options.footer"></tr>
 				</table>
 			</div>
@@ -365,3 +392,30 @@
 @if (dynData.data) {
 	<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: dynData }"></ng-container>
 }
+
+<!-- Tree mode: indent + expand/collapse arrow rendered before the tree column's content -->
+<ng-template #treePrefix let-row>
+	<span class="xiri-tree-prefix" [style.padding-left.px]="(row._tree?.level || 0) * 24">
+		@if (row._tree?.hasChildren) {
+			<button type="button" class="xiri-tree-iconbtn xiri-tree-toggle" (click)="toggleNode($event, row)"
+			        tabindex="-1" [attr.aria-label]="row._tree.expanded ? 'einklappen' : 'ausklappen'">
+				<mat-icon color="primary">{{ row._tree.expanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+			</button>
+		} @else {
+			<span class="xiri-tree-spacer"></span>
+		}
+	</span>
+</ng-template>
+
+<!-- Tree mode: child-count badge (when collapsed) + optional "+ sub" button after the content -->
+<ng-template #treeSuffix let-row>
+	@if (treeShowCounts && row._tree && !row._tree.expanded && row._tree.childCount > 0) {
+		<span class="xiri-tree-count">({{ row._tree.childCount }})</span>
+	}
+	@if (treeHasAddSub) {
+		<button type="button" class="xiri-tree-iconbtn xiri-tree-addsub" (click)="addSub($event, row)"
+		        tabindex="-1" matTooltip="Sub-Eintrag hinzufügen" aria-label="Sub-Eintrag hinzufügen">
+			<mat-icon color="primary">add</mat-icon>
+		</button>
+	}
+</ng-template>

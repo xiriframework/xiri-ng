@@ -307,3 +307,85 @@ xiri-dyncomponent {
 [hidden] {
 	display: none !important;
 }
+
+// ============================================================================
+// Tree mode
+// ============================================================================
+
+.xiri-tree-actions {
+	display: flex;
+	align-items: center;
+}
+
+// The tree column cell lays out: [prefix arrow] [content] [count] [+sub] inline.
+td.xiri-tree-td {
+	white-space: nowrap;
+
+	.xiri-tree-prefix {
+		display: inline-flex;
+		align-items: center;
+		vertical-align: middle;
+	}
+
+	// Plain buttons (no mat-icon-button) so we fully control the box and the glyph stays centred.
+	.xiri-tree-iconbtn {
+		appearance: none;
+		border: 0;
+		background: transparent;
+		padding: 0;
+		margin: 0;
+		flex: 0 0 24px;
+		width: 24px;
+		height: 24px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		vertical-align: middle; // align with the row text (inline-flex defaults to baseline → sits too low)
+		border-radius: 50%;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+
+		.mat-icon {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 20px;
+			height: 20px;
+			font-size: 20px;
+			line-height: 20px;
+			margin: 0;
+		}
+
+		&:hover { background: rgba(0, 0, 0, 0.06); }
+		&:focus-visible { outline: 2px solid var(--mat-sys-primary, currentColor); outline-offset: -2px; }
+	}
+
+	.xiri-tree-spacer {
+		width: 24px;
+		height: 24px;
+		flex: 0 0 24px;
+	}
+
+	.xiri-tree-count {
+		margin-left: var(--xiri-spacing-xs, 4px);
+		opacity: 0.6;
+		font-size: 0.85em;
+	}
+
+	.xiri-tree-addsub {
+		margin-left: var(--xiri-spacing-xs, 4px);
+		opacity: 0;
+		transition: opacity 0.15s ease-in-out;
+	}
+}
+
+// Reveal the "+ sub" button on row hover (or keyboard focus).
+tr.mat-mdc-row:hover td.xiri-tree-td .xiri-tree-addsub,
+td.xiri-tree-td .xiri-tree-addsub:focus-visible {
+	opacity: 1;
+}
+
+// Ancestor-only context rows during an active search are dimmed.
+tr.xiri-tree-dimmed {
+	opacity: 0.6;
+}

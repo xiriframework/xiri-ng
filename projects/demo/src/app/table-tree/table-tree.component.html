@@ -1,0 +1,36 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Tree 1: Basis -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionBasic">
+				<xiri-table [settings]="basicTree"></xiri-table>
+				<app-go-code [code]="goCode" title="Go: table mit .Tree(...)"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Tree 2: + Sub-Eintrag -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionAddSub">
+				<xiri-table [settings]="addSubTree"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

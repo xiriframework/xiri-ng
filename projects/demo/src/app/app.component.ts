@@ -71,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Tables',
 			icon: 'table_chart',
 			menu: true,
-			regex: /^(Tables|InlineEditTable)/,
+			regex: /^(Tables|InlineEditTable|TableTree)/,
 			sub: [ {
 				name: 'Tables',
 				icon: 'table_chart',
@@ -80,6 +80,10 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: 'Inline Edit',
 				icon: 'edit_note',
 				link: 'InlineEditTable'
+			}, {
+				name: 'Tree Table',
+				icon: 'account_tree',
+				link: 'TableTree'
 			} ]
 		}, {
 			name: 'Cards',

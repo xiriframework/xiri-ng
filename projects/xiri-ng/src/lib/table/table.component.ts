@@ -39,6 +39,7 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
+import { XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/buttonline.component";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
@@ -96,6 +97,7 @@ export interface XiriTableOptions {
 	serverSide?: boolean
 	scrollHeight?: string
 	editUrl?: string
+	tree?: XiriTableTreeSettings // opt-in tree mode; delivered here by the Go builder (options.tree)
 }
 
 export interface XiriTableSettings {
@@ -104,7 +106,10 @@ export interface XiriTableSettings {
 	fields?: XiriTableField[]
 	options?: XiriTableOptions
 	hasFilter?: boolean
+	tree?: XiriTableTreeSettings // opt-in tree mode; for direct Angular consumers (Spec §6)
 }
+
+export type { XiriTableTreeSettings } from './tree.service';
 
 @Component( {
 	            selector: 'xiri-table',
@@ -112,7 +117,7 @@ export interface XiriTableSettings {
 	            styleUrl: './table.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            encapsulation: ViewEncapsulation.None,
-	            providers: [ XiriTableInlineEditService ],
+	            providers: [ XiriTableInlineEditService, XiriTableTreeService ],
 	            imports: [ MatCard,
 	                       MatIconButton,
 	                       MatIcon,
@@ -154,6 +159,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private responseHandler = inject( XiriResponseHandlerService );
 	private downloadService = inject( XiriDownloadService );
 	inlineEdit = inject( XiriTableInlineEditService );
+	tree = inject( XiriTableTreeService );
 	protected _changeDetectorRef: ChangeDetectorRef = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	
@@ -252,10 +258,15 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 		
 		effect( () => {
-			if ( this._alldata() === null )
+			const all = this._alldata();
+			if ( all === null ) {
 				this.dataSource.data = [];
-			else
-				this.dataSource.data = this._alldata();
+			} else if ( this.tree.enabled ) {
+				this.tree.build( all );
+				this.refreshTree();
+			} else {
+				this.dataSource.data = all;
+			}
 		} );
 	}
 	
@@ -265,6 +276,11 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.options = { ...this.options, ...this.settings().options };
 		if ( this.settings().fields )
 			this.loadFields( this.settings().fields );
+
+		// Tree mode: accept config from top-level settings (Angular consumers) or options (Go builder).
+		const treeCfg = this.settings().tree ?? this.options.tree;
+		if ( treeCfg && this.displayedColumns.length > 0 )
+			this.tree.init( treeCfg, this.displayedColumns[ 0 ].id );
 
 		this.inlineEdit.init( {
 			getEditUrl: () => this.options.editUrl,
@@ -279,7 +295,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.paginator().pageSize = <number> this.options.itemsPerPage;
 		if ( this.options.pagination && !this.options.serverSide )
 			this.dataSource.paginator = this.paginator();
-		if ( this.options.sort && !this.options.serverSide ) {
+		// In tree mode column sorting is disabled (Spec §5); siblings are sorted alphabetically
+		// at build time. Connecting MatSort would re-order rows globally and break tree order.
+		if ( this.options.sort && !this.options.serverSide && !this.tree.enabled ) {
 			this.dataSource.sort = this.sort();
 			this.dataSource.sortingDataAccessor = this.getSortingDataAccessor();
 			if ( this.options.pagination )
@@ -303,7 +321,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			}
 		}
 		
-		if ( this.options.search && !this.options.serverSide ) {
+		// Tree mode uses its own search projection (matches + ancestors), not the flat filter predicate.
+		if ( this.options.search && !this.options.serverSide && !this.tree.enabled ) {
 			this.dataSource.filterPredicate = ( data: object, filter: string ): boolean => {
 				const dataStr = this.columnsToSearch.reduce( ( currentTerm: string, key: string ) => {
 					return currentTerm + ( data as { [ key: string ]: any } )[ key ] + '◬';
@@ -518,12 +537,67 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this.options.serverSide ) {
 			this.paginator().firstPage();
 			this.reload();
+		} else if ( this.tree.enabled ) {
+			this.refreshTree();
+			if ( this.dataSource.paginator )
+				this.dataSource.paginator.firstPage();
 		} else {
 			this.dataSource.filter = this.searchText;
 			if ( this.dataSource.paginator ) {
 				this.dataSource.paginator.firstPage();
 			}
 		}
+	}
+
+	// ============================================================================
+	// Tree mode (only active when settings.tree / options.tree is set)
+	// ============================================================================
+
+	get treeEnabled(): boolean { return this.tree.enabled; }
+	get treeColumnId(): string { return this.tree.treeColumn; }
+	get treeShowCounts(): boolean { return this.tree.showCounts; }
+	get treeHasAddSub(): boolean { return this.tree.hasAddSub; }
+
+	/** Recomputes the visible rows from the tree (respecting the active search), into the data source. */
+	private refreshTree(): void {
+		const term = this.searchText;
+		const matcher = term ? ( row: any ) => this.rowMatches( row, term ) : null;
+		this.dataSource.data = this.tree.applySearch( matcher );
+	}
+
+	private rowMatches( row: any, term: string ): boolean {
+		let dataStr = '';
+		for ( const key of this.columnsToSearch )
+			dataStr += row[ key ] + '◬';
+		return dataStr.toLowerCase().indexOf( term ) !== -1;
+	}
+
+	toggleNode( event: MouseEvent, row: any ): void {
+		event.stopPropagation();
+		this.tree.toggle( row );
+		this.refreshTree();
+	}
+
+	expandAllNodes(): void {
+		this.tree.expandAll();
+		this.refreshTree();
+	}
+
+	collapseAllNodes(): void {
+		this.tree.collapseAll();
+		this.refreshTree();
+	}
+
+	addSub( event: MouseEvent, row: any ): void {
+		event.stopPropagation();
+		const cfg = this.tree.settings;
+		if ( cfg?.addSubHandler ) {
+			cfg.addSubHandler( row );
+			return;
+		}
+		const url = this.tree.addSubUrlFor( row );
+		if ( url )
+			this.router.navigateByUrl( url );
 	}
 	
 	isAllSelected() {
