@@ -91,6 +91,31 @@ mat-card.xiritablecard {
 		xiri-buttonline {
 			padding: 0 0 0 16px;
 		}
+
+		.autorefresh-indicator {
+			display:      inline-flex;
+			align-items:  center;
+			gap:          4px;
+			padding:      2px 8px;
+			font-size:    var(--xiri-font-size-small, 0.8rem);
+			color:        var(--mat-sys-primary, var(--primary, #006398));
+
+			mat-icon {
+				font-size:   18px;
+				width:       18px;
+				height:      18px;
+				line-height: 18px;
+
+				&.spin {
+					animation: xiri-autorefresh-spin 1.5s linear infinite;
+				}
+			}
+		}
+	}
+
+	@keyframes xiri-autorefresh-spin {
+		from { transform: rotate(0deg); }
+		to   { transform: rotate(360deg); }
 	}
 
 	table {

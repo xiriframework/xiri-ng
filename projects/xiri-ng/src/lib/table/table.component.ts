@@ -188,6 +188,23 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public selection = new SelectionModel<any>( true, [] );
 	private dialogRef?: MatDialogRef<any>;
 	private reloadAbort$ = new Subject<void>();
+
+	// Auto-refresh (backend-driven polling): activated when the table data response
+	// contains a "poll" interval (ms). While active the whole table reloads after that
+	// interval and a table-wide indicator with countdown is shown. Stops automatically
+	// when a response no longer contains "poll".
+	private autoRefreshTimer?: ReturnType<typeof setTimeout>;
+	private countdownTimer?: ReturnType<typeof setInterval>;
+	autoRefresh = signal<{ intervalMs: number; nextAt: number } | null>( null );
+	private _now = signal<number>( Date.now() );
+	countdown = computed<number>( () => {
+		const ar = this.autoRefresh();
+		if ( !ar )
+			return 0;
+		const secs = Math.ceil( ( ar.nextAt - this._now() ) / 1000 );
+		return secs > 0 ? secs : 0;
+	} );
+
 	public options: XiriTableOptions = {
 		reload: false,
 		dense: false,
@@ -250,6 +267,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 			this.loading.set( true );
 			this.reloadAbort$.next();
+			this.clearAutoRefresh();
 
 			if ( filterData === null )
 				return;
@@ -381,9 +399,13 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.errorMsg = '';
 		this.selection.clear();
 		this.dynData.data = null;
-		
+		// Cancel any pending auto-refresh while this load is in flight; the response decides
+		// whether to reschedule (res.poll present) or stop (clearAutoRefresh).
+		this.cancelAutoRefreshTimers();
+
 		if ( this.settings().data ) {
 			this.options.reload = false;
+			this.clearAutoRefresh();
 			this.setData( this.settings().data );
 			this.loading.set( false );
 		} else if ( this.settings().url ) {
@@ -411,6 +433,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					if ( !res || !res.data ) {
 						this.errorMsg = 'ERROR: unknown server response';
 						this._alldata.set( [] );
+						this.clearAutoRefresh();
 						this.loading.set( false );
 						this._changeDetectorRef.markForCheck();
 						return;
@@ -430,11 +453,16 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 						this.paginator().length = res.totalCount;
 					}
 					this.setData( res.data );
+					if ( res.poll )
+						this.scheduleAutoRefresh( res.poll );
+					else
+						this.clearAutoRefresh();
 					this.loading.set( false );
 					this._changeDetectorRef.markForCheck();
 				}, error: ( err: any ) => {
 					this.errorMsg = err.error?.error ? err.error.error : err.statusText;
 					this._alldata.set( [] );
+					this.clearAutoRefresh();
 					this.loading.set( false );
 					this._changeDetectorRef.markForCheck();
 				}
@@ -526,9 +554,43 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	reload(): void {
 		if ( this.loading() )
 			return;
-		
+
 		this.loading.set( true );
 		this.loadData();
+	}
+
+	// Schedules the next auto-refresh reload and (re)starts the 1s countdown ticker.
+	private scheduleAutoRefresh( intervalMs: number ): void {
+		this.cancelAutoRefreshTimers();
+		const now = Date.now();
+		this.autoRefresh.set( { intervalMs, nextAt: now + intervalMs } );
+		this._now.set( now );
+		this.autoRefreshTimer = setTimeout( () => {
+			this.autoRefreshTimer = undefined;
+			this.reload();
+		}, intervalMs );
+		this.countdownTimer = setInterval( () => {
+			this._now.set( Date.now() );
+			this._changeDetectorRef.markForCheck();
+		}, 1000 );
+	}
+
+	// Clears pending timers without touching the indicator (used while a load is in flight).
+	private cancelAutoRefreshTimers(): void {
+		if ( this.autoRefreshTimer ) {
+			clearTimeout( this.autoRefreshTimer );
+			this.autoRefreshTimer = undefined;
+		}
+		if ( this.countdownTimer ) {
+			clearInterval( this.countdownTimer );
+			this.countdownTimer = undefined;
+		}
+	}
+
+	// Fully stops auto-refresh and hides the indicator.
+	private clearAutoRefresh(): void {
+		this.cancelAutoRefreshTimers();
+		this.autoRefresh.set( null );
 	}
 	
 	searchDo( $event: any ) {
@@ -805,6 +867,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.reloadAbort$.next();
 		this.reloadAbort$.complete();
+		this.clearAutoRefresh();
 		if ( this.dialogRef )
 			this.dialogRef.close( null );
 	}

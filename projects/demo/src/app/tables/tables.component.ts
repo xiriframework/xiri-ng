@@ -81,6 +81,13 @@ export class TablesComponent {
 		icon: 'label',
 	};
 
+	sectionTable9: XiriSectionSettings = {
+		title: '9: Auto-Refresh (Background Worker)',
+		subtitle: 'Das Backend signalisiert per "poll" ein Intervall (ms). Die Tabelle lädt selbsttätig neu und zeigt im Header einen Auto-Refresh-Indikator mit Countdown, bis der Worker fertig ist. Danach entfällt "poll" und das Polling stoppt automatisch.',
+		icon: 'sync',
+		iconColor: 'primary',
+	};
+
 	sectionRawTable: XiriSectionSettings = {
 		title: 'XiriRawTableComponent',
 		subtitle: 'Simple table without server connection. Suitable for static data. Supports dense, number, icon formats.',
@@ -363,6 +370,21 @@ export class TablesComponent {
 		hasFilter: false
 	};
 
+	public data9: XiriTableSettings = {
+		url: 'Test/Worker/TableData',
+		fields: [
+			{ id: 'id', name: 'ID' },
+			{ id: 'name', name: 'Job' },
+			{ id: 'status', name: 'Status', format: 'chips' },
+		],
+		options: {
+			reload: true, sort: false, search: false, pagination: false,
+			title: '9: Auto-Refresh (Background Worker)',
+			textNoData: 'No jobs',
+		},
+		hasFilter: false
+	};
+
 	// --- RawTable ---
 	rawTableSettings: XiriRawTableSettings = {
 		dense: 2,
@@ -508,6 +530,19 @@ tb.ChipsField("metric1", "Metric 1", func(r Row) []table.Chip {
     if r.M1 < 50 { color = core.ColorRed }
     return []table.Chip{{Label: fmt.Sprintf("%d%%", r.M1), Color: color}}
 })`;
+
+	goTable9Code = `// Handler: solange ein Worker läuft, Poll-Intervall setzen
+tbl.SetData(jobs)
+
+if anyJobRunning {
+    tbl.SetPoll(2000) // ms — Tabelle lädt alle 2s automatisch neu
+}
+
+return wc.Data(tbl)
+
+// Sobald kein Job mehr läuft, SetPoll einfach NICHT setzen:
+// Die Response enthält dann kein "poll" und das Frontend
+// stoppt das automatische Neuladen von selbst.`;
 
 	goRawTableCode = `// RawTable = clientseitige Tabelle ohne Server-Anbindung
 // Im Go-Backend: Tabelle mit SetData() statt SetURL()

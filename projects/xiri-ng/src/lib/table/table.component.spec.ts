@@ -763,4 +763,72 @@ describe( 'XiriTableComponent', () => {
 			expect( spy ).toHaveBeenCalled();
 		} );
 	} );
+
+	describe( 'auto-refresh (poll)', () => {
+		beforeEach( () => {
+			vi.useFakeTimers();
+		} );
+
+		afterEach( () => {
+			vi.useRealTimers();
+		} );
+
+		it( 'should activate auto-refresh when response contains poll', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], poll: 2000 } ) );
+
+			createFixture( { url: 'test/poll', fields: [ { id: 'name', name: 'Name' } ] } );
+
+			expect( component.autoRefresh() ).not.toBeNull();
+			expect( component.autoRefresh()!.intervalMs ).toBe( 2000 );
+			expect( component.countdown() ).toBeGreaterThan( 0 );
+		} );
+
+		it( 'should not activate auto-refresh without poll', () => {
+			mockDataService.post.mockReturnValue( of( { data: [] } ) );
+
+			createFixture( { url: 'test/poll', fields: [ { id: 'name', name: 'Name' } ] } );
+
+			expect( component.autoRefresh() ).toBeNull();
+		} );
+
+		it( 'should reload the table after the poll interval', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], poll: 2000 } ) );
+
+			createFixture( { url: 'test/poll', fields: [ { id: 'name', name: 'Name' } ] } );
+
+			const callsAfterInit = mockDataService.post.mock.calls.length;
+			vi.advanceTimersByTime( 2000 );
+			expect( mockDataService.post.mock.calls.length ).toBe( callsAfterInit + 1 );
+		} );
+
+		it( 'should stop polling when a later response omits poll', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], poll: 2000 } ) );
+
+			createFixture( { url: 'test/poll', fields: [ { id: 'name', name: 'Name' } ] } );
+			expect( component.autoRefresh() ).not.toBeNull();
+
+			// Next response without poll → polling must stop
+			mockDataService.post.mockReturnValue( of( { data: [] } ) );
+			vi.advanceTimersByTime( 2000 );
+			expect( component.autoRefresh() ).toBeNull();
+
+			const calls = mockDataService.post.mock.calls.length;
+			vi.advanceTimersByTime( 5000 );
+			expect( mockDataService.post.mock.calls.length ).toBe( calls );
+		} );
+
+		it( 'should clear auto-refresh on destroy', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], poll: 2000 } ) );
+
+			createFixture( { url: 'test/poll', fields: [ { id: 'name', name: 'Name' } ] } );
+			expect( component.autoRefresh() ).not.toBeNull();
+
+			component.ngOnDestroy();
+			expect( component.autoRefresh() ).toBeNull();
+
+			const calls = mockDataService.post.mock.calls.length;
+			vi.advanceTimersByTime( 5000 );
+			expect( mockDataService.post.mock.calls.length ).toBe( calls );
+		} );
+	} );
 } );

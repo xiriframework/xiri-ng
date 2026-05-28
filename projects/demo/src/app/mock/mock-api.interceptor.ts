@@ -69,6 +69,13 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getServerTableData( req.body ) } ) ).pipe( delay( 300 ) );
 	}
 
+	// Auto-refresh / poll demo: simulates a background worker that finishes over a few cycles.
+	// While any job is still running the response carries "poll" (ms); once all jobs are done
+	// the field is omitted and the frontend stops polling automatically.
+	if ( req.url.includes( 'Test/Worker/TableData' ) ) {
+		return of( new HttpResponse( { status: 200, body: getWorkerTableData() } ) ).pipe( delay( 200 ) );
+	}
+
 	// Table data endpoints for Test/Test/Home
 	if ( req.url.includes( 'Test/Test/Table1Data' ) ) {
 		return of( new HttpResponse( { status: 200, body: getTable1Data( req.body ) } ) );
@@ -518,6 +525,41 @@ function getTable2Data( body: any ): any {
 	const data = allData.slice( start, start + pageSize );
 
 	return { data, total };
+}
+
+// Background-worker simulation state for the auto-refresh (poll) demo.
+// Each POST advances one "tick"; jobs finish after their individual duration.
+let workerTick = 0;
+const workerDurations = [ 2, 3, 4 ]; // ticks until each job completes
+
+function getWorkerTableData(): any {
+	workerTick++;
+
+	const jobs = [ 'Import Job', 'Report Generation', 'Data Sync' ];
+	let anyRunning = false;
+
+	const data = jobs.map( ( name, idx ) => {
+		const total = workerDurations[ idx ];
+		const done = workerTick >= total;
+		if ( !done )
+			anyRunning = true;
+		const pct = Math.min( 100, Math.round( ( workerTick / total ) * 100 ) );
+		return {
+			id: idx + 1,
+			name,
+			status: done
+				? [ { label: 'Fertig', color: 'success' } ]
+				: [ { label: `läuft… ${ pct }%`, color: 'warn' } ],
+		};
+	} );
+
+	const body: any = { data };
+	if ( anyRunning ) {
+		body.poll = 2000; // keep polling while a worker is still running
+	} else {
+		workerTick = 0; // reset so the manual reload button restarts the demo
+	}
+	return body;
 }
 
 function getServerTableData( body: any ): any {

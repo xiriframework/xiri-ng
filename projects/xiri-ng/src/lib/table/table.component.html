@@ -9,6 +9,13 @@
 						</button>
 					</div>
 				}
+				@if (autoRefresh()) {
+					<div class="autorefresh-indicator" role="status" aria-live="polite"
+					     matTooltip="Tabelle aktualisiert sich automatisch">
+						<mat-icon class="spin">sync</mat-icon>
+						<span>Auto-Refresh aktiv · nächste in {{ countdown() }}s</span>
+					</div>
+				}
 				@if (treeEnabled) {
 					<div class="buttons xiri-tree-actions">
 						<button mat-icon-button (click)="expandAllNodes()" color="primary"
