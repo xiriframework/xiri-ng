@@ -478,6 +478,9 @@ export class XiriFormFieldsComponent implements OnInit {
 		const fields = this._fields;
 		if ( !fields ) return false;
 
+		// Ein header startet seine eigene Section und ist nie Teil einer vorherigen
+		if ( field.type === 'header' ) return false;
+
 		const idx = fields.indexOf( field );
 		if ( idx <= 0 ) return false;
 

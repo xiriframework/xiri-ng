@@ -144,6 +144,32 @@ export interface XiriFormField {
 | `waiting`       | Loading-Spinner                                   |                                    |
 | `header`        | Sektions-Header (mit optional Collapse)           | `collapsible`, `collapsed`         |
 
+#### Collapsible Sections (`header` mit `collapsible: true`)
+
+Es gibt **keine** explizite Section-Grenze im Datenmodell — das Frontend gruppiert heuristisch:
+ein collapsible Header beginnt eine Section, die für **alle Folgefelder bis zum nächsten Header**
+gilt (`isInCollapsedSection()` läuft vom Feld rückwärts zum nächsten Header; ein `divider` bricht
+die Section ab). Initial eingeklappt via `collapsed: true`.
+
+**Mehrere collapsible Header stapeln als unabhängige Geschwister** — jeder Header startet seine
+eigene Section und wird nie von einer vorherigen, eingeklappten Section versteckt. Beispiel:
+
+```typescript
+fields: [
+  { id: 'h1', type: 'header', value: 'Basic',         collapsible: true, collapsed: false },
+  { id: 'firstName', type: 'text', name: 'First Name' },
+  { id: 'h2', type: 'header', value: 'Advanced',      collapsible: true, collapsed: true },
+  { id: 'role', type: 'select', name: 'Role', list: [...] },
+  { id: 'h3', type: 'header', value: 'Notifications',  collapsible: true, collapsed: false },
+  { id: 'notify', type: 'bool', name: 'E-Mail' },
+]
+// 'Advanced' eingeklappt -> 'role' verborgen, aber 'Notifications' (+ Inhalt) bleibt sichtbar.
+```
+
+Backend-Pendant: `field.NewHeaderField(id, text).SetCollapsible(true).SetCollapsed(...)`
+(siehe xiri-go-expert). Für read-only Detail-Ansichten mit echtem Akkordeon (nestbare Inhalte,
+auch in Dialogen nutzbar) stattdessen die `expansion`-Komponente.
+
 #### `yearmonth` — Monats-Auswahl
 
 Render: eigener `<xiri-yearmonth>`, intern Mat-Datepicker mit `startView="multi-year"`.

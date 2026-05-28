@@ -37,7 +37,7 @@ export class FormsComponent {
 
 	sectionSections: XiriSectionSettings = {
 		title: 'Collapsible Sections & Dividers',
-		subtitle: "type: 'header' with collapsible: true creates expandable sections. type: 'divider' adds a visual separator.",
+		subtitle: "type: 'header' with collapsible: true creates an expandable section that runs until the next header. Multiple collapsible headers stack as independent siblings — collapsing one (e.g. 'Advanced Settings') leaves the following section ('Notifications') fully visible. type: 'divider' adds a visual separator.",
 		icon: 'view_agenda',
 	};
 

@@ -651,6 +651,62 @@ describe( 'XiriFormFieldsComponent', () => {
 			component.toggleSection( header );
 			expect( component.isFieldVisible( field ) ).toBe( true );
 		} );
+
+		it( 'should keep stacked sections as siblings when one is collapsed', () => {
+			const h1: XiriFormField = { id: 'h1', type: 'header', collapsible: true };
+			const b1: XiriFormField = { id: 'b1', type: 'text', value: '' };
+			const h2: XiriFormField = { id: 'h2', type: 'header', collapsible: true };
+			const b2: XiriFormField = { id: 'b2', type: 'text', value: '' };
+			host.fields.set( [ h1, b1, h2, b2 ] );
+			fixture.detectChanges();
+
+			component.toggleSection( h1 );
+
+			// Inhalt der ersten Section ist versteckt ...
+			expect( component.isFieldVisible( b1 ) ).toBe( false );
+			// ... aber die zweite Section bleibt als Geschwister sichtbar (kein Nesting).
+			expect( component.isFieldVisible( h2 ) ).toBe( true );
+			expect( component.isFieldVisible( b2 ) ).toBe( true );
+		} );
+
+		it( 'should not nest initially collapsed sections', () => {
+			const h1: XiriFormField = { id: 'h1', type: 'header', collapsible: true, collapsed: false };
+			const b1: XiriFormField = { id: 'b1', type: 'text', value: '' };
+			const h2: XiriFormField = { id: 'h2', type: 'header', collapsible: true, collapsed: true };
+			const b2: XiriFormField = { id: 'b2', type: 'text', value: '' };
+			const h3: XiriFormField = { id: 'h3', type: 'header', collapsible: true, collapsed: true };
+			const b3: XiriFormField = { id: 'b3', type: 'text', value: '' };
+			host.fields.set( [ h1, b1, h2, b2, h3, b3 ] );
+			fixture.detectChanges();
+
+			// Alle drei Header sind sichtbar (gestapelt) ...
+			expect( component.isFieldVisible( h1 ) ).toBe( true );
+			expect( component.isFieldVisible( h2 ) ).toBe( true );
+			expect( component.isFieldVisible( h3 ) ).toBe( true );
+			// ... nur die Inhalte der initial eingeklappten Sections sind versteckt.
+			expect( component.isFieldVisible( b1 ) ).toBe( true );
+			expect( component.isFieldVisible( b2 ) ).toBe( false );
+			expect( component.isFieldVisible( b3 ) ).toBe( false );
+		} );
+
+		it( 'should toggle an inner section without affecting the outer one', () => {
+			const h1: XiriFormField = { id: 'h1', type: 'header', collapsible: true };
+			const b1: XiriFormField = { id: 'b1', type: 'text', value: '' };
+			const h2: XiriFormField = { id: 'h2', type: 'header', collapsible: true };
+			const b2: XiriFormField = { id: 'b2', type: 'text', value: '' };
+			const h3: XiriFormField = { id: 'h3', type: 'header', collapsible: true };
+			host.fields.set( [ h1, b1, h2, b2, h3 ] );
+			fixture.detectChanges();
+
+			component.toggleSection( h2 );
+
+			// Toggeln von Section B beeinflusst A und C nicht.
+			expect( component.isFieldVisible( h1 ) ).toBe( true );
+			expect( component.isFieldVisible( b1 ) ).toBe( true );
+			expect( component.isFieldVisible( h3 ) ).toBe( true );
+			// Nur der Inhalt von B ist versteckt.
+			expect( component.isFieldVisible( b2 ) ).toBe( false );
+		} );
 	} );
 
 	describe( 'disabled state', () => {
