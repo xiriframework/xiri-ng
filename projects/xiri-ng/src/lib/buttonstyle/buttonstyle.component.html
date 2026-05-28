@@ -19,6 +19,9 @@
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
+				@if (pollText() || countdown() > 0) {
+					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+				}
 			} @else {
 				<mat-icon>{{ button().icon }}</mat-icon>
 			}
@@ -34,6 +37,9 @@
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
+				@if (pollText() || countdown() > 0) {
+					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+				}
 			} @else {
 				{{ button().text }}
 			}
@@ -48,6 +54,9 @@
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
+				@if (pollText() || countdown() > 0) {
+					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+				}
 			} @else {
 				{{ button().text }}
 			}
@@ -62,6 +71,9 @@
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
+				@if (pollText() || countdown() > 0) {
+					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+				}
 			} @else {
 				{{ button().text }}
 			}
@@ -76,6 +88,9 @@
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
+				@if (pollText() || countdown() > 0) {
+					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+				}
 			} @else {
 				{{ button().text }}
 			}
@@ -124,6 +139,9 @@
 			        [tabIndex]="button().tabIndex">
 				@if (loading()) {
 					<mat-spinner diameter="20"></mat-spinner>
+					@if (pollText() || countdown() > 0) {
+						<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+					}
 				} @else {
 					{{ button().text }}
 				}

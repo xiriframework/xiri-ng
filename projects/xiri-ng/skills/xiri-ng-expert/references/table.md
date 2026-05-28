@@ -323,3 +323,19 @@ onButtonResult(res: XiriButtonResult) {
   });
 }
 ```
+
+## Auto-Refresh / Polling (`poll`)
+
+Enthält die Tabellen-Daten-Response ein Feld `poll` (Intervall in ms), lädt sich die
+Tabelle **selbsttätig** nach diesem Intervall neu (`reload()`) und zeigt im Header
+„Auto-Refresh aktiv · nächste in Xs" mit Sekunden-Countdown. Sobald eine Response **kein**
+`poll` mehr enthält, stoppt das Polling und der Indikator verschwindet. Gedacht für
+laufende Background-Worker — der Zeilenstatus steht in den normalen Spalten.
+
+```json
+{ "data": [...], "fields": [...], "poll": 2000 }
+```
+
+Rein Backend-gesteuert (xiri-go: `tbl.SetPoll(2000)`); im Frontend ist nichts zu
+konfigurieren. Timer werden bei Destroy, Filterwechsel, Fehler und vor jedem Laden sauber
+aufgeräumt. Nicht zu verwechseln mit `options.reload` (manueller Reload-Button).

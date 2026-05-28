@@ -191,6 +191,19 @@ interface XiriButtonResult {
 
 **Custom-Payload (`button.data`):** Für `action: 'api'` und `action: 'download'` baut die Button-Komponente den POST-Body als `{ ...filterData, ...button.data }`. `data` ist `Record<string, any>`. Klassisches Beispiel: CSV-Download-Buttons des `xiri-go`-Tabellen-Builders setzen `data: { _csv: true }`, das Backend (`LoadFilterData`) erkennt das Flag und liefert CSV statt Web-JSON. Backend-Setter: `button.WithData(map[string]any{...})` (siehe xiri-go-expert).
 
+**Selbst-pollender Button (`poll` / `pollUrl` / `text`):** Verarbeitet der Button eine Antwort (von `action:'api'` **oder** dem `afterClosed`-Ergebnis eines `action:'dialog'`), die `poll` (ms) enthält, beginnt er selbsttätig, im Intervall `pollUrl` per **GET** abzufragen — bis eine Antwort **ohne** `poll` kommt. Währenddessen ist der Button disabled und zeigt Spinner + Countdown bzw. den optionalen `text` (überschreibt den Countdown, pro Tick aktualisierbar → Fortschritt). Die **finale** Antwort (ohne `poll`) läuft normal durch den `responseHandler` (Snackbar/Refresh/Goto). `pollUrl` ist optional (Fallback: `button.url`); bei Dialog-Buttons Pflicht. Backend: `response.NewReturnPoll(pollUrl, ms).WithText("läuft… 50 %")` (siehe xiri-go-expert).
+
+**Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
+
+JSON-Beispiele:
+```json
+// läuft (vom Status-Endpoint, vom Button gepollt):
+{ "done": true, "poll": 2000, "pollUrl": "/api/worker/status", "text": "läuft… 50 %" }
+// fertig (kein poll → Button stoppt, Snackbar + Button-Patch):
+{ "done": true, "message": "Worker fertig", "messageType": "success",
+  "button": { "text": "Erledigt ✓", "color": "success" } }
+```
+
 ### xiri-buttonline
 
 ```typescript
@@ -212,6 +225,8 @@ interface XiriButtonlineSettings {
 @input.required button: XiriButton;
 @input.required disabled: boolean;
 @input          loading: boolean = false;
+@input          countdown: number = 0;   // Rest-Sekunden bis zum nächsten Poll-Tick
+@input          pollText: string = '';    // Backend-Text während des Pollings (überschreibt Countdown)
 ```
 
 ### XiriButton

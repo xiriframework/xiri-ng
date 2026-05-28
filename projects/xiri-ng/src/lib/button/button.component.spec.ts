@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriButtonComponent, XiriButton, XiriButtonResult } from './button.component';
@@ -38,7 +38,7 @@ class TestHostComponent {
 describe('XiriButtonComponent', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 	let host: TestHostComponent;
-	let mockDataService: { post: ReturnType<typeof vi.fn>; postFileResponse: ReturnType<typeof vi.fn> };
+	let mockDataService: { post: ReturnType<typeof vi.fn>; get: ReturnType<typeof vi.fn>; postFileResponse: ReturnType<typeof vi.fn> };
 	let mockDownloadService: { download: ReturnType<typeof vi.fn> };
 	let mockDialog: { open: ReturnType<typeof vi.fn> };
 	let mockRouter: { navigate: ReturnType<typeof vi.fn>; url: string };
@@ -47,6 +47,7 @@ describe('XiriButtonComponent', () => {
 	beforeEach(async () => {
 		mockDataService = {
 			post: vi.fn().mockReturnValue(of({})),
+			get: vi.fn().mockReturnValue(of({})),
 			postFileResponse: vi.fn().mockReturnValue(of({})),
 		};
 		mockDownloadService = { download: vi.fn() };
@@ -367,5 +368,133 @@ describe('XiriButtonComponent', () => {
 
 		expect(host.lastResult).toBeTruthy();
 		expect(host.lastResult!.done).toBe(true);
+	});
+
+	describe('self-polling', () => {
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		it('should start polling when api response contains poll', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status' }));
+			mockDataService.get.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status' }));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+			// While polling no "done" emit yet (only the initial loading emit)
+			expect(host.lastResult!.done).toBe(false);
+
+			vi.advanceTimersByTime(2000);
+			expect(mockDataService.get).toHaveBeenCalledWith('/status');
+		});
+
+		it('should fall back to button.url when pollUrl is missing', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 1000 }));
+			mockDataService.get.mockReturnValue(of({ done: true }));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			vi.advanceTimersByTime(1000);
+
+			expect(mockDataService.get).toHaveBeenCalledWith('/start');
+		});
+
+		it('should stop polling and handle the final response without poll', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status' }));
+			mockDataService.get.mockReturnValue(of({ done: true, goto: '/done-page' }));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			vi.advanceTimersByTime(2000);
+
+			expect(mockRouter.navigate).toHaveBeenCalledWith(['/done-page']);
+			expect(host.lastResult!.done).toBe(true);
+
+			const calls = mockDataService.get.mock.calls.length;
+			vi.advanceTimersByTime(5000);
+			expect(mockDataService.get.mock.calls.length).toBe(calls);
+		});
+
+		it('should start polling when a dialog result contains poll', () => {
+			vi.useFakeTimers();
+			const afterClosedSubject = new Subject();
+			mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });
+			mockDataService.get.mockReturnValue(of({ done: true }));
+			host.btn.set(makeButton({ action: 'dialog', url: '/dlg' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			afterClosedSubject.next({ done: true, poll: 2000, pollUrl: '/status' });
+
+			vi.advanceTimersByTime(2000);
+			expect(mockDataService.get).toHaveBeenCalledWith('/status');
+		});
+
+		it('should show backend-defined poll text in the button', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status', text: 'läuft… 50 %' }));
+			mockDataService.get.mockReturnValue(of({ done: true }));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			fixture.detectChanges();
+
+			const text = fixture.nativeElement.querySelector('.poll-countdown')?.textContent?.trim();
+			expect(text).toBe('läuft… 50 %');
+		});
+
+		it('should stop polling on destroy', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status' }));
+			mockDataService.get.mockReturnValue(of({ done: true, poll: 2000, pollUrl: '/status' }));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			fixture.destroy();
+
+			const calls = mockDataService.get.mock.calls.length;
+			vi.advanceTimersByTime(5000);
+			expect(mockDataService.get.mock.calls.length).toBe(calls);
+		});
+	});
+
+	describe('button patch', () => {
+		it('should apply a backend button patch (text + disabled) from the response', () => {
+			mockDataService.post.mockReturnValue(of({ done: true, button: { text: 'Erledigt', color: 'success', disabled: true } }));
+			host.btn.set(makeButton({ action: 'api', url: '/start', text: 'Start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			fixture.detectChanges();
+
+			const btnEl = fixture.nativeElement.querySelector('xiri-buttonstyle button');
+			expect(btnEl?.textContent?.trim()).toContain('Erledigt');
+			expect(btnEl?.disabled).toBe(true);
+		});
+
+		it('should reset the button patch when the action is triggered again', () => {
+			mockDataService.post.mockReturnValueOnce(of({ done: true, button: { text: 'Erledigt', color: 'success' } }));
+			host.btn.set(makeButton({ action: 'api', url: '/start', text: 'Start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('xiri-buttonstyle button')?.textContent?.trim()).toContain('Erledigt');
+
+			// next call returns nothing special → override cleared, original label restored
+			mockDataService.post.mockReturnValue(of({ done: true }));
+			fixture.nativeElement.querySelector('xiri-buttonstyle button')?.click();
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('xiri-buttonstyle button')?.textContent?.trim()).toContain('Start');
+		});
 	});
 });

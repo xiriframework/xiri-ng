@@ -71,4 +71,14 @@
 		</div>
 	</div>
 
+	<!-- Selbst-pollender Button -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionButtonPoll">
+				<xiri-button [button]="workerButton"></xiri-button>
+				<app-go-code [code]="goButtonPollCode" title="Go: ReturnPoll (selbst-pollender Button)"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

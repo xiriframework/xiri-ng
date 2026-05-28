@@ -184,6 +184,8 @@ tableSettings = {
 
 Öffentliche Methoden: `reload()`, `searchDo(text)`, `startInlineEdit(row, column)`, `cancelInlineEdit()`, `saveInlineEdit(row, column)`, `selection` (SelectionModel), `isAllSelected()`, `masterToggle()`.
 
+**Auto-Refresh:** Liefert die Daten-Response ein `poll` (ms), lädt sich die Tabelle selbsttätig neu + zeigt Header-Indikator mit Countdown; ohne `poll` stoppt es (Backend-gesteuert, `tbl.SetPoll`). Details: `references/table.md`.
+
 ## xiri-raw-table — minimale Tabelle
 
 ```html
@@ -244,6 +246,8 @@ buttons: XiriButton[] = [
 ```
 
 `action`: `'api' | 'dialog' | 'download' | 'link' | 'back' | 'close' | 'return' | 'menu' | …`.
+
+**Selbst-pollender Button + Button-Patch:** Enthält die Antwort (api oder Dialog) `poll` (ms) + `pollUrl`, pollt der Button selbsttätig den Status und zeigt Spinner/Countdown bzw. `text` im Button, bis eine Antwort ohne `poll` kommt. Jede Antwort darf zudem ein `button`-Objekt (`text/color/icon/type/hint/disabled`) mitschicken, das den Button verändert (z. B. am Ende „Erledigt ✓"/grün/disabled). Backend: `response.NewReturnPoll(...).WithText(...).WithButton(...)`. Details: `references/components.md`.
 
 `data?: Record<string, any>` — Custom-Payload, das beim Klick mit `filterData` gemerged in den POST-Body geht (für `action: 'api'` / `'download'`). Der Backend-Builder (`xiri-go`) setzt das via `button.WithData(...)`. Beispiel: CSV-Download-Button hat `data: { _csv: true }`, das Backend liest das Flag in `LoadFilterData` und schaltet auf CSV-Output.
 

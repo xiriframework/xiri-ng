@@ -9,6 +9,8 @@ import { XiriMultiprogressComponent, XiriMultiprogressSettings } from 'projects/
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriButton, XiriButtonComponent } from 'projects/xiri-ng/src/lib/button/button.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
 	            selector: 'app-feedback',
@@ -22,7 +24,9 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 		            XiriMultiprogressComponent,
 		            MatButton,
 		            MatIcon,
-		            XiriBreadcrumbComponent
+		            XiriBreadcrumbComponent,
+		            XiriButtonComponent,
+		            GoCodePanelComponent
 	            ]
             } )
 export class FeedbackComponent {
@@ -69,6 +73,35 @@ export class FeedbackComponent {
 		icon: 'linear_scale',
 		iconColor: 'primary',
 	};
+
+	sectionButtonPoll: XiriSectionSettings = {
+		title: 'Selbst-pollender Button (Background Worker)',
+		subtitle: 'Der Button stößt einen Worker an; die Antwort liefert ein "poll"-Intervall + "pollUrl". Der Button fragt den Status selbsttätig ab und zeigt Spinner + Countdown IM Button, bis der Worker fertig ist (Antwort ohne "poll") — dann Erfolgs-Snackbar.',
+		icon: 'sync',
+		iconColor: 'primary',
+	};
+
+	workerButton: XiriButton = {
+		text: 'Worker starten',
+		type: 'raised',
+		action: 'api',
+		url: 'Test/Worker/Start',
+		color: 'primary',
+	};
+
+	goButtonPollCode = `// Start-Handler: Worker anstoßen, Poll-Response liefern
+return wc.Component(response.NewReturnPoll(
+    statusUrl.PrintPrefix(), 2000,
+).WithMessage("Worker gestartet", response.MessageInfo))
+
+// Status-Handler (GET, vom Button gepollt):
+if worker.Running() {
+    return wc.Component(response.NewReturnPoll(statusUrl.PrintPrefix(), 2000))
+}
+// fertig → kein poll → Button stoppt + ändert sich (Text/Farbe, optional .Disable())
+return wc.Component(response.NewReturnSuccess("Worker fertig").
+    WithButton(response.NewButtonPatch().
+        WithText("Erledigt ✓").WithColor("success")))`;
 
 	multiprogressSettings1: XiriMultiprogressSettings = {
 		header: 'Storage Usage',

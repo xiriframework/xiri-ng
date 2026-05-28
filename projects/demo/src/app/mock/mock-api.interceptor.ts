@@ -76,6 +76,19 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getWorkerTableData() } ) ).pipe( delay( 200 ) );
 	}
 
+	// Self-polling button demo: the start call returns a poll response with a status URL;
+	// the button then polls the status endpoint until it reports completion (no poll).
+	if ( req.url.includes( 'Test/Worker/Start' ) ) {
+		buttonWorkerTick = 0;
+		return of( new HttpResponse( { status: 200, body: {
+			done: true, poll: 2000, pollUrl: 'Test/Worker/Status', text: 'läuft… 0 %',
+			message: 'Worker gestartet', messageType: 'info',
+		} } ) ).pipe( delay( 200 ) );
+	}
+	if ( req.url.includes( 'Test/Worker/Status' ) ) {
+		return of( new HttpResponse( { status: 200, body: getButtonWorkerStatus() } ) ).pipe( delay( 200 ) );
+	}
+
 	// Table data endpoints for Test/Test/Home
 	if ( req.url.includes( 'Test/Test/Table1Data' ) ) {
 		return of( new HttpResponse( { status: 200, body: getTable1Data( req.body ) } ) );
@@ -560,6 +573,25 @@ function getWorkerTableData(): any {
 		workerTick = 0; // reset so the manual reload button restarts the demo
 	}
 	return body;
+}
+
+// Self-polling button: status endpoint that reports "running" for a few ticks, then "done".
+// Only the final response carries a message (so polling ticks don't spam snackbars).
+let buttonWorkerTick = 0;
+const buttonWorkerTotal = 3;
+
+function getButtonWorkerStatus(): any {
+	buttonWorkerTick++;
+	if ( buttonWorkerTick < buttonWorkerTotal ) {
+		const pct = Math.round( ( buttonWorkerTick / buttonWorkerTotal ) * 100 );
+		return { done: true, poll: 2000, pollUrl: 'Test/Worker/Status', text: `läuft… ${ pct } %` };
+	}
+	buttonWorkerTick = 0; // reset so the button can start over
+	return {
+		done: true,
+		message: 'Worker fertig', messageType: 'success',
+		button: { text: 'Erledigt ✓', color: 'success' },
+	};
 }
 
 function getServerTableData( body: any ): any {

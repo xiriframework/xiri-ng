@@ -1,21 +1,21 @@
 @switch (button().action) {
 	@case ('link') {
 		<a [routerLink]="_url()" [href]="_url()" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()"></xiri-buttonstyle>
+			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 		</a>
 	}
 	@case ('href') {
 		<a [href]="_url()" [target]="button().target" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()"></xiri-buttonstyle>
+			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 		</a>
 	}
 	@case ('menu') {
 		<button mat-icon-button [matMenuTriggerFor]="menuRef"
-		        [class]="button().color || 'primary'"
+		        [class]="displayButton().color || 'primary'"
 		        [matTooltip]="button().hint"
 		        [matTooltipDisabled]="!button().hint"
 		        (click)="$event.stopPropagation()">
-			<mat-icon>{{ button().icon }}</mat-icon>
+			<mat-icon>{{ displayButton().icon }}</mat-icon>
 		</button>
 		<mat-menu #menuRef="matMenu">
 			@for (item of button().menuItems; track item) {
@@ -49,6 +49,6 @@
 		</mat-menu>
 	}
 	@default {
-		<xiri-buttonstyle [button]="button()" [disabled]="_disabled()" [loading]="loading()" (click)="clicked($event)"></xiri-buttonstyle>
+		<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()" (click)="clicked($event)"></xiri-buttonstyle>
 	}
 }

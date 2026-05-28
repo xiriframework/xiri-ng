@@ -2,3 +2,11 @@ mat-spinner {
 	display: inline-block;
 	--mat-progress-spinner-active-indicator-color: currentColor;
 }
+
+.poll-countdown {
+	display:      inline-block;
+	margin-left:  6px;
+	font-variant-numeric: tabular-nums;
+	font-size:    0.85em;
+	opacity:      0.9;
+}
