@@ -221,7 +221,7 @@ open() {
 }
 ```
 
-`type`: `'form' | 'data' | 'question' | 'waiting' | 'table'`.
+`type`: `'form' | 'data' | 'question' | 'waiting' | 'table' | 'component'`. Bei `'component'` rendert der Dialog eine beliebige Komponente (z. B. `expansion`) aus dem Backend-`content` via `xiri-dyncomponent` (Backend: `dialog.NewDialogComponent`). Details + Hinweis zum zirkulären Import → `references/components.md`.
 
 ## xiri-button / xiri-buttonline
 

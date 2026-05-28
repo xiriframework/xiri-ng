@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal, Type } from '@angular/core';
+import { NgComponentOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	MAT_DIALOG_DATA,
@@ -31,7 +32,7 @@ export interface XiriDialogSettings {
 	url?: string
 	size?: XiriDialogSize | string
 
-	type: "form" | "data" | "question" | "waiting" | "table"
+	type: "form" | "data" | "question" | "waiting" | "table" | "component"
 	data?: any
 	filter?: any
 }
@@ -54,6 +55,7 @@ const DIALOG_SIZE_MAP: Record<string, string> = {
 	                       MatProgressSpinner,
 	                       XiriRawTableComponent,
 	                       XiriFormFieldsComponent,
+	                       NgComponentOutlet,
 	                       XiriErrorComponent,
 	                       XiriDoneComponent,
 	                       MatDivider,
@@ -79,6 +81,9 @@ export class XiriDialogComponent implements OnDestroy {
 	private downloadService = inject( XiriDownloadService );
 	
 	public formFields = signal<XiriFormField[]>( null );
+	public componentData = signal<any>( null );
+	// Dynamisch nachgeladene XiriDynComponentComponent (vermeidet zirkulären Import dialog -> dyncomponent)
+	public dynComponentType = signal<Type<unknown>>( null );
 	public loading = signal<boolean>( true );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
@@ -209,6 +214,14 @@ export class XiriDialogComponent implements OnDestroy {
 			} else if ( this.type() == 'table' ) {
 				this.rawTable = inFields;
 				formData = [];
+			} else if ( this.type() == 'component' ) {
+				this.componentData.set( inFields );
+				this.formValid.set( true );
+				formData = null;
+				// dyncomponent lazy laden, um den zirkulären Import zu vermeiden
+				import( '../dyncomponent/dyncomponent.component' ).then(
+					m => this.dynComponentType.set( m.XiriDynComponentComponent )
+				);
 			} else {
 				this.formValid.set( true );
 				formData = inFields;

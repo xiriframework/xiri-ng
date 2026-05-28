@@ -34,6 +34,12 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getLoginTestPage() } ) );
 	}
 
+	// Dialog of type 'component': renders an arbitrary core.Component (here: expansion) as dialog content.
+	// Mirrors the backend flow of dialog.NewDialogComponent(...) -> GET returns {type:'component', content:{...}}.
+	if ( req.url.includes( 'Test/Test/DialogComponent' ) ) {
+		return of( new HttpResponse( { status: 200, body: getDialogComponentResponse() } ) );
+	}
+
 	if ( req.url.includes( 'Test/Test/Dialogs' ) ) {
 		return of( new HttpResponse( { status: 200, body: getDialogsPage() } ) );
 	}
@@ -249,10 +255,64 @@ function getDialogsPage(): any {
 						{ text: 'DialogTable (sm)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogTable', size: 'sm' },
 						{ text: 'DialogForm (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogForm', size: 'lg' },
 						{ text: 'DialogWaiting (xl)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogWaiting/0', size: 'xl' },
-						{ text: 'DialogDelete (full)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete', size: 'full' }
+						{ text: 'DialogDelete (full)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete', size: 'full' },
+						{ text: 'DialogComponent (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogComponent', size: 'lg' }
 					]
 				}
 			}
+		]
+	};
+}
+
+// Dialog content for the 'component' dialog type: an expansion accordion with three
+// independently collapsible panels (read-only detail view). The `content` object is exactly
+// what core.Component.Print() produces on the backend ({type, display, data}).
+function getDialogComponentResponse(): any {
+	const addressTable = ( name: string, street: string, city: string ) =>
+		`<table style="width:100%;border-collapse:collapse">
+			<tr><td style="padding:4px 8px;color:#888">Name</td><td style="padding:4px 8px">${ name }</td></tr>
+			<tr><td style="padding:4px 8px;color:#888">Street</td><td style="padding:4px 8px">${ street }</td></tr>
+			<tr><td style="padding:4px 8px;color:#888">City</td><td style="padding:4px 8px">${ city }</td></tr>
+		</table>`;
+
+	return {
+		header: 'Order #4711 — Details',
+		type: 'component',
+		content: {
+			type: 'expansion',
+			display: null,
+			data: {
+				multi: true,
+				panels: [
+					{
+						title: 'Delivery Address',
+						icon: 'local_shipping',
+						expanded: true,
+						data: [ { type: 'html', data: { html: addressTable( 'Jane Doe', 'Main Street 1', '1010 Vienna' ) } } ]
+					},
+					{
+						title: 'Billing Address',
+						icon: 'receipt_long',
+						expanded: false,
+						data: [ { type: 'html', data: { html: addressTable( 'ACME GmbH', 'Industrial Park 7', '4020 Linz' ) } } ]
+					},
+					{
+						title: 'Order Items',
+						icon: 'inventory_2',
+						expanded: false,
+						data: [ { type: 'html', data: {
+							html: `<table style="width:100%;border-collapse:collapse">
+								<tr><th style="text-align:left;padding:4px 8px">Item</th><th style="text-align:right;padding:4px 8px">Qty</th></tr>
+								<tr><td style="padding:4px 8px">Widget A</td><td style="text-align:right;padding:4px 8px">3</td></tr>
+								<tr><td style="padding:4px 8px">Widget B</td><td style="text-align:right;padding:4px 8px">1</td></tr>
+							</table>`
+						} } ]
+					}
+				]
+			}
+		},
+		buttons: [
+			{ text: 'Close', type: 'raised', action: 'close', color: 'primary' }
 		]
 	};
 }

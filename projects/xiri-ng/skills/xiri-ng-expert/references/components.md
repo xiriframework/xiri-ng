@@ -32,7 +32,7 @@ type XiriDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 interface XiriDialogSettings {
   url?: string;
   size?: XiriDialogSize | string;                             // Token oder rohes CSS, Default 'md' (600px)
-  type: 'form' | 'data' | 'question' | 'waiting' | 'table';
+  type: 'form' | 'data' | 'question' | 'waiting' | 'table' | 'component';
   data?: any;
   filter?: any;
 }
@@ -41,6 +41,8 @@ interface XiriDialogSettings {
 Größen-Tokens (Desktop): `sm`=400px, `md`=600px, `lg`=900px, `xl`=1200px, `full`=95vw (mit `xiri-dialog-full` Panel-Class, hebt MatDialogs `max-width: 80vw` auf). Mobile-Breakpoints (XSmall/Small) ignorieren `size` und nutzen `90vw`. Unbekannte Werte werden als rohes CSS durchgereicht (Backward-Compat). Im Backend bevorzugt typsicher via `dialog.WithSize(dialog.SizeLg)`.
 
 Bei `type: 'table'` wird der Backend-`content` (mit `data` + `fields`) direkt als `XiriRawTableSettings` an die eingebettete `xiri-raw-table` durchgereicht. Optionales `showHeader: true` im content (Backend: `dialog.Dialog.WithTableHeader()`) aktiviert die Spalten-Header-Zeile — Default aus.
+
+Bei `type: 'component'` ist der Backend-`content` das `{type, display, data}`-JSON einer beliebigen `core.Component` (z. B. `expansion`); es wird über den generischen `xiri-dyncomponent` gerendert (Backend: `dialog.NewDialogComponent(header, component)`). Wichtig: `XiriDialogComponent` importiert `XiriDynComponentComponent` **nicht statisch** (das ergäbe einen zirkulären Import `dialog → dyncomponent → button → dialog`, der die Unit-Tests bricht). Stattdessen wird die Komponente per `NgComponentOutlet` + **dynamischem** `import('../dyncomponent/dyncomponent.component')` lazy geladen. Typische Verwendung: read-only Detail-/Info-Ansichten (mehrere aufklappbare Panels via `expansion`) — der Dialog hat i. d. R. nur einen Close-Button, keinen Submit.
 
 ### xiri-query
 

@@ -12,6 +12,10 @@
 				                  [check]="checkSubject.asObservable()"></xiri-form-fields>
 			}
 		}
+		@if (componentData() !== null && dynComponentType() !== null) {
+			<ng-container [ngComponentOutlet]="dynComponentType()"
+			              [ngComponentOutletInputs]="{ data: componentData() }"></ng-container>
+		}
 		@if (error()) {
 			<xiri-error class="error" [text]="error()"></xiri-error>
 		}
