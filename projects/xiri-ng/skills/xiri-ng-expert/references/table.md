@@ -161,9 +161,27 @@ export interface XiriTableField {
 
   editable?: boolean;
   editableOptions?: { value: string; label: string; color?: string }[];
-  editableOptionsUrl?: string;
+  editableOptionsUrl?: string;          // GET {url}?id&field — lädt Liste einmalig beim Edit-Start
+  editableOptionsSearch?: boolean;      // Suchfeld im Inline-Select (client-seitiges Filtern)
+  editableSearchUrl?: string;           // server-seitige Suche: POST {id, field, search} -> [{value,label,color?}]
 }
 ```
+
+### Inline-Edit-Select mit Suche
+
+Inline-Select-Spalten (Einfach-Select **und** Chips) können ein Suchfeld bekommen — über
+`ngx-mat-select-search` im Dropdown. Zwei Modi, pro Feld wählbar, kombinierbar mit statischen
+`editableOptions`:
+
+- **Client-seitig** — `editableOptionsSearch: true`: filtert die vorhandene Liste (`editableOptions`
+  bzw. die per `editableOptionsUrl` geladene) lokal nach Label.
+- **Server-seitig** — `editableSearchUrl: '...'`: pro (debounced, 200 ms) Tastendruck POSTet die
+  Tabelle `{ id, field, search }` an die URL und rendert das zurückgegebene
+  `[{ value, label, color? }]`. Optional `editableOptions` als Initial-Optionen vor dem Tippen.
+
+Der aktuell gewählte Wert (bzw. die gewählten Chips) bleibt im Dropdown stets sichtbar, auch
+wenn er nicht im aktiven Suchergebnis enthalten ist. Such-State und -Subscription leben pro
+Edit-Vorgang im `XiriTableInlineEditService` (Reset bei Save/Cancel).
 
 ### Tree-Modus (Hierarchie mit Einrückung + Expand/Collapse)
 
@@ -233,7 +251,7 @@ data: [
 
 CSS-Klasse pro Chip: `.xiri-chip-display.<color>` (z. B. `.xiri-chip-display.red`). Theme-Farben (`primary`/`accent`/`warn`/…) und Extended-Farben (`red`/`green`/`yellow`/`gray`/…) werden vom Theming bereitgestellt.
 
-**Editierbar (Multi-Select-Chips):** zusätzlich `editable: true` + `editableOptions` (oder `editableOptionsUrl`) auf dem Field — der Inline-Editor öffnet einen Multi-Select. Der Cell-Wert beim Edit-Save ist das Array der ausgewählten Labels.
+**Editierbar (Multi-Select-Chips):** zusätzlich `editable: true` + `editableOptions` (oder `editableOptionsUrl`) auf dem Field — der Inline-Editor öffnet einen Multi-Select. Der Cell-Wert beim Edit-Save ist das Array der ausgewählten Labels. Auch hier ist eine Suche möglich (`editableOptionsSearch` bzw. `editableSearchUrl`, siehe oben).
 
 **Backend-Pendant in xiri-go:** `b.ChipsField(id, name, accessor)` wo `accessor func(T) []table.Chip` (siehe `xiri-go-expert references/table-builder.md`).
 

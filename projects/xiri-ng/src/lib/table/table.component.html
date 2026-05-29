@@ -207,6 +207,12 @@
 													            (selectionChange)="onChipsSelectionChange(row, column, $event.value)"
 													            (keydown)="onInlineEditKeydown($event, row, column)"
 													            (openedChange)="!$event && saveInlineEdit(row, column)">
+														@if (column.editableOptionsSearch || column.editableSearchUrl) {
+															<mat-option>
+																<ngx-mat-select-search [formControl]="inlineSearchControl"
+																                       [searching]="inlineSearching()"></ngx-mat-select-search>
+															</mat-option>
+														}
 														@for (opt of getEditableOptions(column); track opt.value) {
 															<mat-option [value]="opt.value">{{ opt.label }}</mat-option>
 														}
@@ -240,7 +246,7 @@
 										@if (isSaving(row, column.id)) {
 											<mat-spinner diameter="20"></mat-spinner>
 										} @else if (column.editable && options.editUrl && isEditing(row, column.id)) {
-											@if (column.editableOptions || column.editableOptionsUrl) {
+											@if (column.editableOptions || column.editableOptionsUrl || column.editableSearchUrl) {
 												@if (editableOptionsLoading()) {
 													<mat-spinner diameter="20"></mat-spinner>
 												} @else {
@@ -248,6 +254,12 @@
 														<mat-select [(ngModel)]="row[column.id]"
 														            (keydown)="onInlineEditKeydown($event, row, column)"
 														            (openedChange)="!$event && saveInlineEdit(row, column)">
+															@if (column.editableOptionsSearch || column.editableSearchUrl) {
+																<mat-option>
+																	<ngx-mat-select-search [formControl]="inlineSearchControl"
+																	                       [searching]="inlineSearching()"></ngx-mat-select-search>
+																</mat-option>
+															}
 															@for (opt of getEditableOptions(column); track opt.value) {
 																<mat-option [value]="opt.value">{{ opt.label }}</mat-option>
 															}

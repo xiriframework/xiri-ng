@@ -1,9 +1,12 @@
 import { afterNextRender, inject, Injectable, Injector, signal } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriTableField } from '../raw-table/tabefield.interface';
+
+type EditableOption = { value: string; label: string; color?: string };
 
 
 @Injectable()
@@ -16,11 +19,19 @@ export class XiriTableInlineEditService {
 	editingCell = signal<{ row: any; field: string } | null>( null );
 	editingChipsValues = signal<string[]>( [] );
 	editableOptionsLoading = signal( false );
-	loadedEditableOptions = signal<{ value: string; label: string; color?: string }[]>( [] );
+	loadedEditableOptions = signal<EditableOption[]>( [] );
 	savingCell = signal<{ row: any; field: string } | null>( null );
+
+	// Inline-edit select search (client- and server-side)
+	searchControl = new FormControl<string>( '', { nonNullable: true } );
+	searching = signal( false );
+	displayedOptions = signal<EditableOption[]>( [] );
 
 	private editingOriginalValue: any = null;
 	private editableOptionsSub: Subscription | null = null;
+	private optionCache = new Map<string, EditableOption>();
+	private searchSub: Subscription | null = null;
+	private searchReqSub: Subscription | null = null;
 
 	private getEditUrl: () => string;
 	private getDisplayedColumns: () => XiriTableField[];
@@ -78,6 +89,7 @@ export class XiriTableInlineEditService {
 						} ) );
 					}
 					this.editableOptionsSub = null;
+					this.initSearch( column, row );
 					this.focus();
 				},
 				error: () => {
@@ -88,8 +100,73 @@ export class XiriTableInlineEditService {
 				}
 			} );
 		} else {
+			this.initSearch( column, row );
 			this.focus();
 		}
+	}
+
+	/** Sets up the search box + subscription for searchable inline-edit selects. */
+	private initSearch( column: XiriTableField, row: any ): void {
+		this.teardownSearch();
+		if ( !column.editableOptionsSearch && !column.editableSearchUrl )
+			return;
+		const base = this.baseOptions( column );
+		base.forEach( o => this.optionCache.set( o.value, o ) );
+		this.displayedOptions.set( base.slice() );
+		this.searchControl.setValue( '', { emitEvent: false } );
+		this.searchSub = this.searchControl.valueChanges.pipe(
+			debounceTime( 200 ),
+			takeUntil( this.abort$ )
+		).subscribe( term => this.runSearch( column, row, term ?? '' ) );
+	}
+
+	/** Runs the search: server-side POST when editableSearchUrl is set, otherwise local label filter. */
+	private runSearch( column: XiriTableField, row: any, term: string ): void {
+		const base = this.baseOptions( column );
+		if ( column.editableSearchUrl ) {
+			if ( !term ) {
+				this.searchReqSub?.unsubscribe();
+				this.searchReqSub = null;
+				this.searching.set( false );
+				this.displayedOptions.set( base.slice() );
+				return;
+			}
+			this.searching.set( true );
+			this.searchReqSub?.unsubscribe();
+			this.searchReqSub = this.dataService.post( column.editableSearchUrl, { id: row.id, field: column.id, search: term } )
+				.pipe( takeUntil( this.abort$ ) ).subscribe( {
+					next: ( result: any ) => {
+						const opts: EditableOption[] = result ?? [];
+						opts.forEach( o => this.optionCache.set( o.value, o ) );
+						this.displayedOptions.set( opts );
+						this.searching.set( false );
+						this.searchReqSub = null;
+					},
+					error: () => {
+						this.searching.set( false );
+						this.searchReqSub = null;
+					}
+				} );
+		} else {
+			const t = term.toLowerCase();
+			this.displayedOptions.set( t ? base.filter( o => o.label.toLowerCase().includes( t ) ) : base.slice() );
+		}
+	}
+
+	private teardownSearch(): void {
+		this.searchSub?.unsubscribe();
+		this.searchSub = null;
+		this.searchReqSub?.unsubscribe();
+		this.searchReqSub = null;
+		this.searching.set( false );
+		this.displayedOptions.set( [] );
+		this.optionCache.clear();
+		this.searchControl.setValue( '', { emitEvent: false } );
+	}
+
+	/** The unfiltered option list: static options on the column, or those loaded via editableOptionsUrl. */
+	private baseOptions( column: XiriTableField ): EditableOption[] {
+		return column.editableOptions ?? this.loadedEditableOptions();
 	}
 
 	cancel(): void {
@@ -103,6 +180,7 @@ export class XiriTableInlineEditService {
 		this.editableOptionsSub = null;
 		this.loadedEditableOptions.set( [] );
 		this.editableOptionsLoading.set( false );
+		this.teardownSearch();
 	}
 
 	save( row: any, column: XiriTableField ): void {
@@ -114,6 +192,7 @@ export class XiriTableInlineEditService {
 		this.editingOriginalValue = null;
 		this.loadedEditableOptions.set( [] );
 		this.editableOptionsLoading.set( false );
+		this.teardownSearch();
 
 		const unchanged = Array.isArray( newValue )
 			? JSON.stringify( newValue ) === JSON.stringify( originalValue )
@@ -216,15 +295,34 @@ export class XiriTableInlineEditService {
 		}, { injector: this.injector } );
 	}
 
-	getOptions( column: XiriTableField ): { value: string; label: string; color?: string }[] {
-		return column.editableOptions ?? this.loadedEditableOptions();
+	getOptions( column: XiriTableField ): EditableOption[] {
+		if ( !column.editableOptionsSearch && !column.editableSearchUrl )
+			return this.baseOptions( column );
+		// While searching, return the currently shown options but always keep the
+		// selected value(s) present so the trigger label stays correct even when
+		// the active search result no longer contains them.
+		const shown = this.displayedOptions().slice();
+		const present = new Set( shown.map( o => o.value ) );
+		for ( const val of this.selectedValues( column ) ) {
+			if ( !present.has( val ) )
+				shown.unshift( this.optionCache.get( val ) ?? { value: val, label: val } );
+		}
+		return shown;
+	}
+
+	/** The currently selected value(s) of the editing cell. */
+	private selectedValues( column: XiriTableField ): string[] {
+		if ( column.format === 'chips' )
+			return this.editingChipsValues();
+		const row = this.editingCell()?.row;
+		const v = row ? row[ column.id ] : null;
+		return v !== null && v !== undefined && v !== '' ? [ String( v ) ] : [];
 	}
 
 	onChipsChange( row: any, column: XiriTableField, selectedValues: string[] ): void {
 		this.editingChipsValues.set( selectedValues );
-		const opts = this.getOptions( column );
 		row[ column.id ] = selectedValues.map( val => {
-			const opt = opts.find( o => o.value === val );
+			const opt = this.optionCache.get( val ) ?? this.getOptions( column ).find( o => o.value === val );
 			return { label: opt?.label || val, color: opt?.color || '' };
 		} );
 	}

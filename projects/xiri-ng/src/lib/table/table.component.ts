@@ -48,7 +48,8 @@ import { XiriNumberService } from "../services/number.service";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatInput } from '@angular/material/input';
 import { MatFormField, MatSuffix } from '@angular/material/form-field';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -136,6 +137,8 @@ export type { XiriTableTreeSettings } from './tree.service';
 	                       MatFormField, MatSuffix,
 	                       MatInput,
 	                       FormsModule,
+	                       ReactiveFormsModule,
+	                       NgxMatSelectSearchModule,
 	                       MatCheckbox,
 	                       MatHeaderRow,
 	                       MatRow,
@@ -247,6 +250,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	get editableOptionsLoading() { return this.inlineEdit.editableOptionsLoading; }
 	get loadedEditableOptions() { return this.inlineEdit.loadedEditableOptions; }
 	get savingCell() { return this.inlineEdit.savingCell; }
+	get inlineSearchControl() { return this.inlineEdit.searchControl; }
+	get inlineSearching() { return this.inlineEdit.searching; }
 	
 	_filterData = computed( () => {
 		

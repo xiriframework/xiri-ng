@@ -14,6 +14,14 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
             } )
 export class InlineEditTableComponent {
 
+	constructor() {
+		// Seed brand/category per row so the searchable columns show initial values.
+		( this.tableSettings.data as any[] ).forEach( ( r, i ) => {
+			r.brand = this.brands[ i % this.brands.length ];
+			r.category = this.categories[ i % this.categories.length ];
+		} );
+	}
+
 	breadcrumbs: XiriBreadcrumbItem[] = [
 		{ label: 'Home', link: '/Overview', icon: 'home' },
 		{ label: 'Inline Edit Table' },
@@ -28,9 +36,13 @@ export class InlineEditTableComponent {
 
 	sectionTable: XiriSectionSettings = {
 		title: 'Inline Editing',
-		subtitle: 'Click on Product/Price for text input, Status for select dropdown, Tags for multi-select chips. ID is read-only.',
+		subtitle: 'Click on Product/Price for text input, Status for select dropdown, Tags for multi-select chips. ' +
+			'Brand has a client-side searchable list, Category a server-side searchable list. ID is read-only.',
 		icon: 'edit',
 	};
+
+	private brands = [ 'Acme', 'Globex', 'Initech', 'Umbrella', 'Stark', 'Wayne', 'Wonka', 'Soylent', 'Hooli', 'Pied Piper' ];
+	private categories = [ 'Computers', 'Peripherals', 'Storage', 'Audio', 'Accessories' ];
 
 	tableSettings: XiriTableSettings = {
 		data: [
@@ -64,7 +76,17 @@ export class InlineEditTableComponent {
 				editableOptionsUrl: 'Test/InlineEdit/Options',
 			},
 			{
+				id: 'brand', name: 'Brand', editable: true,
+				editableOptionsSearch: true,
+				editableOptions: this.brands.map( b => ( { value: b, label: b } ) ),
+			},
+			{
+				id: 'category', name: 'Category', editable: true,
+				editableSearchUrl: 'Test/InlineEdit/Search',
+			},
+			{
 				id: 'tags', name: 'Tags', format: 'chips', editable: true,
+				editableOptionsSearch: true,
 				editableOptions: [
 					{ value: 'Electronics', label: 'Electronics', color: 'primary' },
 					{ value: 'Accessories', label: 'Accessories', color: 'accent' },
@@ -85,11 +107,13 @@ export class InlineEditTableComponent {
 	};
 
 	goCode = `type ProductRow struct {
-    ID     int64
-    Name   string
-    Price  string
-    Status string
-    Tags   []string
+    ID       int64
+    Name     string
+    Price    string
+    Status   string
+    Brand    string
+    Category string
+    Tags     []string
 }
 
 func buildProductTable() *table.Table[ProductRow] {
@@ -106,6 +130,13 @@ func buildProductTable() *table.Table[ProductRow] {
             "Discontinued": "Discontinued",
             "On Sale":      "On Sale",
         })
+    // Client-side searchable list (filters the static options locally)
+    tb.TextField("brand", "Brand", func(r ProductRow) string { return r.Brand }).
+        WithEditableOptions(brandOptions).
+        WithEditableOptionsSearch(true)
+    // Server-side searchable list: POST {id, field, search} -> [{value,label,color?}]
+    tb.TextField("category", "Category", func(r ProductRow) string { return r.Category }).
+        WithEditableSearchOptionsUrl("Portal/Product/CategorySearch")
     tb.ChipsField("tags", "Tags", func(r ProductRow) []string { return r.Tags }).
         WithEditableChipOptions([]table.EditableChipOption{
             {Value: "Electronics", Label: "Electronics", Color: core.ColorPrimary},

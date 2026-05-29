@@ -115,6 +115,21 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		} ) ).pipe( delay( 1000 ) );
 	}
 
+	// Inline Edit server-side search (simulates a large remote, searchable list)
+	if ( req.url.includes( 'Test/InlineEdit/Search' ) ) {
+		const body = req.body as any;
+		const search = String( body?.search ?? '' ).toLowerCase();
+		const categories = [
+			'Computers', 'Laptops', 'Desktops', 'Monitors', 'Peripherals', 'Keyboards', 'Mice',
+			'Storage', 'SSD', 'HDD', 'Audio', 'Headphones', 'Speakers', 'Cables', 'Adapters',
+			'Networking', 'Routers', 'Webcams', 'Power', 'Accessories', 'Furniture', 'Lighting',
+		].map( c => ( { value: c, label: c } ) );
+		const filtered = search
+			? categories.filter( o => o.label.toLowerCase().includes( search ) )
+			: categories.slice( 0, 8 );
+		return of( new HttpResponse( { status: 200, body: filtered } ) ).pipe( delay( 400 ) );
+	}
+
 	// Inline Edit Save (simulates backend delay)
 	if ( req.url.includes( 'Test/InlineEdit/Save' ) ) {
 		const body = req.body as any;

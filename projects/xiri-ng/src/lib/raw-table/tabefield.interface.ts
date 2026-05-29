@@ -36,4 +36,6 @@ export interface XiriTableField {
 	editable?: boolean;
 	editableOptions?: { value: string; label: string; color?: string }[];
 	editableOptionsUrl?: string;
+	editableOptionsSearch?: boolean;
+	editableSearchUrl?: string;
 }
