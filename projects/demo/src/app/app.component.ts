@@ -59,13 +59,19 @@ export class AppComponent implements OnInit, OnDestroy {
 				icon: 'calendar_month',
 				link: 'Dates'
 			}, {
-				name: 'Select Fields',
-				icon: 'checklist',
-				link: 'Selects'
-			}, {
-				name: 'Special Fields',
-				icon: 'extension',
-				link: 'SpecialFields'
+				name: 'Advanced',
+				icon: 'tune',
+				menu: true,
+				regex: /^(Selects|SpecialFields)/,
+				sub: [ {
+					name: 'Select Fields',
+					icon: 'checklist',
+					link: 'Selects'
+				}, {
+					name: 'Special Fields',
+					icon: 'extension',
+					link: 'SpecialFields'
+				} ]
 			} ]
 		}, {
 			name: 'Tables',

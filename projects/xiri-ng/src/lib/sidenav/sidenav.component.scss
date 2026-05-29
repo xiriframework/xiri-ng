@@ -57,3 +57,7 @@
 	transition: max-height var(--xiri-duration-slow) var(--xiri-easing-standard);
 	max-height: 1000px;
 }
+
+.submenu-nested {
+	padding-left: var(--xiri-spacing-md);
+}

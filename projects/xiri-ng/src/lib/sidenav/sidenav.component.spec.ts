@@ -183,6 +183,67 @@ describe('XiriSidenavComponent', () => {
 		expect(fields[0].showSubmenu).toBe(false);
 	});
 
+	it('should expand all ancestors for a nested (third level) active link', () => {
+		const fields: XiriNavigationField[] = [
+			{
+				name: 'Forms',
+				icon: 'edit_note',
+				menu: true,
+				sub: [
+					{ name: 'Basic', icon: 'text_fields', link: '/forms/basic' },
+					{
+						name: 'Advanced',
+						icon: 'tune',
+						menu: true,
+						sub: [
+							{ name: 'Select', icon: 'checklist', link: '/forms/advanced/select' },
+							{ name: 'Special', icon: 'extension', link: '/forms/advanced/special' },
+						],
+					},
+				],
+			},
+		];
+		host.settings.set({ prefix: '/app', fields });
+		fixture.detectChanges();
+
+		routerEvents$.next(new NavigationEnd(1, '/app/forms/advanced/select', '/app/forms/advanced/select'));
+		fixture.detectChanges();
+
+		expect(fields[0].active).toBe(true);
+		expect(fields[0].showSubmenu).toBe(true);
+		expect(fields[0].sub![1].active).toBe(true);
+		expect(fields[0].sub![1].showSubmenu).toBe(true);
+		expect(fields[0].sub![1].sub![0].active).toBe(true);
+		expect(fields[0].sub![1].sub![1].active).toBe(false);
+		expect(fields[0].sub![0].active).toBe(false);
+	});
+
+	it('should compile regex for nested submenu fields', () => {
+		const fields: XiriNavigationField[] = [
+			{
+				name: 'Forms',
+				icon: 'edit_note',
+				menu: true,
+				sub: [
+					{
+						name: 'Advanced',
+						icon: 'tune',
+						menu: true,
+						path: '/forms/advanced.*',
+						sub: [
+							{ name: 'Select', icon: 'checklist', link: '/forms/advanced/select' },
+						],
+					},
+				],
+			},
+		];
+		host.settings.set({ prefix: '/app', fields });
+		fixture.detectChanges();
+
+		expect(fields[0].sub![0].regex).toBeTruthy();
+		expect(fields[0].sub![0].regex!.test('/forms/advanced/anything')).toBe(true);
+	});
+
 	it('should handle empty prefix', () => {
 		mockRouter.url = '/dashboard';
 		const fields: XiriNavigationField[] = [

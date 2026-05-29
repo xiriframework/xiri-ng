@@ -497,13 +497,15 @@ interface XiriNavigationField {
   iconSet?: string;
   extern?: string;
   active?: boolean;
-  path?: string;
-  regex?: RegExp;
-  menu?: boolean;
-  showSubmenu?: boolean;
+  path?: string;          // Regex-Quelle für Active-Match (jede Ebene)
+  regex?: RegExp;         // intern aus path kompiliert
+  menu?: boolean;         // true → aufklappbarer Knoten mit sub
+  showSubmenu?: boolean;  // Expand-Zustand, intern aus der Route abgeleitet
   sub?: XiriNavigationField[];
 }
 ```
+
+Ein Feld ist entweder **Link** (`link`), **externer Link** (`extern`) oder **aufklappbares Menü** (`menu: true` + `sub`). Sub-Einträge dürfen ihrerseits `menu: true` mit eigenem `sub` sein → **bis zu 3 Ebenen** (Top → Sub → Sub-Sub); die dritte Ebene sind Blätter (`link`/`extern`). `active`/`showSubmenu` nicht selbst setzen — die Komponente leitet sie aus der aktuellen Route ab und klappt bei einem aktiven (Tief-)Link automatisch **alle Vorfahren** auf. `path` (Regex) hebt eine Section auch bei URL-Varianten (`/x`, `/x/edit/42`) hervor und funktioniert auf jeder Ebene.
 
 ### xiri-breadcrumb
 

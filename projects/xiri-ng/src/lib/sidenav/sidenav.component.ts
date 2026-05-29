@@ -70,12 +70,7 @@ export class XiriSidenavComponent {
 				this.fields = value.fields;
 				this.prefix = value.prefix;
 
-				for ( let i = 0; i != this.fields.length; i++ ) {
-					let field = this.fields[ i ];
-
-					if ( field.path )
-						field.regex = new RegExp( '^' + field.path )
-				}
+				this.compileRegex( this.fields );
 
 				this.checkUrl( this.router.url );
 			} else {
@@ -84,46 +79,59 @@ export class XiriSidenavComponent {
 		} );
 	}
 	
+	private compileRegex( fields: XiriNavigationField[] ): void {
+
+		if ( !fields )
+			return;
+
+		for ( let i = 0; i != fields.length; i++ ) {
+			let field = fields[ i ];
+
+			if ( field.path )
+				field.regex = new RegExp( '^' + field.path );
+
+			if ( field.sub )
+				this.compileRegex( field.sub );
+		}
+	}
+
 	private checkUrl( url: string ): void {
-		
+
 		if ( !this.fields )
 			return;
-		
+
 		if ( this.prefix ) {
 			if ( url.startsWith( this.prefix ) )
 				url = url.substring( this.prefix.length );
 		}
-		
-		for ( let i = 0; i != this.fields.length; i++ ) {
-			
-			let field = this.fields[ i ];
-			
-			if ( field.menu ) {
-				
-				let found = false;
-				for ( let j = 0; j != field.sub.length; j++ ) {
-					let sub = field.sub[ j ];
-					sub.active = sub.link == url;
-					if ( sub.active || ( field.regex && field.regex.test( url ) ) ) {
-						field.active = true;
-						found = true;
-					}
-				}
-				
-				field.active = found;
-				field.showSubmenu = found;
-				
-			} else {
-				field.active = field.link == url;
-				if ( field.active )
-					continue;
 
-				if ( field.regex && field.regex.test( url ) )
-					field.active = true;
-			}
-		}
+		for ( let i = 0; i != this.fields.length; i++ )
+			this.checkField( this.fields[ i ], url );
 
 		this.cdr.markForCheck();
 	}
-	
+
+	private checkField( field: XiriNavigationField, url: string ): boolean {
+
+		const matchesSelf = ( field.link != null && field.link == url ) || ( field.regex != null && field.regex.test( url ) );
+
+		if ( field.menu ) {
+
+			let found = false;
+			if ( field.sub ) {
+				for ( let i = 0; i != field.sub.length; i++ ) {
+					if ( this.checkField( field.sub[ i ], url ) )
+						found = true;
+				}
+			}
+
+			field.active = found || matchesSelf;
+			field.showSubmenu = field.active;
+			return field.active;
+		}
+
+		field.active = matchesSelf;
+		return field.active;
+	}
+
 }

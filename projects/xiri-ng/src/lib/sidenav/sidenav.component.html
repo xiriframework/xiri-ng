@@ -31,6 +31,22 @@
 			@for (subnav of nav.sub; track subnav) {
 				@if (subnav.link) {
 					<a mat-list-item [routerLink]="subnav.link" [class.active]="subnav.active">{{ subnav.name }}</a>
+				} @else if (subnav.menu) {
+					<mat-list-item (click)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.enter)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.space)="subnav.showSubmenu = !subnav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="subnav.showSubmenu" class="parent">
+						<span matListItemTitle>{{ subnav.name }}</span>
+						<span matListItemMeta>
+							<mat-icon class="menu-button" [class.rotated]="subnav.showSubmenu">expand_more</mat-icon>
+						</span>
+					</mat-list-item>
+					<div class="submenu submenu-nested" [class.expanded]="subnav.showSubmenu">
+						@for (subsubnav of subnav.sub; track subsubnav) {
+							@if (subsubnav.link) {
+								<a mat-list-item [routerLink]="subsubnav.link" [class.active]="subsubnav.active">{{ subsubnav.name }}</a>
+							} @else if (subsubnav.extern) {
+								<a mat-list-item [href]="subsubnav.extern">{{ subsubnav.name }}</a>
+							}
+						}
+					</div>
 				} @else if (subnav.extern) {
 					<a mat-list-item [href]="subnav.extern">{{ subnav.name }}</a>
 				}
