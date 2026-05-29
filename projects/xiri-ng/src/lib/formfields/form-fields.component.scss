@@ -142,6 +142,17 @@
 		}
 	}
 
+	.question {
+		align-items: center;
+
+		.left mat-icon {
+			height:      auto;
+			width:       auto;
+			line-height: 1;
+			overflow:    visible;
+		}
+	}
+
 	.form-field-button {
 		margin-left: 12px;
 		margin-right: 12px;

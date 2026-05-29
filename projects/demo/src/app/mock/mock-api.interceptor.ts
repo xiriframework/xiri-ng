@@ -1,6 +1,9 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { delay, of, throwError } from 'rxjs';
 
+// Poll-Zähler für den Waiting-Dialog: die Demo simuliert einen Job, der nach einigen Polls fertig ist.
+let dialogWaitingPolls = 0;
+
 export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Only intercept API calls
@@ -38,6 +41,45 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	// Mirrors the backend flow of dialog.NewDialogComponent(...) -> GET returns {type:'component', content:{...}}.
 	if ( req.url.includes( 'Test/Test/DialogComponent' ) ) {
 		return of( new HttpResponse( { status: 200, body: getDialogComponentResponse() } ) );
+	}
+
+	// DialogForm: a standard edit form. Submit (POST) simulates a short save and completes.
+	if ( req.url.includes( 'Test/Test/DialogForm' ) ) {
+		if ( req.method === 'POST' )
+			return of( new HttpResponse( { status: 200, body: { done: true } } ) ).pipe( delay( 800 ) );
+		return of( new HttpResponse( { status: 200, body: getDialogFormResponse() } ) );
+	}
+
+	// DialogLoading: form whose submit takes ~15s — showcases the in-dialog loading state
+	// (form stays visible but greyed out, spinner replaces the action buttons).
+	if ( req.url.includes( 'Test/Test/DialogLoading' ) ) {
+		if ( req.method === 'POST' )
+			return of( new HttpResponse( { status: 200, body: { done: true } } ) ).pipe( delay( 15000 ) );
+		return of( new HttpResponse( { status: 200, body: getDialogLoadingResponse() } ) );
+	}
+
+	// DialogTable: a read-only table rendered inside a dialog.
+	if ( req.url.includes( 'Test/Test/DialogTable' ) ) {
+		return of( new HttpResponse( { status: 200, body: getDialogTableResponse() } ) );
+	}
+
+	// DialogDelete: a confirm (question) dialog. Confirm (POST) simulates the delete and completes.
+	if ( req.url.includes( 'Test/Test/DialogDelete' ) ) {
+		if ( req.method === 'POST' )
+			return of( new HttpResponse( { status: 200, body: { done: true } } ) ).pipe( delay( 800 ) );
+		return of( new HttpResponse( { status: 200, body: getDialogDeleteResponse() } ) );
+	}
+
+	// DialogWaiting: a long-running job. Opening (GET .../0) shows a spinner; the dialog then
+	// polls (GET .../poll) on the interval until the job reports done (after a few polls).
+	if ( req.url.includes( 'Test/Test/DialogWaiting' ) ) {
+		if ( req.url.includes( '/poll' ) ) {
+			dialogWaitingPolls++;
+			const finished = dialogWaitingPolls >= 3;
+			return of( new HttpResponse( { status: 200, body: finished ? { done: true, url: 'Test/Test/Dialogs' } : { done: false } } ) ).pipe( delay( 1200 ) );
+		}
+		dialogWaitingPolls = 0;
+		return of( new HttpResponse( { status: 200, body: getDialogWaitingResponse() } ) );
 	}
 
 	if ( req.url.includes( 'Test/Test/Dialogs' ) ) {
@@ -291,7 +333,8 @@ function getDialogsPage(): any {
 						{ text: 'DialogForm (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogForm', size: 'lg' },
 						{ text: 'DialogWaiting (xl)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogWaiting/0', size: 'xl' },
 						{ text: 'DialogDelete (full)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete', size: 'full' },
-						{ text: 'DialogComponent (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogComponent', size: 'lg' }
+						{ text: 'DialogComponent (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogComponent', size: 'lg' },
+						{ text: 'DialogLoading (15s)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogLoading', size: 'md' }
 					]
 				}
 			}
@@ -349,6 +392,104 @@ function getDialogComponentResponse(): any {
 		buttons: [
 			{ text: 'Close', type: 'raised', action: 'close', color: 'primary' }
 		]
+	};
+}
+
+// Dialog content for the 'form' dialog type: a typical edit form. The submit button uses an
+// unhandled action ('save'), so clickButton() POSTs the form values to the dialog url.
+function getDialogFormResponse(): any {
+	return {
+		header: 'Kontakt bearbeiten',
+		type: 'form',
+		url: 'Test/Test/DialogForm',
+		model: { name: 'Jane Doe', email: 'jane@example.com', role: 2, active: true },
+		fields: [
+			{ id: 'name', type: 'text', name: 'Name', required: true },
+			{ id: 'email', type: 'text', subtype: 'email', name: 'E-Mail' },
+			{ id: 'role', type: 'select', name: 'Rolle', search: false, list: [
+				{ id: 1, name: 'Admin' }, { id: 2, name: 'User' }, { id: 3, name: 'Gast' }
+			] },
+			{ id: 'note', type: 'textarea', name: 'Notiz', rows: 3 },
+			{ id: 'active', type: 'bool', name: 'Aktiv' }
+		],
+		buttons: [
+			{ text: 'Abbrechen', type: 'basic', action: 'close' },
+			{ text: 'Speichern', type: 'raised', action: 'save', default: true, color: 'primary' }
+		]
+	};
+}
+
+// Dialog content that demonstrates the in-dialog loading state: the POST handler delays ~15s,
+// during which the form is greyed out and a spinner replaces the action buttons.
+function getDialogLoadingResponse(): any {
+	return {
+		header: 'Langer Vorgang (≈15 s)',
+		type: 'form',
+		url: 'Test/Test/DialogLoading',
+		fields: [
+			{ id: 'info', type: 'info', value: 'Beim Absenden wird ein Server-Vorgang von etwa 15 Sekunden simuliert. Währenddessen bleibt das Formular sichtbar (ausgegraut) und in der Button-Zeile erscheint ein Spinner anstelle der Buttons.' },
+			{ id: 'comment', type: 'text', name: 'Kommentar', value: 'Demo' }
+		],
+		buttons: [
+			{ text: 'Abbrechen', type: 'basic', action: 'close' },
+			{ text: 'Absenden (≈15 s)', type: 'raised', action: 'submit', default: true, color: 'primary' }
+		]
+	};
+}
+
+// Dialog content for the 'table' dialog type: a read-only XiriRawTable.
+function getDialogTableResponse(): any {
+	return {
+		header: 'Bestellpositionen — #4711',
+		type: 'table',
+		content: {
+			showHeader: true,
+			fields: [
+				{ id: 'item', name: 'item', header: 'Artikel' },
+				{ id: 'qty', name: 'qty', header: 'Menge', align: 'right' },
+				{ id: 'price', name: 'price', header: 'Einzelpreis', align: 'right' }
+			],
+			data: [
+				{ item: 'Widget A', qty: 3, price: '€ 29,90' },
+				{ item: 'Widget B', qty: 1, price: '€ 149,00' },
+				{ item: 'Versand', qty: 1, price: '€ 5,90' }
+			]
+		},
+		buttons: [
+			{ text: 'Schließen', type: 'raised', action: 'close', color: 'primary' }
+		]
+	};
+}
+
+// Dialog content for the 'question' dialog type: a confirm/delete prompt. The confirm button
+// uses an unhandled action ('delete'), so clickButton() POSTs to the dialog url.
+function getDialogDeleteResponse(): any {
+	return {
+		header: 'Eintrag löschen',
+		type: 'question',
+		url: 'Test/Test/DialogDelete',
+		content: {
+			icon: 'warning',
+			iconColor: 'warn',
+			value: 'Möchten Sie „Order #4711" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.'
+		},
+		buttons: [
+			{ text: 'Abbrechen', type: 'basic', action: 'close' },
+			{ text: 'Löschen', type: 'raised', action: 'delete', default: true, color: 'warn' }
+		]
+	};
+}
+
+// Dialog content for the 'waiting' dialog type: a spinner with status text. `url` points to the
+// poll endpoint and `time` is the poll interval; the dialog GET-polls until the job is done.
+function getDialogWaitingResponse(): any {
+	return {
+		header: 'Bericht wird erstellt',
+		type: 'waiting',
+		url: 'Test/Test/DialogWaiting/poll',
+		time: 1200,
+		content: { text: 'Der Bericht wird generiert, bitte warten…' },
+		buttons: []
 	};
 }
 

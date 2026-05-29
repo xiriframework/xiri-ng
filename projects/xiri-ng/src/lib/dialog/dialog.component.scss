@@ -43,10 +43,22 @@ mat-dialog-actions {
 	&.one {
 		justify-content: end;
 	}
+
+	// Right-aligned like the primary button; no vertical margin so the actions bar keeps the
+	// same height as when it shows buttons (overrides the global mat-spinner margin).
+	.actions-spinner {
+		margin: 0 0 0 auto;
+	}
 }
 
 mat-dialog-content {
 	min-height: 4rem;
+
+	// Higher specificity than Material's .mat-mdc-dialog-content, otherwise the bottom padding
+	// is overridden to 0 and the content sits flush against the divider/action bar.
+	&.mat-mdc-dialog-content {
+		padding-bottom: var(--xiri-spacing-md);
+	}
 
 	> * {
 		animation: fadeIn var(--xiri-duration-fast, 150ms) var(--xiri-easing-standard, cubic-bezier(0.4, 0, 0.2, 1));
