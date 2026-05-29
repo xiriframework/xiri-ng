@@ -88,6 +88,51 @@ export class DashboardComponent {
 }
 ```
 
+## Start a new project (full stack)
+
+A Xiri app is two halves: a **xiri-go** backend that emits JSON, and this **xiri-ng** frontend
+that renders it. The whole frontend is usually a single "DynPage" route — every URL fetches
+the matching API endpoint and renders the response. Three wiring steps:
+
+**1. Providers** (`main.ts`) — services + a wildcard route to one DynPage component:
+
+```typescript
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter, withRouterConfig } from '@angular/router';
+import { provideXiriServices } from '@xiriframework/xiri-ng';
+import { AppComponent } from './app/app.component';
+import { DynpageComponent } from './app/dynpage.component'; // see "Dynamic Pages" below
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideHttpClient(),
+    provideXiriServices({ api: '/api/' }),
+    // onSameUrlNavigation:'reload' makes refresh:"page" / navigation reload the DynPage
+    provideRouter([ { path: '**', component: DynpageComponent } ],
+      withRouterConfig({ onSameUrlNavigation: 'reload' })),
+  ]
+});
+```
+
+**2. Proxy** (`proxy.conf.json`, referenced from `angular.json` `serve.options.proxyConfig`) — forward `/api` to your xiri-go server:
+
+```json
+{ "/api": { "target": "http://localhost:8080", "secure": false } }
+```
+
+**3. DynPage component** — copy the one from [Dynamic Pages](#dynamic-pages-dynpage) below. That's the entire frontend; new screens are added purely on the backend.
+
+### Let Claude build it — install both skills
+
+The fastest way to start (without reading every API) is to install **both** bundled
+Claude Code skills, then describe the screen you want:
+
+- **`xiri-ng-expert`** — bundled in this repo ([install](#claude-code-integration--xiri-ng-expert-skill)). The Angular side: providers, `xiri-dyncomponent`, tables, forms, theming.
+- **`xiri-go-expert`** — bundled in [xiri-go](https://github.com/xiriframework/xiri-go#claude-code-integration--xiri-go-expert-skill). The Go side: component/table/form/dialog builders, responses, routing.
+
+With both active, Claude scaffolds the backend handlers and the matching frontend from one prompt.
+
 ## Component Overview
 
 ### Data Entry
@@ -195,40 +240,79 @@ URL: /users         GET /api/users
                     xiri-dyncomponent renders the page
 ```
 
-Implementation:
+Implementation — this is the **complete** DynPage component (same as the demo app). It is
+registered once on the `**` wildcard route (see [Start a new project](#start-a-new-project-full-stack)),
+and every URL in your app routes through it. There is no library-exported page component on
+purpose — copy this ~40-line component into your app and you never touch it again; new screens
+are added purely on the backend.
 
 ```typescript
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Event, NavigationEnd, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs/operators';
+import { Observable, Subscription } from 'rxjs';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { XiriDataService, XiriDynComponentComponent, XiriDynData } from '@xiriframework/xiri-ng';
+
 @Component({
+  selector: 'app-dynpage',
+  imports: [MatProgressSpinner, XiriDynComponentComponent],
   template: `
     @if (loading) { <mat-spinner diameter="30" /> }
+    @if (error) { <h1>Page not found</h1> }
     <xiri-dyncomponent [data]="data()" />
   `,
-  imports: [MatProgressSpinner, XiriDynComponentComponent]
 })
-export class DynpageComponent {
+export class DynpageComponent implements OnInit, OnDestroy {
   private dataService = inject(XiriDataService);
   private router = inject(Router);
-  data = signal<XiriDynData[] | null>(null);
+  private route = inject(ActivatedRoute);
+
   loading = true;
+  error = false;
+  bread: any = null;
+  data = signal<XiriDynData[] | null>(null);
+  private subs = new Subscription();
 
   constructor() {
-    // Re-load on every navigation
+    // Re-load on every navigation (works with onSameUrlNavigation:'reload')
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter((e: Event) => e instanceof NavigationEnd),
+      takeUntilDestroyed(),
     ).subscribe(() => this.load());
   }
 
+  ngOnInit() { this.load(); }
+
   private load() {
-    const url = this.router.url.substring(1); // strip leading /
-    this.dataService.get(url).subscribe((res: any) => {
-      this.data.set(res.data);
-      this.loading = false;
-    });
+    this.loading = true;
+    this.data.set(null);
+    this.bread = null;
+    this.error = false;
+
+    let url = this.router.url;
+    if (url.startsWith('/')) url = url.substring(1); // strip leading /
+
+    // No query params → GET; with query params → POST them as the body
+    const qp = this.route.snapshot.queryParams;
+    const call: Observable<any> = Object.keys(qp).length === 0
+      ? this.dataService.get(url)
+      : this.dataService.post(url, qp);
+
+    this.subs.add(call.subscribe({
+      next: (res: any) => { this.bread = res.bread; this.data.set(res.data); this.loading = false; },
+      error: () => { this.error = true; this.loading = false; },
+    }));
   }
+
+  ngOnDestroy() { this.subs.unsubscribe(); }
 }
 ```
 
-The backend returns `{ data: XiriDynData[] }` and `xiri-dyncomponent` renders cards, tables, forms, and any other component types automatically.
+The backend returns `{ bread?: ..., data: XiriDynData[] }` and `xiri-dyncomponent` renders
+cards, tables, forms, and any other component types automatically. (The demo app's copy lives
+at `projects/demo/src/app/dynpage/`.)
 
 ## Using with xiri-go
 

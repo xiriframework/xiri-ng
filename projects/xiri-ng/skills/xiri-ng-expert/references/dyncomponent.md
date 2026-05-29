@@ -128,3 +128,56 @@ const page: XiriDynData[] = [
 <xiri-query [settings]="qs" (change)="filter = $event"></xiri-query>
 <xiri-dyncomponent [data]="results" [filterData]="filter"/>
 ```
+
+## DynPage — der seitenweite Loader (Wildcard-Route)
+
+Es gibt **keine** Library-Page-Komponente — jede App implementiert einen kleinen
+`DynpageComponent`, der auf der `**`-Wildcard-Route hängt: jede URL → API-Call → die
+Response `{ bread?, data: XiriDynData[] }` wird via `xiri-dyncomponent` gerendert. Neue
+Screens entstehen damit rein im Backend. Standard-Implementierung (= Demo-App):
+
+```typescript
+@Component({
+  selector: 'app-dynpage',
+  imports: [MatProgressSpinner, XiriDynComponentComponent],
+  template: `
+    @if (loading) { <mat-spinner diameter="30" /> }
+    @if (error) { <h1>Page not found</h1> }
+    <xiri-dyncomponent [data]="data()" />`,
+})
+export class DynpageComponent implements OnInit, OnDestroy {
+  private dataService = inject(XiriDataService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  loading = true; error = false; bread: any = null;
+  data = signal<XiriDynData[] | null>(null);
+  private subs = new Subscription();
+
+  constructor() {
+    this.router.events.pipe(
+      filter((e: Event) => e instanceof NavigationEnd), takeUntilDestroyed(),
+    ).subscribe(() => this.load());
+  }
+  ngOnInit() { this.load(); }
+
+  private load() {
+    this.loading = true; this.data.set(null); this.bread = null; this.error = false;
+    let url = this.router.url;
+    if (url.startsWith('/')) url = url.substring(1);
+    const qp = this.route.snapshot.queryParams;
+    const call = Object.keys(qp).length === 0
+      ? this.dataService.get(url)            // ohne Query-Params → GET
+      : this.dataService.post(url, qp);      // mit Query-Params → POST (qp als Body)
+    this.subs.add(call.subscribe({
+      next: (res: any) => { this.bread = res.bread; this.data.set(res.data); this.loading = false; },
+      error: () => { this.error = true; this.loading = false; },
+    }));
+  }
+  ngOnDestroy() { this.subs.unsubscribe(); }
+}
+```
+
+Registrierung (`main.ts`): `provideRouter([{ path: '**', component: DynpageComponent }],
+withRouterConfig({ onSameUrlNavigation: 'reload' }))` — das `reload` sorgt dafür, dass
+`refresh:"page"` und Navigation auf dieselbe URL die Seite tatsächlich neu laden.
+Backend (xiri-go): `page.NewPage().Add(...).Print(ctx)` liefert genau `{ bread, data }`.

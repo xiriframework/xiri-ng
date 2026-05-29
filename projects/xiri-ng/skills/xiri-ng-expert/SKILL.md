@@ -344,6 +344,8 @@ export class OverviewComponent {
 }
 ```
 
+Für den seitenweiten **DynPage**-Loader (eine `**`-Wildcard-Route lädt jede URL → `{ bread, data }` → `xiri-dyncomponent`, inkl. GET/POST je Query-Params, bread, Loading/Error) → vollständige Standard-Implementierung in `references/dyncomponent.md` (Abschnitt „DynPage").
+
 ### 2. Form mit showWhen + Submit
 
 ```typescript
