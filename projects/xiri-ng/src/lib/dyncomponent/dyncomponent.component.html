@@ -99,7 +99,11 @@
 		}
 		@case ('infotext') {
 			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
-				<div class="infotext">{{ obj.data.text }}</div>
+				@if (obj.data.html) {
+					<div class="infotext" [innerHtml]="obj.data.text | safeHtml"></div>
+				} @else {
+					<div class="infotext">{{ obj.data.text }}</div>
+				}
 			</div>
 		}
 		@case ('html') {

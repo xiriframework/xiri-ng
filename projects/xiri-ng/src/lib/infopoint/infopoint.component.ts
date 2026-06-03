@@ -3,6 +3,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 import { XiriColor } from '../types/color.type';
+import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 
 
 export interface XiriInfopointSettings {
@@ -18,13 +19,14 @@ export interface XiriInfopointSettings {
 
 	dense?: boolean
 	compact?: boolean
+	html?: boolean
 }
 
 @Component( {
 	            selector: 'xiri-infopoint',
 	            templateUrl: './infopoint.component.html',
 	            styleUrl: './infopoint.component.scss',
-	            imports: [ RouterLink, MatCard, MatCardContent, MatIcon ],
+	            imports: [ RouterLink, MatCard, MatCardContent, MatIcon, SafehtmlPipe ],
 	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { '[class.compact]': 'compact()' }
             } )

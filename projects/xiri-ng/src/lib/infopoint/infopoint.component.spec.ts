@@ -131,6 +131,35 @@ describe( 'XiriInfopointComponent', () => {
 		expect( text ).toBeFalsy();
 	} );
 
+	it( 'should render html content when html is true', () => {
+		host.settings.set( {
+			text: '<i>kursiv</i>',
+			info: '<b>fett</b>',
+			icon: 'info',
+			iconColor: 'primary',
+			html: true
+		} );
+		fixture.detectChanges();
+
+		expect( fixture.nativeElement.querySelector( '.info b' ) ).toBeTruthy();
+		expect( fixture.nativeElement.querySelector( '.info' ).textContent.trim() ).toBe( 'fett' );
+		expect( fixture.nativeElement.querySelector( '.text i' ) ).toBeTruthy();
+		expect( fixture.nativeElement.querySelector( '.text' ).textContent.trim() ).toBe( 'kursiv' );
+	} );
+
+	it( 'should render html as literal text when html is not set', () => {
+		host.settings.set( {
+			text: 'Users',
+			info: '<b>fett</b>',
+			icon: 'info',
+			iconColor: 'primary'
+		} );
+		fixture.detectChanges();
+
+		expect( fixture.nativeElement.querySelector( '.info b' ) ).toBeFalsy();
+		expect( fixture.nativeElement.querySelector( '.info' ).textContent.trim() ).toBe( '<b>fett</b>' );
+	} );
+
 	it( 'should update when settings change', () => {
 		host.settings.set( {
 			text: 'New Text',

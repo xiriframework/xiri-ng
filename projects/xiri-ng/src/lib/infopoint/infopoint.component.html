@@ -10,9 +10,17 @@
 			</div>
 			<div class="right">
 				@if (settings().text) {
-					<div class="text">{{ settings().text }}</div>
+					@if (settings().html) {
+						<div class="text" [innerHtml]="settings().text | safeHtml"></div>
+					} @else {
+						<div class="text">{{ settings().text }}</div>
+					}
 				}
-				<div class="info">{{ settings().info }}</div>
+				@if (settings().html) {
+					<div class="info" [innerHtml]="settings().info | safeHtml"></div>
+				} @else {
+					<div class="info">{{ settings().info }}</div>
+				}
 			</div>
 		</div>
 	} @else {
@@ -27,9 +35,17 @@
 				</div>
 				<div class="right">
 					@if (settings().text) {
-						<div class="text">{{ settings().text }}</div>
+						@if (settings().html) {
+							<div class="text" [innerHtml]="settings().text | safeHtml"></div>
+						} @else {
+							<div class="text">{{ settings().text }}</div>
+						}
 					}
-					<div class="info">{{ settings().info }}</div>
+					@if (settings().html) {
+						<div class="info" [innerHtml]="settings().info | safeHtml"></div>
+					} @else {
+						<div class="info">{{ settings().info }}</div>
+					}
 				</div>
 			</mat-card-content>
 		</mat-card>
