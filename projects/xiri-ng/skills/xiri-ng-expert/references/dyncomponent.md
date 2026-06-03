@@ -83,7 +83,7 @@ export type XiriDynDataType =
 | `gantt`             | `xiri-gantt`           | `XiriGanttSettings`                  |
 | `spacer`            | vertical spacer div    | `{ size?: string }`                  |
 | `container`         | wrapper div            | `{ components: XiriDynData[] }`      |
-| `infotext`          | Text-Absatz            | `{ text: string }`                   |
+| `infotext`          | Text-Absatz            | `{ text: string, html?: boolean }`   |
 | `html`              | innerHTML (SafeHtml)   | `{ html: string }`                   |
 
 ## Custom-Rendering via TemplateRef

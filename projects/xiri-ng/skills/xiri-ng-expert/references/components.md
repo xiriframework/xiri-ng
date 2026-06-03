@@ -424,6 +424,7 @@ interface XiriInfopointSettings {
   iconColor: XiriColor;
   dense?: boolean;
   compact?: boolean;            // Skipt eigene mat-card-Hülle (nesting in xiri-card).
+  html?: boolean;               // text/info als HTML rendern (SafeHtml, opt-in).
 }
 ```
 
