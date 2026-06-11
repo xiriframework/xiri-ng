@@ -10,6 +10,7 @@ import {
 	input,
 	NgZone,
 	OnDestroy,
+	output,
 	signal,
 	viewChild,
 	ViewEncapsulation
@@ -17,6 +18,16 @@ import {
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { XiriColor } from '../types/color.type';
+
+/** Payload emitted when a chart data item (bar, slice, point, …) is clicked. */
+export interface XiriEchartsClick {
+	componentType: string;   // 'series' for a data-point click
+	seriesType: string;
+	seriesIndex: number;
+	dataIndex: number;
+	name: string;
+	value: any;
+}
 
 /**
  * `xiri-echarts-host` — shared echarts plumbing for all chart components.
@@ -49,6 +60,9 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 	headerIcon = input<string | undefined>( undefined );
 	headerIconColor = input<XiriColor | undefined>( undefined );
 	chartHeight = input<string>( '200px' );
+
+	// Emitted when a data item (bar, slice, point, …) is clicked.
+	itemClick = output<XiriEchartsClick>();
 
 	chartHostRef = viewChild.required<ElementRef<HTMLDivElement>>( 'chartHost' );
 
@@ -83,6 +97,20 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 
 		this.zone.runOutsideAngular( () => {
 			this.chart = this.echarts.init( this.chartHostRef().nativeElement );
+
+			this.chart.on( 'click', ( p: any ) => {
+				if ( p.componentType !== 'series' )
+					return;
+				this.zone.run( () => this.itemClick.emit( {
+					componentType: p.componentType,
+					seriesType: p.seriesType,
+					seriesIndex: p.seriesIndex,
+					dataIndex: p.dataIndex,
+					name: p.name,
+					value: p.value,
+				} ) );
+			} );
+
 			this.render();
 
 			this.resizeObserver = new ResizeObserver( () => this.chart?.resize() );

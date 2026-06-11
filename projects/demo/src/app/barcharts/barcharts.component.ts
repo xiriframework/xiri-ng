@@ -50,7 +50,7 @@ export class BarChartsComponent {
 
 	sectionSimple1: XiriSectionSettings = {
 		title: '1: Simple — single value per category',
-		subtitle: 'Mode: simple. Ein Wert pro Kategorie.',
+		subtitle: 'Mode: simple. Ein Wert pro Kategorie. Mon/Tue sind verlinkt (Link) — Klick navigiert zu /Overview.',
 		icon: 'calendar_view_week',
 		iconColor: 'primary',
 	};
@@ -82,8 +82,8 @@ export class BarChartsComponent {
 		yMax: 12,
 		color: 'purple',
 		bars: [
-			{ label: 'M', name: 'Monday',    value: 3 },
-			{ label: 'T', name: 'Tuesday',   value: 9 },
+			{ label: 'M', name: 'Monday',    value: 3, url: '/Overview' },
+			{ label: 'T', name: 'Tuesday',   value: 9, url: '/Overview' },
 			{ label: 'W', name: 'Wednesday', value: 5 },
 			{ label: 'T', name: 'Thursday',  value: 6 },
 			{ label: 'F', name: 'Friday',    value: 4 },
@@ -165,8 +165,9 @@ export class BarChartsComponent {
     Title("Weekly activities").
     YAxis(0, 12).
     Color(core.ColorPurple).
-    Bar("M", 3).Bar("T", 9).Bar("W", 5).
-    Bar("T", 6).Bar("F", 4).Bar("S", 1).Bar("S", 1)`;
+    Bar("M", 3).Link(xurl.NewUrl("/Overview")).
+    Bar("T", 9).Link(xurl.NewUrl("/Overview")).
+    Bar("W", 5).Bar("T", 6).Bar("F", 4).Bar("S", 1).Bar("S", 1)`;
 
 	goStackedCode = `bc := barchart.New("stacked").
     Mode(barchart.ModeStacked).

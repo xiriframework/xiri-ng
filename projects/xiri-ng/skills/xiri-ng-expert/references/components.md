@@ -712,6 +712,7 @@ interface XiriBarChartBar {
   value?: number;                     // simple
   segments?: XiriBarChartSegment[];   // stacked
   name?: string;                      // optionaler Tooltip-Name (Vollbezeichnung)
+  url?: string;                       // optional: Klick auf den Balken navigiert dorthin
 }
 
 interface XiriBarChartSegment {
@@ -724,6 +725,7 @@ interface XiriBarChartPoint {
   time: number;                       // unix milliseconds
   value: number;
   name?: string;                      // optionaler Tooltip-Name (z. B. "Repeat #3")
+  url?: string;                       // optional: Klick auf den Punkt navigiert dorthin
 }
 ```
 
@@ -732,6 +734,8 @@ interface XiriBarChartPoint {
 **Tooltip:** Pro Mode eigener Formatter. Wenn `bar.name` / `segment.name` / `point.name` gesetzt sind, erscheinen sie im Tooltip; sonst Fallback auf `label` bzw. echarts-Default. Demo-Pattern: `label: 'M', name: 'Monday'` → X-Achse zeigt "M", Tooltip zeigt "Monday".
 
 **Resize:** intern via `ResizeObserver` — kein manuelles `resize()` nötig.
+
+**Klickbare Balken:** Setzt ein `bar`/`point` ein `url`, wird der Balken klickbar — der Component fängt das `itemClick`-Event des echarts-host ab und navigiert (`Router.navigateByUrl` für interne Routen, `window.open(_, '_blank')` für `http(s)://`). Balken ohne `url` zeigen keinen Pointer-Cursor und reagieren nicht. Bei `stacked` gilt die `url` des Balkens für alle seine Segmente. Backend: `barchart.New(...).Bar("M", 3).Link(xurl.NewUrl("/day/mon"))`.
 
 **Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.
 
@@ -920,9 +924,20 @@ Internes Plumbing für alle echarts-basierten Charts. Public exportiert, falls e
 @input          headerIcon?: string;
 @input          headerIconColor?: XiriColor;
 @input          chartHeight: string = '200px';
+
+@output         itemClick: XiriEchartsClick;   // Klick auf einen Datenpunkt (Balken/Slice/…)
+
+interface XiriEchartsClick {
+  componentType: string;   // 'series' bei einem Datenpunkt-Klick
+  seriesType: string;
+  seriesIndex: number;
+  dataIndex: number;       // Index in der Datenreihe → für Lookup in den eigenen Settings
+  name: string;
+  value: any;
+}
 ```
 
-Übernimmt: Lazy `await import('echarts')`, ResizeObserver, mat-card-Hülle (mit Compact-Modus = flat), Title-Header, Error-Display. Re-render via `effect` auf `option()`.
+Übernimmt: Lazy `await import('echarts')`, ResizeObserver, mat-card-Hülle (mit Compact-Modus = flat), Title-Header, Error-Display. Re-render via `effect` auf `option()`. Registriert einen echarts-`click`-Handler und re-emittiert ihn zone-korrekt als `itemClick` (nur `componentType === 'series'`) — jeder Chart entscheidet selbst, was beim Klick passiert (z. B. `xiri-barchart` navigiert über die `url` des getroffenen Balkens).
 
 Eigenes Chart bauen:
 

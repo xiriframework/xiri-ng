@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Router } from '@angular/router';
 import { XiriColor } from '../types/color.type';
-import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
+import { XiriEchartsClick, XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
 
@@ -17,12 +18,14 @@ export interface XiriBarChartBar {
 	value?: number;
 	segments?: XiriBarChartSegment[];
 	name?: string;
+	url?: string;
 }
 
 export interface XiriBarChartPoint {
 	time: number;
 	value: number;
 	name?: string;
+	url?: string;
 }
 
 export interface XiriBarChartSettings {
@@ -41,7 +44,8 @@ export interface XiriBarChartSettings {
 		<xiri-echarts-host
 			[option]="option()"
 			[compact]="compact()"
-			[title]="settings().title">
+			[title]="settings().title"
+			(itemClick)="onItemClick($event)">
 		</xiri-echarts-host>
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +56,21 @@ export class XiriBarChartComponent {
 	mode = input<XiriBarChartMode | string>( 'simple' );
 	settings = input.required<XiriBarChartSettings>();
 
+	private router = inject( Router );
+
 	compact = computed<boolean>( () => !!this.settings().compact );
+
+	onItemClick( e: XiriEchartsClick ): void {
+		const s = this.settings();
+		const coll = this.mode() === 'heatmap' ? s.points : s.bars;
+		const url = coll?.[ e.dataIndex ]?.url;
+		if ( !url )
+			return;
+		if ( /^https?:\/\//.test( url ) )
+			window.open( url, '_blank' );
+		else
+			this.router.navigateByUrl( url );
+	}
 
 	option = computed( () => {
 		const m = this.mode();
@@ -103,7 +121,10 @@ export class XiriBarChartComponent {
 			},
 			series: [ {
 				type: 'bar',
-				data: bars.map( b => b.value ?? 0 ),
+				data: bars.map( b => ( {
+					value: b.value ?? 0,
+					itemStyle: { cursor: b.url ? 'pointer' : 'default' }
+				} ) ),
 				itemStyle: { color, borderRadius: [ 3, 3, 0, 0 ] },
 				barCategoryGap: '40%'
 			} ]
@@ -135,7 +156,7 @@ export class XiriBarChartComponent {
 					return {
 						value: seg.value,
 						name: seg.name ?? seriesNames[ i ] ?? '',
-						itemStyle: { color: resolveColor( seg.color, '#9e9e9e' ) }
+						itemStyle: { color: resolveColor( seg.color, '#9e9e9e' ), cursor: b.url ? 'pointer' : 'default' }
 					};
 				} )
 			} );
@@ -212,7 +233,10 @@ export class XiriBarChartComponent {
 				type: 'bar',
 				barMinWidth: 1,
 				barMaxWidth: 3,
-				data: points.map( p => [ p.time, p.value ] ),
+				data: points.map( p => ( {
+					value: [ p.time, p.value ],
+					itemStyle: { cursor: p.url ? 'pointer' : 'default' }
+				} ) ),
 				itemStyle: { color }
 			} ]
 		};
