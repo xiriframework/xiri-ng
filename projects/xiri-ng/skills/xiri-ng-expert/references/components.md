@@ -705,6 +705,8 @@ interface XiriBarChartSettings {
   bars?: XiriBarChartBar[];           // simple + stacked
   points?: XiriBarChartPoint[];       // heatmap
   compact?: boolean;                  // Skipt eigene mat-card-Hülle (nesting in xiri-card).
+  showValues?: boolean;               // Wert/Text-Label auf den Balken anzeigen
+  labelPosition?: 'top' | 'inside';   // Default 'top' (über), 'inside' (im Balken)
 }
 
 interface XiriBarChartBar {
@@ -713,6 +715,7 @@ interface XiriBarChartBar {
   segments?: XiriBarChartSegment[];   // stacked
   name?: string;                      // optionaler Tooltip-Name (Vollbezeichnung)
   url?: string;                       // optional: Klick auf den Balken navigiert dorthin
+  text?: string;                      // optional: überschreibt das Label (statt value), wenn showValues
 }
 
 interface XiriBarChartSegment {
@@ -736,6 +739,8 @@ interface XiriBarChartPoint {
 **Resize:** intern via `ResizeObserver` — kein manuelles `resize()` nötig.
 
 **Klickbare Balken:** Setzt ein `bar`/`point` ein `url`, wird der Balken klickbar — der Component fängt das `itemClick`-Event des echarts-host ab und navigiert (`Router.navigateByUrl` für interne Routen, `window.open(_, '_blank')` für `http(s)://`). Balken ohne `url` zeigen keinen Pointer-Cursor und reagieren nicht. Bei `stacked` gilt die `url` des Balkens für alle seine Segmente. Backend: `barchart.New(...).Bar("M", 3).Link(xurl.NewUrl("/day/mon"))`.
+
+**Wert-/Text-Labels:** `showValues: true` zeigt pro Balken ein Label (ECharts `series.label`). Default ist der `value`; `bar.text` überschreibt ihn (z. B. "8h"). `labelPosition` steuert oben (`'top'`, Default) vs. innen (`'inside'`, weißer Text). Bei `stacked` wird jedes Segment mit seinem Wert beschriftet (immer innen); `heatmap` ignoriert Labels. Backend: `barchart.New(...).ShowValues().WithLabelPosition(barchart.LabelPositionInside).Bar("M", 3).LabelText("3h")`.
 
 **Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.
 

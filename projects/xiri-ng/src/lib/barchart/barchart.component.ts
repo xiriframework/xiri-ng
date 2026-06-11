@@ -19,6 +19,7 @@ export interface XiriBarChartBar {
 	segments?: XiriBarChartSegment[];
 	name?: string;
 	url?: string;
+	text?: string;   // overrides the on-bar label (when showValues is on)
 }
 
 export interface XiriBarChartPoint {
@@ -36,6 +37,8 @@ export interface XiriBarChartSettings {
 	bars?: XiriBarChartBar[];
 	points?: XiriBarChartPoint[];
 	compact?: boolean;
+	showValues?: boolean;                  // show value/text labels on bars
+	labelPosition?: 'top' | 'inside';      // default 'top'
 }
 
 @Component( {
@@ -126,7 +129,13 @@ export class XiriBarChartComponent {
 					itemStyle: { cursor: b.url ? 'pointer' : 'default' }
 				} ) ),
 				itemStyle: { color, borderRadius: [ 3, 3, 0, 0 ] },
-				barCategoryGap: '40%'
+				barCategoryGap: '40%',
+				label: {
+					show: !!s.showValues,
+					position: s.labelPosition === 'inside' ? 'inside' : 'top',
+					color: s.labelPosition === 'inside' ? '#fff' : undefined,
+					formatter: ( p: any ) => bars[ p.dataIndex ]?.text ?? String( p.value )
+				}
 			} ]
 		};
 	}
@@ -150,6 +159,12 @@ export class XiriBarChartComponent {
 				stack: 'total',
 				name: seriesNames[ i ] || `Segment ${ i + 1 }`,
 				barCategoryGap: '40%',
+				label: {
+					show: !!s.showValues,
+					position: 'inside',
+					color: '#fff',
+					formatter: ( p: any ) => ( p.value === 0 ? '' : String( p.value ) )
+				},
 				data: bars.map( b => {
 					const seg = b.segments?.[ i ];
 					if ( !seg ) return { value: 0, itemStyle: { color: 'transparent' } };

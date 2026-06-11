@@ -56,8 +56,8 @@ export class BarChartsComponent {
 	};
 
 	sectionSimple2: XiriSectionSettings = {
-		title: '2: Simple — different range and color',
-		subtitle: 'Gleicher Mode, andere Y-Achse und Farbe.',
+		title: '2: Simple — Wert-/Text-Labels auf den Balken',
+		subtitle: 'showValues: true zeigt den Wert über jedem Balken; bar.text überschreibt ihn (Mon = "1h").',
 		icon: 'pause_circle',
 		iconColor: 'accent',
 	};
@@ -97,8 +97,10 @@ export class BarChartsComponent {
 		yMin: 0,
 		yMax: 4,
 		color: 'purple',
+		showValues: true,
+		labelPosition: 'top',
 		bars: [
-			{ label: 'M', name: 'Monday',    value: 1 },
+			{ label: 'M', name: 'Monday',    value: 1, text: '1h' },
 			{ label: 'T', name: 'Tuesday',   value: 2.9 },
 			{ label: 'W', name: 'Wednesday', value: 1.5 },
 			{ label: 'T', name: 'Thursday',  value: 2 },
