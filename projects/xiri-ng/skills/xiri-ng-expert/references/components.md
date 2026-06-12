@@ -707,6 +707,7 @@ interface XiriBarChartSettings {
   compact?: boolean;                  // Skipt eigene mat-card-Hülle (nesting in xiri-card).
   showValues?: boolean;               // Wert/Text-Label auf den Balken anzeigen
   labelPosition?: 'top' | 'inside';   // Default 'top' (über), 'inside' (im Balken)
+  xLabelRotate?: number;              // X-Achsen-Labels um N Grad drehen (-90..90), 90 = vertikal
 }
 
 interface XiriBarChartBar {
@@ -742,6 +743,8 @@ interface XiriBarChartPoint {
 
 **Wert-/Text-Labels:** `showValues: true` zeigt pro Balken ein Label (ECharts `series.label`). Default ist der `value`; `bar.text` überschreibt ihn (z. B. "8h"). `labelPosition` steuert oben (`'top'`, Default) vs. innen (`'inside'`, weißer Text). Bei `stacked` wird jedes Segment mit seinem Wert beschriftet (immer innen); `heatmap` ignoriert Labels. Backend: `barchart.New(...).ShowValues().WithLabelPosition(barchart.LabelPositionInside).Bar("M", 3).LabelText("3h")`.
 
+**X-Achsen-Label-Rotation:** `xLabelRotate` dreht die Kategorie-Beschriftung der X-Achse um N Grad (-90..90; `90` = vertikal, `60`/`45` = schräg) — für schmale Bars mit langen Labels. Intern setzt der Component `axisLabel: { rotate: N, interval: 0 }`; das `interval: 0` erzwingt die Anzeige **aller** Labels (ECharts dünnt sonst bei engen Achsen aus). Gilt für `simple` + `stacked` (in `heatmap`-Mode = Zeitachse → ignoriert). Dasselbe Feld existiert auf `XiriLineChartSettings` und `XiriHeatmapSettings` (dort dreht es die Spalten-Labels). Backend: `barchart.New(...).XLabelRotate(60)`.
+
 **Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.
 
 ### xiri-linechart
@@ -757,6 +760,7 @@ interface XiriLineChartSettings {
   yMax?: number;
   smooth?: boolean;          // alle Linien als geglättete Kurve
   compact?: boolean;
+  xLabelRotate?: number;     // X-Achsen-Labels um N Grad drehen (-90..90), 90 = vertikal
 }
 
 interface XiriLineChartLine {
@@ -767,6 +771,8 @@ interface XiriLineChartLine {
   area?: boolean;            // Fläche unter der Linie füllen
 }
 ```
+
+`xLabelRotate` dreht die X-Achsen-Labels (-90..90; `90` = vertikal) und erzwingt die Anzeige aller Labels — siehe X-Achsen-Label-Rotation bei `xiri-barchart`. Backend: `linechart.New(...).XLabelRotate(45)`.
 
 Im dyncomponent: `{ type: 'linechart', data: XiriLineChartSettings }`.
 
@@ -826,10 +832,13 @@ interface XiriHeatmapSettings {
   colorRange?: [string, string];   // CSS low → high (Default light → purple)
   showValues?: boolean;            // Werte in Zellen anzeigen
   compact?: boolean;
+  xLabelRotate?: number;           // X-/Spalten-Labels um N Grad drehen (-90..90), 90 = vertikal
 }
 
 interface XiriHeatmapCell { x: number; y: number; value: number; label?: string; }
 ```
+
+`xLabelRotate` dreht die X-/Spalten-Labels (-90..90; `90` = vertikal) — für lange Spalten-/Bereichsnamen. Backend: `heatmap.New(...).XLabelRotate(45)`.
 
 Im dyncomponent: `{ type: 'heatmap', data: XiriHeatmapSettings }`.
 

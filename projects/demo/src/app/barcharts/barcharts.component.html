@@ -46,6 +46,25 @@
 		</div>
 	</div>
 
+	<!-- 2b: Rotated x-axis labels -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionRotate">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-barchart mode="simple" [settings]="rotated60"></xiri-barchart>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-barchart mode="simple" [settings]="rotated90"></xiri-barchart>
+					</div>
+					<div class="xcol-md-4">
+						<app-go-code [code]="goRotateCode" title="Go: XLabelRotate(60)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 	<!-- 3: Stacked -->
 	<div class="xrow">
 		<div class="xcol">
@@ -90,6 +109,22 @@
 					</div>
 					<div class="xcol-md-6">
 						<app-go-code [code]="goLineCode" title="Go: linechart.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 5b: Line rotated x-axis labels -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionLineRotated">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-linechart [settings]="lineRotated"></xiri-linechart>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goLineRotatedCode" title="Go: linechart + XLabelRotate(45)"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>
@@ -169,6 +204,22 @@
 				<div class="xrow">
 					<div class="xcol">
 						<app-go-code [code]="goHeatmapCode2" title="Go: heatmap.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- 9b: Heatmap rotated x-axis labels -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionHeatmapRotated">
+				<div class="xrow">
+					<div class="xcol-md-7">
+						<xiri-heatmap [settings]="heatmapRotated"></xiri-heatmap>
+					</div>
+					<div class="xcol-md-5">
+						<app-go-code [code]="goHeatmapRotatedCode" title="Go: heatmap + XLabelRotate(45)"></app-go-code>
 					</div>
 				</div>
 			</xiri-section>

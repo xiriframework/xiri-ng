@@ -20,6 +20,7 @@ export interface XiriLineChartSettings {
 	yMax?: number;
 	smooth?: boolean;
 	compact?: boolean;
+	xLabelRotate?: number;   // rotate x-axis labels by degrees (-90..90), 90 = vertical
 }
 
 @Component( {
@@ -87,7 +88,8 @@ export class XiriLineChartComponent {
 				data: labels,
 				boundaryGap: false,
 				axisLine: { show: false },
-				axisTick: { show: false }
+				axisTick: { show: false },
+				axisLabel: s.xLabelRotate != null ? { rotate: s.xLabelRotate, interval: 0 } : undefined
 			},
 			yAxis: {
 				type: 'value',

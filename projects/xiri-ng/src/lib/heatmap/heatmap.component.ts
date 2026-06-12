@@ -19,6 +19,7 @@ export interface XiriHeatmapSettings {
 	colorRange?: [ string, string ];   // CSS colors for low/high; default light → purple
 	showValues?: boolean;              // print values inside cells (only readable for small grids)
 	compact?: boolean;
+	xLabelRotate?: number;             // rotate x-axis labels by degrees (-90..90), 90 = vertical
 }
 
 @Component( {
@@ -71,7 +72,8 @@ export class XiriHeatmapComponent {
 				data: s.xLabels,
 				splitArea: { show: true },
 				axisLine: { show: false },
-				axisTick: { show: false }
+				axisTick: { show: false },
+				axisLabel: s.xLabelRotate != null ? { rotate: s.xLabelRotate, interval: 0 } : undefined
 			},
 			yAxis: {
 				type: 'category',

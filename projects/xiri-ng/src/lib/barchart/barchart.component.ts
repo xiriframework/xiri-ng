@@ -39,6 +39,7 @@ export interface XiriBarChartSettings {
 	compact?: boolean;
 	showValues?: boolean;                  // show value/text labels on bars
 	labelPosition?: 'top' | 'inside';      // default 'top'
+	xLabelRotate?: number;                 // rotate x-axis labels by degrees (-90..90), 90 = vertical
 }
 
 @Component( {
@@ -84,6 +85,12 @@ export class XiriBarChartComponent {
 		}
 	} );
 
+	// Rotated x-axis labels (interval: 0 forces all labels — no thinning on narrow bars).
+	private xLabelConfig() {
+		const r = this.settings().xLabelRotate;
+		return r != null ? { rotate: r, interval: 0 } : undefined;
+	}
+
 	private baseGrid() {
 		// Compact mode: outer card already provides padding — shrink the
 		// echarts grid so we don't get a "double margin".
@@ -114,7 +121,8 @@ export class XiriBarChartComponent {
 				type: 'category',
 				data: bars.map( b => b.label ),
 				axisLine: { show: false },
-				axisTick: { show: false }
+				axisTick: { show: false },
+				axisLabel: this.xLabelConfig()
 			},
 			yAxis: {
 				type: 'value',
@@ -202,7 +210,8 @@ export class XiriBarChartComponent {
 				type: 'category',
 				data: bars.map( b => b.label ),
 				axisLine: { show: false },
-				axisTick: { show: false }
+				axisTick: { show: false },
+				axisLabel: this.xLabelConfig()
 			},
 			yAxis: {
 				type: 'value',

@@ -62,6 +62,51 @@ export class BarChartsComponent {
 		iconColor: 'accent',
 	};
 
+	sectionRotate: XiriSectionSettings = {
+		title: '2b: Rotierte X-Achsen-Labels (lange Beschriftungen)',
+		subtitle: 'xLabelRotate dreht die Achsenbeschriftung (z. B. 60° schräg oder 90° vertikal), damit schmale Bars mit langen Labels lesbar bleiben. Alle Labels werden erzwungen (kein Ausdünnen).',
+		icon: 'text_rotation_angledown',
+		iconColor: 'accent',
+	};
+
+	rotated60: XiriBarChartSettings = {
+		title: 'Umsatz je Niederlassung (60°)',
+		color: 'blue',
+		xLabelRotate: 60,
+		bars: [
+			{ label: 'Wien Zentrale',        value: 8 },
+			{ label: 'Graz Süd',             value: 5 },
+			{ label: 'Linz Hafenstraße',     value: 6 },
+			{ label: 'Salzburg Messe',       value: 4 },
+			{ label: 'Innsbruck Hungerburg', value: 3 },
+			{ label: 'Klagenfurt Wörthersee', value: 2 },
+		],
+	};
+
+	rotated90: XiriBarChartSettings = {
+		title: 'Umsatz je Niederlassung (90° vertikal)',
+		color: 'purple',
+		xLabelRotate: 90,
+		bars: [
+			{ label: 'Wien Zentrale',        value: 8 },
+			{ label: 'Graz Süd',             value: 5 },
+			{ label: 'Linz Hafenstraße',     value: 6 },
+			{ label: 'Salzburg Messe',       value: 4 },
+			{ label: 'Innsbruck Hungerburg', value: 3 },
+			{ label: 'Klagenfurt Wörthersee', value: 2 },
+		],
+	};
+
+	goRotateCode = `bc := barchart.New("revenue").
+    Mode(barchart.ModeSimple).
+    Title("Umsatz je Niederlassung").
+    Color(core.ColorBlue).
+    Bar("Wien Zentrale", 8).
+    Bar("Graz Süd", 5).
+    Bar("Linz Hafenstraße", 6).
+    // ... weitere Niederlassungen
+    XLabelRotate(60)   // 90 = vertikal`;
+
 	sectionStacked: XiriSectionSettings = {
 		title: '3: Stacked — segmented bars',
 		subtitle: 'Mode: stacked. Pro Kategorie mehrere farbige Segmente (grün/gelb/rot).',
@@ -223,6 +268,34 @@ for _, s := range samples {
     Line("Forecast",  []float64{90,108,130,155,148,170,178,185}).Color(core.ColorPurple).Dashed().Done().
     Smooth().YAxis(0, 220)`;
 
+	// --- Line Chart: rotierte X-Achsen-Labels ---
+
+	sectionLineRotated: XiriSectionSettings = {
+		title: '5b: Line — rotierte X-Achsen-Labels',
+		subtitle: 'xLabelRotate funktioniert auch im LineChart — lange Zeit-/Kategorie-Beschriftungen werden schräg gestellt und bleiben vollständig lesbar.',
+		icon: 'text_rotation_angledown',
+		iconColor: 'primary',
+	};
+
+	lineRotated: XiriLineChartSettings = {
+		title: 'Lagerumschlag je Monat (45°)',
+		xLabels: [ 'Jänner 2024', 'Februar 2024', 'März 2024', 'April 2024', 'Mai 2024', 'Juni 2024' ],
+		xLabelRotate: 45,
+		yMin: 0,
+		yMax: 100,
+		lines: [
+			{ name: 'Eingang', values: [ 40, 55, 60, 52, 70, 68 ], color: 'blue' },
+			{ name: 'Ausgang', values: [ 35, 48, 58, 60, 65, 72 ], color: 'green' },
+		],
+	};
+
+	goLineRotatedCode = `lc := linechart.New("turnover").
+    Title("Lagerumschlag je Monat").
+    XLabels("Jänner 2024", "Februar 2024", "März 2024", "April 2024", "Mai 2024", "Juni 2024").
+    Line("Eingang", []float64{40,55,60,52,70,68}).Color(core.ColorBlue).Done().
+    Line("Ausgang", []float64{35,48,58,60,65,72}).Color(core.ColorGreen).Done().
+    XLabelRotate(45)`;
+
 	// --- Pie / Donut Sections ---
 
 	sectionPie: XiriSectionSettings = {
@@ -372,6 +445,45 @@ donut := piechart.New("storage").
 
 for _, m := range measurements {
     h.Cell(m.HourIdx, m.DayIdx, m.Value)
+}`;
+
+	// --- Heatmap: rotierte X-Achsen-Labels ---
+
+	sectionHeatmapRotated: XiriSectionSettings = {
+		title: '9b: Heatmap — rotierte Spalten-Labels',
+		subtitle: 'xLabelRotate dreht die X-/Spalten-Labels der Matrix — ideal für lange Bereichs- oder Kategorienamen.',
+		icon: 'text_rotation_angledown',
+		iconColor: 'primary',
+	};
+
+	heatmapRotated: XiriHeatmapSettings = (() => {
+		const cols = [ 'Wareneingang', 'Kommissionierung', 'Verpackung', 'Versand', 'Retouren' ];
+		const rows = [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri' ];
+		const cells: { x: number; y: number; value: number }[] = [];
+		for ( let y = 0; y < rows.length; y++ ) {
+			for ( let x = 0; x < cols.length; x++ ) {
+				cells.push( { x, y, value: Math.round( 20 + Math.random() * 60 ) } );
+			}
+		}
+		return {
+			title: 'Auslastung je Bereich (45°)',
+			xLabels: cols,
+			yLabels: rows,
+			cells,
+			min: 0,
+			max: 100,
+			xLabelRotate: 45,
+		};
+	})();
+
+	goHeatmapRotatedCode = `h := heatmap.New("load").
+    Title("Auslastung je Bereich").
+    XLabels("Wareneingang", "Kommissionierung", "Verpackung", "Versand", "Retouren").
+    YLabels("Mon", "Tue", "Wed", "Thu", "Fri").
+    XLabelRotate(45)
+
+for _, m := range measurements {
+    h.Cell(m.AreaIdx, m.DayIdx, m.Value)
 }`;
 
 	// --- Calendar Heatmap ---
