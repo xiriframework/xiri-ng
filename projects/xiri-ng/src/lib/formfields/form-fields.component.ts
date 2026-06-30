@@ -93,16 +93,16 @@ export class XiriFormFieldsComponent implements OnInit {
 	form = input<XiriFormField[] | null>( null );
 	display = input<XiriFormFieldDisplay>( 'full' );
 	disabled = input<boolean>( false );
-	formChange = output<any>();
+	formChange = output<UntypedFormGroup>();
 	check = input<Observable<void>>( null );
 	
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;
-	private lastValue: any = null;
+	private lastValue: string | null = null;
 	private _fields: XiriFormField[] | null = null;
 	collapsedSections = signal<Set<string>>( new Set() );
-	private _fieldsLoaded: boolean = false;
-	private _initialEmitDone: boolean = false;
+	private _fieldsLoaded = false;
+	private _initialEmitDone = false;
 	
 	constructor() {
 		
@@ -170,7 +170,7 @@ export class XiriFormFieldsComponent implements OnInit {
 			this._fields = null;
 		}
 		
-		let fields = this.form();
+		const fields = this.form();
 		if ( fields == null ) {
 			return null;
 		}
@@ -260,8 +260,8 @@ export class XiriFormFieldsComponent implements OnInit {
 						field.list = [];
 						field.array.forEach( val => {
 							field.list.push( {
-								                 id: val,
-								                 name: val,
+								                 id: val as unknown as number,
+								                 name: val as unknown as string,
 							                 } )
 						} );
 					}
@@ -308,9 +308,9 @@ export class XiriFormFieldsComponent implements OnInit {
 					break;
 				
 				case 'question':
-					if ( ( <any> field ).question )
-						field.value = ( <any> field ).question;
-					
+					if ( field.question )
+						field.value = field.question;
+
 					break;
 			}
 			
@@ -512,11 +512,11 @@ export class XiriFormFieldsComponent implements OnInit {
 			case 'notEquals':
 				return fieldValue !== condition.value;
 			case 'contains':
-				return typeof fieldValue === 'string' && fieldValue.includes( condition.value );
+				return typeof fieldValue === 'string' && fieldValue.includes( condition.value as string );
 			case 'greaterThan':
-				return fieldValue > condition.value;
+				return fieldValue > ( condition.value as number );
 			case 'lessThan':
-				return fieldValue < condition.value;
+				return fieldValue < ( condition.value as number );
 			case 'in':
 				return Array.isArray( condition.value ) && condition.value.includes( fieldValue );
 			case 'notEmpty':

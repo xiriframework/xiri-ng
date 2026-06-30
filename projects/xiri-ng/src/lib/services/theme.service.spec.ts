@@ -1,20 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
-import { ThemeService, ThemeMode } from './theme.service';
+import { ThemeService } from './theme.service';
 
 describe( 'ThemeService', () => {
 	let service: ThemeService;
-	let mediaQueryListeners: ( ( e: any ) => void )[];
+	let mediaQueryListeners: ( ( e: MediaQueryListEvent ) => void )[];
 	let mockMediaQueryResult: { matches: boolean; addEventListener: ReturnType<typeof vi.fn>; removeEventListener: ReturnType<typeof vi.fn> };
-	let localStorageStore: { [key: string]: string };
+	let localStorageStore: Record<string, string>;
 	let setItemSpy: ReturnType<typeof vi.fn>;
 	let getItemSpy: ReturnType<typeof vi.fn>;
 
 	const createMockMediaQuery = ( matches: boolean ) => {
 		mockMediaQueryResult = {
 			matches,
-			addEventListener: vi.fn( ( _event: string, cb: any ) => {
+			addEventListener: vi.fn( ( _event: string, cb: ( e: MediaQueryListEvent ) => void ) => {
 				mediaQueryListeners.push( cb );
 			} ),
 			removeEventListener: vi.fn(),
@@ -52,7 +52,7 @@ describe( 'ThemeService', () => {
 		document.documentElement.classList.remove( 'light-theme', 'dark-theme' );
 	} );
 
-	const createService = ( platformId: string = 'browser' ) => {
+	const createService = ( platformId = 'browser' ) => {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
 			providers: [

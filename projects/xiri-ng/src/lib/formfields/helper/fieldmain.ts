@@ -36,9 +36,9 @@ import { FocusMonitor } from "@angular/cdk/a11y";
 	            imports: [],
 	            template: ``
             } )
-export abstract class XiriFieldMain
+export abstract class XiriFieldMain<T = unknown>
 	implements ControlValueAccessor,
-	           MatFormFieldControl<any>,
+	           MatFormFieldControl<T>,
 	           OnInit,
 	           OnDestroy {
 
@@ -52,14 +52,12 @@ export abstract class XiriFieldMain
 
 	readonly stateChanges: Subject<void> = new Subject<void>();
 	readonly autofilled: boolean = false;
-	readonly valueChange = output<any>();
+	readonly valueChange = output<T>();
 
-	_onChange: ( value: any ) => void = () => {
-	};
-	_onTouched = () => {
-	};
+	_onChange: ( value: T ) => void = () => { /* intentionally empty */ };
+	_onTouched = () => { /* intentionally empty */ };
 
-	protected touched: boolean = false;
+	protected touched = false;
 	protected _errorStateTracker: _ErrorStateTracker;
 	protected _previousControl: AbstractControl | null | undefined;
 	protected subs: Subscription = new Subscription();
@@ -143,21 +141,21 @@ export abstract class XiriFieldMain
 	@Input( {
 		        transform: ( value: unknown ) => ( value == null ? 0 : numberAttribute( value ) ),
 	        } )
-	tabIndex: number = 0;
+	tabIndex = 0;
 
 
 	@Input()
-	get value(): any {
+	get value(): T {
 		return this._value;
 	}
 
-	set value( value: any ) {
+	set value( value: T ) {
 		this._value = value;
 	}
 
 	protected abstract startChangeValue(): void;
 
-	protected runChangeValue( val: any ) {
+	protected runChangeValue( val: T ) {
 		this._onTouched();
 		this._onChange( val );
 		this.valueChange.emit( val );
@@ -165,7 +163,7 @@ export abstract class XiriFieldMain
 		this._changeDetectorRef.markForCheck();
 	}
 
-	protected _value: any = null;
+	protected _value: T = null as T;
 
 	get empty() {
 		return this._value === null;
@@ -184,8 +182,7 @@ export abstract class XiriFieldMain
 
 	protected _disabled = signal<boolean>( false );
 
-	setDisabledState( isDisabled: boolean ): void {
-	}
+	setDisabledState(): void { /* intentionally empty */ }
 
 
 	@Input( { transform: booleanAttribute } )
@@ -213,13 +210,13 @@ export abstract class XiriFieldMain
 
 	protected _placeholder: string;
 
-	public focused: boolean = false;
+	public focused = false;
 
-	writeValue( value: any ): void {
+	writeValue( value: T ): void {
 		this._value = value;
 	}
 
-	registerOnChange( fn: ( value: any ) => void ): void {
+	registerOnChange( fn: ( value: T ) => void ): void {
 		this._onChange = fn;
 	}
 
@@ -277,6 +274,10 @@ export abstract class XiriFieldMain
 		this.stateChanges.next();
 	}
 
-	@Input( 'aria-describedby' ) userAriaDescribedBy: string;
+	@Input( 'aria-describedby' ) ariaDescribedby: string;
+
+	get userAriaDescribedBy(): string {
+		return this.ariaDescribedby;
+	}
 
 }

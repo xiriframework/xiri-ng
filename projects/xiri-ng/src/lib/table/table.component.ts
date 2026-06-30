@@ -39,7 +39,7 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
-import { XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
+import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/buttonline.component";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
@@ -64,6 +64,51 @@ import { MatCard } from '@angular/material/card';
 import { XiriEmptyStateComponent } from '../empty-state/empty-state.component';
 import { XiriColor } from '../types/color.type';
 
+
+// Minimal shape of an HTTP error as surfaced by the data service (Angular HttpErrorResponse).
+interface XiriHttpError {
+	error?: { error?: string } | string;
+	statusText?: string;
+}
+
+// Reads a human-readable message out of an unknown error value.
+function errorMessage( err: unknown ): string | undefined {
+	const e = err as XiriHttpError;
+	const inner = e?.error;
+	if ( inner && typeof inner === 'object' && 'error' in inner )
+		return inner.error;
+	return undefined;
+}
+
+// Shape of a server data response consumed by loadData().
+export interface XiriTableResponse {
+	data?: XiriTableRow[];
+	fields?: XiriTableField[];
+	summary?: XiriDynData[];
+	components?: XiriDynData[];
+	footer?: Record<string, XiriTableCellValue>;
+	totalCount?: number;
+	poll?: number;
+	[key: string]: unknown;
+}
+
+// Dialog payload passed to XiriDialogComponent from a table button (copied from the button,
+// with type/url/data overridden per action). `data` carries either the button's own payload
+// or, for selection dialogs, the selected row ids.
+type XiriTableDialogData = Omit<Partial<XiriButton>, 'data'> & {
+	type: string;
+	url?: string;
+	data?: XiriButton['data'] | number[];
+};
+
+// Persisted (session-storage) table state restored on first data load.
+interface XiriTableSavedState {
+	pageIndex?: number;
+	pageSize?: number;
+	filter?: string;
+	sort?: string;
+	sortDirection?: 'asc' | 'desc' | '';
+}
 
 export interface XiriTableEmptyState {
 	icon?: string
@@ -103,14 +148,14 @@ export interface XiriTableOptions {
 
 export interface XiriTableSettings {
 	url?: string
-	data?: any
+	data?: XiriTableRow[]
 	fields?: XiriTableField[]
 	options?: XiriTableOptions
 	hasFilter?: boolean
 	tree?: XiriTableTreeSettings // opt-in tree mode; for direct Angular consumers (Spec §6)
 }
 
-export type { XiriTableTreeSettings } from './tree.service';
+export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './tree.service';
 
 @Component( {
 	            selector: 'xiri-table',
@@ -166,30 +211,30 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	protected _changeDetectorRef: ChangeDetectorRef = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	
-	dyncomponent = input<TemplateRef<any>>();
+	dyncomponent = input<TemplateRef<unknown>>();
 	settings = input.required<XiriTableSettings>();
-	filterData = input<any>( undefined );
-	clickedRow = output<any>();
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	clickedRow = output<XiriTableRow>();
 
 	paginator = viewChild.required<MatPaginator>( MatPaginator );
 	sort = viewChild.required<MatSort>( MatSort );
-	table = viewChild.required<MatTable<any>>( MatTable );
+	table = viewChild.required<MatTable<XiriTableRow>>( MatTable );
 	loading = signal<boolean>( true );
 	private _totalCount = signal<number>( 0 );
-	
+
 	displayedColumns: XiriTableField[] = [];
 	columnsToDisplay: string[] = [];
 	columnsToSearch: string[] = [];
-	dataSource: MatTableDataSource<any> = new MatTableDataSource();
-	protected _displayeddata: readonly any[];
-	_alldata = signal<any[] | null>( null );
-	footer = [];
-	
+	dataSource = new MatTableDataSource<XiriTableRow>();
+	protected _displayeddata: readonly XiriTableRow[];
+	_alldata = signal<XiriTableRow[] | null>( null );
+	footer: Record<string, XiriTableCellValue> = {};
+
 	extraHeaderFields: XiriTableField[] = [];
 	extraHeaders: string[] = [];
-	
-	public selection = new SelectionModel<any>( true, [] );
-	private dialogRef?: MatDialogRef<any>;
+
+	public selection = new SelectionModel<XiriTableRow>( true, [] );
+	private dialogRef?: MatDialogRef<unknown>;
 	private reloadAbort$ = new Subject<void>();
 
 	// Auto-refresh (backend-driven polling): activated when the table data response
@@ -230,19 +275,19 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	};
 	
 	public dynData: {
-		data: XiriDynData[],
-		filterData: any,
+		data: XiriDynData[] | null,
+		filterData: Record<string, unknown> | null | undefined,
 	} = { data: null, filterData: undefined };
-	public errorMsg: string = '';
-	private _firstData: boolean = true;
-	public searchText: string = '';
-	public searchTextInit: string = '';
+	public errorMsg = '';
+	private _firstData = true;
+	public searchText = '';
+	public searchTextInit = '';
 
 	private tableStateKey(): string | null {
 		return this.options.saveStateId ? this.options.saveStateId + ':table' : null;
 	}
 
-	trackByRowId = ( _: number, row: any ): any => row.id ?? _;
+	trackByRowId = ( index: number, row: XiriTableRow ): string | number => row.id ?? index;
 
 	// Inline edit signals delegated to inlineEdit service
 	get editingCell() { return this.inlineEdit.editingCell; }
@@ -255,7 +300,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	
 	_filterData = computed( () => {
 		
-		let values = this.filterData();
+		const values = this.filterData();
 		
 		if ( values === undefined )
 			return undefined;
@@ -315,7 +360,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 
 		if ( this.options.pagination )
-			this.paginator().pageSize = <number> this.options.itemsPerPage;
+			this.paginator().pageSize = this.options.itemsPerPage as number;
 		if ( this.options.pagination && !this.options.serverSide )
 			this.dataSource.paginator = this.paginator();
 		// In tree mode column sorting is disabled (Spec §5); siblings are sorted alphabetically
@@ -346,11 +391,11 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		
 		// Tree mode uses its own search projection (matches + ancestors), not the flat filter predicate.
 		if ( this.options.search && !this.options.serverSide && !this.tree.enabled ) {
-			this.dataSource.filterPredicate = ( data: object, filter: string ): boolean => {
+			this.dataSource.filterPredicate = ( data: XiriTableRow, filter: string ): boolean => {
 				const dataStr = this.columnsToSearch.reduce( ( currentTerm: string, key: string ) => {
-					return currentTerm + ( data as { [ key: string ]: any } )[ key ] + '◬';
+					return currentTerm + data[ key ] + '◬';
 				}, '' ).toLowerCase();
-				return dataStr.indexOf( filter ) != -1;
+				return dataStr.indexOf( filter ) !== -1;
 			};
 		}
 		
@@ -381,8 +426,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 								this.footer[ column.id ] = this._displayeddata.length + '#';
 							} else if ( column.footer === 'sum' ) {
 								let sum = 0;
-								this._displayeddata.forEach( ( row: any ) => {
-									sum += +row[ column.id ][ 1 ];
+								this._displayeddata.forEach( ( row: XiriTableRow ) => {
+									sum += +( row[ column.id ] as XiriTableCellValue[] )[ 1 ];
 								} );
 								
 								if ( !column.webformat )
@@ -408,15 +453,17 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		// whether to reschedule (res.poll present) or stop (clearAutoRefresh).
 		this.cancelAutoRefreshTimers();
 
-		if ( this.settings().data ) {
+		const inlineData = this.settings().data;
+		if ( inlineData ) {
 			this.options.reload = false;
 			this.clearAutoRefresh();
-			this.setData( this.settings().data );
+			this.setData( inlineData );
 			this.loading.set( false );
 		} else if ( this.settings().url ) {
 
-			let api: Observable<any>;
-			let payload: any = this.settings().hasFilter ? { ...this._filterData() } : {};
+			const payload: Record<string, unknown> = this.settings().hasFilter
+				? { ...( this._filterData() as Record<string, unknown> ) }
+				: {};
 
 			if ( this.options.serverSide ) {
 				payload._page = this.paginator().pageIndex;
@@ -430,10 +477,12 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 				}
 			}
 
-			api = this.dataService.post( this.settings().url, Object.keys( payload ).length > 0 ? payload : null );
-			
+			const api: Observable<unknown> = this.dataService.post(
+				this.settings().url, Object.keys( payload ).length > 0 ? payload : null );
+
 			api.pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-				next: ( res: any ) => {
+				next: ( raw: unknown ) => {
+					const res = raw as XiriTableResponse | null;
 
 					if ( !res || !res.data ) {
 						this.errorMsg = 'ERROR: unknown server response';
@@ -464,8 +513,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 						this.clearAutoRefresh();
 					this.loading.set( false );
 					this._changeDetectorRef.markForCheck();
-				}, error: ( err: any ) => {
-					this.errorMsg = err.error?.error ? err.error.error : err.statusText;
+				}, error: ( err: unknown ) => {
+					this.errorMsg = errorMessage( err ) ?? ( err as XiriHttpError )?.statusText ?? '';
 					this._alldata.set( [] );
 					this.clearAutoRefresh();
 					this.loading.set( false );
@@ -521,38 +570,39 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		}
 	}
 	
-	private setData( data: any[] ): void {
-		
+	private setData( data: XiriTableRow[] ): void {
+
 		this._alldata.set( data );
-		
+
 		if ( this._firstData ) {
 			this._firstData = false;
-			
+
 			if ( this.options.saveState && this.tableStateKey() ) {
-				let data = this.sessionStorageService.getTimeout( this.tableStateKey(), 3600 );
-				if ( !data )
+				const saved = this.sessionStorageService.getTimeout( this.tableStateKey(), 3600 ) as XiriTableSavedState | null;
+				if ( !saved )
 					return;
-				
-				if ( data.filter !== undefined ) {
-					this.searchText = data.filter;
-					this.searchTextInit = data.filter;
+
+				if ( saved.filter !== undefined ) {
+					this.searchText = saved.filter;
+					this.searchTextInit = saved.filter;
 				}
-				if ( data.sort !== undefined && data.sortDirection !== undefined )
-					this.sort().sort( ( { id: data.sort, start: data.sortDirection } ) as MatSortable );
-				if ( data.pageSize !== undefined && data.pageIndex !== undefined ) {
-					this.paginator().pageIndex = data.pageIndex;
-					this.paginator()._changePageSize( data.pageSize );
+				if ( saved.sort !== undefined && saved.sortDirection !== undefined )
+					this.sort().sort( ( { id: saved.sort, start: saved.sortDirection } ) as MatSortable );
+				if ( saved.pageSize !== undefined && saved.pageIndex !== undefined ) {
+					this.paginator().pageIndex = saved.pageIndex;
+					this.paginator()._changePageSize( saved.pageSize );
 				}
 			}
 		}
 	}
-	
-	private setFooter( footer: any ): void {
+
+	private setFooter( footer: Record<string, XiriTableCellValue> ): void {
 		this.footer = footer;
-		
+
 		this.displayedColumns.forEach( ( column: XiriTableField ) => {
-			if ( Array.isArray( this.footer[ column.id ] ) )
-				this.footer[ column.id ] = this.footer[ column.id ][ 0 ];
+			const value = this.footer[ column.id ];
+			if ( Array.isArray( value ) )
+				this.footer[ column.id ] = value[ 0 ];
 		} );
 	}
 	
@@ -598,7 +648,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.autoRefresh.set( null );
 	}
 	
-	searchDo( $event: any ) {
+	searchDo( $event: string ) {
 		this.searchText = $event.trim().toLowerCase();
 
 		if ( this.options.serverSide ) {
@@ -624,23 +674,23 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	get treeColumnId(): string { return this.tree.treeColumn; }
 	get treeShowCounts(): boolean { return this.tree.showCounts; }
 	get treeHasAddSub(): boolean { return this.tree.hasAddSub; }
-	treeCanAddSub( row: any ): boolean { return this.tree.canAddSub( row ); }
+	treeCanAddSub( row: XiriTableRow ): boolean { return this.tree.canAddSub( row ); }
 
 	/** Recomputes the visible rows from the tree (respecting the active search), into the data source. */
 	private refreshTree(): void {
 		const term = this.searchText;
-		const matcher = term ? ( row: any ) => this.rowMatches( row, term ) : null;
+		const matcher = term ? ( row: XiriTableRow ) => this.rowMatches( row, term ) : null;
 		this.dataSource.data = this.tree.applySearch( matcher );
 	}
 
-	private rowMatches( row: any, term: string ): boolean {
+	private rowMatches( row: XiriTableRow, term: string ): boolean {
 		let dataStr = '';
 		for ( const key of this.columnsToSearch )
 			dataStr += row[ key ] + '◬';
 		return dataStr.toLowerCase().indexOf( term ) !== -1;
 	}
 
-	toggleNode( event: MouseEvent, row: any ): void {
+	toggleNode( event: MouseEvent, row: XiriTableRow ): void {
 		event.stopPropagation();
 		this.tree.toggle( row );
 		this.refreshTree();
@@ -656,7 +706,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.refreshTree();
 	}
 
-	addSub( event: MouseEvent, row: any ): void {
+	addSub( event: MouseEvent, row: XiriTableRow ): void {
 		event.stopPropagation();
 		const cfg = this.tree.settings;
 		if ( cfg?.addSubHandler ) {
@@ -669,7 +719,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	isAllSelected() {
-		let found: number = 0;
+		let found = 0;
 		this._displayeddata.forEach( row => {
 			if ( row.select !== false ) {
 				if ( !this.selection.isSelected( row ) )
@@ -680,49 +730,51 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	masterToggle() {
-		this.isAllSelected() ? this.selection.clear() : this._displayeddata.forEach( row => {
-			if ( row.select !== false )
-				this.selection.select( row );
-		} );
+		if ( this.isAllSelected() ) {
+			this.selection.clear();
+		} else {
+			this._displayeddata.forEach( row => {
+				if ( row.select !== false )
+					this.selection.select( row );
+			} );
+		}
 	}
-	
-	clicked( row: any ) {
+
+	clicked( row: XiriTableRow ) {
 		this.clickedRow.emit( row );
 	}
-	
-	openDialog( event: MouseEvent, button: any, id: any, subid: any, row: any ) {
-		
+
+	openDialog( event: MouseEvent, button: XiriButton, id: string, subid: number, row: XiriTableRow ) {
+
 		event.stopPropagation();
-		let data = Object.assign( {}, button );
-		data.type = 'load';
-		data.url = row[ id ][ subid ];
-		
+		const data: XiriTableDialogData = { ...button, type: 'load' };
+		data.url = ( row[ id ] as XiriTableCellValue[] )[ subid ] as string;
+
 		this.startDialog( data );
 	}
-	
-	openMenuDialog( event: MouseEvent, item: any, columnId: string, buttonIndex: number, menuItemIndex: number, row: any ) {
+
+	openMenuDialog( event: MouseEvent, item: NonNullable<XiriButton['menuItems']>[number], columnId: string, buttonIndex: number, menuItemIndex: number, row: XiriTableRow ) {
 		event.stopPropagation();
-		let data = Object.assign( {}, item );
-		data.type = 'load';
-		data.url = row[ columnId ][ buttonIndex ][ menuItemIndex ];
+		const data: XiriTableDialogData = { ...item, type: 'load' } as XiriTableDialogData;
+		const cell = ( ( row[ columnId ] as XiriTableCellValue[] )[ buttonIndex ] as XiriTableCellValue[] )[ menuItemIndex ];
+		data.url = cell as string;
 		this.startDialog( data );
 	}
 
 	openDialogSelection( event: MouseEvent, button: XiriButton ) {
-		
+
 		event.stopPropagation();
 		if ( this.selection.isEmpty() )
 			return true;
-		
-		let data = <any> Object.assign( {}, button );
-		data.type = 'data';
+
+		const data: XiriTableDialogData = { ...button, type: 'data' };
 		data.data = this.getSelectionIDs();
-		
+
 		this.startDialog( data );
 		return true;
 	}
-	
-	private startDialog( data: object ) {
+
+	private startDialog( data: XiriTableDialogData ) {
 		
 		this.dialogRef = this.dialog.open( XiriDialogComponent, {
 			data: data,
@@ -743,45 +795,45 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this.selection.isEmpty() )
 			return;
 		
-		let data = { data: this.getSelectionIDs() };
+		const data = { data: this.getSelectionIDs() };
 		
 		this.makeApiCall( this.dataService.post( button.url ? button.url : '', data ) );
 	}
 	
-	saveCall( event: MouseEvent, button: XiriButton, row, url: string ) {
+	saveCall( event: MouseEvent, button: XiriButton, row: XiriTableRow, url: string ) {
 		event.stopPropagation();
-		
+
 		if ( !this.saveCallCheck( button, row ) )
 			return;
-		
-		let data = {};
+
+		const data: Record<string, XiriTableCellValue> = {};
 		for ( let i = 0; i != button.send.length; i++ ) {
-			let k = button.send[ i ];
-			data[ k ] = row[ k ];
+			const k = button.send[ i ];
+			data[ k ] = row[ k ] as XiriTableCellValue;
 		}
-		
+
 		this.dataService.post( url, data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-			next: ( result ) => this.callReturn( result ),
-			error: ( err: any ) => {
+			next: ( result: unknown ) => this.callReturn( result ),
+			error: ( err: unknown ) => {
 				console.log( "table save error", err );
-				this.snackbar.error( err.error?.error || 'Unknown Error' );
+				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
 			}
 		} );
 	}
-	
-	saveCallCheck( button: XiriButton, row ): boolean {
-		
+
+	saveCallCheck( button: XiriButton, row: XiriTableRow ): boolean {
+
 		for ( let i = 0; i != button.check.length; i++ ) {
-			let k = button.check[ i ];
-			
+			const k = button.check[ i ];
+
 			if ( row[ k ] === null || row[ k ] === undefined || row[ k ] === '' ) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	downloadSelection( event: MouseEvent, button: XiriButton ) {
 		event.stopPropagation();
 		if ( this.selection.isEmpty() )
@@ -789,22 +841,22 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 		const url = button.url ? button.url : '';
 		this.dataService.postFileResponse( url, this.getSelectionIDs() ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-			next: ( result: any ) => {
+			next: ( result ) => {
 				this.downloadService.download( result, 'download.csv', false );
 			},
-			error: ( err: any ) => {
-				this.snackbar.error( err.error?.error || 'Download Error' );
+			error: ( err: unknown ) => {
+				this.snackbar.error( errorMessage( err ) || 'Download Error' );
 			}
 		} );
 	}
-	
-	private makeApiCall( apicall: Observable<object> ) {
-		
+
+	private makeApiCall( apicall: Observable<unknown> ) {
+
 		apicall.pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-			next: ( result ) => this.callReturn( result ),
-			error: ( err: any ) => {
+			next: ( result: unknown ) => this.callReturn( result ),
+			error: ( err: unknown ) => {
 				console.log( "table api error", err );
-				this.snackbar.error( err.error?.error || 'Unknown Error' );
+				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
 			}
 		} );
 	}
@@ -817,27 +869,27 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.callReturn( event.result );
 	}
 	
-	private callReturn( result: any ) {
+	private callReturn( result: unknown ) {
 		this.responseHandler.handle( result, {
 			onTableRefresh: () => this.reload(),
 			onTableUpdate: ( id, field, content ) => {
-				const i = this.dataSource.data.findIndex( ( x: any ) => x.id === id );
+				const i = this.dataSource.data.findIndex( ( x: XiriTableRow ) => x.id === id );
 				if ( i == -1 )
 					return;
-				this.dataSource.data[ i ][ field ] = content;
+				this.dataSource.data[ i ][ field ] = content as XiriTableCellValue;
 				this.dataSource._updateChangeSubscription();
 			}
 		} );
 	}
-	
+
 	private getSelectionIDs(): number[] {
-		
+
 		return this.selection.selected.map( ( item ) => {
-			return +item[ 'id' ];
+			return +( item[ 'id' ] as string | number );
 		} );
 	}
-	
-	startInlineEdit( row: any, column: XiriTableField, skipSavingCheck = false ): void {
+
+	startInlineEdit( row: XiriTableRow, column: XiriTableField, skipSavingCheck = false ): void {
 		this.inlineEdit.start( row, column, skipSavingCheck );
 	}
 
@@ -845,19 +897,19 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.inlineEdit.cancel();
 	}
 
-	saveInlineEdit( row: any, column: XiriTableField ): void {
+	saveInlineEdit( row: XiriTableRow, column: XiriTableField ): void {
 		this.inlineEdit.save( row, column );
 	}
 
-	isEditing( row: any, fieldId: string ): boolean {
+	isEditing( row: XiriTableRow, fieldId: string ): boolean {
 		return this.inlineEdit.isEditing( row, fieldId );
 	}
 
-	isSaving( row: any, fieldId: string ): boolean {
+	isSaving( row: XiriTableRow, fieldId: string ): boolean {
 		return this.inlineEdit.isSaving( row, fieldId );
 	}
 
-	onInlineEditKeydown( event: KeyboardEvent, row: any, column: XiriTableField ): void {
+	onInlineEditKeydown( event: KeyboardEvent, row: XiriTableRow, column: XiriTableField ): void {
 		this.inlineEdit.onKeydown( event, row, column );
 	}
 
@@ -865,7 +917,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		return this.inlineEdit.getOptions( column );
 	}
 
-	onChipsSelectionChange( row: any, column: XiriTableField, selectedValues: string[] ): void {
+	onChipsSelectionChange( row: XiriTableRow, column: XiriTableField, selectedValues: string[] ): void {
 		this.inlineEdit.onChipsChange( row, column, selectedValues );
 	}
 
@@ -877,50 +929,45 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.dialogRef.close( null );
 	}
 	
-	public pasteInput( $event: any, row: any, column: XiriTableField ) {
-		
+	public pasteInput( $event: ClipboardEvent, row: XiriTableRow, column: XiriTableField ) {
+
 		if ( column.inputPaste !== true )
 			return false;
-		
+
 		// Get the clipboard text
-		const clipboardText = $event.clipboardData.getData( 'text' );
-		
-		// Split into rows
-		let clipRowsArray = clipboardText.split( "\n" );
-		
-		// Split rows into columns
-		for ( let i = 0; i < clipRowsArray.length; i++ ) {
-			clipRowsArray[ i ] = clipRowsArray[ i ].split( "\t" );
-		}
-		
+		const clipboardText = $event.clipboardData!.getData( 'text' );
+
+		// Split into rows, then each row into columns.
+		const clipRowsArray: string[][] = clipboardText.split( "\n" ).map( line => line.split( "\t" ) );
+
 		if ( clipRowsArray.length < 2 ) {
 			if ( clipRowsArray[ 0 ].length < 2 )
 				return null;
 		}
-		
-		const startRow = this.dataSource.data.findIndex( ( x: any ) => x.id === row.id );
+
+		const startRow = this.dataSource.data.findIndex( ( x: XiriTableRow ) => x.id === row.id );
 		if ( startRow == -1 )
 			return false;
-		const startCol = this.displayedColumns.findIndex( ( x: any ) => x.id === column.id );
+		const startCol = this.displayedColumns.findIndex( ( x: XiriTableField ) => x.id === column.id );
 		if ( startCol == -1 )
 			return false;
-		
+
 		for ( let i = 0; i < clipRowsArray.length; i++ ) {
-			let curRow = i + startRow;
+			const curRow = i + startRow;
 			if ( curRow >= this.dataSource.data.length )
 				break;
-			
-			let result = this.dataSource.data[ curRow ];
+
+			const result = this.dataSource.data[ curRow ];
 			for ( let j = 0; j < clipRowsArray[ i ].length; j++ ) {
-				let curCol = j + startCol;
+				const curCol = j + startCol;
 				if ( curCol >= this.displayedColumns.length )
 					break;
-				
-				let col = this.displayedColumns[ curCol ];
+
+				const col = this.displayedColumns[ curCol ];
 				result[ col.id ] = clipRowsArray[ i ][ j ];
 			}
 		}
-		
+
 		this.dataSource._updateChangeSubscription();
 		return false;
 	}
@@ -928,7 +975,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public saveInputData() {
 		
 		// this.loading.set( true );
-		let data = this.dataSource.data;
+		const data = this.dataSource.data;
 		if ( this.settings().url ) {
 			this._alldata.set( [] );
 			// this.dataSource.data = [];
@@ -937,26 +984,26 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this._changeDetectorRef.markForCheck();
 		
 		this.dataService.post( this.options.saveInputUrl, data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-			next: ( result ) => {
+			next: ( result: unknown ) => {
 				this.callReturn( result );
 			},
-			error: ( err: any ) => {
+			error: ( err: unknown ) => {
 				this._alldata.set( data );
 				this.dataSource._updateChangeSubscription();
 				console.log( "table save error", err );
-				this.snackbar.error( err.error?.error || 'Unknown Error' );
+				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
 				this._changeDetectorRef.markForCheck();
 			}
 		} );
 	}
-	
-	private getSortingDataAccessor(): ( data: any, sortHeaderId: string ) => string | number {
-		return ( data: any, sortHeaderId: string ): string | number => {
+
+	private getSortingDataAccessor(): ( data: XiriTableRow, sortHeaderId: string ) => string | number {
+		return ( data: XiriTableRow, sortHeaderId: string ): string | number => {
 			const column = this.displayedColumns.find( col => col.id === sortHeaderId );
 			if ( column && column.format === 'number' )
-				return data[ sortHeaderId ][ 1 ];
-			
-			return data[ sortHeaderId ];
+				return ( data[ sortHeaderId ] as XiriTableCellValue[] )[ 1 ] as number;
+
+			return data[ sortHeaderId ] as string | number;
 		};
 	}
 }

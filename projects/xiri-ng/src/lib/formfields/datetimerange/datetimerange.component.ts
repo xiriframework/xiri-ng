@@ -2,7 +2,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	inject,
-	Input,
+	Input, OnInit,
 } from '@angular/core';
 import {
 	ControlValueAccessor,
@@ -71,8 +71,8 @@ class DateTimeRange {
 		            MatDatepicker,
 	            ]
             } )
-export class XiriDateTimeRangeComponent extends XiriFieldMain implements ControlValueAccessor,
-                                                                         MatFormFieldControl<DateTimeRange | null | undefined> {
+export class XiriDateTimeRangeComponent extends XiriFieldMain<DateTimeRange | null | undefined> implements ControlValueAccessor,
+                                                                                                          MatFormFieldControl<DateTimeRange | null | undefined>, OnInit {
 	
 	protected _uid = `xiri-date-${ nextUniqueIdXiriDateTimeRange++ }`;
 	
@@ -128,8 +128,11 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain implements Control
 		
 		this.required = !!value.required;
 		this.disabled = !!value.disabled;
-		this.disabled ? this.parts.disable() : this.parts.enable();
-		
+		if ( this.disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
+
 		this.stateChanges.next();
 	}
 	
@@ -143,7 +146,7 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain implements Control
 		if ( !date || fhour === undefined || fminute === undefined || thour === undefined || tminute === undefined )
 			return null;
 		
-		let to = new Date( date.getTime() );
+		const to = new Date( date.getTime() );
 		
 		date.setHours( fhour );
 		date.setMinutes( fminute );
@@ -151,8 +154,8 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain implements Control
 		to.setHours( thour );
 		to.setMinutes( tminute );
 		
-		let unixFrom = this.dateService.dateToUnix( date );
-		let unixTo = this.dateService.dateToUnix( to );
+		const unixFrom = this.dateService.dateToUnix( date );
+		const unixTo = this.dateService.dateToUnix( to );
 		
 		if ( unixFrom > unixTo )
 			return new DateTimeRange( unixTo, unixFrom );

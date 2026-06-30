@@ -66,9 +66,9 @@ let nextUniqueIdXiriTreeselect = 0;
 		            MatTreeNodeDef,
 	            ]
             } )
-export class XiriTreeselectComponent extends XiriFieldMain implements ControlValueAccessor,
-                                                                      MatFormFieldControl<number[] | undefined>,
-                                                                      AfterViewInit {
+export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined> implements ControlValueAccessor,
+                                                                                            MatFormFieldControl<number[] | undefined>,
+                                                                                            AfterViewInit {
 	
 	private dataService = inject( XiriDataService );
 	private snackbar = inject( XiriSnackbarService );
@@ -123,12 +123,13 @@ export class XiriTreeselectComponent extends XiriFieldMain implements ControlVal
 		if ( value.url ) {
 			this.dataService.get( value.url ).subscribe(
 				{
-					next: ( data: any ) => {
-						let groups: any[];
-						if ( data.data === undefined || data.data === null || data.data.length === 0 )
+					next: ( response: unknown ) => {
+						const data = ( response as { data?: ( XiriTreeselectTreeNode & { length?: number } ) | null } ).data;
+						let groups: XiriTreeselectTreeNode[];
+						if ( data === undefined || data === null || data.length === 0 )
 							groups = [];
 						else
-							groups = [ data.data ];
+							groups = [ data ];
 						this.buildTree( groups, null );
 						this.dataChange.next( groups );
 						this._changeDetectorRef.markForCheck();
@@ -140,22 +141,22 @@ export class XiriTreeselectComponent extends XiriFieldMain implements ControlVal
 					}
 				} )
 		} else {
-			let groups = value.list;
+			let groups = ( value.list ?? [] ) as unknown as XiriTreeselectTreeNode[];
 			if ( !groups || groups.length === 0 )
 				groups = [];
-			
+
 			this.buildTree( groups, null );
-			this.dataChange.next( <any> groups );
+			this.dataChange.next( groups );
 		}
-		
+
 		this.stateChanges.next();
 	}
-	
+
 	get field(): XiriFormField {
 		return this._field;
 	}
-	
-	private buildTree( input: any, parent: XiriTreeselectTreeNode ) {
+
+	private buildTree( input: XiriTreeselectTreeNode[], parent: XiriTreeselectTreeNode | null ) {
 		for ( let i = 0; i != input.length; i++ ) {
 			input[ i ].parent = parent;
 			input[ i ].state = 0;
@@ -165,23 +166,23 @@ export class XiriTreeselectComponent extends XiriFieldMain implements ControlVal
 		}
 	}
 	
+	private _input: number[] = [];
+
 	@Input()
 	get value(): number[] | undefined {
-		
+
 		const result = this.checklistSelection.selected.filter( x => x.state === 1 && !x.children ).map( x => x.id );
 		if ( this.required && result.length == 0 )
 			return this._disabled() ? null : undefined;
-		
+
 		return result;
 	}
-	
-	private _input: number[] = [];
-	
+
 	set value( input: number[] | undefined ) {
-		
+
 		if ( input === null || input === undefined )
 			input = [];
-		
+
 		this._input = input;
 		this.startChangeValue();
 	}
@@ -324,7 +325,7 @@ export class XiriTreeselectComponent extends XiriFieldMain implements ControlVal
 		}
 	}
 	
-	private findNodeById( id: any, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode {
+	private findNodeById( id: number, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode {
 		
 		if ( node.id == id )
 			return node;

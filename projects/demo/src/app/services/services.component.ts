@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
@@ -19,6 +19,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-services',
 	            templateUrl: './services.component.html',
 	            styleUrl: './services.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
@@ -118,13 +119,13 @@ export class ServicesComponent {
 		this.apiUrl = this.dataService.getConfigApi();
 
 		// Load stored values
-		this.storedLocalValue.set( this.localStorage.get( this.storageKey ) ?? '' );
-		this.storedSessionValue.set( this.sessionStorage.get( this.storageKey ) ?? '' );
+		this.storedLocalValue.set( ( this.localStorage.get( this.storageKey ) as string ) ?? '' );
+		this.storedSessionValue.set( ( this.sessionStorage.get( this.storageKey ) as string ) ?? '' );
 	}
 
 	setLocal(): void {
 		this.localStorage.set( this.storageKey, this.storageValue );
-		this.storedLocalValue.set( this.localStorage.get( this.storageKey ) ?? '' );
+		this.storedLocalValue.set( ( this.localStorage.get( this.storageKey ) as string ) ?? '' );
 	}
 
 	removeLocal(): void {
@@ -134,7 +135,7 @@ export class ServicesComponent {
 
 	setSession(): void {
 		this.sessionStorage.set( this.storageKey, this.storageValue );
-		this.storedSessionValue.set( this.sessionStorage.get( this.storageKey ) ?? '' );
+		this.storedSessionValue.set( ( this.sessionStorage.get( this.storageKey ) as string ) ?? '' );
 	}
 
 	removeSession(): void {

@@ -3,6 +3,7 @@ import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsCallbackParams, XiriEchartsRenderItemApi } from '../echarts/params';
 
 export interface XiriGanttTask {
 	row: number;          // index into rows[]
@@ -59,7 +60,7 @@ export class XiriGanttComponent {
 			resolveColor( t.color, '#8b5cf6' )
 		] );
 
-		const renderItem = ( _params: any, api: any ) => {
+		const renderItem = ( _params: unknown, api: XiriEchartsRenderItemApi ) => {
 			const rowIdx = api.value( 0 );
 			const start  = api.coord( [ api.value( 1 ), rowIdx ] );
 			const end    = api.coord( [ api.value( 2 ), rowIdx ] );
@@ -81,8 +82,8 @@ export class XiriGanttComponent {
 
 		return {
 			tooltip: {
-				formatter: ( p: any ) => {
-					const v = p.value;
+				formatter: ( p: XiriEchartsCallbackParams ) => {
+					const v = p.value as [ number, number, number, string, string ];
 					const fmt = ( ms: number ) => new Date( ms ).toLocaleString();
 					const row = rows[ v[ 0 ] ] ?? '';
 					return `<b>${ escapeHtml( v[ 3 ] ) }</b><br/>${ escapeHtml( row ) }<br/>${ escapeHtml( fmt( v[ 1 ] ) ) } → ${ escapeHtml( fmt( v[ 2 ] ) ) }`;

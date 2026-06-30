@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsCallbackParams } from '../echarts/params';
 
 export interface XiriHeatmapCell {
 	x: number;        // index into xLabels
@@ -61,10 +62,11 @@ export class XiriHeatmapComponent {
 				: { left: 32, right: 16, top: 24, bottom: 24, containLabel: true },
 			tooltip: {
 				position: 'top',
-				formatter: ( p: any ) => {
-					const x = s.xLabels[ p.value[ 0 ] ] ?? '';
-					const y = s.yLabels[ p.value[ 1 ] ] ?? '';
-					return `<b>${ escapeHtml( y ) }</b> / <b>${ escapeHtml( x ) }</b><br/>${ p.marker }<b>${ p.value[ 2 ] }</b>`;
+				formatter: ( p: XiriEchartsCallbackParams ) => {
+					const val = p.value as number[];
+					const x = s.xLabels[ val[ 0 ] ] ?? '';
+					const y = s.yLabels[ val[ 1 ] ] ?? '';
+					return `<b>${ escapeHtml( y ) }</b> / <b>${ escapeHtml( x ) }</b><br/>${ p.marker }<b>${ val[ 2 ] }</b>`;
 				}
 			},
 			xAxis: {
@@ -95,7 +97,7 @@ export class XiriHeatmapComponent {
 			series: [ {
 				type: 'heatmap',
 				data: cells.map( c => [ c.x, c.y, c.value ] ),
-				label: { show: !!s.showValues, formatter: ( p: any ) => String( p.value[ 2 ] ) },
+				label: { show: !!s.showValues, formatter: ( p: XiriEchartsCallbackParams ) => String( ( p.value as number[] )[ 2 ] ) },
 				emphasis: { itemStyle: { shadowBlur: 6, shadowColor: 'rgba(0, 0, 0, 0.3)' } }
 			} ]
 		};

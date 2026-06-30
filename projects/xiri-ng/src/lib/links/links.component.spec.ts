@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriLinksComponent, XiriLinksSettings } from './links.component';
 import { XiriButton } from '../button/button.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -22,6 +22,7 @@ function makeLink(overrides: Partial<XiriButton> = {}): XiriButton {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-links [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriLinksComponent],
 })
 class TestHostComponent {

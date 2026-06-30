@@ -26,14 +26,15 @@ export class XiriSnackbarService {
 		return this.show( message, 'warning', duration, action );
 	}
 
-	handleResponse( response: any ): boolean {
-		if ( !response?.message || !response?.messageType ) return false;
-		switch ( response.messageType as XiriSnackbarType ) {
-			case 'success': this.success( response.message ); break;
-			case 'error':   this.error( response.message );   break;
-			case 'info':    this.info( response.message );     break;
-			case 'warning': this.warning( response.message );  break;
-			default:        this.info( response.message );
+	handleResponse( response: unknown ): boolean {
+		const res = response as { message?: string; messageType?: string } | null | undefined;
+		if ( !res?.message || !res?.messageType ) return false;
+		switch ( res.messageType as XiriSnackbarType ) {
+			case 'success': this.success( res.message ); break;
+			case 'error':   this.error( res.message );   break;
+			case 'info':    this.info( res.message );     break;
+			case 'warning': this.warning( res.message );  break;
+			default:        this.info( res.message );
 		}
 		return true;
 	}

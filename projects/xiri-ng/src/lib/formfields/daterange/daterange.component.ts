@@ -66,9 +66,9 @@ class DateRange {
 		            MatDateRangePicker,
 	            ]
             } )
-export class XiriDateRangeComponent extends XiriFieldMain implements OnInit,
-                                                                     ControlValueAccessor,
-                                                                     MatFormFieldControl<DateRange | null | undefined> {
+export class XiriDateRangeComponent extends XiriFieldMain<DateRange | null | undefined> implements OnInit,
+                                                                                                   ControlValueAccessor,
+                                                                                                   MatFormFieldControl<DateRange | null | undefined> {
 	
 	protected _uid = `xiri-date-${ nextUniqueIdXiriDateRange++ }`;
 	
@@ -115,8 +115,11 @@ export class XiriDateRangeComponent extends XiriFieldMain implements OnInit,
 		
 		this.required = !!value.required;
 		this.disabled = !!value.disabled;
-		this.disabled ? this.parts.disable() : this.parts.enable();
-		
+		if ( this.disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
+
 		this.stateChanges.next();
 	}
 	
@@ -136,8 +139,8 @@ export class XiriDateRangeComponent extends XiriFieldMain implements OnInit,
 			}
 		}
 		
-		let unixFrom = this.dateService.dateToUnix( start );
-		let unixTo = this.dateService.dateToUnix( end );
+		const unixFrom = this.dateService.dateToUnix( start );
+		const unixTo = this.dateService.dateToUnix( end );
 		
 		if ( unixFrom > unixTo )
 			return new DateRange( unixTo, unixFrom );

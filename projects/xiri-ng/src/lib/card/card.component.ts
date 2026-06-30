@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, forwardRef, inject, input, signal, Signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { XiriButton } from "../button/button.component";
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriColor } from '../types/color.type';
 import { XiriRawTableSettings, XiriRawTableComponent } from "../raw-table/xiri-raw-table.component";
@@ -24,7 +23,7 @@ import {
 export interface XiriCardSettings {
 	url?: string
 	reload?: boolean
-	data?: any
+	data?: unknown
 	fields?: XiriTableField[]
 	components?: XiriDynData[]
 	header?: string
@@ -73,7 +72,7 @@ export class XiriCardComponent {
 	loading = signal<boolean>( false );
 	errorMsg = signal<string>( '' );
 	isCollapsed = signal<boolean>( false );
-	private _data = signal<any>( null );
+	private _data = signal<unknown>( null );
 
 	cardData = computed( () => this._data() ?? this.settings().data );
 
@@ -98,7 +97,7 @@ export class XiriCardComponent {
 		const data = this.cardData();
 		if ( data == null ) return null;
 
-		let rt: XiriRawTableSettings = {
+		const rt: XiriRawTableSettings = {
 			data: data,
 			fields: this.settings().fields,
 			dense: this.settings().dense,
@@ -106,9 +105,9 @@ export class XiriCardComponent {
 			showHeader: this.settings().showHeader,
 		};
 
-		if ( !this.settings().fields && data.length !== 0 ) {
+		if ( !this.settings().fields && ( data as { length?: number } ).length !== 0 ) {
 
-			let fields: XiriTableField[] = [];
+			const fields: XiriTableField[] = [];
 			if ( Array.isArray( data ) ) {
 				fields.push( {
 					             id: '0',
@@ -141,12 +140,13 @@ export class XiriCardComponent {
 					             minWidth: '30px',
 				             } );
 
-				let transformedData = [];
-				for ( let key in data ) {
-					if ( data.hasOwnProperty( key ) ) {
+				const transformedData = [];
+				const record = data as Record<string, unknown>;
+				for ( const key in record ) {
+					if ( Object.prototype.hasOwnProperty.call( record, key ) ) {
 						transformedData.push( {
 							                      'f0': key,
-							                      'f1': data[ key ],
+							                      'f1': record[ key ],
 						                      } );
 					}
 				}
@@ -186,10 +186,11 @@ export class XiriCardComponent {
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( {
 				next: ( res ) => {
-					this._data.set( res.data ?? res );
+					const body = res as { data?: unknown } | null;
+					this._data.set( body?.data ?? res );
 					this.loading.set( false );
 				},
-				error: ( err ) => {
+				error: ( err: { error?: { error?: string } } ) => {
 					this.errorMsg.set( err.error?.error || 'Fehler beim Laden' );
 					this.loading.set( false );
 				}

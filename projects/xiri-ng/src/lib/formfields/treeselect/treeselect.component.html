@@ -3,7 +3,7 @@
 		<div class="xrow xsmall">
 			<div class="xcol xcol-md-6 header"><span>{{ field.name }}</span></div>
 			<div class="xcol xcol-md-6 search">
-				@if (field.search != false) {
+				@if (field.search !== false) {
 					<xiri-search (changed)="searchDo($event)"></xiri-search>
 				}
 			</div>

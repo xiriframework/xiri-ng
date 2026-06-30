@@ -4,7 +4,7 @@ import { XiriLocalStorageService } from './localStorage.service';
 
 describe( 'XiriLocalStorageService', () => {
 	let service: XiriLocalStorageService;
-	let mockLocalStorage: { [key: string]: string };
+	let mockLocalStorage: Record<string, string>;
 
 	let getItemSpy: ReturnType<typeof vi.fn>;
 	let setItemSpy: ReturnType<typeof vi.fn>;
@@ -81,9 +81,9 @@ describe( 'XiriLocalStorageService', () => {
 		it( 'should persist to localStorage', () => {
 			service.set( 'persist', 'value' );
 			expect( setItemSpy ).toHaveBeenCalled();
-			const call = setItemSpy.mock.calls.find( ( c: any[] ) => c[0] === 'persist' );
+			const call = setItemSpy.mock.calls.find( ( c: unknown[] ) => c[0] === 'persist' );
 			expect( call ).toBeTruthy();
-			const parsed = JSON.parse( call![1] );
+			const parsed = JSON.parse( call![1] as string );
 			expect( parsed.value ).toBe( 'value' );
 			expect( parsed.time ).toBeDefined();
 		} );
@@ -110,7 +110,7 @@ describe( 'XiriLocalStorageService', () => {
 			service.get( 'cacheTest' );
 
 			// localStorage.getItem should only be called once for this key
-			const calls = getItemSpy.mock.calls.filter( ( c: any[] ) => c[0] === 'cacheTest' );
+			const calls = getItemSpy.mock.calls.filter( ( c: unknown[] ) => c[0] === 'cacheTest' );
 			expect( calls.length ).toBe( 1 );
 		} );
 	} );

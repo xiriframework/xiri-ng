@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { XiriFormFieldsComponent } from './form-fields.component';
-import { XiriFormField } from './field.interface';
+import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
+import { UntypedFormGroup } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { XiriDataService, XiriDataServiceConfig } from '../services/data.service';
+import { XiriDataServiceConfig } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { HttpClient } from '@angular/common/http';
 import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
@@ -20,6 +21,7 @@ import { enUS } from 'date-fns/locale/en-US';
 		[disabled]="disabled()"
 		[check]="checkSubject"
 		(formChange)="onFormChange($event)" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriFormFieldsComponent ],
 } )
 class TestHostComponent {
@@ -27,10 +29,10 @@ class TestHostComponent {
 	display = signal<'full' | 'line' | 'small'>( 'full' );
 	disabled = signal<boolean>( false );
 	checkSubject = new Subject<void>();
-	formChangeEvents: any[] = [];
+	formChangeEvents: UntypedFormGroup[] = [];
 	formFields = viewChild.required( XiriFormFieldsComponent );
 
-	onFormChange( event: any ) {
+	onFormChange( event: UntypedFormGroup ) {
 		this.formChangeEvents.push( event );
 	}
 }
@@ -596,7 +598,7 @@ describe( 'XiriFormFieldsComponent', () => {
 					id: 'detail',
 					type: 'text',
 					value: '',
-					showWhen: { field: 'name', operator: 'unknownOp' as any, value: 'x' },
+					showWhen: { field: 'name', operator: 'unknownOp' as XiriFormFieldConditionOperator, value: 'x' },
 				},
 			] );
 			fixture.detectChanges();
@@ -822,7 +824,7 @@ describe( 'XiriFormFieldsComponent', () => {
 				id: 'q',
 				type: 'question',
 				question: 'Are you sure?',
-			} as any ] );
+			} ] );
 			fixture.detectChanges();
 
 			expect( component.formGroup.get( 'q' ).value ).toBe( 'Are you sure?' );

@@ -50,8 +50,8 @@ export class XiriChipsComponent implements ControlValueAccessor {
 
 	chipInput = viewChild<ElementRef<HTMLInputElement>>( 'chipInput' );
 
-	private onChange: ( value: ( string | number )[] ) => void = () => {};
-	private onTouched: () => void = () => {};
+	private onChange: ( value: ( string | number )[] ) => void = () => { /* intentionally empty */ };
+	private onTouched: () => void = () => { /* intentionally empty */ };
 
 	writeValue( value: ( string | number )[] ): void {
 		this.chips.set( value || [] );

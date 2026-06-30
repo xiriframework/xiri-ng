@@ -41,8 +41,8 @@ export interface XiriTabsSettings {
 export class XiriTabsComponent {
 	
 	settings = input.required<XiriTabsSettings>();
-	filterData = input<any>( undefined );
-	dyncomponent = input<TemplateRef<any>>();
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	dyncomponent = input<TemplateRef<unknown>>();
 	
 	selectedIndex = signal( 0 );
 	visitedTabs = signal<Set<number>>( new Set( [ 0 ] ) );

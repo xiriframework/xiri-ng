@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
              } )
 export class XiriNumberService {
 	
-	private currentLocale: string = 'de-DE';
+	private currentLocale = 'de-DE';
 	
 	public setLocale( locale: string ) {
 		this.currentLocale = locale;

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriButtonstyleComponent } from './buttonstyle.component';
 import { XiriButton } from '../button/button.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,6 +17,7 @@ function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-buttonstyle [button]="btn()" [disabled]="disabled()" [loading]="loading()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriButtonstyleComponent],
 })
 class TestHostComponent {

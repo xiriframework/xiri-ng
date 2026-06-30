@@ -1,14 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { XiriEmptyStateComponent, XiriEmptyStateSettings } from './empty-state.component';
 import { XiriButtonResult } from '../button/button.component';
 import { provideXiriServices } from '../provider';
 
 @Component( {
 	template: `<xiri-empty-state [settings]="settings()" (buttonResult)="onButtonResult($event)"/>`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriEmptyStateComponent ]
 } )
 class TestHostComponent {
@@ -30,7 +31,7 @@ describe( 'XiriEmptyStateComponent', () => {
 	beforeEach( async () => {
 		await TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
-			providers: [ provideRouter( [] ), provideHttpClient(), provideXiriServices( { api: '/api/' } ) ]
+			providers: [ provideRouter( [] ), provideHttpClient(withXhr()), provideXiriServices( { api: '/api/' } ) ]
 		} ).compileComponents();
 
 		fixture = TestBed.createComponent( TestHostComponent );

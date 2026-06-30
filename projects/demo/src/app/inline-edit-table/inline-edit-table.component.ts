@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
+import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.interface';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
@@ -10,13 +10,14 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-inline-edit-table',
 	            templateUrl: './inline-edit-table.component.html',
 	            styleUrl: './inline-edit-table.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class InlineEditTableComponent {
 
 	constructor() {
 		// Seed brand/category per row so the searchable columns show initial values.
-		( this.tableSettings.data as any[] ).forEach( ( r, i ) => {
+		( this.tableSettings.data as XiriTableRow[] ).forEach( ( r, i ) => {
 			r.brand = this.brands[ i % this.brands.length ];
 			r.category = this.categories[ i % this.categories.length ];
 		} );
@@ -67,7 +68,7 @@ export class InlineEditTableComponent {
 			{ id: 19, name: 'Webcam Light', price: '24.90', status: 'Active', tags: [ { label: 'Electronics', color: 'primary' } ], lastModified: '' },
 			{ id: 20, name: 'Desk Mat XXL', price: '29.90', status: 'On Sale', tags: [ { label: 'Accessories', color: 'accent' }, { label: 'Sale', color: 'warn' } ], lastModified: '' },
 		],
-		fields: <XiriTableField[]> [
+		fields: [
 			{ id: 'id', name: 'ID' },
 			{ id: 'name', name: 'Product', editable: true },
 			{ id: 'price', name: 'Price', editable: true },
@@ -95,7 +96,7 @@ export class InlineEditTableComponent {
 				]
 			},
 			{ id: 'lastModified', name: 'Last Modified', sort: false },
-		],
+		] as XiriTableField[],
 		options: {
 			sort: true, search: true, pagination: true,
 			title: 'Products (Inline Edit)',

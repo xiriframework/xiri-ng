@@ -1,12 +1,28 @@
 import { afterNextRender, inject, Injectable, Injector, signal } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatTableDataSource } from '@angular/material/table';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriTableField } from '../raw-table/tabefield.interface';
+import { XiriTableCellValue, XiriTableRow } from './tree.service';
 
-type EditableOption = { value: string; label: string; color?: string };
+export interface EditableOption { value: string; label: string; color?: string }
+
+// A single chip value as stored on a chips-format cell.
+interface ChipValue { label: string; color?: string }
+
+// Shape of the per-cell save response: optional field updates applied back to the row.
+interface InlineEditResult { updates?: Record<string, XiriTableCellValue> }
+
+// Reads a human-readable message out of an unknown HTTP error value.
+function errorMessage( err: unknown ): string | undefined {
+	const inner = ( err as { error?: { error?: string } | string } )?.error;
+	if ( inner && typeof inner === 'object' && 'error' in inner )
+		return inner.error;
+	return undefined;
+}
 
 
 @Injectable()
@@ -16,18 +32,18 @@ export class XiriTableInlineEditService {
 	private snackbar = inject( XiriSnackbarService );
 	private injector = inject( Injector );
 
-	editingCell = signal<{ row: any; field: string } | null>( null );
+	editingCell = signal<{ row: XiriTableRow; field: string } | null>( null );
 	editingChipsValues = signal<string[]>( [] );
 	editableOptionsLoading = signal( false );
 	loadedEditableOptions = signal<EditableOption[]>( [] );
-	savingCell = signal<{ row: any; field: string } | null>( null );
+	savingCell = signal<{ row: XiriTableRow; field: string } | null>( null );
 
 	// Inline-edit select search (client- and server-side)
 	searchControl = new FormControl<string>( '', { nonNullable: true } );
 	searching = signal( false );
 	displayedOptions = signal<EditableOption[]>( [] );
 
-	private editingOriginalValue: any = null;
+	private editingOriginalValue: XiriTableCellValue = null;
 	private editableOptionsSub: Subscription | null = null;
 	private optionCache = new Map<string, EditableOption>();
 	private searchSub: Subscription | null = null;
@@ -36,9 +52,9 @@ export class XiriTableInlineEditService {
 	private getEditUrl: () => string;
 	private getDisplayedColumns: () => XiriTableField[];
 	private abort$: Subject<void>;
-	private onSaved: ( row: any, fieldId: string ) => void;
+	private onSaved: ( row: XiriTableRow, fieldId: string ) => void;
 	private onDataUpdate: () => void;
-	private onCallReturn: ( result: any ) => void;
+	private onCallReturn: ( result: unknown ) => void;
 
 	private get editUrl(): string { return this.getEditUrl?.(); }
 	private get displayedColumns(): XiriTableField[] { return this.getDisplayedColumns?.() ?? []; }
@@ -47,9 +63,9 @@ export class XiriTableInlineEditService {
 		getEditUrl: () => string;
 		getDisplayedColumns: () => XiriTableField[];
 		abort$: Subject<void>;
-		onSaved: ( row: any, fieldId: string ) => void;
+		onSaved: ( row: XiriTableRow, fieldId: string ) => void;
 		onDataUpdate: () => void;
-		onCallReturn: ( result: any ) => void;
+		onCallReturn: ( result: unknown ) => void;
 	} ): void {
 		this.getEditUrl = config.getEditUrl;
 		this.getDisplayedColumns = config.getDisplayedColumns;
@@ -59,13 +75,13 @@ export class XiriTableInlineEditService {
 		this.onCallReturn = config.onCallReturn;
 	}
 
-	start( row: any, column: XiriTableField, skipSavingCheck = false ): void {
+	start( row: XiriTableRow, column: XiriTableField, skipSavingCheck = false ): void {
 		if ( !column.editable || !this.editUrl || ( !skipSavingCheck && this.savingCell() ) )
 			return;
-		const val = row[ column.id ];
+		const val = row[ column.id ] as XiriTableCellValue;
 		this.editingOriginalValue = Array.isArray( val ) ? JSON.parse( JSON.stringify( val ) ) : val;
 		if ( column.format === 'chips' && Array.isArray( val ) && !column.editableOptionsUrl ) {
-			this.editingChipsValues.set( val.map( ( c: any ) => {
+			this.editingChipsValues.set( ( val as unknown as ChipValue[] ).map( ( c ) => {
 				const opt = column.editableOptions?.find( o => o.label === c.label );
 				return opt?.value || c.label;
 			} ) );
@@ -77,14 +93,15 @@ export class XiriTableInlineEditService {
 			this.loadedEditableOptions.set( [] );
 			this.editableOptionsSub?.unsubscribe();
 			const separator = column.editableOptionsUrl.includes( '?' ) ? '&' : '?';
-			const optionsUrl = column.editableOptionsUrl + separator + 'id=' + encodeURIComponent( row.id ) + '&field=' + encodeURIComponent( column.id );
+			const optionsUrl = column.editableOptionsUrl + separator + 'id=' + encodeURIComponent( String( row.id ) ) + '&field=' + encodeURIComponent( column.id );
 			this.editableOptionsSub = this.dataService.get( optionsUrl ).subscribe( {
-				next: ( result: any ) => {
+				next: ( raw: unknown ) => {
+					const result = ( raw ?? [] ) as EditableOption[];
 					this.loadedEditableOptions.set( result );
 					this.editableOptionsLoading.set( false );
 					if ( column.format === 'chips' && Array.isArray( val ) ) {
-						this.editingChipsValues.set( val.map( ( c: any ) => {
-							const opt = result.find( ( o: any ) => o.label === c.label );
+						this.editingChipsValues.set( ( val as unknown as ChipValue[] ).map( ( c ) => {
+							const opt = result.find( ( o ) => o.label === c.label );
 							return opt?.value || c.label;
 						} ) );
 					}
@@ -106,7 +123,7 @@ export class XiriTableInlineEditService {
 	}
 
 	/** Sets up the search box + subscription for searchable inline-edit selects. */
-	private initSearch( column: XiriTableField, row: any ): void {
+	private initSearch( column: XiriTableField, row: XiriTableRow ): void {
 		this.teardownSearch();
 		if ( !column.editableOptionsSearch && !column.editableSearchUrl )
 			return;
@@ -121,7 +138,7 @@ export class XiriTableInlineEditService {
 	}
 
 	/** Runs the search: server-side POST when editableSearchUrl is set, otherwise local label filter. */
-	private runSearch( column: XiriTableField, row: any, term: string ): void {
+	private runSearch( column: XiriTableField, row: XiriTableRow, term: string ): void {
 		const base = this.baseOptions( column );
 		if ( column.editableSearchUrl ) {
 			if ( !term ) {
@@ -135,8 +152,8 @@ export class XiriTableInlineEditService {
 			this.searchReqSub?.unsubscribe();
 			this.searchReqSub = this.dataService.post( column.editableSearchUrl, { id: row.id, field: column.id, search: term } )
 				.pipe( takeUntil( this.abort$ ) ).subscribe( {
-					next: ( result: any ) => {
-						const opts: EditableOption[] = result ?? [];
+					next: ( result: unknown ) => {
+						const opts: EditableOption[] = ( result ?? [] ) as EditableOption[];
 						opts.forEach( o => this.optionCache.set( o.value, o ) );
 						this.displayedOptions.set( opts );
 						this.searching.set( false );
@@ -183,10 +200,10 @@ export class XiriTableInlineEditService {
 		this.teardownSearch();
 	}
 
-	save( row: any, column: XiriTableField ): void {
+	save( row: XiriTableRow, column: XiriTableField ): void {
 		const editing = this.editingCell();
 		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
-		const newValue = row[ column.id ];
+		const newValue = row[ column.id ] as XiriTableCellValue;
 		const originalValue = this.editingOriginalValue;
 		this.editingCell.set( null );
 		this.editingOriginalValue = null;
@@ -201,43 +218,45 @@ export class XiriTableInlineEditService {
 			return;
 		}
 
-		const value = column.format === 'chips' && Array.isArray( newValue )
-			? newValue.map( ( c: any ) => c.label )
+		const value: XiriTableCellValue = column.format === 'chips' && Array.isArray( newValue )
+			? ( newValue as unknown as ChipValue[] ).map( ( c ) => c.label )
 			: newValue;
 		const payload = { id: row.id, field: column.id, value };
 		this.savingCell.set( { row, field: column.id } );
 		this.dataService.post( this.editUrl, payload ).pipe( takeUntil( this.abort$ ) ).subscribe( {
-			next: ( result: any ) => {
+			next: ( raw: unknown ) => {
+				const result = raw as InlineEditResult | null;
 				this.savingCell.set( null );
 				if ( result?.updates ) {
-					Object.keys( result.updates ).forEach( key => {
-						row[ key ] = result.updates[ key ];
+					const updates = result.updates;
+					Object.keys( updates ).forEach( key => {
+						row[ key ] = updates[ key ];
 					} );
 					this.onDataUpdate();
 				}
 				this.onSaved( row, column.id );
 				this.onCallReturn( result );
 			},
-			error: ( err: any ) => {
+			error: ( err: unknown ) => {
 				this.savingCell.set( null );
 				row[ column.id ] = originalValue;
 				this.onDataUpdate();
-				this.snackbar.error( err.error?.error || 'Unknown Error' );
+				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
 			}
 		} );
 	}
 
-	isEditing( row: any, fieldId: string ): boolean {
+	isEditing( row: XiriTableRow, fieldId: string ): boolean {
 		const editing = this.editingCell();
 		return editing !== null && editing.row === row && editing.field === fieldId;
 	}
 
-	isSaving( row: any, fieldId: string ): boolean {
+	isSaving( row: XiriTableRow, fieldId: string ): boolean {
 		const saving = this.savingCell();
 		return saving !== null && saving.row === row && saving.field === fieldId;
 	}
 
-	onKeydown( event: KeyboardEvent, row: any, column: XiriTableField ): void {
+	onKeydown( event: KeyboardEvent, row: XiriTableRow, column: XiriTableField ): void {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
 			this.save( row, column );
@@ -279,7 +298,7 @@ export class XiriTableInlineEditService {
 		return null;
 	}
 
-	flashSaved( row: any, fieldId: string, dataSource: any ): void {
+	flashSaved( row: XiriTableRow, fieldId: string, dataSource: MatTableDataSource<XiriTableRow> ): void {
 		afterNextRender( () => {
 			const rowIndex = dataSource.data.indexOf( row );
 			const colIndex = this.displayedColumns.findIndex( c => c.id === fieldId );
@@ -319,7 +338,7 @@ export class XiriTableInlineEditService {
 		return v !== null && v !== undefined && v !== '' ? [ String( v ) ] : [];
 	}
 
-	onChipsChange( row: any, column: XiriTableField, selectedValues: string[] ): void {
+	onChipsChange( row: XiriTableRow, column: XiriTableField, selectedValues: string[] ): void {
 		this.editingChipsValues.set( selectedValues );
 		row[ column.id ] = selectedValues.map( val => {
 			const opt = this.optionCache.get( val ) ?? this.getOptions( column ).find( o => o.value === val );

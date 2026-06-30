@@ -86,8 +86,8 @@ import { XiriGanttComponent } from '../gantt/gantt.component';
 export class XiriDynComponentComponent {
 	
 	data = input.required<XiriDynData[]>();
-	filterData = input<any>( undefined );
-	dyncomponent = input<TemplateRef<any>>();
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	dyncomponent = input<TemplateRef<unknown>>();
 	
 	dataInt = computed( () => {
 		

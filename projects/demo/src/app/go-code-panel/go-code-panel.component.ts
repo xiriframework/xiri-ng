@@ -1,8 +1,9 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'app-go-code',
     templateUrl: './go-code-panel.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
     styleUrl: './go-code-panel.component.scss',
 })
 export class GoCodePanelComponent {

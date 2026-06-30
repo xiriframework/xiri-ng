@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ChangeDetectionStrategy, Component, signal, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, input, OnInit } from '@angular/core';
 import { XiriSectionSettings } from './section.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIcon } from '@angular/material/icon';
@@ -16,7 +16,11 @@ import { MatDivider } from '@angular/material/divider';
 			@if (settings().title) {
 				<div class="section-header"
 				     [class.collapsible]="settings().collapsible"
-				     (click)="settings().collapsible && toggle()">
+				     [attr.role]="settings().collapsible ? 'button' : null"
+				     [attr.tabindex]="settings().collapsible ? 0 : null"
+				     (click)="settings().collapsible && toggle()"
+				     (keydown.enter)="settings().collapsible && toggle()"
+				     (keydown.space)="settings().collapsible && toggle(); settings().collapsible && $event.preventDefault()">
 					<div class="section-header-left">
 						@if (settings().icon) {
 							<mat-icon [class]="settings().iconColor || ''">{{ settings().icon }}</mat-icon>
@@ -48,7 +52,7 @@ import { MatDivider } from '@angular/material/divider';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [MatIcon, MatDivider],
 })
-class TestSectionComponent {
+class TestSectionComponent implements OnInit {
 	settings = input.required<XiriSectionSettings>();
 	collapsed = signal<boolean>(false);
 
@@ -66,6 +70,7 @@ class TestSectionComponent {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-section-test [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TestSectionComponent],
 })
 class TestHostComponent {

@@ -29,6 +29,8 @@ interface VolumeForm {
 	volh: FormControl<number>
 }
 
+type VolumeValue = [ number, number, number ] | null | undefined;
+
 @Component( {
 	            selector: 'xiri-volume',
 	            templateUrl: './volume.component.html',
@@ -52,7 +54,7 @@ interface VolumeForm {
 		            MatError,
 	            ]
             } )
-export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldControl<any>, DoCheck, OnDestroy {
+export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldControl<VolumeValue>, DoCheck, OnDestroy {
 	private focusMonitor = inject( FocusMonitor );
 	ngControl = inject( NgControl, { optional: true, self: true } );
 	private _elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
@@ -99,10 +101,8 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 		} );
 	}
 	
-	onChange = ( _: any ) => {
-	};
-	onTouched = () => {
-	};
+	onChange: ( value: VolumeValue ) => void = () => { /* intentionally empty */ };
+	onTouched = () => { /* intentionally empty */ };
 	
 	ngDoCheck(): void {
 		this.runCheck();
@@ -127,8 +127,11 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 		
 		this.required = coerceBooleanProperty( value.required );
 		this.disabled = coerceBooleanProperty( value.disabled );
-		this.disabled ? this.parts.disable() : this.parts.enable();
-		
+		if ( this.disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
+
 		this.stateChanges.next();
 	}
 	
@@ -137,19 +140,19 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	}
 	
 	@Input()
-	get value(): [ number, number, number ] {
-		
+	get value(): VolumeValue {
+
 		const { value: { voll, volw, volh } } = this.parts;
-		
+
 		if ( this.errorState )
 			return undefined;
 		if ( voll === null || volw === null || volh === null )
 			return null;
-		
+
 		return [ voll, volw, volh ];
 	}
-	
-	set value( input: [ number, number, number ] ) {
+
+	set value( input: VolumeValue ) {
 		
 		if ( input === null || input === undefined )
 			return;
@@ -185,11 +188,11 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 			this.changeValue( val );
 	}
 	
-	private changeTO = null;
-	
-	private changeValue( val ) {
-		
-		this._lastValue = val;
+	private changeTO: ReturnType<typeof setTimeout> | null = null;
+
+	private changeValue( val: VolumeValue ) {
+
+		this._lastValue = val ?? null;
 		if ( this.changeTO )
 			clearTimeout( this.changeTO );
 		
@@ -205,11 +208,6 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	}
 	
 	public getErrorMessage(): string {
-		
-		let err1 = this.parts.get( 'voll' ).errors;
-		let err2 = this.parts.get( 'volw' ).errors;
-		let err3 = this.parts.get( 'volh' ).errors;
-		
 		return 'error';
 	}
 	
@@ -217,26 +215,25 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 		return this.value === null;
 	}
 	
-	writeValue( value: [ number, number, number ] ): void {
+	writeValue( value: VolumeValue ): void {
 		this.value = value;
 	}
-	
-	registerOnChange( fn: any ): void {
+
+	registerOnChange( fn: ( value: VolumeValue ) => void ): void {
 		this.onChange = fn;
 	}
-	
-	registerOnTouched( fn: any ): void {
+
+	registerOnTouched( fn: () => void ): void {
 		this.onTouched = fn;
 	}
-	
+
 	setDisabledState( isDisabled: boolean ): void {
 		this.disabled = isDisabled;
 	}
-	
+
 	setDescribedByIds( ids: string[] ) {
 		this.describedBy = ids.join( ' ' );
 	}
-	
-	onContainerClick( event: MouseEvent ): void {
-	}
+
+	onContainerClick(): void { /* intentionally empty */ }
 }

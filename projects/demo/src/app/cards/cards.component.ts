@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriDynData } from "projects/xiri-ng/src/lib/dyncomponent/dyndata.interface";
@@ -15,6 +15,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-cards',
 	            templateUrl: './cards.component.html',
 	            styleUrls: [ './cards.component.scss' ],
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class CardsComponent {
@@ -86,10 +87,10 @@ export class CardsComponent {
 			{ id: 'skills', name: 'Skills', format: 'chips', display: 'right' },
 		],
 		data: [
-			{ member: 'Alice', skills: <XiriTagChip[]>[ { label: 'Frontend', color: 'primary' }, { label: 'Angular', color: 'emerald' } ] },
-			{ member: 'Bob', skills: <XiriTagChip[]>[ { label: 'Backend', color: 'accent' }, { label: 'Docker', color: 'blue' } ] },
-			{ member: 'Charlie', skills: <XiriTagChip[]>[ { label: 'DevOps', color: 'warn' }, { label: 'Kubernetes', color: 'orange' } ] },
-			{ member: 'Diana', skills: <XiriTagChip[]>[ { label: 'Design', color: 'purple' }, { label: 'UX', color: 'success' } ] },
+			{ member: 'Alice', skills: [ { label: 'Frontend', color: 'primary' }, { label: 'Angular', color: 'emerald' } ] as XiriTagChip[] },
+			{ member: 'Bob', skills: [ { label: 'Backend', color: 'accent' }, { label: 'Docker', color: 'blue' } ] as XiriTagChip[] },
+			{ member: 'Charlie', skills: [ { label: 'DevOps', color: 'warn' }, { label: 'Kubernetes', color: 'orange' } ] as XiriTagChip[] },
+			{ member: 'Diana', skills: [ { label: 'Design', color: 'purple' }, { label: 'UX', color: 'success' } ] as XiriTagChip[] },
 		]
 	};
 
@@ -116,39 +117,39 @@ export class CardsComponent {
 
 	data: XiriDynData[] = [ {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card',
 			headerIcon: 'home',
 			data: this.content,
-			buttonsTop: <XiriButtonlineSettings> {
+			buttonsTop: {
 				buttons: this.buttons
-			}
-		}
+			} as XiriButtonlineSettings
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card',
 			data: this.content
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card',
 			headerSub: 'subheader',
 			data: this.content
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card',
 			headerSub: 'subheader',
 			headerIcon: 'home',
 			data: this.content,
 			buttons: this.buttons,
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card5',
 			headerSub: 'subheader',
 			headerIcon: 'home',
@@ -163,10 +164,10 @@ export class CardsComponent {
 			} ],
 			fields: [ { id: 'text', name: 'Link', format: 'linkrow' } ],
 			buttons: this.buttons,
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card6',
 			headerSub: 'subheader',
 			headerIcon: 'home',
@@ -179,13 +180,13 @@ export class CardsComponent {
 			} ],
 			fields: [ { id: 'text', name: 'Link', format: 'linkrow' } ],
 			buttons: this.buttons,
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'test',
 		data: '123 test out'
 	} ];
 
-	public card = <XiriCardSettings> {
+	public card = {
 		"header": "Admin",
 		"headerSub": null,
 		"headerIcon": "admin_panel_settings",
@@ -238,9 +239,9 @@ export class CardsComponent {
 				"text": "W1T123123123123 - since 56 min."
 			}
 		]
-	};
+	} as XiriCardSettings;
 
-	public card2 = <XiriCardSettings> {
+	public card2 = {
 		header: 'Card with Buttons',
 		headerSub: 'buttonsTop + buttonsBottom',
 		headerIcon: 'dashboard',
@@ -264,9 +265,9 @@ export class CardsComponent {
 			'Modified': '2025-02-15',
 			'Status': 'Active',
 		}
-	};
+	} as XiriCardSettings;
 
-	public card3 = <XiriCardSettings> {
+	public card3 = {
 		header: 'Dense Card',
 		headerIcon: 'compress',
 		headerIconColor: 'warn',
@@ -281,9 +282,9 @@ export class CardsComponent {
 			{ key: 'Protocol', value: 'HTTPS' },
 			{ key: 'Uptime', value: '14 days' },
 		]
-	};
+	} as XiriCardSettings;
 
-	public cardIcon = <XiriCardSettings> {
+	public cardIcon = {
 		header: 'Status Overview',
 		headerIcon: 'verified',
 		headerIconColor: 'tertiary',
@@ -297,7 +298,7 @@ export class CardsComponent {
 					'2': { icon: 'lock', color: 'error', hint: 'Locked' },
 					'3': { icon: 'schedule', color: 'warn', hint: 'Pending' },
 					'4': { icon: 'cloud_done', color: 'success', hint: 'Synced' },
-				} as any
+				} as unknown as { icon: string; color?: string; hint?: string }[]
 			},
 		],
 		data: [
@@ -307,9 +308,9 @@ export class CardsComponent {
 			{ id: 'Scheduled', text: '3' },
 			{ id: 'Cloud Sync', text: '4' },
 		]
-	};
+	} as XiriCardSettings;
 
-	public card4 = <XiriCardSettings> {
+	public card4 = {
 		header: 'Card with Menu Button',
 		headerSub: 'buttonsTop with action: menu',
 		headerIcon: 'menu_open',
@@ -346,7 +347,7 @@ export class CardsComponent {
 			'buttonsBottom': 'Basic button with mat-menu',
 			'menuItems': 'link, href, dialog',
 		}
-	};
+	} as XiriCardSettings;
 
 	goTableCardCode = `fields := []card.CardListField{
     {ID: "id", Name: "ID", Format: "text", Display: "info"},

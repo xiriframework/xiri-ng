@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, effect, inject, input } from "@angular/core";
+import { ChangeDetectorRef, Directive, effect, inject, input, OnInit, OnDestroy } from "@angular/core";
 import { UntypedFormControl } from "@angular/forms";
 import {
 	catchError,
@@ -13,22 +13,22 @@ import { filter, takeUntil } from "rxjs/operators";
 import { XiriFormFieldSelectOption } from "../field.interface";
 import { XiriDataService } from "../../services/data.service";
 
-export type XiriSelectPredicate = <T>( filter: string, element: XiriFormFieldSelectOption ) => boolean;
-export const DEFAULT_PREDICATE: XiriSelectPredicate = <T>( filter: string,
-                                                           el: XiriFormFieldSelectOption ): boolean => el.name.toLowerCase()
-	                                                                                                       .indexOf(
-		                                                                                                       filter ) >
-                                                                                                       -1;
+export type XiriSelectPredicate = ( filter: string, element: XiriFormFieldSelectOption ) => boolean;
+export const DEFAULT_PREDICATE: XiriSelectPredicate = ( filter: string,
+                                                        el: XiriFormFieldSelectOption ): boolean => el.name.toLowerCase()
+	                                                                                                    .indexOf(
+		                                                                                                    filter ) >
+                                                                                                    -1;
 
-export type XiriSelectCompare = <T>( a: XiriFormFieldSelectOption, b: XiriFormFieldSelectOption ) => boolean;
-export const DEFAULT_COMPARE: XiriSelectCompare = <T>( a: XiriFormFieldSelectOption,
-                                                       b: XiriFormFieldSelectOption ) => a && b && a.id === b.id;
+export type XiriSelectCompare = ( a: XiriFormFieldSelectOption, b: XiriFormFieldSelectOption ) => boolean;
+export const DEFAULT_COMPARE: XiriSelectCompare = ( a: XiriFormFieldSelectOption,
+                                                    b: XiriFormFieldSelectOption ) => a && b && a.id === b.id;
 
 @Directive( {
 	            selector: "[xiriSelect]",
 	            exportAs: "xiriSelect"
             } )
-export class XiriSelectDirective<T> {
+export class XiriSelectDirective implements OnInit, OnDestroy {
 	private dataService = inject( XiriDataService );
 	private cdr = inject( ChangeDetectorRef );
 	
@@ -57,23 +57,23 @@ export class XiriSelectDirective<T> {
 	protected _onDestroy = new Subject<void>();
 	
 	
-	searchPredicate = input<XiriSelectPredicate>(DEFAULT_PREDICATE, { alias: 'predicate' });
+	predicate = input<XiriSelectPredicate>(DEFAULT_PREDICATE);
 
-	compareWith = input<XiriSelectCompare>(DEFAULT_COMPARE, { alias: 'compare' });
-	
-	serverSideSearch = input<boolean>(false, { alias: 'serverSideSearch' });
-	
-	serverUrl = input<string>('', { alias: 'serverUrl' });
-	
-	serverParams = input<any>({}, { alias: 'serverParams' });
-	
+	compare = input<XiriSelectCompare>(DEFAULT_COMPARE);
+
+	serverSideSearch = input<boolean>(false);
+
+	serverUrl = input<string>('');
+
+	serverParams = input<Record<string, unknown>>({});
+
 	/** list of _allValues */
 	private _allValues: XiriFormFieldSelectOption[] = [] as XiriFormFieldSelectOption[];
-	allValues = input<XiriFormFieldSelectOption[]>([], { alias: 'values' });
+	values = input<XiriFormFieldSelectOption[]>([]);
 
 	constructor() {
 		effect(() => {
-			let value = this.allValues();
+			let value = this.values();
 			if ( value === undefined )
 				value = [];
 
@@ -102,7 +102,9 @@ export class XiriSelectDirective<T> {
 								} ) )
 					} ),
 					tap( ( filteredList ) => {
-						this._filteredValuesSubject.next( this._allValues.slice().concat( filteredList ) )
+						this._filteredValuesSubject.next(
+							this._allValues.slice().concat( filteredList as XiriFormFieldSelectOption[] )
+						)
 					} ),
 					tap( () => {
 						this.searching = false;
@@ -142,7 +144,7 @@ export class XiriSelectDirective<T> {
 		}
 		// filter the _allValues
 		this._filteredValuesSubject.next(
-			this._allValues.filter( el => this.searchPredicate()<T>( search, el ) )
+			this._allValues.filter( el => this.predicate()( search, el ) )
 		);
 	}
 	

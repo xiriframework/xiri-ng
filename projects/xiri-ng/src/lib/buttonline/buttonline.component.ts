@@ -20,7 +20,7 @@ export class XiriButtonlineComponent {
 	
 	settings = input.required<XiriButtonlineSettings>();
 	disabled = input<boolean>( false );
-	filterData = input<any>( undefined );
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
 	
 	result = output<XiriButtonResult>();
 }

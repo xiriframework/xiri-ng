@@ -4,6 +4,7 @@ import { XiriColor } from '../types/color.type';
 import { XiriEchartsClick, XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsCallbackParams, XiriEchartsTooltipParams } from '../echarts/params';
 
 export type XiriBarChartMode = 'simple' | 'stacked' | 'heatmap';
 
@@ -108,7 +109,7 @@ export class XiriBarChartComponent {
 			grid: this.baseGrid(),
 			tooltip: {
 				trigger: 'axis',
-				formatter: ( params: any ) => {
+				formatter: ( params: XiriEchartsTooltipParams ) => {
 					const arr = Array.isArray( params ) ? params : [ params ];
 					if ( !arr.length ) return '';
 					const p = arr[ 0 ];
@@ -142,7 +143,7 @@ export class XiriBarChartComponent {
 					show: !!s.showValues,
 					position: s.labelPosition === 'inside' ? 'inside' : 'top',
 					color: s.labelPosition === 'inside' ? '#fff' : undefined,
-					formatter: ( p: any ) => bars[ p.dataIndex ]?.text ?? String( p.value )
+					formatter: ( p: XiriEchartsCallbackParams ) => bars[ p.dataIndex ]?.text ?? String( p.value )
 				}
 			} ]
 		};
@@ -160,7 +161,7 @@ export class XiriBarChartComponent {
 			seriesNames.push( found ?? '' );
 		}
 
-		const series: any[] = [];
+		const series: unknown[] = [];
 		for ( let i = 0; i < segCount; i++ ) {
 			series.push( {
 				type: 'bar',
@@ -171,7 +172,7 @@ export class XiriBarChartComponent {
 					show: !!s.showValues,
 					position: 'inside',
 					color: '#fff',
-					formatter: ( p: any ) => ( p.value === 0 ? '' : String( p.value ) )
+					formatter: ( p: XiriEchartsCallbackParams ) => ( p.value === 0 ? '' : String( p.value ) )
 				},
 				data: bars.map( b => {
 					const seg = b.segments?.[ i ];
@@ -189,7 +190,7 @@ export class XiriBarChartComponent {
 			grid: this.baseGrid(),
 			tooltip: {
 				trigger: 'axis',
-				formatter: ( params: any ) => {
+				formatter: ( params: XiriEchartsTooltipParams ) => {
 					const arr = Array.isArray( params ) ? params : [ params ];
 					if ( !arr.length ) return '';
 					const idx = arr[ 0 ].dataIndex;
@@ -199,7 +200,7 @@ export class XiriBarChartComponent {
 					for ( const p of arr ) {
 						if ( !p.value && p.value !== 0 ) continue;
 						if ( p.value === 0 ) continue;
-						const seg = bar?.segments?.[ p.seriesIndex ];
+						const seg = bar?.segments?.[ p.seriesIndex ?? 0 ];
 						const label = seg?.name ?? p.seriesName ?? '';
 						body += `<br/>${ p.marker }${ escapeHtml( label ) }: <b>${ p.value }</b>`;
 					}
@@ -231,14 +232,15 @@ export class XiriBarChartComponent {
 			grid: { ...this.baseGrid(), left: 8, right: 8 },
 			tooltip: {
 				trigger: 'axis',
-				formatter: ( params: any ) => {
+				formatter: ( params: XiriEchartsTooltipParams ) => {
 					const arr = Array.isArray( params ) ? params : [ params ];
 					if ( !arr.length ) return '';
 					const p = arr[ 0 ];
 					const point = points[ p.dataIndex ];
-					const date = new Date( p.value[ 0 ] ).toLocaleString();
+					const val = p.value as number[];
+					const date = new Date( val[ 0 ] ).toLocaleString();
 					const head = point?.name ? `<b>${ escapeHtml( point.name ) }</b><br/>` : '';
-					return `${ head }${ escapeHtml( date ) }<br/>${ p.marker }<b>${ p.value[ 1 ] }</b>`;
+					return `${ head }${ escapeHtml( date ) }<br/>${ p.marker }<b>${ val[ 1 ] }</b>`;
 				}
 			},
 			xAxis: {

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriToolbarComponent, XiriToolbarSettings } from './toolbar.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
@@ -13,11 +13,12 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component({
 	selector: 'test-host',
 	template: `<xiri-toolbar [settings]="settings()" [filterData]="filterData()" (searchChanged)="onSearch($event)" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriToolbarComponent],
 })
 class TestHostComponent {
 	settings = signal<XiriToolbarSettings>({});
-	filterData = signal<any>(undefined);
+	filterData = signal<Record<string, unknown> | null | undefined>(undefined);
 	lastSearch: string | null = null;
 	onSearch(value: string) {
 		this.lastSearch = value;

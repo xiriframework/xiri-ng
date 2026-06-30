@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriStepperComponent, XiriStepperSettings } from 'projects/xiri-ng/src/lib/stepper/stepper.component';
@@ -13,6 +13,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 	            selector: 'app-workflow',
 	            templateUrl: './workflow.component.html',
 	            styleUrl: './workflow.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
@@ -80,7 +81,7 @@ export class WorkflowComponent {
 	};
 
 	// --- Query + Tabs ---
-	filterData = signal<any>( null );
+	filterData = signal<Record<string, unknown> | null>( null );
 
 	querySettings: XiriQuerySettings = {
 		fields: [
@@ -103,7 +104,7 @@ export class WorkflowComponent {
 				icon: 'category',
 				data: [ {
 					type: 'table',
-					data: <XiriTableSettings> {
+					data: {
 						url: '/api/tabs2/typea',
 						hasFilter: true,
 						fields: [
@@ -113,7 +114,7 @@ export class WorkflowComponent {
 							{ id: 'status', name: 'Status' }
 						],
 						options: { reload: true, pagination: true, sort: true, search: true }
-					}
+					} as XiriTableSettings
 				} ]
 			},
 			{
@@ -121,7 +122,7 @@ export class WorkflowComponent {
 				icon: 'inventory_2',
 				data: [ {
 					type: 'table',
-					data: <XiriTableSettings> {
+					data: {
 						url: '/api/tabs2/typeb',
 						hasFilter: true,
 						fields: [
@@ -131,7 +132,7 @@ export class WorkflowComponent {
 							{ id: 'status', name: 'Status' }
 						],
 						options: { reload: true, pagination: true, sort: true, search: true }
-					}
+					} as XiriTableSettings
 				} ]
 			},
 			{
@@ -139,7 +140,7 @@ export class WorkflowComponent {
 				icon: 'widgets',
 				data: [ {
 					type: 'table',
-					data: <XiriTableSettings> {
+					data: {
 						url: '/api/tabs2/typec',
 						hasFilter: true,
 						fields: [
@@ -149,7 +150,7 @@ export class WorkflowComponent {
 							{ id: 'status', name: 'Status' }
 						],
 						options: { reload: true, pagination: true, sort: true, search: true }
-					}
+					} as XiriTableSettings
 				} ]
 			},
 			{
@@ -157,7 +158,7 @@ export class WorkflowComponent {
 				icon: 'extension',
 				data: [ {
 					type: 'table',
-					data: <XiriTableSettings> {
+					data: {
 						url: '/api/tabs2/typed',
 						hasFilter: true,
 						fields: [
@@ -167,7 +168,7 @@ export class WorkflowComponent {
 							{ id: 'status', name: 'Status' }
 						],
 						options: { reload: true, pagination: true, sort: true, search: true }
-					}
+					} as XiriTableSettings
 				} ]
 			}
 		],
@@ -184,7 +185,7 @@ export class WorkflowComponent {
 		iconColor: 'accent',
 	};
 
-	filterDataCollapsed = signal<any>( null );
+	filterDataCollapsed = signal<Record<string, unknown> | null>( null );
 
 	querySettingsCollapsed: XiriQuerySettings = {
 		collapsed: true,
@@ -217,11 +218,11 @@ q := query.NewQueryWithFormGroup(fg, nil, u, bl, "stateId", nil)
 q := query.NewQueryWithFormGroup(fg, nil, u, bl, "stateId", nil).
     Collapsed(true)`;
 
-	filterChanged( event: any ) {
+	filterChanged( event: Record<string, unknown> | null ) {
 		this.filterData.set( event );
 	}
 
-	filterChangedCollapsed( event: any ) {
+	filterChangedCollapsed( event: Record<string, unknown> | null ) {
 		this.filterDataCollapsed.set( event );
 	}
 }

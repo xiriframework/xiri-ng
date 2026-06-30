@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
+import { XiriEchartsCallbackParams } from '../echarts/params';
 
 export interface XiriTreeNode {
 	name: string;
@@ -51,9 +52,9 @@ export class XiriTreeComponent {
 			tooltip: {
 				trigger: 'item',
 				triggerOn: 'mousemove',
-				formatter: ( p: any ) => {
+				formatter: ( p: XiriEchartsCallbackParams ) => {
 					const v = p.data?.value;
-					const head = `<b>${ escapeText( p.name ) }</b>`;
+					const head = `<b>${ escapeText( p.name ?? '' ) }</b>`;
 					return v != null ? `${ head }<br/>${ p.marker }<b>${ v }</b>` : head;
 				}
 			},

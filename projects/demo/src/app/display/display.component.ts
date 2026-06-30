@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriInfopointComponent, XiriInfopointSettings } from 'projects/xiri-ng/src/lib/infopoint/infopoint.component';
@@ -15,6 +15,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-display',
 	            templateUrl: './display.component.html',
 	            styleUrl: './display.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
@@ -86,17 +87,17 @@ export class DisplayComponent {
 	};
 
 	// --- Infopoint ---
-	infopoint = <XiriInfopointSettings> {
+	infopoint = {
 		text: 'Test',
 		info: 'Info text longer',
 		icon: 'wifi',
 		iconColor: 'red'
-	};
-	infopoint2 = <XiriInfopointSettings> {
+	} as XiriInfopointSettings;
+	infopoint2 = {
 		info: 'Info',
 		icon: 'directions_car',
 		iconColor: 'emerald'
-	};
+	} as XiriInfopointSettings;
 
 	// --- ImageText ---
 	imagetext1: XiriImagetextSettings = {

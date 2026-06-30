@@ -43,7 +43,7 @@
 <ng-template #linkList>
 	<mat-nav-list>
 		@for (item of settings().data; track item) {
-			@if (!item.action || item.action == 'link') {
+			@if (!item.action || item.action === 'link') {
 				<a mat-list-item [routerLink]="item.url">
 					<div matLine>{{ item.text }}</div>
 					@if (item.icon) {
@@ -52,7 +52,7 @@
 						</button>
 					}
 				</a>
-			} @else if (item.action == 'dialog') {
+			} @else if (item.action === 'dialog') {
 				<mat-list-item (click)="openDialog( item ) && $event.stopPropagation()" (keydown.enter)="openDialog( item )" (keydown.space)="openDialog( item ); $event.preventDefault()">
 					<div matLine>{{ item.text }}</div>
 					@if (item.icon) {

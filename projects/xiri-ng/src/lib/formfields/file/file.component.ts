@@ -33,6 +33,11 @@ interface FileData {
 	data: string;
 }
 
+interface FileValue {
+	name: string;
+	data: string;
+}
+
 @Component( {
 	            selector: 'xiri-file',
 	            templateUrl: './file.component.html',
@@ -59,7 +64,7 @@ interface FileData {
 		            MatError,
 	            ]
             } )
-export class XiriFileComponent implements ControlValueAccessor, MatFormFieldControl<any>, OnDestroy {
+export class XiriFileComponent implements ControlValueAccessor, MatFormFieldControl<FileValue[] | null | undefined>, OnDestroy {
 	private focusMonitor = inject( FocusMonitor );
 	ngControl = inject( NgControl, { optional: true, self: true } );
 	private _elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
@@ -99,10 +104,8 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		} );
 	}
 	
-	onChange = ( _: any ) => {
-	};
-	onTouched = () => {
-	};
+	onChange: ( value: FileValue[] | null | undefined ) => void = () => { /* intentionally empty */ };
+	onTouched = () => { /* intentionally empty */ };
 	
 	ngOnDestroy() {
 		this.stateChanges.complete();
@@ -110,13 +113,13 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	}
 	
 	@Input()
-	get value() {
-		
+	get value(): FileValue[] | null | undefined {
+
 		if ( this.errorState )
 			return undefined;
 		if ( this.currentFiles.length == 0 )
 			return null;
-		
+
 		return this.currentFiles.map( ( file ) => {
 			return {
 				name: file.name,
@@ -124,12 +127,12 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 			};
 		} );
 	}
-	
-	set value( input ) {
-		
+
+	set value( input: FileValue[] | null | undefined ) {
+
 		if ( input === null || input === undefined )
 			return;
-		
+
 		// console.log( 'xiriFile input', input );
 		// this.onChange( this.value );
 		// this.stateChanges.next();
@@ -147,8 +150,11 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		
 		this.required = value.required;
 		this.disabled = value.disabled;
-		this.disabled ? this.parts.disable() : this.parts.enable();
-		
+		if ( this.disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
+
 		this.stateChanges.next();
 	}
 	
@@ -160,43 +166,42 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		return this.value === null;
 	}
 	
-	writeValue( value ): void {
+	writeValue( value: FileValue[] | null | undefined ): void {
 		this.value = value;
 	}
-	
-	registerOnChange( fn: any ): void {
+
+	registerOnChange( fn: ( value: FileValue[] | null | undefined ) => void ): void {
 		this.onChange = fn;
 	}
-	
-	registerOnTouched( fn: any ): void {
+
+	registerOnTouched( fn: () => void ): void {
 		this.onTouched = fn;
 	}
-	
+
 	setDisabledState( isDisabled: boolean ): void {
 		this.disabled = isDisabled;
 	}
-	
+
 	setDescribedByIds( ids: string[] ) {
 		this.describedBy = ids.join( ' ' );
 	}
-	
-	onContainerClick( event: MouseEvent ): void {
-	}
+
+	onContainerClick(): void { /* intentionally empty */ }
 	
 	fileChange( event: Event ) {
 		
 		const element = event.currentTarget as HTMLInputElement;
-		let fileList: FileList | null = element.files;
+		const fileList: FileList | null = element.files;
 		
 		if ( fileList === null || fileList.length === 0 || fileList.length > 100 )
 			return;
 		
-		let fieldFiles = this.parts.get( 'files' );
-		let fieldText = this.parts.get( 'text' );
-		let files = [];
+		const fieldFiles = this.parts.get( 'files' );
+		const fieldText = this.parts.get( 'text' );
+		const files = [];
 		
 		for ( let i = 0; i < fileList.length; i++ ) {
-			let file = fileList.item( i );
+			const file = fileList.item( i );
 			if ( file === null || file.size > this._field.max ) {
 				console.log( 'file too large or null', file, this._field );
 				this.currentFiles = [];
@@ -208,7 +213,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 				return;
 			}
 			
-			let reader = new FileReader();
+			const reader = new FileReader();
 			
 			reader.addEventListener( "load", () => {
 				this.currentFiles.push( {
@@ -232,7 +237,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	
 	public getErrorMessage(): string {
 		
-		let errors = this.parts.get( 'text' ).errors;
+		const errors = this.parts.get( 'text' ).errors;
 		
 		if ( errors.required )
 			return 'required';

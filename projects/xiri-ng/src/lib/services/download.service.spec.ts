@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { HttpResponse } from '@angular/common/http';
 import { XiriDownloadService } from './download.service';
 
 describe( 'XiriDownloadService', () => {
@@ -32,15 +33,15 @@ describe( 'XiriDownloadService', () => {
 					get: ( key: string ) => headers.get( key ) || null,
 				},
 				body: new Blob( ['test content'], { type: contentType } ),
-			};
+			} as unknown as HttpResponse<Blob>;
 		};
 
 		it( 'should use filename from content-disposition header when present', () => {
 			const result = createMockResult( 'text/csv', 'attachment; filename="report.csv"' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			service.download( result, 'original.csv', false );
 
@@ -50,9 +51,9 @@ describe( 'XiriDownloadService', () => {
 		it( 'should strip quotes from content-disposition filename', () => {
 			const result = createMockResult( 'text/csv', 'attachment; filename="quoted.csv"' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			service.download( result, 'fallback.csv', false );
 
@@ -62,9 +63,9 @@ describe( 'XiriDownloadService', () => {
 		it( 'should use provided filename when no content-disposition', () => {
 			const result = createMockResult( 'application/pdf' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			service.download( result, 'myfile.pdf', false );
 
@@ -96,7 +97,7 @@ describe( 'XiriDownloadService', () => {
 		it( 'should return false when window.open returns undefined (popup blocked)', () => {
 			const result = createMockResult( 'application/pdf' );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( window, 'open' ).mockReturnValue( undefined as any );
+			vi.spyOn( window, 'open' ).mockReturnValue( undefined as unknown as Window );
 
 			const ret = service.download( result, 'file.pdf', true );
 
@@ -106,9 +107,9 @@ describe( 'XiriDownloadService', () => {
 		it( 'should create anchor element for download when open is false', () => {
 			const result = createMockResult( 'text/csv' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			const ret = service.download( result, 'data.csv', false );
 
@@ -122,9 +123,9 @@ describe( 'XiriDownloadService', () => {
 			vi.useFakeTimers();
 			const result = createMockResult( 'text/csv' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test-revoke' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			service.download( result, 'data.csv', false );
 
@@ -141,9 +142,9 @@ describe( 'XiriDownloadService', () => {
 			vi.useFakeTimers();
 			const result = createMockResult( 'text/csv' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
-			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as any );
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => {} );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
 			service.download( result, 'data.csv', false );
 

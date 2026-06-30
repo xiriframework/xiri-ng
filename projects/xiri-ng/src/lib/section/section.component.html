@@ -2,7 +2,11 @@
 	@if (settings().title) {
 		<div class="section-header"
 		     [class.collapsible]="settings().collapsible"
-		     (click)="settings().collapsible && toggle()">
+		     [attr.role]="settings().collapsible ? 'button' : null"
+		     [attr.tabindex]="settings().collapsible ? 0 : null"
+		     (click)="settings().collapsible && toggle()"
+		     (keydown.enter)="settings().collapsible && toggle()"
+		     (keydown.space)="settings().collapsible && toggle(); settings().collapsible && $event.preventDefault()">
 			<div class="section-header-left">
 				@if (settings().icon) {
 					<mat-icon [class]="settings().iconColor || ''">{{ settings().icon }}</mat-icon>

@@ -315,7 +315,7 @@
 				</div>
 			}
 			@case ('html') {
-				<div class="html" [class]="field.class" [innerHtml]="field.value | safeHtml"></div>
+				<div class="html" [class]="field.class" [innerHtml]="$any(field.value) | safeHtml"></div>
 			}
 			@case ('question') {
 				<div class="xcol question" [class]="field.class" [hidden]="field.hide">

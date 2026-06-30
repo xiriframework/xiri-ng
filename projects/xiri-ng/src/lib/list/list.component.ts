@@ -71,7 +71,7 @@ export class XiriListComponent {
 		event.stopPropagation();
 		event.preventDefault();
 
-		let url = item.favoriteUrl + ( item.isFavorite ? '0' : '1' );
+		const url = item.favoriteUrl + ( item.isFavorite ? '0' : '1' );
 		this.dataService.get( url ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe();
 		item.isFavorite = !item.isFavorite;
 	}

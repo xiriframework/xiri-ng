@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriHeaderComponent, XiriHeaderSettings } from 'projects/xiri-ng/src/lib/header/header.component';
@@ -13,11 +13,13 @@ import { XiriCardSettings } from 'projects/xiri-ng/src/lib/card/card.component';
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriListSettings } from 'projects/xiri-ng/src/lib/list/list.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriButtonResult } from 'projects/xiri-ng/src/lib/button/button.component';
 
 @Component( {
 	            selector: 'app-navigation',
 	            templateUrl: './navigation.component.html',
 	            styleUrl: './navigation.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
@@ -81,15 +83,15 @@ export class NavigationComponent {
 	};
 
 	// --- Headers ---
-	header = <XiriHeaderSettings> { text: 'Default (null)', color: 'primary', size: null };
-	headerX1 = <XiriHeaderSettings> { text: 'Size x1', size: 'x1', color: 'primary' };
-	headerX15 = <XiriHeaderSettings> { text: 'Size x15', size: 'x15', color: 'accent' };
-	headerX2 = <XiriHeaderSettings> { text: 'Size x2', size: 'x2', color: 'primary' };
-	headerX25 = <XiriHeaderSettings> { text: 'Size x25', size: 'x25', color: 'warn' };
-	headerX3 = <XiriHeaderSettings> { text: 'Size x3', size: 'x3', color: 'primary' };
+	header = { text: 'Default (null)', color: 'primary', size: null } as XiriHeaderSettings;
+	headerX1 = { text: 'Size x1', size: 'x1', color: 'primary' } as XiriHeaderSettings;
+	headerX15 = { text: 'Size x15', size: 'x15', color: 'accent' } as XiriHeaderSettings;
+	headerX2 = { text: 'Size x2', size: 'x2', color: 'primary' } as XiriHeaderSettings;
+	headerX25 = { text: 'Size x25', size: 'x25', color: 'warn' } as XiriHeaderSettings;
+	headerX3 = { text: 'Size x3', size: 'x3', color: 'primary' } as XiriHeaderSettings;
 
 	// --- Buttonline ---
-	buttonline = <XiriButtonlineSettings> {
+	buttonline = {
 		class: 'right',
 		buttons: [
 			{ text: 'raised', type: 'raised', hint: 'raised', action: 'debug' },
@@ -101,9 +103,9 @@ export class NavigationComponent {
 			{ text: 'icon', type: 'icon', hint: 'icon', icon: 'home', default: true, action: 'debug' },
 			{ text: 'icontext', type: 'icontext', hint: 'icontext', icon: 'home', default: true, action: 'debug', disabled: true }
 		]
-	};
+	} as XiriButtonlineSettings;
 
-	buttonline2 = <XiriButtonlineSettings> {
+	buttonline2 = {
 		class: 'right',
 		buttons: [
 			{ text: 'link', type: 'raised', hint: 'link', action: 'link', url: '/Forms' },
@@ -112,13 +114,13 @@ export class NavigationComponent {
 			{ text: 'api', type: 'raised', hint: 'api', action: 'api', url: 'Test/Wait/Wait', color: 'accent' },
 			{ text: 'download', type: 'raised', hint: 'download', action: 'download', url: 'Test', color: 'warn' },
 		]
-	};
+	} as XiriButtonlineSettings;
 
 	// --- Search ---
 	searchFocus = signal<number>( 0 );
 	searchReset = signal<number>( 0 );
 
-	searchChange( ev: any ): void {
+	searchChange( ev: string ): void {
 		console.log( 'Search:', ev );
 		setTimeout( () => {
 			this.searchFocus.set( this.searchFocus() + 1 );
@@ -131,33 +133,33 @@ export class NavigationComponent {
 			{
 				label: 'Cards',
 				icon: 'dashboard',
-				data: <XiriDynData[]> [
+				data: [
 					{
 						type: 'card',
-						data: <XiriCardSettings> {
+						data: {
 							header: 'Card 1',
 							headerIcon: 'home',
 							headerSub: 'First card example',
 							data: { 'Name': 'Example Item', 'Status': 'Active', 'Created': '2024-01-15' }
-						}
+						} as XiriCardSettings
 					},
 					{
 						type: 'card',
-						data: <XiriCardSettings> {
+						data: {
 							header: 'Card 2',
 							headerIcon: 'person',
 							data: { 'User': 'John Doe', 'Role': 'Administrator' }
-						}
+						} as XiriCardSettings
 					}
-				]
+				] as XiriDynData[]
 			},
 			{
 				label: 'List',
 				icon: 'list',
-				data: <XiriDynData[]> [
+				data: [
 					{
 						type: 'list',
-						data: <XiriListSettings> {
+						data: {
 							sections: [ {
 								name: 'Section 1',
 								data: [
@@ -165,18 +167,18 @@ export class NavigationComponent {
 									{ name: 'Settings', info: 'Configuration', icon: 'settings', iconColor: 'accent', url: '/Overview' },
 								]
 							} ]
-						}
+						} as XiriListSettings
 					}
-				]
+				] as XiriDynData[]
 			},
 			{
 				label: 'Form (Lazy)',
 				icon: 'edit',
 				lazy: true,
-				data: <XiriDynData[]> [
+				data: [
 					{
 						type: 'form',
-						data: <XiriFormSettings> {
+						data: {
 							header: 'Sample Form (Lazy Loaded)',
 							fields: [
 								{ id: 'name', name: 'Name', type: 'text', required: true },
@@ -185,9 +187,9 @@ export class NavigationComponent {
 							buttons: [
 								{ text: 'Submit', type: 'raised', action: 'submit', color: 'primary' }
 							]
-						}
+						} as XiriFormSettings
 					}
-				]
+				] as XiriDynData[]
 			},
 			{
 				label: 'Disabled',
@@ -211,28 +213,28 @@ export class NavigationComponent {
 				description: 'User management',
 				icon: 'person',
 				expanded: true,
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'User Info',
 						headerIcon: 'person',
 						headerSub: 'Lazy loaded',
 						data: { 'Name': 'John Doe', 'Role': 'Administrator', 'Status': 'Active' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			},
 			{
 				title: 'Settings',
 				description: 'System configuration',
 				icon: 'settings',
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'System',
 						headerIcon: 'settings',
 						data: { 'Theme': 'Dark', 'Language': 'English', 'Version': '1.0.0' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			},
 			{
 				title: 'Reports',
@@ -253,26 +255,26 @@ export class NavigationComponent {
 				title: 'Panel A',
 				description: 'Unloaded when closed',
 				icon: 'folder',
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'Panel A Content',
 						headerIcon: 'folder',
 						data: { 'Info': 'This content is unloaded when the panel is closed' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			},
 			{
 				title: 'Panel B',
 				icon: 'inventory',
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'Panel B Content',
 						headerIcon: 'inventory',
 						data: { 'Info': 'Only one panel open at a time (multi: false)' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			}
 		]
 	};
@@ -288,26 +290,26 @@ export class NavigationComponent {
 				description: 'togglePosition: before, hideToggle: true',
 				icon: 'swap_horiz',
 				expanded: true,
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'Content',
 						headerIcon: 'swap_horiz',
 						data: { 'Info': 'Toggle icon is hidden, toggle position is before the title' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			},
 			{
 				title: 'Second Panel',
 				icon: 'visibility_off',
-				data: <XiriDynData[]> [ {
+				data: [ {
 					type: 'card',
-					data: <XiriCardSettings> {
+					data: {
 						header: 'Hidden Toggle',
 						headerIcon: 'visibility_off',
 						data: { 'Info': 'No visible expand arrow' }
-					}
-				} ]
+					} as XiriCardSettings
+				} ] as XiriDynData[]
 			}
 		]
 	};
@@ -329,7 +331,7 @@ h6 := layout.NewHeader("Size x3", "warn", "x3", "")`;
     button.NewLinkButton("Link", "/path", "icon"),
 }`;
 
-	ret( event: any ): void {
+	ret( event: XiriButtonResult ): void {
 		console.log( 'button ret', event );
 	}
 }

@@ -43,8 +43,8 @@ export interface XiriExpansionSettings {
 export class XiriExpansionComponent {
 
 	settings = input.required<XiriExpansionSettings>();
-	filterData = input<any>( undefined );
-	dyncomponent = input<TemplateRef<any>>();
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	dyncomponent = input<TemplateRef<unknown>>();
 
 	openedPanels = signal<Set<number>>( new Set() );
 	visitedPanels = signal<Set<number>>( new Set() );
