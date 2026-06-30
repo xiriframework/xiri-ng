@@ -79,12 +79,12 @@
 		}
 		@case ('multiprogress') {
 			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-multiprogress [settings]="$any(obj.data)"></xiri-multiprogress> }
+				@defer (on viewport) { <xiri-multiprogress [settings]="$any(obj.data)"></xiri-multiprogress> } @placeholder { <xiri-skeleton type="rect" height="48px" /> }
 			</div>
 		}
 		@case ('imagetext') {
 			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-imagetext [settings]="$any(obj.data)"></xiri-imagetext> }
+				@defer (on viewport) { <xiri-imagetext [settings]="$any(obj.data)"></xiri-imagetext> } @placeholder { <xiri-skeleton type="rect" height="120px" /> }
 			</div>
 		}
 		@case ('tabs') {
@@ -123,12 +123,12 @@
 		}
 		@case ('timeline') {
 			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-timeline [settings]="$any(obj.data)"></xiri-timeline> }
+				@defer (on viewport) { <xiri-timeline [settings]="$any(obj.data)"></xiri-timeline> } @placeholder { <xiri-skeleton type="rect" height="96px" /> }
 			</div>
 		}
 		@case ('page-header') {
 			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-page-header [settings]="$any(obj.data)"></xiri-page-header> }
+				@defer (on viewport) { <xiri-page-header [settings]="$any(obj.data)"></xiri-page-header> } @placeholder { <xiri-skeleton type="rect" height="64px" /> }
 			</div>
 		}
 		@case ('section') {
@@ -138,7 +138,7 @@
 		}
 		@case ('divider') {
 			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-divider [settings]="$any(obj.data)"></xiri-divider> }
+				@defer (on viewport) { <xiri-divider [settings]="$any(obj.data)"></xiri-divider> } @placeholder { <xiri-skeleton type="rect" height="16px" /> }
 			</div>
 		}
 		@case ('stat-grid') {

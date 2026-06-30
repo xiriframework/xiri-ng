@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, forwardRef, inject, input, signal, Signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, forwardRef, inject, input, linkedSignal, Signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriColor } from '../types/color.type';
 import { XiriRawTableSettings, XiriRawTableComponent } from "../raw-table/xiri-raw-table.component";
@@ -65,16 +65,35 @@ export interface XiriCardSettings {
 export class XiriCardComponent {
 
 	private dataService = inject( XiriDataService );
-	private destroyRef = inject( DestroyRef );
 
 	settings = input.required<XiriCardSettings>();
 
-	loading = signal<boolean>( false );
-	errorMsg = signal<string>( '' );
-	isCollapsed = signal<boolean>( false );
-	private _data = signal<unknown>( null );
+	isCollapsed = linkedSignal<boolean | undefined, boolean>( {
+		source: () => this.settings().collapsed,
+		computation: ( collapsed, previous ) => collapsed ?? previous?.value ?? false,
+	} );
 
-	cardData = computed( () => this._data() ?? this.settings().data );
+	private cardResource = rxResource( {
+		params: () => this.settings().url,
+		stream: ( { params } ) => this.dataService.post( params, null ),
+	} );
+
+	loading = this.cardResource.isLoading;
+
+	errorMsg = computed( () => {
+		const e = this.cardResource.error() as { cause?: unknown } | undefined;
+		if ( !e ) return '';
+		const http = ( e.cause ?? e ) as { error?: { error?: string } };
+		return http.error?.error || 'Fehler beim Laden';
+	} );
+
+	private _loaded = computed( () => {
+		const res = this.cardResource.value();
+		if ( res == null ) return res;
+		return ( res as { data?: unknown } ).data ?? res;
+	} );
+
+	cardData = computed( () => this._loaded() ?? this.settings().data );
 
 	hasComponents = computed( () => ( this.settings().components?.length ?? 0 ) > 0 );
 
@@ -160,46 +179,13 @@ export class XiriCardComponent {
 		return rt;
 	} );
 
-	constructor() {
-		effect( () => {
-			const s = this.settings();
-			if ( s.collapsed !== undefined ) {
-				this.isCollapsed.set( s.collapsed );
-			}
-		} );
-		effect( () => {
-			const url = this.settings().url;
-			if ( url ) {
-				this.loadData();
-			}
-		} );
-	}
-
 	toggleCollapse(): void {
 		this.isCollapsed.update( v => !v );
 	}
 
-	private loadData() {
-		this.loading.set( true );
-		this.errorMsg.set( '' );
-		this.dataService.post( this.settings().url!, null )
-			.pipe( takeUntilDestroyed( this.destroyRef ) )
-			.subscribe( {
-				next: ( res ) => {
-					const body = res as { data?: unknown } | null;
-					this._data.set( body?.data ?? res );
-					this.loading.set( false );
-				},
-				error: ( err: { error?: { error?: string } } ) => {
-					this.errorMsg.set( err.error?.error || 'Fehler beim Laden' );
-					this.loading.set( false );
-				}
-			} );
-	}
-
 	reload() {
 		if ( this.loading() ) return;
-		this.loadData();
+		this.cardResource.reload();
 	}
 
 }

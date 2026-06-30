@@ -69,7 +69,7 @@ describe('XiriCardComponent', () => {
 		expect(mockDataService.post).toHaveBeenCalledWith('test/data', null);
 	});
 
-	it('should set loading to true while fetching data', () => {
+	it('should set loading to true while fetching data', async () => {
 		const subject = new Subject();
 		mockDataService.post.mockReturnValue(subject);
 
@@ -81,6 +81,7 @@ describe('XiriCardComponent', () => {
 
 		subject.next({ data: { key: 'val' } });
 		subject.complete();
+		await fixture.whenStable();
 		fixture.detectChanges();
 
 		expect(comp.loading()).toBe(false);
