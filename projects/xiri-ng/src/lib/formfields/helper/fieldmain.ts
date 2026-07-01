@@ -1,7 +1,6 @@
 import {
 	afterRenderEffect,
 	booleanAttribute,
-	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
@@ -28,7 +27,6 @@ import { FocusMonitor } from "@angular/cdk/a11y";
 
 
 @Component( {
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriFieldMain

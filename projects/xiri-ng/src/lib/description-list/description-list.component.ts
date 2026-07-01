@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 
@@ -20,7 +20,6 @@ export interface XiriDescriptionListSettings {
 	            selector: 'xiri-description-list',
 	            templateUrl: './description-list.component.html',
 	            styleUrl: './description-list.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, SafehtmlPipe ]
             } )
 export class XiriDescriptionListComponent {

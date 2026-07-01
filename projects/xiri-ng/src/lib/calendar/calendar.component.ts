@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { escapeHtml } from '../echarts/tooltip';
 import { XiriEchartsCallbackParams } from '../echarts/params';
@@ -29,7 +29,6 @@ export interface XiriCalendarSettings {
 			[chartHeight]="height()">
 		</xiri-echarts-host>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriEchartsHostComponent ]
 } )
 export class XiriCalendarComponent {

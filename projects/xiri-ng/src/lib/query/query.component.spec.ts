@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { XiriQueryComponent, XiriQuerySettings } from './query.component';
 import { XiriButton } from '../button/button.component';
@@ -11,7 +11,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component( {
 	selector: 'xiri-query-test-host',
 	template: `<xiri-query [settings]="settings()" (filterChange)="onChange($event)" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriQueryComponent ],
 } )
 class TestHostComponent {

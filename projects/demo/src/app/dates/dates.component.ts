@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
@@ -11,7 +11,6 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-dates',
 	            templateUrl: './dates.component.html',
 	            styleUrls: [ './dates.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class DatesComponent {

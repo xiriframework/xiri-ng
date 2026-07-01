@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsClick, XiriEchartsHostComponent } from '../echarts/echarts-host.component';
@@ -53,7 +53,6 @@ export interface XiriBarChartSettings {
 			(itemClick)="onItemClick($event)">
 		</xiri-echarts-host>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriEchartsHostComponent ]
 } )
 export class XiriBarChartComponent {

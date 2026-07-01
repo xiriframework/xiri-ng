@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	computed,
 	DestroyRef,
@@ -53,7 +52,6 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 	            selector: 'xiri-form-fields',
 	            templateUrl: './form-fields.component.html',
 	            styleUrl: './form-fields.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            FormsModule,
 		            ReactiveFormsModule,

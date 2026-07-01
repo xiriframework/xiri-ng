@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 export interface XiriHeaderSettings {
 	text: string
@@ -11,7 +11,6 @@ export interface XiriHeaderSettings {
 	            templateUrl: './header.component.html',
 	            styleUrl: './header.component.scss',
 	            imports: [],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriHeaderComponent {
 	

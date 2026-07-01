@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { XiriDateService } from "projects/xiri-ng/src/lib/services/date.service";
 import { ThemeService } from "projects/xiri-ng/src/lib/services/theme.service";
 import { Subscription } from "rxjs";
@@ -18,7 +18,6 @@ import { de } from "date-fns/locale/de";
 	            selector: 'app-root',
 	            templateUrl: './app.component.html',
 	            styleUrl: './app.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatToolbar,
 	                       MatToolbarRow,
 	                       MatIconButton,

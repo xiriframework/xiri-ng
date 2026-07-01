@@ -1,6 +1,5 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
-	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
 	forwardRef,
@@ -20,7 +19,6 @@ import { MatOption } from '@angular/material/core';
 	            selector: 'xiri-chips',
 	            templateUrl: './chips.component.html',
 	            styleUrl: './chips.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: NG_VALUE_ACCESSOR,
 		            useExisting: forwardRef( () => XiriChipsComponent ),

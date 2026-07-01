@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { XiriDynComponentComponent } from './dyncomponent.component';
 import { XiriDynData } from './dyndata.interface';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -14,7 +14,6 @@ import { of } from 'rxjs';
 @Component( {
 	selector: 'xiri-dyn-test-host',
 	template: `<xiri-dyncomponent [data]="data()" [filterData]="filterData()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriDynComponentComponent ],
 } )
 class TestHostComponent {

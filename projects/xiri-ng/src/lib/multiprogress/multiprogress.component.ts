@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { SlicePipe } from '@angular/common';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatIconButton } from '@angular/material/button';
@@ -28,7 +28,6 @@ export interface XiriMultiprogressItem {
 	            templateUrl: './multiprogress.component.html',
 	            styleUrls: [ './multiprogress.component.scss' ],
 	            imports: [ MatCard, MatCardAvatar, MatIcon, MatIconButton, MatCardContent, MatProgressBar, SlicePipe ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriMultiprogressComponent {

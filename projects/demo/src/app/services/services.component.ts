@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
@@ -19,7 +19,6 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-services',
 	            templateUrl: './services.component.html',
 	            styleUrl: './services.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
@@ -21,7 +21,6 @@ import { enUS } from 'date-fns/locale/en-US';
 		[disabled]="disabled()"
 		[check]="checkSubject"
 		(formChange)="onFormChange($event)" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriFormFieldsComponent ],
 } )
 class TestHostComponent {

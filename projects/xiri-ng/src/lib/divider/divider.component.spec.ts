@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriDividerComponent, XiriDividerSettings } from './divider.component';
 
 @Component( {
 	template: `<xiri-divider [settings]="settings()"/>`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriDividerComponent ]
 } )
 class TestHostComponent {

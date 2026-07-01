@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { XiriSnackbarService } from 'projects/xiri-ng/src/lib/services/snackbar.service';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
@@ -10,7 +10,6 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-snackbar',
 	            templateUrl: './snackbar.component.html',
 	            styleUrl: './snackbar.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,

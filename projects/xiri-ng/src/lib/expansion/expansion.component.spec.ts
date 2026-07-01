@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriExpansionComponent, XiriExpansionSettings, XiriExpansionPanelSettings } from './expansion.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -16,7 +16,6 @@ function makePanel(overrides: Partial<XiriExpansionPanelSettings> = {}): XiriExp
 @Component({
 	selector: 'test-host',
 	template: `<xiri-expansion [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriExpansionComponent],
 })
 class TestHostComponent {

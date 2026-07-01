@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
 
@@ -14,7 +14,6 @@ export interface XiriPageHeaderSettings {
 	            selector: 'xiri-page-header',
 	            templateUrl: './page-header.component.html',
 	            styleUrl: './page-header.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, XiriButtonlineComponent ]
             } )
 export class XiriPageHeaderComponent {

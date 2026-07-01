@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriListComponent, XiriListSettings, XiriListItem, XiriListSection } from './list.component';
 import { XiriDataService } from '../services/data.service';
 import { of } from 'rxjs';
@@ -29,7 +29,6 @@ function makeSection(overrides: Partial<XiriListSection> = {}): XiriListSection 
 @Component({
 	selector: 'test-host',
 	template: `<xiri-list [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriListComponent],
 })
 class TestHostComponent {

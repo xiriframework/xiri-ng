@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal, TemplateRef } from '@angular/core';
+import { Component, input, signal, TemplateRef } from '@angular/core';
 import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatExpansionPanelDescription } from '@angular/material/expansion';
 import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
@@ -29,7 +29,6 @@ export interface XiriExpansionSettings {
 	            selector: 'xiri-expansion',
 	            templateUrl: './expansion.component.html',
 	            styleUrl: './expansion.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            MatAccordion,
 		            MatExpansionPanel,

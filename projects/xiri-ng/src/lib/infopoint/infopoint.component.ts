@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
@@ -27,7 +27,6 @@ export interface XiriInfopointSettings {
 	            templateUrl: './infopoint.component.html',
 	            styleUrl: './infopoint.component.scss',
 	            imports: [ RouterLink, MatCard, MatCardContent, MatIcon, SafehtmlPipe ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriInfopointComponent {

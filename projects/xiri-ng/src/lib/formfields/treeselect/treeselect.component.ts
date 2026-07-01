@@ -1,6 +1,5 @@
 import {
 	AfterViewInit,
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	Input,
@@ -48,7 +47,6 @@ let nextUniqueIdXiriTreeselect = 0;
 		            '[id]': 'id',
 		            '(focus)': 'focus()',
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriTreeselectComponent

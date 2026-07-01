@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	computed,
@@ -161,7 +160,6 @@ export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './
 	            selector: 'xiri-table',
 	            templateUrl: './table.component.html',
 	            styleUrl: './table.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            encapsulation: ViewEncapsulation.None,
 	            providers: [ XiriTableInlineEditService, XiriTableTreeService ],
 	            imports: [ MatCard,

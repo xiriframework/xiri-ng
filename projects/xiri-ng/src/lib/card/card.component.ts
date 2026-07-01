@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, forwardRef, inject, input, linkedSignal, Signal } from '@angular/core';
+import { Component, computed, forwardRef, inject, input, linkedSignal, Signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriColor } from '../types/color.type';
@@ -60,7 +60,6 @@ export interface XiriCardSettings {
 	                       XiriSkeletonComponent,
 	                       MatCardActions,
 	                       forwardRef( () => XiriDynComponentComponent ) ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriCardComponent {
 

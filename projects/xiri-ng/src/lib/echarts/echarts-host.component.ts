@@ -1,6 +1,5 @@
 import {
 	AfterViewInit,
-	ChangeDetectionStrategy,
 	Component,
 	computed,
 	DestroyRef,
@@ -61,7 +60,6 @@ interface XiriEchartsModule {
 	selector: 'xiri-echarts-host',
 	templateUrl: './echarts-host.component.html',
 	styleUrl: './echarts-host.component.scss',
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	encapsulation: ViewEncapsulation.None,
 	imports: [ MatCard, MatCardContent, MatIcon ],
 	host: { '[class.compact]': 'compact()' }

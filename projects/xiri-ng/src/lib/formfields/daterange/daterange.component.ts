@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	Input,
@@ -48,7 +47,6 @@ class DateRange {
 		            '[id]': 'id',
 		            '(focus)': 'focus()',
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriDateRangeComponent

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Event, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Observable, Subscription } from "rxjs";
@@ -17,7 +17,6 @@ interface DynPageResponse {
 	            selector: 'app-dynpage',
 	            templateUrl: './dynpage.component.html',
 	            styleUrls: [ './dynpage.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatProgressSpinner, XiriDynComponentComponent ]
             } )
 export class DynpageComponent implements OnInit, OnDestroy {

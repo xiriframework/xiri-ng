@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal, Type } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, signal, Type } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -68,7 +68,6 @@ const DIALOG_SIZE_MAP: Record<string, string> = {
 	            selector: 'xiri-dialog',
 	            templateUrl: './dialog.component.html',
 	            styleUrls: [ './dialog.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatDialogTitle,
 	                       MatDialogContent,
 	                       MatProgressSpinner,

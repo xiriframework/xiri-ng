@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriSkeletonComponent, XiriSkeletonType } from './skeleton.component';
 
 @Component( {
 	template: `<xiri-skeleton [type]="type()" [width]="width()" [height]="height()" [lines]="lines()" [columns]="columns()" [animate]="animate()" [fill]="fill()"/>`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriSkeletonComponent ]
 } )
 class TestHostComponent {

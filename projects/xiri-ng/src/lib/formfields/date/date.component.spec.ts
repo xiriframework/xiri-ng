@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -21,7 +21,6 @@ import { XiriFormField } from '../field.interface';
 				            <xiri-date [field]="field()" formControlName="d"></xiri-date>
 			            </mat-form-field>
 		            </form>`,
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriDateComponent, MatFormFieldModule, ReactiveFormsModule ],
             } )
 class HostComponent {

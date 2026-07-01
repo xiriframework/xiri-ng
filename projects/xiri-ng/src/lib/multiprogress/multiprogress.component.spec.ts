@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriMultiprogressComponent, XiriMultiprogressSettings } from './multiprogress.component';
 
 @Component( {
 	template: `<xiri-multiprogress [settings]="settings()"/>`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriMultiprogressComponent ]
 } )
 class TestHostComponent {

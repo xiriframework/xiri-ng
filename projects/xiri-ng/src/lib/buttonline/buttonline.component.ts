@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { XiriButton, XiriButtonComponent, XiriButtonResult } from "../button/button.component";
 
 
@@ -14,7 +14,6 @@ export interface XiriButtonlineSettings {
 	            imports: [
 		            XiriButtonComponent
 	            ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriButtonlineComponent {
 	

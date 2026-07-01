@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriDynData } from "projects/xiri-ng/src/lib/dyncomponent/dyndata.interface";
@@ -15,7 +15,6 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-cards',
 	            templateUrl: './cards.component.html',
 	            styleUrls: [ './cards.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class CardsComponent {

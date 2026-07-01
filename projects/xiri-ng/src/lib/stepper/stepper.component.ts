@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	DestroyRef,
 	inject,
@@ -76,7 +75,6 @@ interface StepState {
 	            selector: 'xiri-stepper',
 	            templateUrl: './stepper.component.html',
 	            styleUrl: './stepper.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatStepper,
 	                       MatStep,
 	                       MatProgressSpinner,

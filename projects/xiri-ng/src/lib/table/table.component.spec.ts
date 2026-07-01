@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ChangeDetectorRef, Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { of, Subject, throwError } from 'rxjs';
 import { XiriTableComponent, XiriTableRow, XiriTableSettings } from './table.component';
@@ -37,7 +37,6 @@ interface ResponseCallbacks {
 @Component( {
 	selector: 'xiri-table-test-host',
 	template: `<xiri-table [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriTableComponent ],
 } )
 class TestHostComponent {

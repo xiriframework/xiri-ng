@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, OnDestroy } from '@angular/core';
+import { Component, computed, inject, input, OnDestroy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatLine } from "@angular/material/core";
 import { XiriButton } from "../button/button.component";
@@ -44,7 +44,6 @@ export interface XiriLinksSettings {
 	                       MatLine,
 	                       MatIconButton,
 	                       NgTemplateOutlet ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriLinksComponent implements OnDestroy {

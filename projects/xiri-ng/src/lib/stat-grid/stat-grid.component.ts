@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { XiriStatComponent, XiriStatSettings } from '../stat/stat.component';
 
 export interface XiriStatGridSettings {
@@ -11,7 +11,6 @@ export interface XiriStatGridSettings {
 	            selector: 'xiri-stat-grid',
 	            templateUrl: './stat-grid.component.html',
 	            styleUrl: './stat-grid.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriStatComponent ]
             } )
 export class XiriStatGridComponent {

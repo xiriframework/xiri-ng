@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriHeaderComponent, XiriHeaderSettings } from 'projects/xiri-ng/src/lib/header/header.component';
@@ -19,7 +19,6 @@ import { XiriButtonResult } from 'projects/xiri-ng/src/lib/button/button.compone
 	            selector: 'app-navigation',
 	            templateUrl: './navigation.component.html',
 	            styleUrl: './navigation.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,

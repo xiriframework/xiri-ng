@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
@@ -25,7 +25,6 @@ export interface XiriStatSettings {
 	            selector: 'xiri-stat',
 	            templateUrl: './stat.component.html',
 	            styleUrl: './stat.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, MatCard, MatCardContent, NgTemplateOutlet ],
 	            host: { '[class.compact]': 'compact()' }
             } )

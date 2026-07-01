@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 
 @Component( {
@@ -6,7 +6,6 @@ import { MatIcon } from '@angular/material/icon';
 	            templateUrl: './done.component.html',
 	            styleUrl: './done.component.scss',
 	            imports: [ MatIcon ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriDoneComponent {
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from "rxjs";
 import { UntypedFormGroup } from '@angular/forms';
@@ -25,7 +25,6 @@ export interface XiriFormSettings {
 	            selector: 'xiri-form',
 	            templateUrl: './form.component.html',
 	            styleUrl: './form.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ CdkTrapFocus,
 	                       MatProgressSpinner,
 	                       XiriFormFieldsComponent,

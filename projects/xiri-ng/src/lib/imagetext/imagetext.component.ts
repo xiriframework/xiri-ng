@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriColor } from '../types/color.type';
 import { MatIcon } from '@angular/material/icon';
@@ -35,7 +35,6 @@ export interface XiriImagetextSettings {
 	                       MatCardSubtitle,
 	                       MatCardContent,
 	                       MatProgressSpinner ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriImagetextComponent {

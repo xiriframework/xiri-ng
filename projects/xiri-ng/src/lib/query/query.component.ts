@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	DestroyRef,
@@ -48,7 +47,6 @@ export interface XiriQueryFormChangeEvent {
 	            templateUrl: './query.component.html',
 	            styleUrl: './query.component.scss',
 	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatProgressSpinner ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriQueryComponent implements OnInit {
 

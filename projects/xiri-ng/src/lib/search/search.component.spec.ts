@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriSearchComponent } from './search.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -15,7 +15,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 		[text]="text()"
 		(changed)="onChanged($event)"
 	/>`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriSearchComponent],
 })
 class TestHostComponent {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatButton, MatFabButton, MatIconButton, MatMiniFabButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { XiriButton } from "../button/button.component";
@@ -18,7 +18,6 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 	            ],
 	            templateUrl: './buttonstyle.component.html',
 	            styleUrl: './buttonstyle.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriButtonstyleComponent {
 	button = input.required<XiriButton>();

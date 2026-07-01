@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, Input, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, Input, OnDestroy } from '@angular/core';
 import {
 	MatError,
 	MatFormField,
@@ -46,7 +46,6 @@ interface FileValue {
 		            '[id]': 'id',
 		            '[attr.aria-describedby]': 'describedBy'
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriFileComponent

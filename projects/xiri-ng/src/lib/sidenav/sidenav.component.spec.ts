@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriSidenavComponent, XiriSidebarSettings, XiriNavigationField } from './sidenav.component';
 import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -9,7 +9,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component({
 	selector: 'test-host',
 	template: `<xiri-sidenav [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriSidenavComponent],
 })
 class TestHostComponent {

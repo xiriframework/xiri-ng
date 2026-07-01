@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
 import { XiriSearchComponent } from '../search/search.component';
@@ -18,7 +18,6 @@ export interface XiriToolbarSettings {
 	            selector: 'xiri-toolbar',
 	            templateUrl: './toolbar.component.html',
 	            styleUrl: './toolbar.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, XiriButtonlineComponent, XiriSearchComponent ]
             } )
 export class XiriToolbarComponent {

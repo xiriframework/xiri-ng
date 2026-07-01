@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject, input } from '@angular/core';
 import { filter } from "rxjs";
 import { Event, NavigationEnd, Router, RouterLink } from "@angular/router";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -40,7 +40,6 @@ export interface XiriNavigationField {
 		            MatListItemTitle,
 		            MatListItemMeta,
 	            ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriSidenavComponent {
 	

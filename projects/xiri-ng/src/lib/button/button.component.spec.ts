@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriButtonComponent, XiriButton, XiriButtonResult, XiriButtonResponse } from './button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
@@ -24,7 +24,6 @@ function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-button [button]="btn()" [disabled]="disabled()" [filterData]="filterData()" [url]="url()" (result)="onResult($event)" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriButtonComponent],
 })
 class TestHostComponent {

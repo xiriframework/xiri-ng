@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 export type XiriSkeletonType = 'text' | 'circle' | 'rect' | 'table-row';
 
@@ -6,7 +6,6 @@ export type XiriSkeletonType = 'text' | 'circle' | 'rect' | 'table-row';
 	            selector: 'xiri-skeleton',
 	            templateUrl: './skeleton.component.html',
 	            styleUrl: './skeleton.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: { 'role': 'status', 'aria-label': 'Laden...', '[class.fill]': 'fill()' }
             } )
 export class XiriSkeletonComponent {

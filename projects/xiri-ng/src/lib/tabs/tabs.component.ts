@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, input, signal, TemplateRef } from '@angular/core';
+import { Component, effect, input, signal, TemplateRef } from '@angular/core';
 import { MatTabGroup, MatTab, MatTabLabel } from '@angular/material/tabs';
 import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
@@ -29,7 +29,6 @@ export interface XiriTabsSettings {
 	            selector: 'xiri-tabs',
 	            templateUrl: './tabs.component.html',
 	            styleUrl: './tabs.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            MatTabGroup,
 		            MatTab,

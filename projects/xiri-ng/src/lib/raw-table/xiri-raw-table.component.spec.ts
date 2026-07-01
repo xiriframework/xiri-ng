@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { XiriRawTableComponent, XiriRawTableSettings } from './xiri-raw-table.component';
 import { XiriNumberService } from '../services/number.service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -8,7 +8,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component( {
 	selector: 'xiri-raw-table-test-host',
 	template: `<xiri-raw-table [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriRawTableComponent ],
 } )
 class TestHostComponent {

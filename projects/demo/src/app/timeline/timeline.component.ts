@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriTimelineComponent, XiriTimelineSettings } from 'projects/xiri-ng/src/lib/timeline/timeline.component';
@@ -9,7 +9,6 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-timeline',
 	            templateUrl: './timeline.component.html',
 	            styleUrl: './timeline.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTimelineComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class TimelineComponent {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
 	MAT_DIALOG_DATA,
@@ -28,7 +28,6 @@ export interface XiriAlertConfig {
 	            selector: 'xiri-alert',
 	            templateUrl: './alert.component.html',
 	            styleUrls: [ './alert.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatDialogTitle,
 	                       CdkScrollable,
 	                       MatDialogContent,

@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	Input,
@@ -45,7 +44,6 @@ let nextUniqueIdXiriDate = 0;
 		            '[id]': 'id',
 		            '(focus)': 'focus()',
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriDateComponent

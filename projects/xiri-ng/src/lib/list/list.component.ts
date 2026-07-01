@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import { Component, DestroyRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDataService } from "../services/data.service";
 import { XiriColor } from '../types/color.type';
@@ -58,7 +58,6 @@ export interface XiriListItem {
 		            MatIconButton,
 		            MatTooltip,
 	            ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriListComponent {
 

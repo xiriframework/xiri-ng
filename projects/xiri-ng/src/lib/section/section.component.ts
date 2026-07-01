@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input, signal, TemplateRef, OnInit } from '@angular/core';
+import { Component, forwardRef, input, signal, TemplateRef, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
@@ -20,7 +20,6 @@ export interface XiriSectionSettings {
 	            selector: 'xiri-section',
 	            templateUrl: './section.component.html',
 	            styleUrl: './section.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, MatDivider, XiriButtonlineComponent, forwardRef( () => XiriDynComponentComponent ) ]
             } )
 export class XiriSectionComponent implements OnInit {

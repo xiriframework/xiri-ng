@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ChangeDetectionStrategy, Component, signal, input, OnInit } from '@angular/core';
+import { Component, signal, input, OnInit } from '@angular/core';
 import { XiriSectionSettings } from './section.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIcon } from '@angular/material/icon';
@@ -49,7 +49,6 @@ import { MatDivider } from '@angular/material/divider';
 			</div>
 		</section>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [MatIcon, MatDivider],
 })
 class TestSectionComponent implements OnInit {
@@ -70,7 +69,6 @@ class TestSectionComponent implements OnInit {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-section-test [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [TestSectionComponent],
 })
 class TestHostComponent {

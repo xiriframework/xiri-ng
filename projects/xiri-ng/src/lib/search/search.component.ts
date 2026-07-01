@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	DestroyRef,
 	effect,
@@ -30,7 +29,6 @@ import { FormsModule } from '@angular/forms';
 		            MatIconButton,
 		            MatIcon,
 	            ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriSearchComponent implements OnInit {
 

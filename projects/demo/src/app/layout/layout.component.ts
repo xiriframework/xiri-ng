@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriDividerComponent, XiriDividerSettings } from 'projects/xiri-ng/src/lib/divider/divider.component';
 import { XiriStatGridComponent, XiriStatGridSettings } from 'projects/xiri-ng/src/lib/stat-grid/stat-grid.component';
@@ -14,7 +14,6 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 	            selector: 'app-layout',
 	            templateUrl: './layout.component.html',
 	            styleUrl: './layout.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriDividerComponent,

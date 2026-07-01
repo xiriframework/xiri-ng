@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	Component,
 	inject,
 	Input,
@@ -46,7 +45,6 @@ export const XIRI_YEAR_MONTH_FORMATS = {
 		            '[id]':    'id',
 		            '(focus)': 'focus()',
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers:       [
 		            { provide: MatFormFieldControl, useExisting: XiriYearMonthComponent },
 		            { provide: MAT_DATE_FORMATS,    useValue:    XIRI_YEAR_MONTH_FORMATS },

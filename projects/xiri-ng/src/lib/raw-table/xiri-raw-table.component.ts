@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input } from '@angular/core';
+import { Component, computed, effect, input } from '@angular/core';
 import {
 	MatTableDataSource,
 	MatTable,
@@ -48,7 +48,6 @@ export interface XiriRawTableSettings {
 	                       MatRowDef,
 	                       MatRow,
 	                       SafehtmlPipe ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriRawTableComponent {
 	

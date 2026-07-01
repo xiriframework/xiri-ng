@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { XiriStepperComponent, XiriStepperSettings } from './stepper.component';
 import { XiriDataService } from '../services/data.service';
@@ -12,7 +12,6 @@ import { StepperSelectionEvent } from '@angular/cdk/stepper';
 @Component( {
 	selector: 'xiri-stepper-test-host',
 	template: `<xiri-stepper [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriStepperComponent ],
 } )
 class TestHostComponent {

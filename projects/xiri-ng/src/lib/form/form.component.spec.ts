@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { UntypedFormGroup } from '@angular/forms';
 import { XiriFormComponent, XiriFormSettings } from './form.component';
@@ -11,7 +11,6 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component( {
 	selector: 'xiri-form-test-host',
 	template: `<xiri-form [settings]="settings()" />`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriFormComponent ],
 } )
 class TestHostComponent {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
@@ -33,7 +33,6 @@ export interface XiriLineChartSettings {
 			[title]="settings().title">
 		</xiri-echarts-host>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriEchartsHostComponent ]
 } )
 export class XiriLineChartComponent {

@@ -1,5 +1,4 @@
 import {
-	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	DoCheck,
@@ -39,7 +38,6 @@ type VolumeValue = [ number, number, number ] | null | undefined;
 		            '[id]': 'id',
 		            '[attr.aria-describedby]': 'describedBy'
 	            },
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            providers: [ {
 		            provide: MatFormFieldControl,
 		            useExisting: XiriVolumeComponent

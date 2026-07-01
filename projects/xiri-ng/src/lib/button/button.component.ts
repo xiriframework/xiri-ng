@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, OnDestroy, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, input, OnDestroy, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriColor } from '../types/color.type';
@@ -77,7 +77,6 @@ export interface XiriButtonResponse {
 		            MatMenu, MatMenuItem, MatMenuTrigger,
 		            MatIcon, MatIconButton, MatTooltip
 	            ],
-	            changeDetection: ChangeDetectionStrategy.OnPush
             } )
 export class XiriButtonComponent implements OnDestroy {
 	button = input.required<XiriButton>();

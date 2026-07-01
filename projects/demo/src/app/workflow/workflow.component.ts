@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriStepperComponent, XiriStepperSettings } from 'projects/xiri-ng/src/lib/stepper/stepper.component';
@@ -13,7 +13,6 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 	            selector: 'app-workflow',
 	            templateUrl: './workflow.component.html',
 	            styleUrl: './workflow.component.scss',
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,

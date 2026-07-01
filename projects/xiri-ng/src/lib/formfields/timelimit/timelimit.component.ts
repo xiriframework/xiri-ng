@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatFormField, MatFormFieldControl, MatLabel } from "@angular/material/form-field";
 import {
 	AbstractControl,
@@ -49,7 +49,6 @@ interface TimelimitValue {
 	            selector: 'xiri-timelimit',
 	            templateUrl: './timelimit.component.html',
 	            styleUrls: [ './timelimit.component.scss' ],
-	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            host: {
 		            '[id]': 'id',
 		            '[attr.aria-describedby]': 'describedBy'
