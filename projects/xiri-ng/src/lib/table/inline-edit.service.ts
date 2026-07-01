@@ -49,12 +49,12 @@ export class XiriTableInlineEditService {
 	private searchSub: Subscription | null = null;
 	private searchReqSub: Subscription | null = null;
 
-	private getEditUrl: () => string;
-	private getDisplayedColumns: () => XiriTableField[];
-	private abort$: Subject<void>;
-	private onSaved: ( row: XiriTableRow, fieldId: string ) => void;
-	private onDataUpdate: () => void;
-	private onCallReturn: ( result: unknown ) => void;
+	private getEditUrl!: () => string;
+	private getDisplayedColumns!: () => XiriTableField[];
+	private abort$!: Subject<void>;
+	private onSaved!: ( row: XiriTableRow, fieldId: string ) => void;
+	private onDataUpdate!: () => void;
+	private onCallReturn!: ( result: unknown ) => void;
 
 	private get editUrl(): string { return this.getEditUrl?.(); }
 	private get displayedColumns(): XiriTableField[] { return this.getDisplayedColumns?.() ?? []; }
@@ -291,7 +291,7 @@ export class XiriTableInlineEditService {
 		if ( currentIndex === -1 ) return null;
 		for ( let i = currentIndex + direction; i >= 0 && i < this.displayedColumns.length; i += direction ) {
 			const col = this.displayedColumns[ i ];
-			if ( col.editable && !noInlineEdit.has( col.format ) ) {
+			if ( col.editable && !noInlineEdit.has( col.format ?? '' ) ) {
 				return col;
 			}
 		}

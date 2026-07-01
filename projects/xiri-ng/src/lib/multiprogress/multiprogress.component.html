@@ -7,7 +7,7 @@
 				</div>
 			}
 			<span class="title">{{ settings().header }}</span>
-			@if (settings().show && settings().data.length > settings().show) {
+			@if (settings().show && settings().data.length > settings().show!) {
 				<span class="open">
 					<button mat-icon-button class="d-btn" (click)="isOpen.set(!isOpen())" [attr.aria-label]="isOpen() ? 'Weniger anzeigen' : 'Mehr anzeigen'" [attr.aria-expanded]="isOpen()">
 						@if (isOpen()) { <mat-icon>expand_less</mat-icon> } @else { <mat-icon>expand_more</mat-icon> }
@@ -36,7 +36,7 @@
 				</div>
 			}
 			<span class="title">{{ settings().header }}</span>
-			@if (settings().show && settings().data.length > settings().show) {
+			@if (settings().show && settings().data.length > settings().show!) {
 				<span class="open">
 					<button mat-icon-button class="d-btn" (click)="isOpen.set(!isOpen())" [attr.aria-label]="isOpen() ? 'Weniger anzeigen' : 'Mehr anzeigen'" [attr.aria-expanded]="isOpen()">
 						@if (isOpen()) { <mat-icon>expand_less</mat-icon> } @else { <mat-icon>expand_more</mat-icon> }

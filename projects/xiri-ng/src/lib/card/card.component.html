@@ -12,7 +12,7 @@
 			<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
 		}
 		@if (settings().buttonsTop) {
-			<xiri-buttonline [settings]="settings().buttonsTop"></xiri-buttonline>
+			<xiri-buttonline [settings]="settings().buttonsTop!"></xiri-buttonline>
 		}
 		@if (settings().collapsible) {
 			<button mat-icon-button (click)="toggleCollapse()" class="collapse-btn" aria-label="Auf-/Zuklappen">
@@ -48,7 +48,7 @@
 			}
 			@if (settings().buttonsBottom) {
 				<mat-card-actions align="end">
-					<xiri-buttonline [settings]="settings().buttonsBottom"></xiri-buttonline>
+					<xiri-buttonline [settings]="settings().buttonsBottom!"></xiri-buttonline>
 				</mat-card-actions>
 			}
 		</div>

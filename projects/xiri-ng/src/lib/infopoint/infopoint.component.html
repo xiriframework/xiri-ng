@@ -3,7 +3,7 @@
 		<div class="card xiri-infopoint-flat" [class.dense]="settings().dense">
 			<div class="icon" [class]="settings().iconColor">
 				@if (settings().iconSet) {
-					<mat-icon [fontSet]="settings().iconSet">{{ settings().icon }}</mat-icon>
+					<mat-icon [fontSet]="settings().iconSet!">{{ settings().icon }}</mat-icon>
 				} @else {
 					<mat-icon>{{ settings().icon }}</mat-icon>
 				}
@@ -28,7 +28,7 @@
 			<mat-card-content [class.dense]="settings().dense">
 				<div class="icon" [class]="settings().iconColor">
 					@if (settings().iconSet) {
-						<mat-icon [fontSet]="settings().iconSet">{{ settings().icon }}</mat-icon>
+						<mat-icon [fontSet]="settings().iconSet!">{{ settings().icon }}</mat-icon>
 					} @else {
 						<mat-icon>{{ settings().icon }}</mat-icon>
 					}

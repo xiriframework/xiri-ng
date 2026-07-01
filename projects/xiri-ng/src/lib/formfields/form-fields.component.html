@@ -9,12 +9,12 @@
 					}
 					<input matInput
 					       [formControlName]="field.id"
-					       [type]="field.subtype"
-					       [placeholder]="field.name"
+					       [type]="field.subtype || 'text'"
+					       [placeholder]="field.name || ''"
 					       [autocomplete]="field.name"
 					       [attr.minlength]="field.min"
 					       [attr.maxlength]="field.max"
-					       [required]="field.required">
+					       [required]="!!field.required">
 					@if (field.textPrefix) {
 						<span matTextPrefix="">{{ field.textPrefix }}</span>
 					}
@@ -55,7 +55,7 @@
 					       [type]="field.type"
 					       [attr.min]="field.min"
 					       [attr.max]="field.max"
-					       [required]="field.required">
+					       [required]="!!field.required">
 					@if (field.textPrefix) {
 						<span matTextPrefix="">{{ field.textPrefix }}</span>
 					}
@@ -88,11 +88,11 @@
 					<input matInput
 					       [formControlName]="field.id"
 					       [type]="field.pwdhide ? 'password' : 'text'"
-					       [placeholder]="field.name"
+					       [placeholder]="field.name || ''"
 					       [autocomplete]="field.name"
 					       [attr.minlength]="field.min"
 					       [attr.maxlength]="field.max"
-					       [required]="field.required">
+					       [required]="!!field.required">
 					<button mat-icon-button matSuffix class="form-field-button" (click)="field.pwdhide = !field.pwdhide" [attr.aria-label]="'Hide password'"
 					        [attr.aria-pressed]="field.pwdhide">
 						<mat-icon>{{ field.pwdhide ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -116,18 +116,18 @@
 				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
 					@if (field.search === false) {
-						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="field.required" panelClass="selectPanel">
+						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="!!field.required" panelClass="selectPanel">
 							@for (x of field.list; track x.id) {
 								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
 							}
 						</mat-select>
 					} @else {
-						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="field.required" panelClass="selectPanel">
+						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="!!field.required" panelClass="selectPanel">
 							<mat-option>
 								<ngx-mat-select-search [formControl]="xiriSelect.formControl" xiriSelect #xiriSelect="xiriSelect"
-								                       [values]="field.list" [searching]="xiriSelect.searching"
-								                       [serverSideSearch]="field.serverSideSearch" [serverUrl]="field.url"
-								                       [serverParams]="field.params"></ngx-mat-select-search>
+								                       [values]="field.list || []" [searching]="xiriSelect.searching"
+								                       [serverSideSearch]="!!field.serverSideSearch" [serverUrl]="field.url || ''"
+								                       [serverParams]="field.params || {}"></ngx-mat-select-search>
 							</mat-option>
 							@for (x of xiriSelect.filter | async; track x.id) {
 								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
@@ -149,8 +149,8 @@
 			@case ('treeselect') {
 				<div class="treeselect" [class]="field.class" [hidden]="field.hide">
 					<xiri-treeselect [field]="field" [formControlName]="field.id"
-					                 [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid"></xiri-treeselect>
-					<div class="xhint" aria-live="polite" [class.error]="formGroup.get(field.id).touched && formGroup.get(field.id).invalid">
+					                 [class.error]="formGroup.get(field.id)?.touched && formGroup.get(field.id)?.invalid"></xiri-treeselect>
+					<div class="xhint" aria-live="polite" [class.error]="formGroup.get(field.id)?.touched && formGroup.get(field.id)?.invalid">
 						@if (field.hint) {
 							<mat-hint>{{ field.hint }}</mat-hint>
 						}
@@ -253,7 +253,7 @@
 			}
 			@case ('timelimit') {
 				<div [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
-					<xiri-timelimit matInput [formControlName]="field.id" [required]="field.required" [texts]="field.texts"></xiri-timelimit>
+					<xiri-timelimit matInput [formControlName]="field.id" [required]="!!field.required" [texts]="field.texts || {}"></xiri-timelimit>
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
@@ -271,7 +271,7 @@
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
-					<textarea matInput [formControlName]="field.id" [placeholder]="field.name" [required]="field.required" [rows]="field.rows || 5"></textarea>
+					<textarea matInput [formControlName]="field.id" [placeholder]="field.name || ''" [required]="!!field.required" [rows]="field.rows || 5"></textarea>
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}

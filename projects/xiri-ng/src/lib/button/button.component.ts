@@ -255,7 +255,7 @@ export class XiriButtonComponent implements OnDestroy {
 			                  loading: true,
 		                  } );
 		
-		this.dataService.post( this.button().url, data )
+		this.dataService.post( this.button().url ?? '', data )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( {
 				            next: ( result: unknown ) => {
@@ -280,7 +280,7 @@ export class XiriButtonComponent implements OnDestroy {
 		if ( result && result.button )
 			this.buttonOverride.set( { ...( this.buttonOverride() ?? {} ), ...result.button } );
 		if ( result && result.poll && result.poll > 0 ) {
-			this.startPolling( result.pollUrl || this.button().url, result.poll, result.text );
+			this.startPolling( result.pollUrl || this.button().url || '', result.poll, result.text );
 			return;
 		}
 		this.stopPolling();
@@ -346,18 +346,19 @@ export class XiriButtonComponent implements OnDestroy {
 		const data = { ...this.filterData(), ...this.button().data };
 		this.loading.set( true );
 
-		this.dataService.postFileResponse( this._url(), data )
+		this.dataService.postFileResponse( this._url() ?? '', data )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe(
 					{
 						next: ( result ) => {
 
 							let filename: string;
-							if ( this.button().filename != undefined )
-								filename = this.button().filename;
+							const btn = this.button();
+							if ( btn.filename != undefined )
+								filename = btn.filename;
 							else
 								filename =
-									( this.button().text != undefined ? this.button().text : 'Download' ) + '.csv'
+									( btn.text != undefined ? btn.text : 'Download' ) + '.csv'
 							
 							this.downloadService.download( result, filename, false );
 							

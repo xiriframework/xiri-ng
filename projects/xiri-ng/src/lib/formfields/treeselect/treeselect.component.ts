@@ -29,12 +29,12 @@ import { XiriFieldMain } from "../helper/fieldmain";
 
 
 class XiriTreeselectTreeNode {
-	children: XiriTreeselectTreeNode[];
-	id: number;
-	name: string;
-	hidden: boolean;
-	state: number;
-	parent: XiriTreeselectTreeNode;
+	children!: XiriTreeselectTreeNode[];
+	id!: number;
+	name!: string;
+	hidden!: boolean;
+	state!: number;
+	parent!: XiriTreeselectTreeNode | null;
 }
 
 let nextUniqueIdXiriTreeselect = 0;
@@ -74,7 +74,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 	protected _uid = `xiri-treeselect-${ nextUniqueIdXiriTreeselect++ }`;
 	
 	public loading = signal<boolean>( true );
-	private _field: XiriFormField;
+	private _field!: XiriFormField;
 	
 	constructor() {
 		super();
@@ -171,7 +171,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 
 		const result = this.checklistSelection.selected.filter( x => x.state === 1 && !x.children ).map( x => x.id );
 		if ( this.required && result.length == 0 )
-			return this._disabled() ? null : undefined;
+			return undefined;
 
 		return result;
 	}
@@ -210,7 +210,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 	 * Tree
 	 */
 	public tree = viewChild.required<MatTree<XiriTreeselectTreeNode>>( MatTree );
-	private dataChange = new BehaviorSubject<XiriTreeselectTreeNode[]>( null );
+	private dataChange = new BehaviorSubject<XiriTreeselectTreeNode[] | null>( null );
 	public dataSource: MatTreeNestedDataSource<XiriTreeselectTreeNode>;
 	private checklistSelection = new SelectionModel<XiriTreeselectTreeNode>( true /* multiple */ );
 	
@@ -323,8 +323,8 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 		}
 	}
 	
-	private findNodeById( id: number, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode {
-		
+	private findNodeById( id: number, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode | null {
+
 		if ( node.id == id )
 			return node;
 		

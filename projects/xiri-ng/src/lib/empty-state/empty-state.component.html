@@ -8,7 +8,7 @@
 	}
 	@if (settings().button) {
 		<div class="action">
-			<xiri-button [button]="settings().button" (result)="buttonResult.emit($event)"></xiri-button>
+			<xiri-button [button]="settings().button!" (result)="buttonResult.emit($event)"></xiri-button>
 		</div>
 	}
 </div>

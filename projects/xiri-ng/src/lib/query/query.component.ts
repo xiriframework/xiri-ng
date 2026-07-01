@@ -62,7 +62,7 @@ export class XiriQueryComponent implements OnInit {
 	private waiter: Subject<XiriQueryFormChangeEvent> = new Subject<XiriQueryFormChangeEvent>();
 
 	public dynData: {
-		data: XiriDynData[],
+		data: XiriDynData[] | null,
 		filterData: Record<string, unknown> | null,
 	} = { data: null, filterData: null };
 
@@ -77,7 +77,7 @@ export class XiriQueryComponent implements OnInit {
 	
 	public data = signal<XiriDynData[] | null>( null );
 	public error = signal<string | null>( null );
-	public formFields = signal<XiriFormField[]>( null );
+	public formFields = signal<XiriFormField[] | null>( null );
 	public formValid = signal<boolean>( true );
 	public filterData = signal<Record<string, unknown> | null>( null );
 	public loading = signal<boolean>( false );
@@ -90,7 +90,7 @@ export class XiriQueryComponent implements OnInit {
 		
 		this.saveState = settings.saveState === undefined ? false : settings.saveState;
 		this.saveStateId = settings.saveStateId === undefined ? null : settings.saveStateId;
-		this.formFields.set( this.formService.loadState( this.effectiveSaveKey, settings.fields ) );
+		this.formFields.set( this.formService.loadState( this.effectiveSaveKey, settings.fields ?? [] ) );
 		this.extra = settings.extra || null;
 		
 		this.waiter.pipe( debounceTime( 300 ), takeUntilDestroyed( this.destroyRef ) ).subscribe( event => {
@@ -156,7 +156,7 @@ export class XiriQueryComponent implements OnInit {
 		this.data.set( null );
 		this.error.set( null );
 		
-		const call = this.dataService.post( this.settings().url, this.dynData.filterData );
+		const call = this.dataService.post( this.settings().url ?? '', this.dynData.filterData );
 		
 		call.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{

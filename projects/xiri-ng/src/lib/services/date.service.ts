@@ -31,18 +31,21 @@ export class XiriDateService {
 	}
 	
 	public unixToStringDateTime( stime: number ): string {
-		
-		return format( this.unixToLocal( stime ), 'yyyy-MM-dd HH:mm' );
+
+		const date = this.unixToLocal( stime );
+		return date === null ? '' : format( date, 'yyyy-MM-dd HH:mm' );
 	}
-	
+
 	public unixToStringDate( stime: number ): string {
-		
-		return format( this.unixToLocal( stime ), 'd. LLL.' );
+
+		const date = this.unixToLocal( stime );
+		return date === null ? '' : format( date, 'd. LLL.' );
 	}
-	
+
 	public unixToStringDateYear( stime: number ): string {
-		
-		return format( this.unixToLocal( stime ), 'd. LLL. yy' );
+
+		const date = this.unixToLocal( stime );
+		return date === null ? '' : format( date, 'd. LLL. yy' );
 	}
 	
 	public dateToUnix( date: Date ): number {

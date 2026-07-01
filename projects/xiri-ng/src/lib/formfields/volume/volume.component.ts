@@ -63,22 +63,22 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	id = `xiri-volume-${ XiriVolumeComponent.nextId++ }`;
 	describedBy = '';
 	
-	public min = null;
-	public max = null;
+	public min: number | null = null;
+	public max: number | null = null;
 	
-	readonly autofilled: boolean;
-	
+	readonly autofilled!: boolean;
+
 	parts: FormGroup<VolumeForm>;
 	stateChanges = new Subject<void>();
 	focused = false;
 	controlType = 'xiri-volume';
 	
-	readonly placeholder: string;
+	readonly placeholder!: string;
 	public required = false;
 	public disabled = false;
 	shouldLabelFloat = true;
 	private _lastValue: [ number, number, number ] | null = null;
-	private _field: XiriFormField;
+	private _field!: XiriFormField;
 	
 	constructor() {
 		
@@ -92,7 +92,7 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 		                                        } );
 		
 		this.focusMonitor.monitor( this._elementRef, true ).subscribe( origin => {
-			this.ngControl.control.markAsTouched();
+			this.ngControl?.control?.markAsTouched();
 			this.focused = !!origin;
 			this.runCheck();
 			this.cdr.markForCheck();
@@ -144,7 +144,7 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 
 		if ( this.errorState )
 			return undefined;
-		if ( voll === null || volw === null || volh === null )
+		if ( voll == null || volw == null || volh == null )
 			return null;
 
 		return [ voll, volw, volh ];
@@ -202,7 +202,7 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	}
 	
 	get errorState(): boolean {
-		return this.parts.invalid && this.ngControl.touched;
+		return this.parts.invalid && !!this.ngControl?.touched;
 	}
 	
 	public getErrorMessage(): string {

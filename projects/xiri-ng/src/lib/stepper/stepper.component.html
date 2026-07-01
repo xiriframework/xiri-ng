@@ -7,7 +7,7 @@
 						<xiri-form-fields [form]="step.fields()" (formChange)="formChanged(step, $event, i)" [disabled]="step.check()"></xiri-form-fields>
 					}
 					@if (step.errorMsg()) {
-						<xiri-error class="error" [text]="step.errorMsg()"></xiri-error>
+						<xiri-error class="error" [text]="step.errorMsg()!"></xiri-error>
 					}
 				</div>
 				@if (step.check()) {

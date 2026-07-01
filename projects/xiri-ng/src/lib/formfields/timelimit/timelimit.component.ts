@@ -79,7 +79,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	id = `xiri-timelimit-${ XiriTimelimitComponent.nextId++ }`;
 	describedBy = '';
 	
-	readonly autofilled: boolean;
+	readonly autofilled: boolean = false;
 	
 	errorState = false;
 	parts: FormGroup<TimelimitForm>;
@@ -116,19 +116,19 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 		}
 		
 		this.parts = new FormGroup<TimelimitForm>( {
-			                                           check: new FormControl<boolean>( false ),
-			                                           wd0: new FormControl<boolean>( true ),
-			                                           wd1: new FormControl<boolean>( false ),
-			                                           wd2: new FormControl<boolean>( false ),
-			                                           wd3: new FormControl<boolean>( false ),
-			                                           wd4: new FormControl<boolean>( false ),
-			                                           wd5: new FormControl<boolean>( false ),
-			                                           wd6: new FormControl<boolean>( false ),
-			                                           fromhour: new FormControl<number>( 0 ),
-			                                           frommin: new FormControl<number>( 0 ),
-			                                           tohour: new FormControl<number>( 24 ),
-			                                           tomin: new FormControl<number>( 0 ),
-			                                           inout: new FormControl<boolean>( true ),
+			                                           check: new FormControl( false, { nonNullable: true } ),
+			                                           wd0: new FormControl( true, { nonNullable: true } ),
+			                                           wd1: new FormControl( false, { nonNullable: true } ),
+			                                           wd2: new FormControl( false, { nonNullable: true } ),
+			                                           wd3: new FormControl( false, { nonNullable: true } ),
+			                                           wd4: new FormControl( false, { nonNullable: true } ),
+			                                           wd5: new FormControl( false, { nonNullable: true } ),
+			                                           wd6: new FormControl( false, { nonNullable: true } ),
+			                                           fromhour: new FormControl( 0, { nonNullable: true } ),
+			                                           frommin: new FormControl( 0, { nonNullable: true } ),
+			                                           tohour: new FormControl( 24, { nonNullable: true } ),
+			                                           tomin: new FormControl( 0, { nonNullable: true } ),
+			                                           inout: new FormControl( true, { nonNullable: true } ),
 		                                           } );
 		
 		this.focusMonitor.monitor( this._elementRef.nativeElement, true ).subscribe( origin => {
@@ -138,7 +138,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 			}
 			this.focused = !!origin;
 			if ( this.focused )
-				this.ngControl.control?.markAllAsTouched();
+				this.ngControl?.control?.markAllAsTouched();
 
 			this.onChange( this.value );
 			this.stateChanges.next();
@@ -151,8 +151,8 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	
 	ngOnInit() {
 		
-		this.ngControl.control?.setValidators( [ this.validate.bind( this ) ] );
-		this.ngControl.control?.updateValueAndValidity();
+		this.ngControl?.control?.setValidators( [ this.validate.bind( this ) ] );
+		this.ngControl?.control?.updateValueAndValidity();
 	}
 	
 	validate( { value }: AbstractControl ): ValidationErrors | null {
@@ -239,7 +239,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	@Input()
 	get value(): TimelimitValue {
 
-		const value = this.parts.value;
+		const value = this.parts.getRawValue();
 		return {
 			check: value.check,
 			wd: [ value.wd0, value.wd1, value.wd2, value.wd3, value.wd4, value.wd5, value.wd6 ],

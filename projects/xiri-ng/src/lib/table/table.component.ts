@@ -224,7 +224,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	columnsToDisplay: string[] = [];
 	columnsToSearch: string[] = [];
 	dataSource = new MatTableDataSource<XiriTableRow>();
-	protected _displayeddata: readonly XiriTableRow[];
+	protected _displayeddata: readonly XiriTableRow[] = [];
 	_alldata = signal<XiriTableRow[] | null>( null );
 	footer: Record<string, XiriTableCellValue> = {};
 
@@ -262,10 +262,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		select: false,
 		title: '',
 		textNoData: 'no data found',
-		saveInput: null,
-		saveInputUrl: null,
+		saveInput: undefined,
+		saveInputUrl: undefined,
 		saveState: false,
-		saveStateId: null,
+		saveStateId: undefined,
 		borders: false,
 		bordersHeader: false,
 		footer: false,
@@ -340,8 +340,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		
 		if ( this.settings().options )
 			this.options = { ...this.options, ...this.settings().options };
-		if ( this.settings().fields )
-			this.loadFields( this.settings().fields );
+		const settingsFields = this.settings().fields;
+		if ( settingsFields )
+			this.loadFields( settingsFields );
 
 		// Tree mode: accept config from top-level settings (Angular consumers) or options (Go builder).
 		const treeCfg = this.settings().tree ?? this.options.tree;
@@ -349,7 +350,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.tree.init( treeCfg, this.displayedColumns[ 0 ].id );
 
 		this.inlineEdit.init( {
-			getEditUrl: () => this.options.editUrl,
+			getEditUrl: () => this.options.editUrl ?? '',
 			getDisplayedColumns: () => this.displayedColumns,
 			abort$: this.reloadAbort$,
 			onSaved: ( row, fieldId ) => this.inlineEdit.flashSaved( row, fieldId, this.dataSource ),
@@ -405,8 +406,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			.subscribe( data => {
 					this._displayeddata = data || [];
 					
-					if ( this.options.saveState && this._firstData === false && this.tableStateKey() ) {
-						this.sessionStorageService.set( this.tableStateKey(), {
+					const stateKey = this.tableStateKey();
+					if ( this.options.saveState && this._firstData === false && stateKey ) {
+						this.sessionStorageService.set( stateKey, {
 							pageIndex: this.paginator()?.pageIndex,
 							pageSize: this.paginator()?.pageSize,
 							filter: this.searchText,
@@ -425,7 +427,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 							} else if ( column.footer === 'sum' ) {
 								let sum = 0;
 								this._displayeddata.forEach( ( row: XiriTableRow ) => {
-									sum += +( row[ column.id ] as XiriTableCellValue[] )[ 1 ];
+									const cell = row[ column.id ] as XiriTableCellValue[] | undefined;
+									sum += +( cell ? cell[ 1 ] as number : 0 );
 								} );
 								
 								if ( !column.webformat )
@@ -459,6 +462,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.loading.set( false );
 		} else if ( this.settings().url ) {
 
+			const url = this.settings().url ?? '';
 			const payload: Record<string, unknown> = this.settings().hasFilter
 				? { ...( this._filterData() as Record<string, unknown> ) }
 				: {};
@@ -476,7 +480,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			}
 
 			const api: Observable<unknown> = this.dataService.post(
-				this.settings().url, Object.keys( payload ).length > 0 ? payload : null );
+				url, Object.keys( payload ).length > 0 ? payload : null );
 
 			api.pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
 				next: ( raw: unknown ) => {
@@ -575,8 +579,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this._firstData ) {
 			this._firstData = false;
 
-			if ( this.options.saveState && this.tableStateKey() ) {
-				const saved = this.sessionStorageService.getTimeout( this.tableStateKey(), 3600 ) as XiriTableSavedState | null;
+			const stateKey = this.tableStateKey();
+			if ( this.options.saveState && stateKey ) {
+				const saved = this.sessionStorageService.getTimeout( stateKey, 3600 ) as XiriTableSavedState | null;
 				if ( !saved )
 					return;
 
@@ -805,8 +810,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			return;
 
 		const data: Record<string, XiriTableCellValue> = {};
-		for ( let i = 0; i != button.send.length; i++ ) {
-			const k = button.send[ i ];
+		const send = button.send ?? [];
+		for ( let i = 0; i != send.length; i++ ) {
+			const k = send[ i ];
 			data[ k ] = row[ k ] as XiriTableCellValue;
 		}
 
@@ -821,8 +827,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 	saveCallCheck( button: XiriButton, row: XiriTableRow ): boolean {
 
-		for ( let i = 0; i != button.check.length; i++ ) {
-			const k = button.check[ i ];
+		const check = button.check ?? [];
+		for ( let i = 0; i != check.length; i++ ) {
+			const k = check[ i ];
 
 			if ( row[ k ] === null || row[ k ] === undefined || row[ k ] === '' ) {
 				return false;
@@ -981,7 +988,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		}
 		this._changeDetectorRef.markForCheck();
 		
-		this.dataService.post( this.options.saveInputUrl, data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+		this.dataService.post( this.options.saveInputUrl ?? '', data ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
 			next: ( result: unknown ) => {
 				this.callReturn( result );
 			},

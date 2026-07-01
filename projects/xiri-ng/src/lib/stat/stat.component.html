@@ -29,16 +29,16 @@
 			</div>
 			<div class="stat-label">{{ settings().label }}</div>
 		</div>
-		@if (settings().trend) {
-			<div class="stat-trend" [class]="settings().trend.direction">
+		@if (settings().trend; as trend) {
+			<div class="stat-trend" [class]="trend.direction">
 				<mat-icon>
-					@switch (settings().trend.direction) {
+					@switch (trend.direction) {
 						@case ('up') { trending_up }
 						@case ('down') { trending_down }
 						@default { trending_flat }
 					}
 				</mat-icon>
-				<span>{{ settings().trend.value > 0 ? '+' : '' }}{{ settings().trend.value }}%</span>
+				<span>{{ trend.value > 0 ? '+' : '' }}{{ trend.value }}%</span>
 			</div>
 		}
 	</div>

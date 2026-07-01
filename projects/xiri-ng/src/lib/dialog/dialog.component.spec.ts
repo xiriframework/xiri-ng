@@ -144,8 +144,8 @@ describe( 'XiriDialogComponent', () => {
 
 			expect( component.type() ).toBe( 'form' );
 			expect( component.formFields() ).toBeTruthy();
-			expect( component.formFields().length ).toBe( 1 );
-			expect( component.formFields()[ 0 ].value ).toBe( 'test@test.com' );
+			expect( component.formFields()!.length ).toBe( 1 );
+			expect( component.formFields()![ 0 ].value ).toBe( 'test@test.com' );
 		} );
 
 		it( 'should hide fields with hide=true', () => {
@@ -162,8 +162,8 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test' } );
 			fixture.detectChanges();
 
-			expect( component.formFields().length ).toBe( 1 );
-			expect( component.formFields()[ 0 ].id ).toBe( 'visible' );
+			expect( component.formFields()!.length ).toBe( 1 );
+			expect( component.formFields()![ 0 ].id ).toBe( 'visible' );
 		} );
 
 		it( 'should set question type', () => {

@@ -172,15 +172,18 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain<DateTimeRange | nu
 					                     thour: 0,
 					                     tminute: 0,
 				                     } );
-				
+
 				this.startChangeValue();
-				return;
 			}
+			return;
 		}
-		
+
 		const fromDate = this.dateService.unixToLocal( input.start );
 		const toDate = this.dateService.unixToLocal( input.end );
-		
+
+		if ( fromDate === null || toDate === null )
+			return;
+
 		const fromHour = fromDate.getHours() ?? 0;
 		const fromMinute = fromDate.getMinutes() ?? 0;
 		const toHour = toDate.getHours() ?? 0;
@@ -218,8 +221,8 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain<DateTimeRange | nu
 	}
 	
 	private changeValue( val: DateTimeRange | null | undefined ) {
-		
-		this._lastValue = val;
+
+		this._lastValue = val ?? null;
 		this.runChangeValue( val );
 	}
 	

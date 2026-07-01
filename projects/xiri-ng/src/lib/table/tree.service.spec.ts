@@ -91,9 +91,9 @@ describe( 'tree pure functions', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
 			const rows = flatten( roots, new Set() );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
-			expect( rows.find( r => r.name === 'Wien' )!._tree.hasChildren ).toBe( true );
-			expect( rows.find( r => r.name === 'Wien' )!._tree.expanded ).toBe( false );
-			expect( rows.find( r => r.name === 'Wien' )!._tree.childCount ).toBe( 2 );
+			expect( rows.find( r => r.name === 'Wien' )!._tree!.hasChildren ).toBe( true );
+			expect( rows.find( r => r.name === 'Wien' )!._tree!.expanded ).toBe( false );
+			expect( rows.find( r => r.name === 'Wien' )!._tree!.childCount ).toBe( 2 );
 		} );
 
 		it( 'reveals children of expanded nodes in tree order', () => {
@@ -101,7 +101,7 @@ describe( 'tree pure functions', () => {
 			const rows = flatten( roots, new Set( [ 1, 2 ] ) ); // Wien + Favoriten expanded
 			expect( rows.map( r => r.name ) ).toEqual(
 				[ 'Graz', 'Orphan', 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
-			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.level ).toBe( 2 );
+			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree!.level ).toBe( 2 );
 		} );
 	} );
 
@@ -110,9 +110,9 @@ describe( 'tree pure functions', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
 			const rows = searchProjection( roots, byName( 'Inzersdorf' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
-			expect( rows.find( r => r.name === 'Wien' )!._tree.dimmed ).toBe( true );
-			expect( rows.find( r => r.name === 'Favoriten' )!._tree.dimmed ).toBe( true );
-			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.dimmed ).toBe( false );
+			expect( rows.find( r => r.name === 'Wien' )!._tree!.dimmed ).toBe( true );
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree!.dimmed ).toBe( true );
+			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree!.dimmed ).toBe( false );
 		} );
 
 		it( 'shows the full subtree of a match (descendants included, not dimmed)', () => {
@@ -121,16 +121,16 @@ describe( 'tree pure functions', () => {
 			// Wien matches (root) → it and all descendants are shown, in tree order.
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
 			// Nothing is dimmed: every shown node is inside the matched subtree.
-			expect( rows.every( r => r._tree.dimmed === false ) ).toBe( true );
+			expect( rows.every( r => r._tree!.dimmed === false ) ).toBe( true );
 		} );
 
 		it( 'shows dimmed ancestors AND full descendants for a mid-level match', () => {
 			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
 			const rows = searchProjection( roots, byName( 'Favoriten' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
-			expect( rows.find( r => r.name === 'Wien' )!._tree.dimmed ).toBe( true );  // ancestor → context
-			expect( rows.find( r => r.name === 'Favoriten' )!._tree.dimmed ).toBe( false ); // match
-			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree.dimmed ).toBe( false ); // descendant of match
+			expect( rows.find( r => r.name === 'Wien' )!._tree!.dimmed ).toBe( true );  // ancestor → context
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree!.dimmed ).toBe( false ); // match
+			expect( rows.find( r => r.name === 'Inzersdorf' )!._tree!.dimmed ).toBe( false ); // descendant of match
 		} );
 
 		it( 'collapses a branch within the search result when its node is not in expandedIds', () => {
@@ -140,8 +140,8 @@ describe( 'tree pure functions', () => {
 			expanded.delete( 2 );
 			const rows = searchProjection( roots, byName( 'Wien' ), expanded );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten' ] );
-			expect( rows.find( r => r.name === 'Favoriten' )!._tree.expanded ).toBe( false );
-			expect( rows.find( r => r.name === 'Favoriten' )!._tree.hasChildren ).toBe( true );
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree!.expanded ).toBe( false );
+			expect( rows.find( r => r.name === 'Favoriten' )!._tree!.hasChildren ).toBe( true );
 		} );
 
 		it( 'returns empty when nothing matches', () => {

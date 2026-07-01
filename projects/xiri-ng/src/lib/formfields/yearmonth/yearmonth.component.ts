@@ -126,11 +126,9 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 
 	set value( input: number | null | undefined ) {
 		if ( input === null || input === undefined ) {
-			if ( !this.required ) {
-				this.dateControl.setValue( null );
-				this.startChangeValue();
-				return;
-			}
+			this.dateControl.setValue( null );
+			this.startChangeValue();
+			return;
 		}
 
 		const current = this.dateService.unixToLocal( input );
@@ -166,7 +164,7 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 	}
 
 	private changeValue( val: number | null | undefined ) {
-		this._lastValue = val;
+		this._lastValue = val ?? null;
 		this.runChangeValue( val );
 	}
 

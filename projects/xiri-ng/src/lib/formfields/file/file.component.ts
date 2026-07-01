@@ -79,12 +79,12 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	focused = false;
 	controlType = 'xiri-file';
 	
-	readonly placeholder: string;
+	readonly placeholder!: string;
 	public required = false;
 	public disabled = false;
 	shouldLabelFloat = true;
-	
-	private _field: XiriFormField;
+
+	private _field!: XiriFormField;
 	currentFiles: FileData[] = [];
 	
 	constructor() {
@@ -97,7 +97,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		                                      } );
 		
 		this.focusMonitor.monitor( this._elementRef, true ).subscribe( origin => {
-			this.ngControl.control.markAsTouched();
+			this.ngControl?.control?.markAsTouched();
 			this.focused = !!origin;
 			this.cdr.markForCheck();
 		} );
@@ -146,9 +146,9 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	set field( value: XiriFormField ) {
 		
 		this._field = value;
-		
-		this.required = value.required;
-		this.disabled = value.disabled;
+
+		this.required = value.required ?? false;
+		this.disabled = value.disabled ?? false;
 		if ( this.disabled )
 			this.parts.disable();
 		else
@@ -158,7 +158,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	}
 	
 	get errorState(): boolean {
-		return this.parts.invalid && this.ngControl.touched;
+		return this.parts.invalid && !!this.ngControl?.touched;
 	}
 	
 	get empty() {
@@ -198,14 +198,14 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		const fieldFiles = this.parts.get( 'files' );
 		const fieldText = this.parts.get( 'text' );
 		const files = [];
-		
+
 		for ( let i = 0; i < fileList.length; i++ ) {
 			const file = fileList.item( i );
-			if ( file === null || file.size > this._field.max ) {
+			if ( file === null || file.size > ( this._field.max ?? Infinity ) ) {
 				console.log( 'file too large or null', file, this._field );
 				this.currentFiles = [];
-				fieldFiles.setValue( null );
-				fieldText.setValue( null );
+				fieldFiles?.setValue( null );
+				fieldText?.setValue( null );
 				
 				this.onChange( this.value );
 				this.stateChanges.next();
@@ -230,15 +230,15 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 			files.push( file );
 		}
 		
-		fieldFiles.setValue( files );
-		fieldText.setValue( files.map( ( file ) => file.name ).join( ', ' ) );
+		fieldFiles?.setValue( files );
+		fieldText?.setValue( files.map( ( file ) => file.name ).join( ', ' ) );
 	}
 	
 	public getErrorMessage(): string {
 		
-		const errors = this.parts.get( 'text' ).errors;
-		
-		if ( errors.required )
+		const errors = this.parts.get( 'text' )?.errors;
+
+		if ( errors?.required )
 			return 'required';
 		
 		console.log( 'unknown error file', errors );

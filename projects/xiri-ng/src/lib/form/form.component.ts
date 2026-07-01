@@ -40,13 +40,13 @@ export class XiriFormComponent implements OnInit {
 	private formService = inject( XiriFormService );
 	private destroyRef = inject( DestroyRef );
 
-	public formFields = signal<XiriFormField[]>( null );
+	public formFields = signal<XiriFormField[] | null>( null );
 	public loading = signal<boolean>( true );
 	public loadingButton = signal<XiriButton | null>( null );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
 
-	private url: string;
+	private url!: string;
 	public buttons: XiriButton[] = [];
 	private extra = {};
 	private formValues: object | null | undefined = null;
@@ -96,8 +96,8 @@ export class XiriFormComponent implements OnInit {
 			if ( res.url )
 				this.url = res.url;
 			this.buttons = res.buttons;
-			this.extra = res.extra;
-			this.formFields.set( res.fields );
+			this.extra = res.extra ?? {};
+			this.formFields.set( res.fields ?? null );
 		} else if ( res.done ) {
 			this.done.set( true );
 			this.formFields.set( null );

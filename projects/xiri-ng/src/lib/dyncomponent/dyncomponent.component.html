@@ -158,7 +158,7 @@
 		}
 		@case ('barchart') {
 			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
-				@defer { <xiri-barchart [mode]="obj.mode" [settings]="$any(obj.data)"></xiri-barchart> }
+				@defer { <xiri-barchart [mode]="obj.mode ?? 'simple'" [settings]="$any(obj.data)"></xiri-barchart> }
 			</div>
 		}
 		@case ('linechart') {

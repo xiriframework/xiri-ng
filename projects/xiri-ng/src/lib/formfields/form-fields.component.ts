@@ -21,7 +21,7 @@ import {
 	ValidatorFn,
 	Validators
 } from '@angular/forms';
-import { XiriFormField, XiriFormFieldCondition } from './field.interface';
+import { XiriFormField, XiriFormFieldCondition, XiriFormFieldSelectOption } from './field.interface';
 import { Observable } from "rxjs";
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFileComponent } from './file/file.component';
@@ -92,7 +92,7 @@ export class XiriFormFieldsComponent implements OnInit {
 	display = input<XiriFormFieldDisplay>( 'full' );
 	disabled = input<boolean>( false );
 	formChange = output<UntypedFormGroup>();
-	check = input<Observable<void>>( null );
+	check = input<Observable<void> | null>( null );
 	
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;
@@ -190,9 +190,13 @@ export class XiriFormFieldsComponent implements OnInit {
 	} );
 	
 	private createControl(): void {
-		
-		for ( let i = 0; i != this._fields.length; i++ ) {
-			const field = this._fields[ i ];
+
+		const fields = this._fields;
+		if ( fields === null )
+			return;
+
+		for ( let i = 0; i != fields.length; i++ ) {
+			const field = fields[ i ];
 			
 			if ( field.formtype )
 				field.type = field.formtype;
@@ -255,17 +259,18 @@ export class XiriFormFieldsComponent implements OnInit {
 						field.subtype = 'model';
 					
 					if ( field.list === undefined && field.array !== undefined ) {
-						field.list = [];
+						const list: XiriFormFieldSelectOption[] = [];
 						field.array.forEach( val => {
-							field.list.push( {
-								                 id: val as unknown as number,
-								                 name: val as unknown as string,
-							                 } )
+							list.push( {
+								           id: val as unknown as number,
+								           name: val as unknown as string,
+							           } )
 						} );
+						field.list = list;
 					}
-					
+
 					if ( field.subtype === 'model' ) {
-						if ( field.value === undefined && field.list.length != 0 )
+						if ( field.value === undefined && field.list !== undefined && field.list.length != 0 )
 							field.value = field.list[ 0 ].id;
 					} else {
 						if ( field.value === undefined || field.value === null )
@@ -337,8 +342,8 @@ export class XiriFormFieldsComponent implements OnInit {
 	
 	private bindValidations( field: XiriFormField ) {
 		
-		const validList = [];
-		
+		const validList: ValidatorFn[] = [];
+
 		if ( field.validations === undefined ) {
 			
 			field.validations = [];
@@ -486,7 +491,7 @@ export class XiriFormFieldsComponent implements OnInit {
 		for ( let i = idx - 1; i >= 0; i-- ) {
 			const f = fields[ i ];
 			if ( f.type === 'header' ) {
-				return f.collapsible && this.collapsedSections().has( f.id );
+				return !!f.collapsible && this.collapsedSections().has( f.id );
 			}
 			if ( f.type === 'divider' ) {
 				return false; // Divider breaks the section

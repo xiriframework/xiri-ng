@@ -66,7 +66,7 @@ export class XiriRawTableComponent {
 			if ( this.settings().forceMinWidth )
 				this.tableClass += ' force-min-width';
 
-			this.loadFields( this.settings().fields );
+			this.loadFields( this.settings().fields ?? [] );
 			this.dataSource.data = this.settings().data as XiriRawTableRow[];
 		} );
 	}

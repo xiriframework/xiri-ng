@@ -77,35 +77,35 @@ describe( 'XiriFormFieldsComponent', () => {
 
 			expect( component.formGroup.get( 'name' ) ).toBeTruthy();
 			expect( component.formGroup.get( 'email' ) ).toBeTruthy();
-			expect( component.formGroup.get( 'name' ).value ).toBe( 'Alice' );
+			expect( component.formGroup.get( 'name' )!.value ).toBe( 'Alice' );
 		} );
 
 		it( 'should default text field value to empty string', () => {
 			host.fields.set( [ { id: 'name', type: 'text' } ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'name' ).value ).toBe( '' );
+			expect( component.formGroup.get( 'name' )!.value ).toBe( '' );
 		} );
 
 		it( 'should default textarea value to empty string', () => {
 			host.fields.set( [ { id: 'desc', type: 'textarea' } ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'desc' ).value ).toBe( '' );
+			expect( component.formGroup.get( 'desc' )!.value ).toBe( '' );
 		} );
 
 		it( 'should default bool value to false', () => {
 			host.fields.set( [ { id: 'active', type: 'bool' } ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'active' ).value ).toBe( false );
+			expect( component.formGroup.get( 'active' )!.value ).toBe( false );
 		} );
 
 		it( 'should handle email type as text with email subtype', () => {
 			host.fields.set( [ { id: 'email', type: 'email', value: '' } ] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( fields[ 0 ].type ).toBe( 'text' );
 			expect( fields[ 0 ].subtype ).toBe( 'email' );
 		} );
@@ -114,7 +114,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			host.fields.set( [ { id: 'pwd', type: 'password', value: '' } ] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( fields[ 0 ].subtype ).toBe( 'password' );
 			expect( fields[ 0 ].pwdhide ).toBe( true );
 		} );
@@ -123,21 +123,21 @@ describe( 'XiriFormFieldsComponent', () => {
 			host.fields.set( [ { id: 'f1', type: 'text', value: '' } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].class ).toBe( 'xcol' );
+			expect( component.fields()![ 0 ].class ).toBe( 'xcol' );
 		} );
 
 		it( 'should preserve custom class', () => {
 			host.fields.set( [ { id: 'f1', type: 'text', value: '', class: 'custom' } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].class ).toBe( 'custom' );
+			expect( component.fields()![ 0 ].class ).toBe( 'custom' );
 		} );
 
 		it( 'should apply formtype to type', () => {
 			host.fields.set( [ { id: 'f1', type: 'text', formtype: 'number', value: 0 } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].type ).toBe( 'number' );
+			expect( component.fields()![ 0 ].type ).toBe( 'number' );
 		} );
 	} );
 
@@ -150,10 +150,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const field = component.fields()[ 0 ];
+			const field = component.fields()![ 0 ];
 			expect( field.list ).toBeTruthy();
-			expect( field.list.length ).toBe( 3 );
-			expect( field.list[ 0 ] ).toEqual( { id: 'red', name: 'red' } );
+			expect( field.list!.length ).toBe( 3 );
+			expect( field.list![ 0 ] ).toEqual( { id: 'red', name: 'red' } );
 		} );
 
 		it( 'should set default value for model select to first item', () => {
@@ -164,7 +164,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'item' ).value ).toBe( 1 );
+			expect( component.formGroup.get( 'item' )!.value ).toBe( 1 );
 		} );
 
 		it( 'should set default value for non-model select to empty array', () => {
@@ -175,7 +175,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'items' ).value ).toEqual( [] );
+			expect( component.formGroup.get( 'items' )!.value ).toEqual( [] );
 		} );
 
 		it( 'should set serverSideSearch when url is provided', () => {
@@ -187,7 +187,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].serverSideSearch ).toBe( true );
+			expect( component.fields()![ 0 ].serverSideSearch ).toBe( true );
 		} );
 	} );
 
@@ -200,7 +200,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].tree ).toBe( true );
+			expect( component.fields()![ 0 ].tree ).toBe( true );
 		} );
 
 		it( 'should set tree=false for multiselect', () => {
@@ -211,8 +211,8 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].tree ).toBe( false );
-			expect( component.fields()[ 0 ].type ).toBe( 'treeselect' );
+			expect( component.fields()![ 0 ].tree ).toBe( false );
+			expect( component.fields()![ 0 ].type ).toBe( 'treeselect' );
 		} );
 	} );
 
@@ -221,30 +221,30 @@ describe( 'XiriFormFieldsComponent', () => {
 			host.fields.set( [ { id: 'vol', type: 'volume', value: [ 0, 0, 0 ] } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].required ).toBe( true );
+			expect( component.fields()![ 0 ].required ).toBe( true );
 		} );
 
 		it( 'should set type to date for datetime', () => {
 			host.fields.set( [ { id: 'dt', type: 'datetime', value: '' } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].type ).toBe( 'date' );
-			expect( component.fields()[ 0 ].class ).toContain( 'datetime' );
+			expect( component.fields()![ 0 ].type ).toBe( 'date' );
+			expect( component.fields()![ 0 ].class ).toContain( 'datetime' );
 		} );
 
 		it( 'should keep type yearmonth and add yearmonth class', () => {
 			host.fields.set( [ { id: 'ym', type: 'yearmonth', value: '' } ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].type ).toBe( 'yearmonth' );
-			expect( component.fields()[ 0 ].class ).toContain( 'yearmonth' );
-			expect( component.fields()[ 0 ].required ).toBe( true );
+			expect( component.fields()![ 0 ].type ).toBe( 'yearmonth' );
+			expect( component.fields()![ 0 ].class ).toContain( 'yearmonth' );
+			expect( component.fields()![ 0 ].required ).toBe( true );
 		} );
 
 		it( 'should not force required when explicitly set false on yearmonth', () => {
 			host.fields.set( [ { id: 'ym', type: 'yearmonth', required: false, value: '' } ] );
 			fixture.detectChanges();
-			expect( component.fields()[ 0 ].required ).toBe( false );
+			expect( component.fields()![ 0 ].required ).toBe( false );
 		} );
 	} );
 
@@ -257,7 +257,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].name ).toBe( 'Is Active' );
+			expect( component.fields()![ 0 ].name ).toBe( 'Is Active' );
 		} );
 	} );
 
@@ -271,7 +271,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'name' );
+			const control = component.formGroup.get( 'name' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 'test' );
 			expect( control.valid ).toBe( true );
@@ -286,7 +286,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'code' );
+			const control = component.formGroup.get( 'code' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 'abc' );
 			expect( control.valid ).toBe( true );
@@ -301,7 +301,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'code' );
+			const control = component.formGroup.get( 'code' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( '12345' );
 			expect( control.valid ).toBe( true );
@@ -316,7 +316,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'count' );
+			const control = component.formGroup.get( 'count' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 10 );
 			expect( control.valid ).toBe( true );
@@ -331,7 +331,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'count' );
+			const control = component.formGroup.get( 'count' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 8 );
 			expect( control.valid ).toBe( true );
@@ -346,7 +346,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'code' );
+			const control = component.formGroup.get( 'code' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 'ABC' );
 			expect( control.valid ).toBe( true );
@@ -360,7 +360,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'email' );
+			const control = component.formGroup.get( 'email' )!;
 			expect( control.valid ).toBe( false );
 			control.setValue( 'test@example.com' );
 			expect( control.valid ).toBe( true );
@@ -375,7 +375,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			const control = component.formGroup.get( 'custom' );
+			const control = component.formGroup.get( 'custom' )!;
 			// No validators, so empty string should be valid
 			expect( control.valid ).toBe( true );
 		} );
@@ -388,7 +388,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			await new Promise( r => queueMicrotask( () => r( undefined ) ) );
 			host.formChangeEvents = [];
 
-			component.formGroup.get( 'name' ).setValue( 'new value' );
+			component.formGroup.get( 'name' )!.setValue( 'new value' );
 			await new Promise( r => queueMicrotask( () => r( undefined ) ) );
 
 			expect( host.formChangeEvents.length ).toBeGreaterThan( 0 );
@@ -401,7 +401,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			host.formChangeEvents = [];
 
 			// Set same value
-			component.formGroup.get( 'name' ).setValue( 'same' );
+			component.formGroup.get( 'name' )!.setValue( 'same' );
 			await new Promise( r => queueMicrotask( () => r( undefined ) ) );
 
 			expect( host.formChangeEvents.length ).toBe( 0 );
@@ -415,7 +415,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 0 ] ) ).toBe( true );
 		} );
 
@@ -431,10 +431,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'type' ).setValue( 'B' );
+			component.formGroup.get( 'type' )!.setValue( 'B' );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -450,10 +450,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'type' ).setValue( 'B' );
+			component.formGroup.get( 'type' )!.setValue( 'B' );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -469,10 +469,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'tags' ).setValue( 'hello' );
+			component.formGroup.get( 'tags' )!.setValue( 'hello' );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -488,10 +488,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'count' ).setValue( 3 );
+			component.formGroup.get( 'count' )!.setValue( 3 );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -507,10 +507,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'count' ).setValue( 10 );
+			component.formGroup.get( 'count' )!.setValue( 10 );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -526,10 +526,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'status' ).setValue( 'closed' );
+			component.formGroup.get( 'status' )!.setValue( 'closed' );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -545,10 +545,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 
-			component.formGroup.get( 'name' ).setValue( '' );
+			component.formGroup.get( 'name' )!.setValue( '' );
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( false );
 		} );
 
@@ -568,10 +568,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 2 ] ) ).toBe( true );
 
-			component.formGroup.get( 'type' ).setValue( 'B' );
+			component.formGroup.get( 'type' )!.setValue( 'B' );
 			expect( component.isFieldVisible( fields[ 2 ] ) ).toBe( false );
 		} );
 
@@ -586,7 +586,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 0 ] ) ).toBe( false );
 		} );
 
@@ -602,7 +602,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			] );
 			fixture.detectChanges();
 
-			const fields = component.fields();
+			const fields = component.fields()!;
 			expect( component.isFieldVisible( fields[ 1 ] ) ).toBe( true );
 		} );
 	} );
@@ -745,8 +745,8 @@ describe( 'XiriFormFieldsComponent', () => {
 			host.disabled.set( false );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'readonly' ).disabled ).toBe( true );
-			expect( component.formGroup.get( 'editable' ).enabled ).toBe( true );
+			expect( component.formGroup.get( 'readonly' )!.disabled ).toBe( true );
+			expect( component.formGroup.get( 'editable' )!.enabled ).toBe( true );
 		} );
 	} );
 
@@ -801,7 +801,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].multiple ).toBe( true );
+			expect( component.fields()![ 0 ].multiple ).toBe( true );
 		} );
 
 		it( 'should convert objectlist without subtype to treeselect', () => {
@@ -812,8 +812,8 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.fields()[ 0 ].type ).toBe( 'treeselect' );
-			expect( component.fields()[ 0 ].tree ).toBe( true );
+			expect( component.fields()![ 0 ].type ).toBe( 'treeselect' );
+			expect( component.fields()![ 0 ].tree ).toBe( true );
 		} );
 	} );
 
@@ -826,7 +826,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			expect( component.formGroup.get( 'q' ).value ).toBe( 'Are you sure?' );
+			expect( component.formGroup.get( 'q' )!.value ).toBe( 'Are you sure?' );
 		} );
 	} );
 } );

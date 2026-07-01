@@ -6,7 +6,7 @@
 		"forceConsistentCasingInFileNames": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"strict": false,
+		"strict": true,
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"sourceMap": true,

@@ -125,8 +125,8 @@ export class XiriDateRangeComponent extends XiriFieldMain<DateRange | null | und
 	get value(): DateRange | null | undefined {
 		
 		const { start, end } = this.parts.value;
-		
-		if ( start === null || end === null ) {
+
+		if ( start == null || end == null ) {
 			if ( this.required ) {
 				return this.parts.valid ? null : this._disabled() ? null : undefined;
 			} else {
@@ -149,25 +149,23 @@ export class XiriDateRangeComponent extends XiriFieldMain<DateRange | null | und
 	set value( input: DateRange | null | undefined ) {
 		
 		if ( input === null || input === undefined ) {
-			if ( !this.required ) {
-				this.parts.setValue( {
-					                     start: null,
-					                     end: null,
-				                     } );
-				
-				this.startChangeValue();
-				return;
-			}
+			this.parts.setValue( {
+				                     start: null,
+				                     end: null,
+			                     } );
+
+			this.startChangeValue();
+			return;
 		}
-		
-		const start = this.dateService.unixToLocal( input?.start );
-		const end = this.dateService.unixToLocal( input?.end );
-		
+
+		const start = this.dateService.unixToLocal( input.start );
+		const end = this.dateService.unixToLocal( input.end );
+
 		this.parts.setValue( {
 			                     start: start,
 			                     end: end,
 		                     } );
-		
+
 		this.startChangeValue();
 	}
 	
@@ -192,8 +190,8 @@ export class XiriDateRangeComponent extends XiriFieldMain<DateRange | null | und
 	}
 	
 	private changeValue( val: DateRange | null | undefined ) {
-		
-		this._lastValue = val;
+
+		this._lastValue = val ?? null;
 		this.runChangeValue( val );
 	}
 	

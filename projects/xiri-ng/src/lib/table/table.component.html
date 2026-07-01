@@ -136,10 +136,10 @@
 								}
 								@case ('icon') {
 									<td mat-cell *matCellDef="let row" [class]="column.display">
-										@if (column.icons[ row[ column.id ] ]) {
-											<mat-icon [class]="column.icons[ row[ column.id ] ][ 'color' ] || 'primary'"
-											          [matTooltip]="column.icons[ row[ column.id ] ][ 'hint' ] "
-											          [matTooltipDisabled]="!column.icons[ row[ column.id ] ][ 'hint' ]">{{ column.icons[row[column.id]]['icon'] }}
+										@if (column.icons?.[ $any(row[ column.id ]) ]; as icon) {
+											<mat-icon [class]="icon[ 'color' ] || 'primary'"
+											          [matTooltip]="icon[ 'hint' ] || '' "
+											          [matTooltipDisabled]="!icon[ 'hint' ]">{{ icon['icon'] }}
 											</mat-icon>
 										}
 									</td>
@@ -167,7 +167,7 @@
 									<td mat-cell *matCellDef="let row" [class]="column.display">
 										<mat-form-field subscriptSizing="dynamic">
 											<input matInput
-											       [type]="column.inputType"
+											       [type]="column.inputType || 'text'"
 											       [(ngModel)]="row[ column.id ]"
 											       [lang]="column.inputLang || ''"
 											       [required]="column.inputRequired || true"
@@ -405,7 +405,7 @@
 					</div>
 				}
 				<div class="xcol xcol-right-md-10">
-					<mat-paginator [hidden]="!options.pagination" [pageSizeOptions]="options.pageSizes" showFirstLastButtons="true"></mat-paginator>
+					<mat-paginator [hidden]="!options.pagination" [pageSizeOptions]="options.pageSizes || []" showFirstLastButtons="true"></mat-paginator>
 				</div>
 			</div>
 		</div>

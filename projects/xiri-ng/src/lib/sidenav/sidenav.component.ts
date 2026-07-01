@@ -49,7 +49,7 @@ export class XiriSidenavComponent {
 	settings = input<XiriSidebarSettings>();
 	loading = true;
 	fields: XiriNavigationField[] = [];
-	private prefix: string;
+	private prefix = '';
 	
 	constructor() {
 
@@ -65,7 +65,7 @@ export class XiriSidenavComponent {
 
 			this.loading = value == null || value.fields == null;
 
-			if ( !this.loading ) {
+			if ( !this.loading && value != null ) {
 				this.fields = value.fields;
 				this.prefix = value.prefix;
 

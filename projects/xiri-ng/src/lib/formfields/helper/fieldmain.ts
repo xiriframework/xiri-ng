@@ -83,7 +83,7 @@ export abstract class XiriFieldMain<T = unknown>
 			this.focused = !!origin;
 			if ( !this.focused ) {
 				if ( !this.touched ) {
-					this.ngControl.control.markAsTouched();
+					this.ngControl?.control?.markAsTouched();
 					this.touched = true;
 				}
 				this.startChangeValue();
@@ -134,7 +134,7 @@ export abstract class XiriFieldMain<T = unknown>
 		this._id = value;
 	}
 
-	protected _id: string;
+	protected _id!: string;
 
 
 	readonly tabIndex = input(0, { transform: (value: unknown) => (value == null ? 0 : numberAttribute(value)) });
@@ -204,7 +204,7 @@ export abstract class XiriFieldMain<T = unknown>
 		this.stateChanges.next();
 	}
 
-	protected _placeholder: string;
+	protected _placeholder!: string;
 
 	public focused = false;
 
@@ -273,7 +273,7 @@ export abstract class XiriFieldMain<T = unknown>
 	readonly ariaDescribedby = input<string>(undefined, { alias: "aria-describedby" });
 
 	get userAriaDescribedBy(): string {
-		return this.ariaDescribedby();
+		return this.ariaDescribedby() ?? '';
 	}
 
 }

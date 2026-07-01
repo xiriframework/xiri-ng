@@ -223,13 +223,13 @@ export class XiriStepperComponent implements OnInit {
 						stepNext = steps[ res.step ];
 					}
 
-					if ( res.fields )
-						stepNext.fields.set( res.fields );
-					if ( res.buttons )
-						stepNext.buttons.set( res.buttons );
-					if ( res.url )
-						stepNext.url = res.url;
 					if ( stepNext ) {
+						if ( res.fields )
+							stepNext.fields.set( res.fields );
+						if ( res.buttons )
+							stepNext.buttons.set( res.buttons );
+						if ( res.url )
+							stepNext.url = res.url;
 						stepNext.load.set( false );
 						stepNext.gotonext.set( false );
 					}
@@ -238,8 +238,9 @@ export class XiriStepperComponent implements OnInit {
 					stepCurrent.completed.set( true );
 
 					if ( res.step && stepNext ) {
+						const nextIndex = res.step;
 						setTimeout( () => {
-							this.stepper().selectedIndex = res.step;
+							this.stepper().selectedIndex = nextIndex;
 						}, 0 )
 					} else if ( res.goto ) {
 						this.done.set( true );
@@ -282,7 +283,7 @@ export class XiriStepperComponent implements OnInit {
 		if ( step.extra )
 			data = { ...data, ...step.extra };
 
-		const url = step.url ? step.url : this.settings().url;
+		const url = step.url ? step.url : ( this.settings().url ?? '' );
 		return this.dataService.post( url, data ) as Observable<XiriStepperResponse | null>;
 	}
 

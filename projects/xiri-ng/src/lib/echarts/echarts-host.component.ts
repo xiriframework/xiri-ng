@@ -114,11 +114,11 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 				if ( p.componentType !== 'series' )
 					return;
 				this.zone.run( () => this.itemClick.emit( {
-					componentType: p.componentType,
-					seriesType: p.seriesType,
-					seriesIndex: p.seriesIndex,
+					componentType: p.componentType ?? '',
+					seriesType: p.seriesType ?? '',
+					seriesIndex: p.seriesIndex ?? 0,
 					dataIndex: p.dataIndex,
-					name: p.name,
+					name: p.name ?? '',
 					value: p.value,
 				} ) );
 			} );

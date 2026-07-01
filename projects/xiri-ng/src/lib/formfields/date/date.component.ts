@@ -153,16 +153,14 @@ export class XiriDateComponent extends XiriFieldMain<number | null | undefined> 
 	set value( input: number | null | undefined ) {
 
 		if ( input === null || input === undefined ) {
-			if ( !this.required ) {
-				this.parts.setValue( {
-					                     date: null,
-					                     hour: 0,
-					                     minute: 0,
-				                     } );
+			this.parts.setValue( {
+				                     date: null,
+				                     hour: 0,
+				                     minute: 0,
+			                     } );
 
-				this.startChangeValue();
-				return;
-			}
+			this.startChangeValue();
+			return;
 		}
 
 		const current = this.dateService.unixToLocal( input );
@@ -195,8 +193,8 @@ export class XiriDateComponent extends XiriFieldMain<number | null | undefined> 
 	}
 	
 	private changeValue( val: number | null | undefined ) {
-		
-		this._lastValue = val;
+
+		this._lastValue = val ?? null;
 		this.runChangeValue( val );
 	}
 	

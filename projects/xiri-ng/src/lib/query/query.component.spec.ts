@@ -84,7 +84,7 @@ describe( 'XiriQueryComponent', () => {
 
 	it( 'should initialize form fields from settings', () => {
 		expect( component.formFields() ).toBeTruthy();
-		expect( component.formFields().length ).toBe( 1 );
+		expect( component.formFields()!.length ).toBe( 1 );
 	} );
 
 	describe( 'ngOnInit', () => {
@@ -95,7 +95,7 @@ describe( 'XiriQueryComponent', () => {
 			} );
 
 			expect( component.dynData.data ).toBeTruthy();
-			expect( component.dynData.data.length ).toBe( 1 );
+			expect( component.dynData.data!.length ).toBe( 1 );
 		} );
 
 		it( 'should not set dynData when dyn is undefined', () => {
@@ -226,7 +226,7 @@ describe( 'XiriQueryComponent', () => {
 			component.formChanged( { valid: true, value: { f: 'test' } } );
 
 			expect( component.data() ).toBeTruthy();
-			expect( component.data().length ).toBe( 1 );
+			expect( component.data()!.length ).toBe( 1 );
 		} );
 
 		it( 'should wrap non-array response in array', () => {

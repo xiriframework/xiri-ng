@@ -90,8 +90,9 @@ export class XiriChipsComponent implements ControlValueAccessor {
 			this.chips.set( current );
 			this.onChange( current );
 		}
-		if ( this.chipInput() ) {
-			this.chipInput().nativeElement.value = '';
+		const chipInput = this.chipInput();
+		if ( chipInput ) {
+			chipInput.nativeElement.value = '';
 		}
 	}
 
