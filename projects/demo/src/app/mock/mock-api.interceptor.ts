@@ -1,6 +1,25 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { delay, of, throwError } from 'rxjs';
 
+// Shape of the (optional) request bodies the mock handlers read. All fields are optional because
+// the same body type is shared across the different mock endpoints.
+interface MockRequestBody {
+	search?: string;
+	field?: string;
+	value?: string;
+	email?: string;
+	confirmed?: boolean;
+	firstName?: string;
+	lastName?: string;
+	page?: number;
+	pageSize?: number;
+	_page?: number;
+	_pageSize?: number;
+	_sort?: string;
+	_sortDir?: string;
+	_search?: string;
+}
+
 // Poll-Zähler für den Waiting-Dialog: die Demo simuliert einen Job, der nach einigen Polls fertig ist.
 let dialogWaitingPolls = 0;
 
@@ -159,7 +178,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Inline Edit server-side search (simulates a large remote, searchable list)
 	if ( req.url.includes( 'Test/InlineEdit/Search' ) ) {
-		const body = req.body as any;
+		const body = req.body as MockRequestBody;
 		const search = String( body?.search ?? '' ).toLowerCase();
 		const categories = [
 			'Computers', 'Laptops', 'Desktops', 'Monitors', 'Peripherals', 'Keyboards', 'Mice',
@@ -174,7 +193,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Inline Edit Save (simulates backend delay)
 	if ( req.url.includes( 'Test/InlineEdit/Save' ) ) {
-		const body = req.body as any;
+		const body = req.body as MockRequestBody;
 
 		// Simulate validation error for non-numeric price values
 		if ( body?.field === 'price' && isNaN( Number( String( body?.value ).replace( /,/g, '' ) ) ) ) {
@@ -185,8 +204,8 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 			} ) ).pipe( delay( 500 ) );
 		}
 
-		const updates: any = {
-			[body?.field]: body?.value,
+		const updates: Record<string, unknown> = {
+			[ String( body?.field ) ]: body?.value,
 			lastModified: new Date().toLocaleString( 'de-DE' ),
 		};
 		return of( new HttpResponse( {
@@ -205,7 +224,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 };
 
 // Stepper mock responses
-function getStepperResponse( body: any ): any {
+function getStepperResponse( body: MockRequestBody ): unknown {
 
 	// Step 0 -> Step 1: Return contact fields
 	if ( !body?.email ) {
@@ -243,7 +262,7 @@ function getStepperResponse( body: any ): any {
 }
 
 // Search Select mock responses
-function getSearchSelectResponse( body: any ): any[] {
+function getSearchSelectResponse( body: MockRequestBody ): unknown[] {
 
 	const search = body?.search ?? '';
 	if ( search === '' ) {
@@ -264,7 +283,7 @@ function getSearchSelectResponse( body: any ): any[] {
 }
 
 // Table mock responses
-function getTableResponse( type: string, body: any ): any {
+function getTableResponse( type: string, body: MockRequestBody ): unknown {
 
 	const page = body?.page ?? 0;
 	const pageSize = body?.pageSize ?? 10;
@@ -301,7 +320,7 @@ function getTableResponse( type: string, body: any ): any {
 }
 
 // DynPage mock responses
-function getLoginTestPage(): any {
+function getLoginTestPage(): unknown {
 	return {
 		bread: null,
 		data: [
@@ -320,7 +339,7 @@ function getLoginTestPage(): any {
 	};
 }
 
-function getDialogsPage(): any {
+function getDialogsPage(): unknown {
 	return {
 		bread: null,
 		data: [
@@ -345,7 +364,7 @@ function getDialogsPage(): any {
 // Dialog content for the 'component' dialog type: an expansion accordion with three
 // independently collapsible panels (read-only detail view). The `content` object is exactly
 // what core.Component.Print() produces on the backend ({type, display, data}).
-function getDialogComponentResponse(): any {
+function getDialogComponentResponse(): unknown {
 	const addressTable = ( name: string, street: string, city: string ) =>
 		`<table style="width:100%;border-collapse:collapse">
 			<tr><td style="padding:4px 8px;color:#888">Name</td><td style="padding:4px 8px">${ name }</td></tr>
@@ -397,7 +416,7 @@ function getDialogComponentResponse(): any {
 
 // Dialog content for the 'form' dialog type: a typical edit form. The submit button uses an
 // unhandled action ('save'), so clickButton() POSTs the form values to the dialog url.
-function getDialogFormResponse(): any {
+function getDialogFormResponse(): unknown {
 	return {
 		header: 'Kontakt bearbeiten',
 		type: 'form',
@@ -421,7 +440,7 @@ function getDialogFormResponse(): any {
 
 // Dialog content that demonstrates the in-dialog loading state: the POST handler delays ~15s,
 // during which the form is greyed out and a spinner replaces the action buttons.
-function getDialogLoadingResponse(): any {
+function getDialogLoadingResponse(): unknown {
 	return {
 		header: 'Langer Vorgang (≈15 s)',
 		type: 'form',
@@ -438,7 +457,7 @@ function getDialogLoadingResponse(): any {
 }
 
 // Dialog content for the 'table' dialog type: a read-only XiriRawTable.
-function getDialogTableResponse(): any {
+function getDialogTableResponse(): unknown {
 	return {
 		header: 'Bestellpositionen — #4711',
 		type: 'table',
@@ -463,7 +482,7 @@ function getDialogTableResponse(): any {
 
 // Dialog content for the 'question' dialog type: a confirm/delete prompt. The confirm button
 // uses an unhandled action ('delete'), so clickButton() POSTs to the dialog url.
-function getDialogDeleteResponse(): any {
+function getDialogDeleteResponse(): unknown {
 	return {
 		header: 'Eintrag löschen',
 		type: 'question',
@@ -482,7 +501,7 @@ function getDialogDeleteResponse(): any {
 
 // Dialog content for the 'waiting' dialog type: a spinner with status text. `url` points to the
 // poll endpoint and `time` is the poll interval; the dialog GET-polls until the job is done.
-function getDialogWaitingResponse(): any {
+function getDialogWaitingResponse(): unknown {
 	return {
 		header: 'Bericht wird erstellt',
 		type: 'waiting',
@@ -493,7 +512,7 @@ function getDialogWaitingResponse(): any {
 	};
 }
 
-function getTestHomePage(): any {
+function getTestHomePage(): unknown {
 	return {
 		bread: null,
 		data: [
@@ -534,7 +553,7 @@ function getTestHomePage(): any {
 	};
 }
 
-function getQueryPage(): any {
+function getQueryPage(): unknown {
 	return {
 		bread: 'Query',
 		data: [
@@ -557,7 +576,7 @@ function getQueryPage(): any {
 	};
 }
 
-function getGroupTablePage(): any {
+function getGroupTablePage(): unknown {
 	return {
 		bread: null,
 		data: [
@@ -588,7 +607,7 @@ function getGroupTablePage(): any {
 	};
 }
 
-function getGroupTableData( body: any ): any {
+function getGroupTableData( body: MockRequestBody ): unknown {
 	const page = body?.page ?? 0;
 	const pageSize = body?.pageSize ?? 10;
 	const search = body?.search ?? '';
@@ -617,7 +636,7 @@ function getGroupTableData( body: any ): any {
 	return { data, total };
 }
 
-function getFormPage(): any {
+function getFormPage(): unknown {
 	return {
 		bread: null,
 		data: [
@@ -640,7 +659,7 @@ function getFormPage(): any {
 	};
 }
 
-function getTable1Data( body: any ): any {
+function getTable1Data( body: MockRequestBody ): unknown {
 	const page = body?.page ?? 0;
 	const pageSize = body?.pageSize ?? 10;
 	const search = body?.search ?? '';
@@ -669,7 +688,7 @@ function getTable1Data( body: any ): any {
 	return { data, total };
 }
 
-function getTable2Data( body: any ): any {
+function getTable2Data( body: MockRequestBody ): unknown {
 	const page = body?.page ?? 0;
 	const pageSize = body?.pageSize ?? 10;
 	const search = body?.search ?? '';
@@ -701,7 +720,7 @@ function getTable2Data( body: any ): any {
 let workerTick = 0;
 const workerDurations = [ 2, 3, 4 ]; // ticks until each job completes
 
-function getWorkerTableData(): any {
+function getWorkerTableData(): unknown {
 	workerTick++;
 
 	const jobs = [ 'Import Job', 'Report Generation', 'Data Sync' ];
@@ -722,7 +741,7 @@ function getWorkerTableData(): any {
 		};
 	} );
 
-	const body: any = { data };
+	const body: Record<string, unknown> = { data };
 	if ( anyRunning ) {
 		body.poll = 2000; // keep polling while a worker is still running
 	} else {
@@ -736,7 +755,7 @@ function getWorkerTableData(): any {
 let buttonWorkerTick = 0;
 const buttonWorkerTotal = 3;
 
-function getButtonWorkerStatus(): any {
+function getButtonWorkerStatus(): unknown {
 	buttonWorkerTick++;
 	if ( buttonWorkerTick < buttonWorkerTotal ) {
 		const pct = Math.round( ( buttonWorkerTick / buttonWorkerTotal ) * 100 );
@@ -750,7 +769,7 @@ function getButtonWorkerStatus(): any {
 	};
 }
 
-function getServerTableData( body: any ): any {
+function getServerTableData( body: MockRequestBody ): unknown {
 
 	const page = body?._page ?? 0;
 	const pageSize = body?._pageSize ?? 10;
@@ -762,7 +781,8 @@ function getServerTableData( body: any ): any {
 	const statuses = [ 'Active', 'Inactive', 'On Leave', 'Sick' ];
 	const cities = [ 'Vienna', 'Berlin', 'Munich', 'Zurich', 'Hamburg', 'Frankfurt' ];
 
-	let allData = [];
+	type ServerRow = Record<string, string | number | ( string | number )[]>;
+	let allData: ServerRow[] = [];
 	for ( let i = 1; i <= 87; i++ ) {
 		allData.push( {
 			id: i,
@@ -776,17 +796,17 @@ function getServerTableData( body: any ): any {
 
 	if ( search ) {
 		allData = allData.filter( item =>
-			item.name.toLowerCase().includes( search.toLowerCase() ) ||
-			item.department.toLowerCase().includes( search.toLowerCase() ) ||
-			item.city.toLowerCase().includes( search.toLowerCase() ) ||
-			item.status.toLowerCase().includes( search.toLowerCase() )
+			String( item.name ).toLowerCase().includes( search.toLowerCase() ) ||
+			String( item.department ).toLowerCase().includes( search.toLowerCase() ) ||
+			String( item.city ).toLowerCase().includes( search.toLowerCase() ) ||
+			String( item.status ).toLowerCase().includes( search.toLowerCase() )
 		);
 	}
 
 	if ( sortField && sortField !== '' ) {
 		allData.sort( ( a, b ) => {
-			let valA = a[ sortField ];
-			let valB = b[ sortField ];
+			let valA: string | number | ( string | number )[] = a[ sortField ];
+			let valB: string | number | ( string | number )[] = b[ sortField ];
 			if ( Array.isArray( valA ) ) valA = valA[ 1 ];
 			if ( Array.isArray( valB ) ) valB = valB[ 1 ];
 			if ( typeof valA === 'string' ) valA = valA.toLowerCase();
@@ -814,7 +834,7 @@ function getServerTableData( body: any ): any {
 	};
 }
 
-function getQueryTableResult(): any {
+function getQueryTableResult(): unknown {
 	return {
 		bread: null,
 		data: [

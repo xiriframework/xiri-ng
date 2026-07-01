@@ -37,24 +37,33 @@ export interface XiriButton {
 	// as soon as it is no longer disabled (i.e. filter is valid/present).
 	autoLoad?: boolean
 
-	data?: Record<string, any>
+	data?: Record<string, unknown>
 	target?: string
 	loading?: boolean
 	filename?: string
 
 	// send btns
-	check?: any
-	send?: any
+	check?: string[]
+	send?: string[]
 
 	// menu items (for action "menu")
-	menuItems?: { action: string, url?: string, icon?: string, color?: string, text?: string, data?: Record<string, any> }[]
+	menuItems?: { action: string, url?: string, icon?: string, color?: string, text?: string, data?: Record<string, unknown> }[]
 }
 
 export interface XiriButtonResult {
 	button: XiriButton
-	result: any
+	result: unknown
 	done: boolean
 	loading: boolean
+}
+
+// Backend response handled by the button (api result, dialog afterClosed result or poll tick).
+export interface XiriButtonResponse {
+	poll?: number
+	pollUrl?: string
+	text?: string
+	button?: Partial<XiriButton>
+	[ key: string ]: unknown
 }
 
 
@@ -73,15 +82,15 @@ export interface XiriButtonResult {
 export class XiriButtonComponent implements OnDestroy {
 	button = input.required<XiriButton>();
 	disabled = input<boolean>( false );
-	filterData = input<any>( undefined );
-	url = input<string>( undefined );
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	url = input<string | undefined>( undefined );
 	
 	// 		if ( JSON.stringify( this._filterData ) === JSON.stringify( values ) )
 	// 			return;
 	
 	result = output<XiriButtonResult>();
 	
-	private dialogRef?: MatDialogRef<any> = undefined;
+	private dialogRef?: MatDialogRef<XiriDialogComponent> = undefined;
 	private destroyRef = inject( DestroyRef );
 	protected loading = signal<boolean>( false );
 	// Guards the one-shot auto-load trigger (see constructor) so it fires only once.
@@ -204,16 +213,16 @@ export class XiriButtonComponent implements OnDestroy {
 		}
 	}
 	
-	private actionDialog( dialogData?: any ) {
+	private actionDialog( dialogData?: Record<string, unknown> ) {
 
-		let data: any;
+		let data: Record<string, unknown>;
 		if ( dialogData ) {
 			data = dialogData;
 		} else {
-			data = <any> Object.assign( {}, this.button() );
-			data.type = 'load';
+			data = Object.assign( {}, this.button() ) as unknown as Record<string, unknown>;
+			data['type'] = 'load';
 		}
-		data.filter = this.filterData();
+		data['filter'] = this.filterData();
 
 		this.buttonOverride.set( null );
 		this.loading.set( true );
@@ -227,16 +236,16 @@ export class XiriButtonComponent implements OnDestroy {
 		} );
 	}
 
-	openMenuDialog( event: MouseEvent, item: any ) {
+	openMenuDialog( event: MouseEvent, item: Record<string, unknown> ) {
 		event.stopPropagation();
-		let data = <any> Object.assign( {}, item );
-		data.type = 'load';
+		const data = Object.assign( {}, item ) as Record<string, unknown>;
+		data['type'] = 'load';
 		this.actionDialog( data );
 	}
 	
 	private actionApi() {
 
-		let data = { ...this.filterData(), ...this.button().data };
+		const data = { ...this.filterData(), ...this.button().data };
 		this.buttonOverride.set( null );
 		this.loading.set( true );
 		
@@ -250,10 +259,10 @@ export class XiriButtonComponent implements OnDestroy {
 		this.dataService.post( this.button().url, data )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( {
-				            next: ( result: any ) => {
-						            this.processResult( result );
+				            next: ( result: unknown ) => {
+						            this.processResult( result as XiriButtonResponse );
 					            },
-					            error: ( err: any ) => {
+					            error: ( err: unknown ) => {
 						            console.log( "xiri-button api error", err );
 						            this.result.emit( {
 							                              button: this.button(),
@@ -268,10 +277,10 @@ export class XiriButtonComponent implements OnDestroy {
 
 	// Decides what to do with a response (api result or dialog afterClosed result):
 	// poll present → keep polling; otherwise → final handling (snackbar/refresh/goto + emit).
-	private processResult( result: any ) {
+	private processResult( result: XiriButtonResponse | null ) {
 		if ( result && result.button )
 			this.buttonOverride.set( { ...( this.buttonOverride() ?? {} ), ...result.button } );
-		if ( result && result.poll > 0 ) {
+		if ( result && result.poll && result.poll > 0 ) {
 			this.startPolling( result.pollUrl || this.button().url, result.poll, result.text );
 			return;
 		}
@@ -302,8 +311,8 @@ export class XiriButtonComponent implements OnDestroy {
 		this.dataService.get( url )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe( {
-				            next: ( res: any ) => this.processResult( res ),
-				            error: ( err: any ) => {
+				            next: ( res: unknown ) => this.processResult( res as XiriButtonResponse ),
+				            error: ( err: unknown ) => {
 						            console.log( "xiri-button poll error", err );
 						            this.stopPolling();
 						            this.result.emit( {
@@ -335,15 +344,15 @@ export class XiriButtonComponent implements OnDestroy {
 
 	private actionDownload() {
 
-		let data = { ...this.filterData(), ...this.button().data };
+		const data = { ...this.filterData(), ...this.button().data };
 		this.loading.set( true );
 
 		this.dataService.postFileResponse( this._url(), data )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe(
 					{
-						next: ( result: any ) => {
-							
+						next: ( result ) => {
+
 							let filename: string;
 							if ( this.button().filename != undefined )
 								filename = this.button().filename;
@@ -361,7 +370,7 @@ export class XiriButtonComponent implements OnDestroy {
 							                  } );
 							this.loading.set( false );
 						},
-						error: ( err: any ) => {
+						error: ( err: unknown ) => {
 							console.log( "xiri-button download error", err );
 							this.result.emit( {
 								                  button: this.button(),

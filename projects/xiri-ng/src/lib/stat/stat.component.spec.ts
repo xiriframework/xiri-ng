@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriStatComponent, XiriStatSettings } from './stat.component';
 
 @Component( {
 	template: `<xiri-stat [settings]="settings()"/>`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriStatComponent ]
 } )
 class TestHostComponent {

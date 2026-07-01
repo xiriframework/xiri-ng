@@ -28,7 +28,7 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionQueryTabs">
-				<xiri-query [settings]="querySettings" (change)="filterChanged($event)"></xiri-query>
+				<xiri-query [settings]="querySettings" (filterChange)="filterChanged($event)"></xiri-query>
 				<xiri-tabs [settings]="tabsSettings" [filterData]="filterData()" [dyncomponent]="dynTemplate"></xiri-tabs>
 			</xiri-section>
 		</div>
@@ -41,7 +41,7 @@
 				<div class="xrow">
 					<div class="xcol-md-6">
 						<p>Query mit collapsed: true (Filter standardmäßig eingeklappt):</p>
-						<xiri-query [settings]="querySettingsCollapsed" (change)="filterChangedCollapsed($event)"></xiri-query>
+						<xiri-query [settings]="querySettingsCollapsed" (filterChange)="filterChangedCollapsed($event)"></xiri-query>
 					</div>
 					<div class="xcol-md-6">
 						<app-go-code [code]="goQueryCode" title="Go: query"></app-go-code>

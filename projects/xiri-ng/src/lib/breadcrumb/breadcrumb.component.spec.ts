@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from './breadcrumb.component';
 
 @Component( {
 	template: `<xiri-breadcrumb [settings]="items()"/>`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriBreadcrumbComponent ]
 } )
 class TestHostComponent {

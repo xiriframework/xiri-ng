@@ -1,15 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { XiriQueryComponent, XiriQuerySettings } from './query.component';
+import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component( {
 	selector: 'xiri-query-test-host',
-	template: `<xiri-query [settings]="settings()" (change)="onChange($event)" />`,
+	template: `<xiri-query [settings]="settings()" (filterChange)="onChange($event)" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriQueryComponent ],
 } )
 class TestHostComponent {
@@ -19,8 +21,8 @@ class TestHostComponent {
 		],
 	} );
 	query = viewChild.required( XiriQueryComponent );
-	changeEvents: any[] = [];
-	onChange( event: any ) {
+	changeEvents: ( Record<string, unknown> | null )[] = [];
+	onChange( event: Record<string, unknown> | null ) {
 		this.changeEvents.push( event );
 	}
 }
@@ -44,7 +46,7 @@ describe( 'XiriQueryComponent', () => {
 			post: vi.fn().mockReturnValue( of( {} ) ),
 		};
 		mockFormService = {
-			loadState: vi.fn().mockImplementation( ( _id: any, fields: any ) => fields ),
+			loadState: vi.fn().mockImplementation( ( _id: string | null, fields: unknown ) => fields ),
 			saveState: vi.fn(),
 		};
 	}
@@ -120,14 +122,14 @@ describe( 'XiriQueryComponent', () => {
 				extra: { token: '123' },
 			} );
 
-			expect( ( component as any ).extra ).toEqual( { token: '123' } );
+			expect( ( component as unknown as { extra: unknown } ).extra ).toEqual( { token: '123' } );
 		} );
 	} );
 
 	describe( 'formChanged', () => {
 		it( 'should emit immediately on first valid change', () => {
 			// Reset the initial change state to test the first-emit path
-			( component as any )._initialChangeDone = false;
+			( component as unknown as { _initialChangeDone: boolean } )._initialChangeDone = false;
 			host.changeEvents = [];
 
 			component.formChanged( { valid: true, value: { search: 'test' } } );
@@ -327,7 +329,7 @@ describe( 'XiriQueryComponent', () => {
 				loading: false,
 				done: true,
 				result: result,
-				button: {} as any,
+				button: {} as XiriButton,
 			} );
 
 			expect( component.data() ).toBe( result );
@@ -339,7 +341,7 @@ describe( 'XiriQueryComponent', () => {
 				loading: true,
 				done: false,
 				result: null,
-				button: {} as any,
+				button: {} as XiriButton,
 			} );
 
 			expect( component.data() ).toBeNull();
@@ -351,7 +353,7 @@ describe( 'XiriQueryComponent', () => {
 				loading: true,
 				done: false,
 				result: null,
-				button: {} as any,
+				button: {} as XiriButton,
 			} );
 			expect( component.loading() ).toBe( true );
 
@@ -359,7 +361,7 @@ describe( 'XiriQueryComponent', () => {
 				loading: false,
 				done: true,
 				result: [],
-				button: {} as any,
+				button: {} as XiriButton,
 			} );
 			expect( component.loading() ).toBe( false );
 		} );

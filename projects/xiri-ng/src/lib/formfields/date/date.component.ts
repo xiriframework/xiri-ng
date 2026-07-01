@@ -64,9 +64,9 @@ let nextUniqueIdXiriDate = 0;
 		            MatDatepicker,
 	            ]
             } )
-export class XiriDateComponent extends XiriFieldMain implements OnInit,
-                                                                ControlValueAccessor,
-                                                                MatFormFieldControl<number | null | undefined> {
+export class XiriDateComponent extends XiriFieldMain<number | null | undefined> implements OnInit,
+                                                                                           ControlValueAccessor,
+                                                                                           MatFormFieldControl<number | null | undefined> {
 	
 	protected _uid = `xiri-date-${ nextUniqueIdXiriDate++ }`;
 
@@ -76,7 +76,7 @@ export class XiriDateComponent extends XiriFieldMain implements OnInit,
 	parts: FormGroup<DateForm>;
 
 	private _lastValue: number | null = null;
-	public type: string = 'date';
+	public type = 'date';
 	
 	
 	hours = [ '00', '01', '02', '03', '04', '05', '06', '07', '08', '09',
@@ -128,8 +128,11 @@ export class XiriDateComponent extends XiriFieldMain implements OnInit,
 		
 		this.required = !!value.required;
 		this.disabled = !!value.disabled;
-		this.disabled ? this.parts.disable() : this.parts.enable();
-		
+		if ( this.disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
+
 		this.stateChanges.next();
 	}
 	

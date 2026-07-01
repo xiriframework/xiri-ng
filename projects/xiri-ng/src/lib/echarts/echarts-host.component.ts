@@ -18,6 +18,7 @@ import {
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { XiriColor } from '../types/color.type';
+import { XiriEchartsCallbackParams } from './params';
 
 /** Payload emitted when a chart data item (bar, slice, point, …) is clicked. */
 export interface XiriEchartsClick {
@@ -26,7 +27,20 @@ export interface XiriEchartsClick {
 	seriesIndex: number;
 	dataIndex: number;
 	name: string;
-	value: any;
+	value: unknown;
+}
+
+/** Minimal structural view of the echarts instance methods the host uses. */
+interface XiriEchartsInstance {
+	on( event: string, handler: ( params: XiriEchartsCallbackParams ) => void ): void;
+	setOption( option: unknown, notMerge?: boolean ): void;
+	resize(): void;
+	dispose(): void;
+}
+
+/** Minimal structural view of the lazily-imported echarts module. */
+interface XiriEchartsModule {
+	init( el: HTMLElement ): XiriEchartsInstance;
 }
 
 /**
@@ -54,7 +68,7 @@ export interface XiriEchartsClick {
 } )
 export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 
-	option = input.required<any>();
+	option = input.required<unknown>();
 	compact = input<boolean>( false );
 	title = input<string | undefined>( undefined );
 	headerIcon = input<string | undefined>( undefined );
@@ -69,8 +83,8 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 	private zone = inject( NgZone );
 	private destroyRef = inject( DestroyRef );
 
-	private chart: any | null = null;
-	private echarts: any | null = null;
+	private chart: XiriEchartsInstance | null = null;
+	private echarts: XiriEchartsModule | null = null;
 	private resizeObserver: ResizeObserver | null = null;
 	private loadError = signal<string | null>( null );
 
@@ -89,16 +103,16 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 
 	async ngAfterViewInit(): Promise<void> {
 		try {
-			this.echarts = await import( 'echarts' );
+			this.echarts = await import( 'echarts' ) as unknown as XiriEchartsModule;
 		} catch {
 			this.loadError.set( 'echarts is not installed. Add `npm install echarts` to your app.' );
 			return;
 		}
 
 		this.zone.runOutsideAngular( () => {
-			this.chart = this.echarts.init( this.chartHostRef().nativeElement );
+			this.chart = this.echarts!.init( this.chartHostRef().nativeElement );
 
-			this.chart.on( 'click', ( p: any ) => {
+			this.chart.on( 'click', ( p: XiriEchartsCallbackParams ) => {
 				if ( p.componentType !== 'series' )
 					return;
 				this.zone.run( () => this.itemClick.emit( {

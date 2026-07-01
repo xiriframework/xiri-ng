@@ -5,7 +5,7 @@
 			<mat-spinner diameter="30"></mat-spinner>
 		}
 		@if (formFields() !== null) {
-			@if (type() == 'table') {
+			@if (type() === 'table') {
 				<xiri-raw-table [settings]="rawTable"></xiri-raw-table>
 			} @else {
 				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [disabled]="loading()"
@@ -27,7 +27,7 @@
 	</mat-dialog-content>
 	@if (!done() && !(loading() && formFields() === null) && (loading() || buttons().length > 0)) {
 		<mat-divider></mat-divider>
-		<mat-dialog-actions [class.one]="buttons().length==1">
+		<mat-dialog-actions [class.one]="buttons().length===1">
 			@if (loading()) {
 				<mat-spinner diameter="30" class="actions-spinner"></mat-spinner>
 			} @else {

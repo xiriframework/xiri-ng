@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
+import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.interface';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
@@ -11,6 +11,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-table-tree',
 	            templateUrl: './table-tree.component.html',
 	            styleUrl: './table-tree.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class TableTreeComponent {
@@ -97,8 +98,8 @@ export class TableTreeComponent {
 			treeColumn:          'name',
 			collapseAllByDefault: true,
 			showCounts:          true,
-			addSubWhen:          ( row: any ) => row.parentId === 0, // "+" nur bei Top-Level-Regionen
-			addSubHandler:       ( parentRow: any ) =>
+			addSubWhen:          ( row: XiriTableRow ) => row.parentId === 0, // "+" nur bei Top-Level-Regionen
+			addSubHandler:       ( parentRow: XiriTableRow ) =>
 				this._snackBar.open( `Sub-Eintrag unter "${ parentRow.name }" (id ${ parentRow.id }) anlegen`, 'OK', { duration: 3000 } ),
 		},
 		hasFilter: false,

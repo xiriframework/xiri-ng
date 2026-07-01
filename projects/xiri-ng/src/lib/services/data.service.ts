@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { XiriSnackbarService } from './snackbar.service';
 
@@ -20,30 +20,30 @@ export class XiriDataService {
 	private config: XiriDataServiceConfig = inject( XiriDataServiceConfig );
 	private snackbar = inject( XiriSnackbarService );
 
-	public get( url: string ): Observable<Object> {
+	public get( url: string ): Observable<object> {
 		return this.http.get( this.config.api + url ).pipe(
-			tap( ( res: any ) => this.snackbar.handleResponse( res ) )
+			tap( ( res: object ) => this.snackbar.handleResponse( res ) )
 		);
 	}
 
-	public post( url: string, data: any ): Observable<any> {
+	public post( url: string, data: unknown ): Observable<unknown> {
 		return this.http.post( this.config.api + url, data ).pipe(
-			tap( ( res: any ) => this.snackbar.handleResponse( res ) )
+			tap( ( res: unknown ) => this.snackbar.handleResponse( res ) )
 		);
 	}
-	
-	public postFile( url: string, data: any ): Observable<any> {
+
+	public postFile( url: string, data: unknown ): Observable<Blob> {
 		return this.http.post( this.config.api + url, data, { responseType: 'blob' } );
 	}
-	
-	public postFileResponse( url: string, data: any ): Observable<any> {
+
+	public postFileResponse( url: string, data: unknown ): Observable<HttpResponse<Blob>> {
 		return this.http.post( this.config.api + url, data, { observe: 'response', responseType: 'blob' } );
 	}
-	
+
 	/** @deprecated Use postFileResponse() + XiriDownloadService.download() instead */
-	public postDownload( url: string, data: any ) {
+	public postDownload( url: string, data: unknown ) {
 		console.warn( 'XiriDataService.postDownload() is deprecated. Use postFileResponse() + XiriDownloadService.download() instead.' );
-		const downForm = <any> document.createElement( 'form' );
+		const downForm = document.createElement( 'form' );
 		downForm.target = '_blank';
 		downForm.method = 'POST';
 		downForm.action = url;

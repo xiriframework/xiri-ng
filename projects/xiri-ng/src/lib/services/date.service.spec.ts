@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { DateAdapter } from '@angular/material/core';
+import { Locale } from 'date-fns';
 import { XiriDateService } from './date.service';
 
 describe( 'XiriDateService', () => {
@@ -34,7 +35,7 @@ describe( 'XiriDateService', () => {
 
 	describe( 'setLocale', () => {
 		it( 'should call dateAdapter.setLocale', () => {
-			const mockLocale = {} as any;
+			const mockLocale = {} as Locale;
 			service.setLocale( 'de', mockLocale );
 			expect( dateAdapter.setLocale ).toHaveBeenCalledWith( mockLocale );
 		} );
@@ -42,11 +43,11 @@ describe( 'XiriDateService', () => {
 
 	describe( 'unixToLocal', () => {
 		it( 'should return null for null input', () => {
-			expect( service.unixToLocal( null as any ) ).toBeNull();
+			expect( service.unixToLocal( null as unknown as number ) ).toBeNull();
 		} );
 
 		it( 'should return null for undefined input', () => {
-			expect( service.unixToLocal( undefined as any ) ).toBeNull();
+			expect( service.unixToLocal( undefined as unknown as number ) ).toBeNull();
 		} );
 
 		it( 'should convert unix timestamp to Date', () => {

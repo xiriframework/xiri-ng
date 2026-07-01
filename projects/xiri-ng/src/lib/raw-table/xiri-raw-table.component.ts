@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input } from '@angular/core';
 import {
 	MatTableDataSource,
 	MatTable,
@@ -13,15 +13,17 @@ import {
 	MatRow
 } from "@angular/material/table";
 import { XiriTableField } from "./tabefield.interface";
-import { XiriNumberService } from "../services/number.service";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { RouterLink } from '@angular/router';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
 
 
+/** A single table row: a map of column id → cell value (value shapes vary by column format). */
+export type XiriRawTableRow = Record<string, unknown>;
+
 export interface XiriRawTableSettings {
-	data: any
+	data: unknown
 	fields?: XiriTableField[]
 	dense?: number
 	forceMinWidth?: boolean
@@ -53,20 +55,20 @@ export class XiriRawTableComponent {
 	settings = input.required<XiriRawTableSettings>();
 	showHeader = computed( () => this.settings().showHeader === true );
 
-	displayedColumns: any[] = [];
+	displayedColumns: XiriTableField[] = [];
 	columnsToDisplay: string[] = [];
-	dataSource: MatTableDataSource<any> = new MatTableDataSource();
-	tableClass: string = 'dense-6';
-	
+	dataSource = new MatTableDataSource<XiriRawTableRow>();
+	tableClass = 'dense-6';
+
 	constructor() {
 		effect( () => {
 			if ( this.settings().dense )
 				this.tableClass = 'dense-' + this.settings().dense;
 			if ( this.settings().forceMinWidth )
 				this.tableClass += ' force-min-width';
-			
+
 			this.loadFields( this.settings().fields );
-			this.dataSource.data = this.settings().data;
+			this.dataSource.data = this.settings().data as XiriRawTableRow[];
 		} );
 	}
 	

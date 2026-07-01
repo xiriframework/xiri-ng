@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriSidenavComponent, XiriSidebarSettings, XiriNavigationField } from './sidenav.component';
 import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -9,6 +9,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component({
 	selector: 'test-host',
 	template: `<xiri-sidenav [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriSidenavComponent],
 })
 class TestHostComponent {
@@ -55,7 +56,7 @@ describe('XiriSidenavComponent', () => {
 	});
 
 	it('should show loading when settings has null fields', () => {
-		host.settings.set({ prefix: '/app', fields: null as any });
+		host.settings.set({ prefix: '/app', fields: null as unknown as XiriNavigationField[] });
 		fixture.detectChanges();
 
 		const comp = fixture.debugElement.children[0].componentInstance as XiriSidenavComponent;

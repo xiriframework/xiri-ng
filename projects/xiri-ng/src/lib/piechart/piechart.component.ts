@@ -3,6 +3,7 @@ import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsCallbackParams } from '../echarts/params';
 
 export interface XiriPieChartSlice {
 	name: string;
@@ -45,7 +46,7 @@ export class XiriPieChartComponent {
 			? [ '55%', '78%' ]
 			: ( s.nightingale ? [ '20%', '78%' ] : [ '0', '78%' ] );
 
-		const series: any = {
+		const series: Record<string, unknown> = {
 			type: 'pie',
 			radius,
 			center: [ '50%', '45%' ],
@@ -68,7 +69,7 @@ export class XiriPieChartComponent {
 		return {
 			tooltip: {
 				trigger: 'item',
-				formatter: ( p: any ) => {
+				formatter: ( p: XiriEchartsCallbackParams ) => {
 					const name = escapeHtml( String( p.name ?? '' ) );
 					return `<b>${ name }</b><br/>${ p.marker }<b>${ p.value }</b> (${ p.percent }%)`;
 				}

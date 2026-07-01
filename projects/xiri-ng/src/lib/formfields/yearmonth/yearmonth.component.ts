@@ -63,9 +63,9 @@ export const XIRI_YEAR_MONTH_FORMATS = {
 		            MatDatepicker,
 	            ]
             } )
-export class XiriYearMonthComponent extends XiriFieldMain implements OnInit,
-                                                                     ControlValueAccessor,
-                                                                     MatFormFieldControl<number | null | undefined> {
+export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefined> implements OnInit,
+                                                                                                ControlValueAccessor,
+                                                                                                MatFormFieldControl<number | null | undefined> {
 
 	protected _uid = `xiri-yearmonth-${ nextUniqueIdXiriYearMonth++ }`;
 
@@ -77,7 +77,7 @@ export class XiriYearMonthComponent extends XiriFieldMain implements OnInit,
 	@ViewChild( 'picker' ) picker?: MatDatepicker<Date>;
 
 	private _lastValue: number | null = null;
-	public type: string = 'yearmonth';
+	public type = 'yearmonth';
 
 	private dateService = inject( XiriDateService );
 
@@ -106,7 +106,10 @@ export class XiriYearMonthComponent extends XiriFieldMain implements OnInit,
 
 		this.required = !!value.required;
 		this.disabled = !!value.disabled;
-		this.disabled ? this.dateControl.disable() : this.dateControl.enable();
+		if ( this.disabled )
+			this.dateControl.disable();
+		else
+			this.dateControl.enable();
 
 		this.stateChanges.next();
 	}

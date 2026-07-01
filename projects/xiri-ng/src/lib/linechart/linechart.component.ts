@@ -3,6 +3,7 @@ import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { resolveColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsTooltipParams } from '../echarts/params';
 
 export interface XiriLineChartLine {
 	name: string;
@@ -71,7 +72,7 @@ export class XiriLineChartComponent {
 				: { left: 32, right: 16, top: 24, bottom: 24, containLabel: true },
 			tooltip: {
 				trigger: 'axis',
-				formatter: ( params: any ) => {
+				formatter: ( params: XiriEchartsTooltipParams ) => {
 					const arr = Array.isArray( params ) ? params : [ params ];
 					if ( !arr.length ) return '';
 					const header = escapeHtml( String( arr[ 0 ].axisValueLabel ?? arr[ 0 ].name ?? '' ) );

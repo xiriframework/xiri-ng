@@ -1,18 +1,20 @@
-import { FormControl } from "@angular/forms";
+import { FormControl, ValidatorFn } from "@angular/forms";
 import { XiriColor } from '../types/color.type';
 
 export interface XiriFormValidator {
 	id: string
 	name?: string
-	validator: any
+	validator: ValidatorFn
 	message: string
 }
 
 export interface XiriFormFieldSelectOption {
-	id: number
+	id: number | string
 	name: string
 	disabled?: boolean
 	color?: XiriColor
+	isGroup?: boolean
+	children?: XiriFormFieldSelectOption[]
 }
 
 export interface XiriTagChip {
@@ -25,7 +27,7 @@ export type XiriFormFieldConditionOperator = 'equals' | 'notEquals' | 'contains'
 export interface XiriFormFieldCondition {
 	field: string
 	operator: XiriFormFieldConditionOperator
-	value?: any
+	value?: unknown
 }
 
 export interface XiriFormField {
@@ -44,10 +46,10 @@ export interface XiriFormField {
 	iconSuffix?: string
 	locale?: string
 
-	value?: any
+	value?: unknown
 	validations?: XiriFormValidator[]
 	list?: XiriFormFieldSelectOption[]
-	texts?: object // xiri-timelimit
+	texts?: Record<string, string> // xiri-timelimit
 
 	hide?: boolean
 	required?: boolean
@@ -63,7 +65,7 @@ export interface XiriFormField {
 	url?: string // treeselect, multiselect
 	search?: boolean // treeselect, multiselect
 	serverSideSearch?: boolean // select
-	params?: object // select
+	params?: Record<string, unknown> // select
 
 	rows?: number // textfield
 	accept?: string // xiri-file
@@ -71,6 +73,7 @@ export interface XiriFormField {
 
 	icon?: string // question
 	iconColor?: XiriColor // question
+	question?: string // question
 	done?: boolean // waiting
 
 	showWhen?: XiriFormFieldCondition | XiriFormFieldCondition[]
@@ -79,7 +82,7 @@ export interface XiriFormField {
 
 	// old
 	placeholder?: string // bool name
-	array?: any[] // xiri-select, transform into list
+	array?: ( string | number )[] // xiri-select, transform into list
 	tree?: boolean
 
 }

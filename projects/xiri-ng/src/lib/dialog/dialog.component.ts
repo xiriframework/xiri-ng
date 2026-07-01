@@ -24,6 +24,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDownloadService } from "../services/download.service";
 import { parseHttpError } from '../services/error.util';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 export type XiriDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -33,8 +34,26 @@ export interface XiriDialogSettings {
 	size?: XiriDialogSize | string
 
 	type: "form" | "data" | "question" | "waiting" | "table" | "component"
-	data?: any
-	filter?: any
+	data?: unknown
+	filter?: Record<string, unknown> | null
+}
+
+// Backend response loaded into the dialog (form definition, question, table, done/goto etc.).
+export interface XiriDialogResponse {
+	buttons?: XiriButton[]
+	size?: XiriDialogSize | string
+	url?: string
+	header?: string
+	type?: string
+	content?: unknown
+	fields?: unknown
+	model?: Record<string, unknown>
+	extra?: Record<string, unknown>
+	time?: number
+	done?: boolean
+	error?: string
+	goto?: string
+	[ key: string ]: unknown
 }
 
 const DIALOG_SIZE_MAP: Record<string, string> = {
@@ -64,7 +83,7 @@ const DIALOG_SIZE_MAP: Record<string, string> = {
             } )
 export class XiriDialogComponent implements OnDestroy {
 	dialogRef = inject<MatDialogRef<XiriDialogComponent>>( MatDialogRef );
-	initData = inject( MAT_DIALOG_DATA );
+	initData = inject<XiriDialogSettings>( MAT_DIALOG_DATA );
 	private breakpointObserver = inject( BreakpointObserver );
 	private dataService = inject( XiriDataService );
 	private router = inject( Router );
@@ -81,14 +100,14 @@ export class XiriDialogComponent implements OnDestroy {
 	private downloadService = inject( XiriDownloadService );
 	
 	public formFields = signal<XiriFormField[]>( null );
-	public componentData = signal<any>( null );
+	public componentData = signal<unknown>( null );
 	// Dynamisch nachgeladene XiriDynComponentComponent (vermeidet zirkulären Import dialog -> dyncomponent)
 	public dynComponentType = signal<Type<unknown>>( null );
 	public loading = signal<boolean>( true );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
 	
-	private formValues: any = null;
+	private formValues: Record<string, unknown> | null = null;
 	public formValid = signal<boolean>(false);
 	public checkSubject: Subject<void> = new Subject<void>();
 	
@@ -114,7 +133,7 @@ export class XiriDialogComponent implements OnDestroy {
 			this.url = this.initData.url;
 		
 		if ( this.initData.type == 'form' )
-			this.loadData( this.initData );
+			this.loadData( this.initData as unknown as XiriDialogResponse );
 		else if ( this.initData.type == 'data' )
 			this.send( { data: this.initData.data } );
 		else if ( this.initData.filter )
@@ -124,22 +143,22 @@ export class XiriDialogComponent implements OnDestroy {
 		
 	}
 	
-	private send( data: any ) {
-		
+	private send( data: unknown ) {
+
 		this.loading.set( true );
 		this.error.set( '' );
-		
+
 		const req = data === null ?
 		            this.dataService.get( this.url ) :
-		            this.dataService.post( this.url, { ...data, ...this.extra } );
-		
+		            this.dataService.post( this.url, { ...( data as object ), ...this.extra } );
+
 		// this.buttons = [];
-		
+
 		req.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
-				next: ( res: any ) => {
+				next: ( res: unknown ) => {
 					if ( res )
-						this.loadData( res );
+						this.loadData( res as XiriDialogResponse );
 					else
 						this.showError( { status: 500 } );
 				},
@@ -148,10 +167,10 @@ export class XiriDialogComponent implements OnDestroy {
 				}
 			} );
 	}
-	
-	private showError( err: any ) {
+
+	private showError( err: unknown ) {
 		this.loading.set( false );
-		this.error.set( parseHttpError( err ) );
+		this.error.set( parseHttpError( err as HttpErrorResponse ) );
 		
 		// this.header = 'Error';
 		if ( this.buttons().length == 0 ) {
@@ -175,7 +194,7 @@ export class XiriDialogComponent implements OnDestroy {
 			this.dialogRef.addPanelClass( 'xiri-dialog-full' );
 	}
 
-	private loadData( res: any ): void {
+	private loadData( res: XiriDialogResponse ): void {
 
 		if ( res.buttons ) {
 			if ( res.size && res.size !== this.effectiveSize ) {
@@ -185,8 +204,8 @@ export class XiriDialogComponent implements OnDestroy {
 			if ( res.url )
 				this.url = res.url;
 
-			let formData = [];
-			let inFields = res.content || res.fields;
+			let formData: XiriFormField[] | null = [];
+			const inFields: unknown = res.content || res.fields;
 			const model = res.model || {};
 			this.header.set( res.header );
 			this.buttons.set( res.buttons );
@@ -194,25 +213,27 @@ export class XiriDialogComponent implements OnDestroy {
 			this.extra = res.extra || {};
 
 			if ( this.type() == 'form' ) {
-				inFields.forEach( ( field: any ) => {
+				( inFields as XiriFormField[] ).forEach( ( field: XiriFormField ) => {
 					if ( field.hide == true )
 						return;
 					if ( model[ field.id ] !== undefined )
 						field.value = model[ field.id ];
-					
-					formData.push( field );
+
+					formData!.push( field );
 				} );
 			} else if ( this.type() == 'question' ) {
-				inFields.type = 'question';
-				formData.push( inFields );
+				const field = inFields as XiriFormField;
+				field.type = 'question';
+				formData.push( field );
 				this.formValid.set( true );
 			} else if ( this.type() == 'waiting' ) {
-				inFields.type = 'waiting';
-				inFields.done = false;
-				inFields.value = inFields.text;
-				formData.push( inFields );
+				const field = inFields as XiriFormField & { text?: unknown };
+				field.type = 'waiting';
+				field.done = false;
+				field.value = field.text;
+				formData.push( field );
 			} else if ( this.type() == 'table' ) {
-				this.rawTable = inFields;
+				this.rawTable = inFields as XiriRawTableSettings;
 				formData = [];
 			} else if ( this.type() == 'component' ) {
 				this.componentData.set( inFields );
@@ -224,7 +245,7 @@ export class XiriDialogComponent implements OnDestroy {
 				);
 			} else {
 				this.formValid.set( true );
-				formData = inFields;
+				formData = inFields as XiriFormField[];
 			}
 			
 			this.formFields.set( formData );
@@ -260,7 +281,7 @@ export class XiriDialogComponent implements OnDestroy {
 			
 			this.dataService.get( this.url ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 				{
-					next: ( res: any ) => {
+					next: ( res: XiriDialogResponse ) => {
 						if ( res.done ) {
 							if ( res.error ) {
 								this.dialogRef.disableClose = false;
@@ -287,12 +308,12 @@ export class XiriDialogComponent implements OnDestroy {
 		}, this.refreshTime );
 	}
 	
-	public download( data: any ) {
-		
+	public download( data: unknown ) {
+
 		if ( data === null ) {
 			// TODO: fix, this is actually an external link
 			
-			let file = window.open( this.dataService.getConfigApi() + this.url, 'Report' );
+			const file = window.open( this.dataService.getConfigApi() + this.url, 'Report' );
 			if ( file === null || typeof ( file ) == 'undefined' ) {
 				this.buttons.set( [ {
 					text: 'Download',
@@ -310,9 +331,9 @@ export class XiriDialogComponent implements OnDestroy {
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe(
 					{
-						next: ( result: any ) => {
+						next: ( result ) => {
 
-							let ret = this.downloadService.download( result, 'Report', false );
+							const ret = this.downloadService.download( result, 'Report', false );
 							if ( !ret )
 								this.buttons.set( [ {
 									text: 'Download',
@@ -324,7 +345,7 @@ export class XiriDialogComponent implements OnDestroy {
 							else
 								this.dialogRef.close( this.extra );
 							
-						}, error: ( err: any ) => {
+						}, error: ( err: HttpErrorResponse ) => {
 							this.snackbar.error( err.error?.error || 'Unknown Error' );
 						}
 					}
@@ -366,7 +387,7 @@ export class XiriDialogComponent implements OnDestroy {
 		}
 	}
 	
-	private startSend( data: any ): void {
+	private startSend( data: unknown ): void {
 
 		setTimeout( () => {
 			if ( this.formValid() )
@@ -376,7 +397,7 @@ export class XiriDialogComponent implements OnDestroy {
 		}, 10 );
 	}
 
-	public formChanged( event: any ) {
+	public formChanged( event: { valid: boolean; value: Record<string, unknown> | null } ) {
 
 		this.formValid.set( event.valid );
 		this.formValues = event.value;

@@ -60,7 +60,7 @@
 								@case ('buttons') {
 									<td mat-cell *matCellDef="let row" [class]="column.display">
 										@for (button of column.buttons; track button; let i = $index) {
-											@if (row[column.id][i] != false) {
+											@if (row[column.id][i] !== false) {
 												@switch (button.action) {
 													@case ('link') {
 														<xiri-button [button]="button" [disabled]="false" [url]="row[column.id][ i ]"></xiri-button>
@@ -220,7 +220,9 @@
 												</mat-form-field>
 											}
 										} @else if (column.editable && options.editUrl) {
-											<div class="xiri-editable-cell" (click)="startInlineEdit(row, column); $event.stopPropagation()">
+											<div class="xiri-editable-cell" role="button" tabindex="0"
+											     (click)="startInlineEdit(row, column); $event.stopPropagation()"
+											     (keydown.enter)="startInlineEdit(row, column); $event.stopPropagation()">
 												<div class="xiri-chips-display">
 													@for (chip of row[column.id]; track chip.label) {
 														<span class="xiri-chip-display" [class]="chip.color || ''">{{ chip.label }}</span>
@@ -280,7 +282,9 @@
 												</mat-form-field>
 											}
 										} @else if (column.editable && options.editUrl) {
-											<span class="xiri-editable-cell" (click)="startInlineEdit(row, column); $event.stopPropagation()">
+											<span class="xiri-editable-cell" role="button" tabindex="0"
+											      (click)="startInlineEdit(row, column); $event.stopPropagation()"
+											      (keydown.enter)="startInlineEdit(row, column); $event.stopPropagation()">
 												{{ column.textPrefix }}{{ row[column.id] }}{{ column.textSuffix }}
 												<mat-icon class="xiri-edit-icon">edit</mat-icon>
 											</span>

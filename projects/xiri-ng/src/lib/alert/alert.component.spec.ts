@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { XiriAlertComponent, XiriAlertConfig } from './alert.component';
@@ -87,7 +87,7 @@ describe( 'XiriAlertComponent', () => {
 			createComponent( {
 				header: 'Alert',
 				text: 'Text',
-				icon: undefined as any,
+				icon: undefined as unknown as string,
 				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
 			} );
 			fixture.detectChanges();
@@ -100,7 +100,7 @@ describe( 'XiriAlertComponent', () => {
 				header: 'Alert',
 				text: 'Text',
 				icon: 'info',
-			} as any;
+			} as unknown as XiriAlertConfig;
 
 			createComponent( data );
 			fixture.detectChanges();

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
@@ -17,6 +17,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 	selector: 'app-barcharts',
 	templateUrl: './barcharts.component.html',
 	styleUrl: './barcharts.component.scss',
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
 		XiriPageHeaderComponent,
 		XiriSectionComponent,

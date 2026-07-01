@@ -1,16 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { XiriStepperComponent, XiriStepperSettings } from './stepper.component';
 import { XiriDataService } from '../services/data.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
 @Component( {
 	selector: 'xiri-stepper-test-host',
 	template: `<xiri-stepper [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriStepperComponent ],
 } )
 class TestHostComponent {
@@ -290,7 +292,7 @@ describe( 'XiriStepperComponent', () => {
 				buttons: [],
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			// After completion, check is false
 			expect( steps[ 0 ].check() ).toBe( false );
@@ -305,7 +307,7 @@ describe( 'XiriStepperComponent', () => {
 				buttons: [ { text: 'OK', action: 'next', type: 'raised' } ],
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].completed() ).toBe( true );
 		} );
@@ -319,7 +321,7 @@ describe( 'XiriStepperComponent', () => {
 				fields: newFields,
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 1 ].fields() ).toEqual( newFields );
 			expect( steps[ 1 ].load() ).toBe( false );
@@ -334,7 +336,7 @@ describe( 'XiriStepperComponent', () => {
 				buttons: newButtons,
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 1 ].buttons() ).toEqual( newButtons );
 		} );
@@ -347,7 +349,7 @@ describe( 'XiriStepperComponent', () => {
 				url: 'new/step/url',
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 1 ].url ).toBe( 'new/step/url' );
 		} );
@@ -361,7 +363,7 @@ describe( 'XiriStepperComponent', () => {
 				goto: '/success',
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 			vi.advanceTimersByTime( 1000 );
 
 			expect( component.done() ).toBe( true );
@@ -374,7 +376,7 @@ describe( 'XiriStepperComponent', () => {
 
 			mockDataService.post.mockReturnValue( of( null ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Unknown error' );
 			expect( steps[ 0 ].completed() ).toBe( false );
@@ -388,7 +390,7 @@ describe( 'XiriStepperComponent', () => {
 				throwError( () => ( { status: 400, error: { error: 'Validation failed' } } ) )
 			);
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Validation failed' );
 		} );
@@ -401,7 +403,7 @@ describe( 'XiriStepperComponent', () => {
 				throwError( () => ( { status: 403 } ) )
 			);
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Access denied' );
 		} );
@@ -414,7 +416,7 @@ describe( 'XiriStepperComponent', () => {
 				throwError( () => ( { status: 500 } ) )
 			);
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Unknown error' );
 		} );
@@ -427,7 +429,7 @@ describe( 'XiriStepperComponent', () => {
 				throwError( () => ( { status: 400, error: {} } ) )
 			);
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Format Error' );
 		} );
@@ -447,7 +449,7 @@ describe( 'XiriStepperComponent', () => {
 
 			mockDataService.post.mockReturnValue( of( {} ) );
 
-			( component as any ).checkStep( 1 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 1 );
 
 			expect( mockDataService.post ).toHaveBeenCalledWith(
 				'test/stepper',
@@ -469,7 +471,7 @@ describe( 'XiriStepperComponent', () => {
 
 			mockDataService.post.mockReturnValue( of( {} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( mockDataService.post ).toHaveBeenCalledWith( 'step/url', expect.anything() );
 		} );
@@ -494,7 +496,7 @@ describe( 'XiriStepperComponent', () => {
 
 			mockDataService.post.mockReturnValue( of( {} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( mockDataService.post ).toHaveBeenCalledWith(
 				'test',
@@ -520,7 +522,7 @@ describe( 'XiriStepperComponent', () => {
 				fields: [ { id: 'f3', type: 'text' } ],
 			} ) );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			expect( steps[ 1 ].completed() ).toBe( true );
 			expect( steps[ 1 ].gotonext() ).toBe( true );
@@ -531,7 +533,7 @@ describe( 'XiriStepperComponent', () => {
 			steps[ 0 ].valid.set( true );
 			steps[ 1 ].load.set( false );
 
-			( component as any ).checkStep( 0 );
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
 
 			// Should not have called post since needLoad is false
 			expect( mockDataService.post ).not.toHaveBeenCalled();
@@ -541,7 +543,7 @@ describe( 'XiriStepperComponent', () => {
 	describe( 'stepChanged', () => {
 		it( 'should not throw on step change', () => {
 			expect( () => {
-				component.stepChanged( { selectedIndex: 0 } as any );
+				component.stepChanged( { selectedIndex: 0 } as StepperSelectionEvent );
 			} ).not.toThrow();
 		} );
 	} );

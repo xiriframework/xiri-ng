@@ -11,7 +11,13 @@
 	"angularCompilerOptions": {
 		"enableI18nLegacyMessageIdFormat": false,
 		"strictInputAccessModifiers": true,
-		"strictTemplates": true,
+    "strictTemplates": true,
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    },
 		"fullTemplateTypeCheck": true,
 		"strictInjectionParameters": true,
 		"skipTemplateCodegen": true,

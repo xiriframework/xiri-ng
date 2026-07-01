@@ -9,7 +9,7 @@ import { XiriSessionStorageService } from "./sessionStorage.service";
 import { parseHttpError } from './error.util';
 
 
-interface XiriFormServiceReturn {
+export interface XiriFormServiceReturn {
 	url?: string
 	fields?: XiriFormField[]
 	buttons?: XiriButton[]
@@ -51,16 +51,18 @@ export class XiriFormService {
 	private sessionStorageService: XiriSessionStorageService = inject( XiriSessionStorageService );
 	
 	
-	public get( url: string, data?: any, extra?: any ): Observable<XiriFormServiceData> {
+	public get( url: string, data?: object | null, extra?: object ): Observable<XiriFormServiceData> {
 
-		const req: Observable<XiriFormServiceReturn> = data === null ? this.dataService.get( url ) : this.dataService.post( url, { ...data, ...extra } );
+		const req: Observable<XiriFormServiceReturn> = data === null
+			? this.dataService.get( url ) as Observable<XiriFormServiceReturn>
+			: this.dataService.post( url, { ...data, ...extra } ) as Observable<XiriFormServiceReturn>;
 
 		return req.pipe(
 			map( res => this.parse( res ) ),
 			catchError( ( err: HttpErrorResponse ): Observable<never> => {
-				return throwError( () => <XiriFormServiceError>{
+				return throwError( () => ({
 					error: parseHttpError( err )
-				} );
+				} as XiriFormServiceError) );
 			} )
 		);
 	}
@@ -68,12 +70,12 @@ export class XiriFormService {
 	public parse( res: XiriFormServiceReturn ): XiriFormServiceData {
 
 		if ( res.buttons ) {
-			let fields: XiriFormField[] = [];
-			let model = res.model || {};
-			let type = res.type ? res.type : 'form';
+			const fields: XiriFormField[] = [];
+			const model = ( res.model || {} ) as Record<string, unknown>;
+			const type = res.type ? res.type : 'form';
 
 			if ( type == 'form' ) {
-				res.fields.forEach( ( field: any ) => {
+				res.fields?.forEach( ( field: XiriFormField ) => {
 					if ( field.hide == true )
 						return;
 					if ( model[ field.id ] !== undefined )
@@ -82,11 +84,11 @@ export class XiriFormService {
 					fields.push( field );
 				} );
 			} else if ( type == 'question' ) {
-				let obj = <any>res.fields;
+				const obj = res.fields as unknown as XiriFormField;
 				obj.type = 'question';
 				fields.push( obj );
 			} else if ( type == 'waiting' ) {
-				let obj = <any>res.fields;
+				const obj = res.fields as unknown as XiriFormField & { text?: string };
 				obj.type = 'waiting';
 				obj.done = false;
 				obj.value = obj.text;
@@ -96,7 +98,7 @@ export class XiriFormService {
 
 			}
 
-			return <XiriFormServiceData>{
+			return {
 				url:     res.url,
 				buttons: res.buttons,
 				extra:   res.extra || {},
@@ -104,19 +106,20 @@ export class XiriFormService {
 
 				type: type,
 				time: res.time || 2000,
-			};
+			} as XiriFormServiceData;
 
 		} else if ( res.goto ) {
-			return <XiriFormServiceData>{
+			return {
 				done: timer( res.done ? 1000 : 0 ).pipe( map( () => {
 					this.router.navigate( [res.goto] ).then();
 				} ) )
-			};
+			} as XiriFormServiceData;
 		} else {
-			return <XiriFormServiceData>{
+			return {
 				done: timer( res.done ? 1000 : 0 ).pipe( map( () => {
+					/* intentionally empty */
 				} ) )
-			};
+			} as XiriFormServiceData;
 		}
 	}
 	
@@ -125,17 +128,17 @@ export class XiriFormService {
 		if ( !saveStateId )
 			return fields;
 		
-		let data = this.sessionStorageService.getTimeout( saveStateId, 3600 );
+		const data = this.sessionStorageService.getTimeout( saveStateId, 3600 ) as Record<string, unknown> | null;
 		if ( !data )
 			return fields;
-		
-		for ( let field of fields ) {
-			
+
+		for ( const field of fields ) {
+
 			if ( data[ field.id ] === undefined )
 				continue;
-			
-			let value = data[ field.id ];
-			
+
+			const value = data[ field.id ];
+
 			switch ( field.type ) {
 				case 'bool':
 					field.value = value;
@@ -145,7 +148,7 @@ export class XiriFormService {
 				case 'model':
 					if ( !field.list )
 						break;
-					for ( let item of field.list ) {
+					for ( const item of field.list ) {
 						if ( item.id == value ) {
 							field.value = value;
 							break;
@@ -153,9 +156,9 @@ export class XiriFormService {
 					}
 					break;
 				case 'date':
-					if ( field.min && field.min > value )
+					if ( field.min && field.min > ( value as number ) )
 						break;
-					if ( field.max && field.max < value )
+					if ( field.max && field.max < ( value as number ) )
 						break;
 					field.value = value;
 					break;
@@ -172,7 +175,7 @@ export class XiriFormService {
 		return fields;
 	}
 	
-	public saveState( saveStateId: string|null|undefined, values: any ): void {
+	public saveState( saveStateId: string|null|undefined, values: unknown ): void {
 		
 		if ( !saveStateId )
 			return;

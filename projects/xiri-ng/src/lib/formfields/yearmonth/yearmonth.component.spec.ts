@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -22,6 +22,7 @@ import { XiriFormField } from '../field.interface';
 				            <xiri-yearmonth [field]="field()" formControlName="d"></xiri-yearmonth>
 			            </mat-form-field>
 		            </form>`,
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriYearMonthComponent, MatFormFieldModule, ReactiveFormsModule ],
             } )
 class HostComponent {

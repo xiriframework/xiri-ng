@@ -9,8 +9,8 @@ import { tz } from "@date-fns/tz";
              } )
 export class XiriDateService {
 	
-	private currentTimezone: string = 'Europe/Vienna';
-	private dateAdapter: DateAdapter<any> = inject( DateAdapter );
+	private currentTimezone = 'Europe/Vienna';
+	private dateAdapter: DateAdapter<unknown> = inject( DateAdapter );
 	
 	public setTimezone( tz: string ) {
 		

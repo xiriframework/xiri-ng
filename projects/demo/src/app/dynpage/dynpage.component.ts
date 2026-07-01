@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Event, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Observable, Subscription } from "rxjs";
@@ -8,10 +8,16 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { XiriDataService } from "../../../../xiri-ng/src/lib/services/data.service";
 import { XiriDynData } from "../../../../xiri-ng/src/lib/dyncomponent/dyndata.interface";
 
+interface DynPageResponse {
+	bread: unknown;
+	data: XiriDynData[];
+}
+
 @Component( {
 	            selector: 'app-dynpage',
 	            templateUrl: './dynpage.component.html',
 	            styleUrls: [ './dynpage.component.scss' ],
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatProgressSpinner, XiriDynComponentComponent ]
             } )
 export class DynpageComponent implements OnInit, OnDestroy {
@@ -22,7 +28,7 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	
 	public loading = true;
 	public data = signal<XiriDynData[] | null>( null );
-	public bread = null;
+	public bread: unknown = null;
 	private subs: Subscription = new Subscription();
 	public error = false;
 	
@@ -50,17 +56,18 @@ export class DynpageComponent implements OnInit, OnDestroy {
 		if ( url.lastIndexOf( '/', 0 ) === 0 )
 			url = url.substring( 1 );
 		
-		let call: Observable<any>;
+		let call: Observable<unknown>;
 		if ( Object.keys( this.route.snapshot.queryParams ).length === 0 )
 			call = this.dataService.get( url );
 		else
 			call = this.dataService.post( url, this.route.snapshot.queryParams );
-		
+
 		this.subs.add( call.subscribe(
 			{
-				next: ( res: any ) => {
-					this.bread = res.bread;
-					this.data.set( res.data );
+				next: ( res ) => {
+					const response = res as DynPageResponse;
+					this.bread = response.bread;
+					this.data.set( response.data );
 					this.loading = false;
 				},
 				error: ( err ) => {

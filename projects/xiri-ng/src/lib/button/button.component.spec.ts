@@ -1,13 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
-import { XiriButtonComponent, XiriButton, XiriButtonResult } from './button.component';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { XiriButtonComponent, XiriButton, XiriButtonResult, XiriButtonResponse } from './button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { of, throwError, Subject } from 'rxjs';
+
+type AfterClosedSubject = Subject<XiriButtonResponse | Record<string, unknown> | null>;
 
 function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 	return {
@@ -22,13 +24,14 @@ function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 @Component({
 	selector: 'test-host',
 	template: `<xiri-button [button]="btn()" [disabled]="disabled()" [filterData]="filterData()" [url]="url()" (result)="onResult($event)" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriButtonComponent],
 })
 class TestHostComponent {
 	btn = signal<XiriButton>(makeButton());
 	disabled = signal(false);
-	filterData = signal<any>(undefined);
-	url = signal<string>(undefined);
+	filterData = signal<Record<string, unknown> | null | undefined>(undefined);
+	url = signal<string | undefined>(undefined);
 	lastResult: XiriButtonResult | null = null;
 	onResult(r: XiriButtonResult) {
 		this.lastResult = r;
@@ -199,7 +202,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should handle api error gracefully', () => {
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		mockDataService.post.mockReturnValue(throwError(() => new Error('fail')));
 		host.btn.set(makeButton({ action: 'api', url: '/fail' }));
 		fixture.detectChanges();
@@ -225,7 +228,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should open dialog for dialog action', () => {
-		const afterClosedSubject = new Subject();
+		const afterClosedSubject: AfterClosedSubject = new Subject();
 		const dialogRefMock = { afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() };
 		mockDialog.open.mockReturnValue(dialogRefMock);
 
@@ -239,7 +242,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should emit result after dialog closes', () => {
-		const afterClosedSubject = new Subject();
+		const afterClosedSubject: AfterClosedSubject = new Subject();
 		const dialogRefMock = { afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() };
 		mockDialog.open.mockReturnValue(dialogRefMock);
 
@@ -258,7 +261,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should close dialog on destroy', () => {
-		const afterClosedSubject = new Subject();
+		const afterClosedSubject: AfterClosedSubject = new Subject();
 		const dialogRefMock = { afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() };
 		mockDialog.open.mockReturnValue(dialogRefMock);
 
@@ -309,7 +312,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should handle download error gracefully', () => {
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		mockDataService.postFileResponse.mockReturnValue(throwError(() => new Error('dl fail')));
 
 		host.btn.set(makeButton({ action: 'download', url: '/dl' }));
@@ -325,7 +328,7 @@ describe('XiriButtonComponent', () => {
 	});
 
 	it('should log unknown action to console', () => {
-		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		host.btn.set(makeButton({ action: 'unknown-action' }));
 		fixture.detectChanges();
 
@@ -424,7 +427,7 @@ describe('XiriButtonComponent', () => {
 
 		it('should start polling when a dialog result contains poll', () => {
 			vi.useFakeTimers();
-			const afterClosedSubject = new Subject();
+			const afterClosedSubject: AfterClosedSubject = new Subject();
 			mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });
 			mockDataService.get.mockReturnValue(of({ done: true }));
 			host.btn.set(makeButton({ action: 'dialog', url: '/dlg' }));

@@ -26,11 +26,11 @@ describe( 'XiriNumberService', () => {
 
 	describe( 'formatNumber', () => {
 		it( 'should return empty string for null', () => {
-			expect( service.formatNumber( null as any ) ).toBe( '' );
+			expect( service.formatNumber( null as unknown as number ) ).toBe( '' );
 		} );
 
 		it( 'should return empty string for undefined', () => {
-			expect( service.formatNumber( undefined as any ) ).toBe( '' );
+			expect( service.formatNumber( undefined as unknown as number ) ).toBe( '' );
 		} );
 
 		it( 'should format number with default locale (de-DE)', () => {

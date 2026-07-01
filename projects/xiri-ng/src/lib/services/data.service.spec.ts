@@ -57,7 +57,7 @@ describe( 'XiriDataService', () => {
 			const response = { data: 'value' };
 			httpClient.get.mockReturnValue( of( response ) );
 
-			let result: any;
+			let result: unknown;
 			service.get( 'test' ).subscribe( res => result = res );
 
 			expect( result ).toEqual( response );
@@ -104,7 +104,7 @@ describe( 'XiriDataService', () => {
 			const response = { id: 1 };
 			httpClient.post.mockReturnValue( of( response ) );
 
-			let result: any;
+			let result: unknown;
 			service.post( 'create', { name: 'a' } ).subscribe( res => result = res );
 
 			expect( result ).toEqual( response );
@@ -166,11 +166,11 @@ describe( 'XiriDataService', () => {
 				setAttribute: vi.fn(),
 			};
 
-			vi.spyOn( document, 'createElement' ).mockImplementation( ( tag: string ) => {
-				if ( tag === 'form' ) return mockForm as any;
-				if ( tag === 'input' ) return mockInput as any;
+			vi.spyOn( document, 'createElement' ).mockImplementation( ( ( tag: string ) => {
+				if ( tag === 'form' ) return mockForm as unknown as HTMLElement;
+				if ( tag === 'input' ) return mockInput as unknown as HTMLElement;
 				return document.createElement( tag );
-			} );
+			} ) as typeof document.createElement );
 			vi.spyOn( document.body, 'appendChild' ).mockImplementation( vi.fn() );
 
 			const data = { key: 'value' };

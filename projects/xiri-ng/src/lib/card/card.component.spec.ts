@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriCardComponent, XiriCardSettings } from './card.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
 	selector: 'test-host',
 	template: `<xiri-card [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [XiriCardComponent],
 })
 class TestHostComponent {
@@ -68,7 +69,7 @@ describe('XiriCardComponent', () => {
 		expect(mockDataService.post).toHaveBeenCalledWith('test/data', null);
 	});
 
-	it('should set loading to true while fetching data', () => {
+	it('should set loading to true while fetching data', async () => {
 		const subject = new Subject();
 		mockDataService.post.mockReturnValue(subject);
 
@@ -80,6 +81,7 @@ describe('XiriCardComponent', () => {
 
 		subject.next({ data: { key: 'val' } });
 		subject.complete();
+		await fixture.whenStable();
 		fixture.detectChanges();
 
 		expect(comp.loading()).toBe(false);

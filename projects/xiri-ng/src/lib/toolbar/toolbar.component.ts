@@ -24,7 +24,7 @@ export interface XiriToolbarSettings {
 export class XiriToolbarComponent {
 
 	settings = input.required<XiriToolbarSettings>();
-	filterData = input<any>( undefined );
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
 
 	searchChanged = output<string>();
 

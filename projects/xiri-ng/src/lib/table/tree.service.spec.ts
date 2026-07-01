@@ -7,6 +7,7 @@ import {
 	flatten,
 	normalizeParent,
 	searchProjection,
+	XiriTableRow,
 	XiriTableTreeService,
 } from './tree.service';
 
@@ -22,7 +23,7 @@ function sampleRows() {
 	];
 }
 
-const byName = ( name: string ) => ( row: any ) => row.name === name;
+const byName = ( name: string ) => ( row: XiriTableRow ) => row.name === name;
 
 describe( 'tree pure functions', () => {
 
@@ -62,7 +63,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'detects cycles and treats nodes as roots without crashing', () => {
-			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => { /* intentionally empty */ } );
 			const rows = [
 				{ id: 1, parentId: 2, name: 'A' },
 				{ id: 2, parentId: 1, name: 'B' },
@@ -152,7 +153,7 @@ describe( 'tree pure functions', () => {
 
 describe( 'XiriTableTreeService', () => {
 	let service: XiriTableTreeService;
-	let mockLocalStorage: { [ key: string ]: string };
+	let mockLocalStorage: Record<string, string>;
 
 	beforeEach( () => {
 		mockLocalStorage = {};

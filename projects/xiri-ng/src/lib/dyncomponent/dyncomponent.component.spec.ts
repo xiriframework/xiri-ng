@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild, TemplateRef } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { XiriDynComponentComponent } from './dyncomponent.component';
 import { XiriDynData } from './dyndata.interface';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -14,11 +14,12 @@ import { of } from 'rxjs';
 @Component( {
 	selector: 'xiri-dyn-test-host',
 	template: `<xiri-dyncomponent [data]="data()" [filterData]="filterData()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriDynComponentComponent ],
 } )
 class TestHostComponent {
 	data = signal<XiriDynData[]>( [] );
-	filterData = signal<any>( undefined );
+	filterData = signal<Record<string, unknown> | null | undefined>( undefined );
 	dynComponent = viewChild.required( XiriDynComponentComponent );
 }
 
@@ -32,7 +33,7 @@ describe( 'XiriDynComponentComponent', () => {
 			imports: [ TestHostComponent, NoopAnimationsModule ],
 			providers: [
 				{ provide: XiriDataService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ), postDownload: vi.fn() } },
-				{ provide: XiriFormService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), parse: vi.fn().mockReturnValue( {} ), loadState: vi.fn().mockImplementation( ( _: any, f: any ) => f ), saveState: vi.fn() } },
+				{ provide: XiriFormService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), parse: vi.fn().mockReturnValue( {} ), loadState: vi.fn().mockImplementation( ( _: unknown, f: unknown ) => f ), saveState: vi.fn() } },
 				{ provide: XiriSnackbarService, useValue: { error: vi.fn(), success: vi.fn(), handleResponse: vi.fn() } },
 				{ provide: XiriSessionStorageService, useValue: { set: vi.fn(), getTimeout: vi.fn().mockReturnValue( null ) } },
 				{ provide: XiriNumberService, useValue: { formatNumber: vi.fn().mockReturnValue( '0' ) } },
@@ -58,14 +59,14 @@ describe( 'XiriDynComponentComponent', () => {
 		} );
 
 		it( 'should return empty array for null data', () => {
-			host.data.set( null as any );
+			host.data.set( null as unknown as XiriDynData[] );
 			fixture.detectChanges();
 
 			expect( component.dataInt() ).toEqual( [] );
 		} );
 
 		it( 'should return empty array for undefined data', () => {
-			host.data.set( undefined as any );
+			host.data.set( undefined as unknown as XiriDynData[] );
 			fixture.detectChanges();
 
 			expect( component.dataInt() ).toEqual( [] );
@@ -108,7 +109,7 @@ describe( 'XiriDynComponentComponent', () => {
 		} );
 
 		it( 'should wrap non-array data in array', () => {
-			host.data.set( { type: 'card', data: {} } as any );
+			host.data.set( { type: 'card', data: {} } as unknown as XiriDynData[] );
 			fixture.detectChanges();
 
 			const result = component.dataInt();
@@ -124,7 +125,7 @@ describe( 'XiriDynComponentComponent', () => {
 
 			const item = component.dataInt()[ 0 ];
 			expect( item.type ).toBe( 'card' );
-			expect( item.data.title ).toBe( 'T' );
+			expect( ( item.data as { title: string } ).title ).toBe( 'T' );
 			expect( item.display ).toBe( 'half' );
 			expect( item.newRow ).toBe( true );
 		} );

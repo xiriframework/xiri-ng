@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { XiriTimelineComponent, XiriTimelineSettings } from './timeline.component';
 
 @Component( {
 	template: `<xiri-timeline [settings]="settings()"/>`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriTimelineComponent ]
 } )
 class TestHostComponent {

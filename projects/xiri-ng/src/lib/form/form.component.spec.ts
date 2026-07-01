@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { of, throwError } from 'rxjs';
+import { UntypedFormGroup } from '@angular/forms';
 import { XiriFormComponent, XiriFormSettings } from './form.component';
 import { XiriFormService, XiriFormServiceData } from '../services/form.service';
 import { Location } from '@angular/common';
@@ -10,6 +11,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 @Component( {
 	selector: 'xiri-form-test-host',
 	template: `<xiri-form [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriFormComponent ],
 } )
 class TestHostComponent {
@@ -95,7 +97,7 @@ describe( 'XiriFormComponent', () => {
 		} );
 
 		it( 'should set url from settings', () => {
-			expect( ( component as any ).url ).toBe( 'test/form' );
+			expect( ( component as unknown as { url: string } ).url ).toBe( 'test/form' );
 		} );
 	} );
 
@@ -117,7 +119,7 @@ describe( 'XiriFormComponent', () => {
 
 			createFixture( { url: 'initial', fields: [], buttons: [] } );
 
-			expect( ( component as any ).url ).toBe( 'new/url' );
+			expect( ( component as unknown as { url: string } ).url ).toBe( 'new/url' );
 		} );
 
 		it( 'should handle done response', () => {
@@ -261,7 +263,7 @@ describe( 'XiriFormComponent', () => {
 				extra: {},
 			};
 			mockFormService.get.mockReturnValue( of( response ) );
-			component.formChanged( { valid: true, value: { name: 'test' } } );
+			component.formChanged( { valid: true, value: { name: 'test' } } as unknown as UntypedFormGroup );
 			component.loading.set( false );
 
 			component.clickButton( { text: 'Save', action: 'save', type: 'raised' } );
@@ -280,12 +282,12 @@ describe( 'XiriFormComponent', () => {
 
 	describe( 'formChanged', () => {
 		it( 'should update formValid and formValues', () => {
-			component.formChanged( { valid: true, value: { name: 'hello' } } );
+			component.formChanged( { valid: true, value: { name: 'hello' } } as unknown as UntypedFormGroup );
 			expect( component.formValid ).toBe( true );
 		} );
 
 		it( 'should handle invalid form state', () => {
-			component.formChanged( { valid: false, value: {} } );
+			component.formChanged( { valid: false, value: {} } as unknown as UntypedFormGroup );
 			expect( component.formValid ).toBe( false );
 		} );
 	} );
@@ -319,7 +321,7 @@ describe( 'XiriFormComponent', () => {
 			component.checkSubject.subscribe( nextSpy );
 			component.formValid = false;
 
-			( component as any ).startSend( { name: 'test' } );
+			( component as unknown as { startSend( data: object | null ): void } ).startSend( { name: 'test' } );
 			vi.advanceTimersByTime( 20 );
 
 			expect( nextSpy ).toHaveBeenCalled();

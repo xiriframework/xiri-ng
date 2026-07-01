@@ -1,28 +1,30 @@
 import { Injectable } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 
 
 @Injectable( {
 	             providedIn: 'root',
              } )
 export class XiriDownloadService {
-	
-	public download( result: any, filename: string, open: boolean ): boolean {
-		
-		if ( result.headers.get( 'content-disposition' ) ) {
-			filename = result.headers.get( 'content-disposition' ).split( 'filename=' )[ 1 ];
+
+	public download( result: HttpResponse<Blob>, filename: string, open: boolean ): boolean {
+
+		const contentDisposition = result.headers.get( 'content-disposition' );
+		if ( contentDisposition ) {
+			filename = contentDisposition.split( 'filename=' )[ 1 ];
 			filename = filename.replace( /"/g, '' );
 		}
-		
-		let contentType = result.headers.get( 'content-type' );
-		let file = new File( [ result.body ], filename, { type: contentType } );
-		let fileData = URL.createObjectURL( file );
-		
+
+		const contentType = result.headers.get( 'content-type' ) ?? undefined;
+		const file = new File( [ result.body as BlobPart ], filename, { type: contentType } );
+		const fileData = URL.createObjectURL( file );
+
 		if ( open ) {
-			let ret = window.open( fileData, '_blank' )
+			const ret = window.open( fileData, '_blank' )
 			return !( ret === null || typeof ( ret ) == 'undefined' );
 		}
-		
-		const a: any = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'a' )
+
+		const a = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'a' ) as HTMLAnchorElement;
 		a.download = filename;
 		a.rel = 'noopener';
 		a.href = fileData;

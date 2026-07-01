@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
 import { escapeHtml } from '../echarts/tooltip';
+import { XiriEchartsCallbackParams } from '../echarts/params';
 
 export interface XiriCalendarCell {
 	date: string;     // 'YYYY-MM-DD'
@@ -56,9 +57,10 @@ export class XiriCalendarComponent {
 
 		return {
 			tooltip: {
-				formatter: ( p: any ) => {
-					const date = String( p.value[ 0 ] );
-					const v = p.value[ 1 ];
+				formatter: ( p: XiriEchartsCallbackParams ) => {
+					const val = p.value as [ string, number ];
+					const date = String( val[ 0 ] );
+					const v = val[ 1 ];
 					return `<b>${ escapeHtml( date ) }</b><br/>${ p.marker }<b>${ v }</b>`;
 				}
 			},

@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatFormField, MatFormFieldControl, MatLabel } from "@angular/material/form-field";
 import {
+	AbstractControl,
 	ControlValueAccessor,
 	FormControl,
 	FormGroup,
 	FormsModule,
 	NgControl,
-	ReactiveFormsModule
+	ReactiveFormsModule,
+	ValidationErrors
 } from "@angular/forms";
 import { Subject } from "rxjs";
 import { FocusMonitor } from "@angular/cdk/a11y";
@@ -30,6 +32,16 @@ interface TimelimitForm {
 	tohour: FormControl<number>
 	tomin: FormControl<number>
 	inout: FormControl<boolean>
+}
+
+interface TimelimitValue {
+	check: boolean;
+	wd: boolean[];
+	fromhour: number;
+	frommin: number;
+	tohour: number;
+	tomin: number;
+	in: boolean;
 }
 
 
@@ -57,7 +69,7 @@ interface TimelimitForm {
 		            KeyValuePipe,
 	            ]
             } )
-export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFieldControl<any>, OnInit, OnDestroy {
+export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFieldControl<TimelimitValue>, OnInit, OnDestroy {
 	private focusMonitor = inject( FocusMonitor );
 	ngControl = inject( NgControl, { optional: true, self: true } );
 	private _elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
@@ -76,7 +88,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	focused = false;
 	controlType = 'xiri-timelimit';
 	
-	private _placeholder: string = '';
+	private _placeholder = '';
 	private _required = true;
 	private _disabled = false;
 	shouldLabelFloat = true;
@@ -135,10 +147,8 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 		} );
 	}
 	
-	onChange = ( _: any ) => {
-	};
-	onTouched = () => {
-	};
+	onChange: ( value: TimelimitValue ) => void = () => { /* intentionally empty */ };
+	onTouched = () => { /* intentionally empty */ };
 	
 	ngOnInit() {
 		
@@ -146,43 +156,42 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 		this.ngControl.control?.updateValueAndValidity();
 	}
 	
-	validate( { value } ) {
-		
+	validate( { value }: AbstractControl ): ValidationErrors | null {
+
+		const limit = value as TimelimitValue | null;
 		let isNotValid = false;
-		
-		if ( value === null )
+
+		if ( limit === null )
 			isNotValid = true;
-		else if ( value.check ) {
-			if ( value.tohour == 24 && value.tomin != 0 )
+		else if ( limit.check ) {
+			if ( limit.tohour == 24 && limit.tomin != 0 )
 				isNotValid = true;
-			if ( value.fromhour == 24 )
+			if ( limit.fromhour == 24 )
 				isNotValid = true;
-			if ( value.fromhour > value.tohour )
+			if ( limit.fromhour > limit.tohour )
 				isNotValid = true;
-			if ( value.fromhour == value.tohour && value.frommin >= value.tomin )
+			if ( limit.fromhour == limit.tohour && limit.frommin >= limit.tomin )
 				isNotValid = true;
-			if ( ( ( value.wd[ 0 ] &&
-			         value.wd[ 1 ] &&
-			         value.wd[ 2 ] &&
-			         value.wd[ 3 ] &&
-			         value.wd[ 4 ] &&
-			         value.wd[ 5 ] &&
-			         value.wd[ 6 ] ) ||
-			       ( !value.wd[ 0 ] &&
-			         !value.wd[ 1 ] &&
-			         !value.wd[ 2 ] &&
-			         !value.wd[ 3 ] &&
-			         !value.wd[ 4 ] &&
-			         !value.wd[ 5 ] &&
-			         !value.wd[ 6 ] ) ) &&
-			     value.fromhour == 0 && value.frommin == 0 && value.tohour == 24 && value.frommin == 0 ) {
+			if ( ( ( limit.wd[ 0 ] &&
+			         limit.wd[ 1 ] &&
+			         limit.wd[ 2 ] &&
+			         limit.wd[ 3 ] &&
+			         limit.wd[ 4 ] &&
+			         limit.wd[ 5 ] &&
+			         limit.wd[ 6 ] ) ||
+			       ( !limit.wd[ 0 ] &&
+			         !limit.wd[ 1 ] &&
+			         !limit.wd[ 2 ] &&
+			         !limit.wd[ 3 ] &&
+			         !limit.wd[ 4 ] &&
+			         !limit.wd[ 5 ] &&
+			         !limit.wd[ 6 ] ) ) &&
+			     limit.fromhour == 0 && limit.frommin == 0 && limit.tohour == 24 && limit.frommin == 0 ) {
 				isNotValid = true;
 			}
 		}
-		
-		return isNotValid && {
-			invalid: isNotValid
-		}
+
+		return isNotValid ? { invalid: isNotValid } : null;
 	}
 	
 	ngOnDestroy() {
@@ -221,13 +230,16 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	
 	set disabled( value: boolean ) {
 		this._disabled = coerceBooleanProperty( value );
-		this._disabled ? this.parts.disable() : this.parts.enable();
+		if ( this._disabled )
+			this.parts.disable();
+		else
+			this.parts.enable();
 		this.stateChanges.next();
 	}
 	
 	@Input()
-	get value() {
-		
+	get value(): TimelimitValue {
+
 		const value = this.parts.value;
 		return {
 			check: value.check,
@@ -239,12 +251,12 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 			in: value.inout
 		};
 	}
-	
-	set value( input: any ) {
-		
+
+	set value( input: TimelimitValue | null | undefined ) {
+
 		if ( input === null || input === undefined )
 			return;
-		
+
 		this.parts.setValue( {
 			                     check: input.check,
 			                     wd0: input.wd[ 0 ],
@@ -254,60 +266,59 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 			                     wd4: input.wd[ 4 ],
 			                     wd5: input.wd[ 5 ],
 			                     wd6: input.wd[ 6 ],
-			                     fromhour: parseInt( input.fromhour ),
-			                     frommin: parseInt( input.frommin ),
-			                     tohour: parseInt( input.tohour ),
-			                     tomin: parseInt( input.tomin ),
+			                     fromhour: parseInt( String( input.fromhour ) ),
+			                     frommin: parseInt( String( input.frommin ) ),
+			                     tohour: parseInt( String( input.tohour ) ),
+			                     tomin: parseInt( String( input.tomin ) ),
 			                     inout: input.in
 		                     } );
-		
+
 		this.onChange( this.value );
 		this.stateChanges.next();
 	}
-	
+
 	get empty() {
 		return this.value === null;
 	}
-	
-	writeValue( value ): void {
+
+	writeValue( value: TimelimitValue | null | undefined ): void {
 		this.value = value;
 	}
-	
-	registerOnChange( fn: any ): void {
+
+	registerOnChange( fn: ( value: TimelimitValue ) => void ): void {
 		this.onChange = fn;
 	}
-	
-	registerOnTouched( fn: any ): void {
+
+	registerOnTouched( fn: () => void ): void {
 		this.onTouched = fn;
 	}
-	
+
 	setDisabledState( isDisabled: boolean ): void {
 		this.disabled = isDisabled;
 	}
-	
+
 	setDescribedByIds( ids: string[] ) {
 		this.describedBy = ids.join( ' ' );
 	}
-	
-	onContainerClick( event: MouseEvent ): void {
-	}
-	
-	public _texts;
-	
+
+	onContainerClick(): void { /* intentionally empty */ }
+
+	public _texts: Record<string, string> = {};
+
 	@Input()
-	get texts() {
-		
+	get texts(): Record<string, string> {
+
 		return this._texts;
 	}
-	
-	set texts( input: object ) {
-		
+
+	set texts( input: Record<string, string> ) {
+
 		if ( input === null || input === undefined )
 			return;
 		this._texts = input;
 	}
-	
-	onCompare( _left, _right ): number {
+
+	onCompare(): number {
 		return -1;
 	}
 	

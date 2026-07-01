@@ -10,6 +10,6 @@ export class SafehtmlPipe implements PipeTransform {
 	private sanitizer: DomSanitizer = inject( DomSanitizer );
 	
 	transform( style: string ): string {
-		return <string> this.sanitizer.bypassSecurityTrustHtml( style );
+		return this.sanitizer.bypassSecurityTrustHtml( style ) as string;
 	}
 }

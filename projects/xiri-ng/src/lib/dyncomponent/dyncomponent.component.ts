@@ -36,6 +36,7 @@ import { XiriCalendarComponent } from '../calendar/calendar.component';
 import { XiriTreeComponent } from '../tree/tree.component';
 import { XiriSankeyComponent } from '../sankey/sankey.component';
 import { XiriGanttComponent } from '../gantt/gantt.component';
+import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
 
 
 @Component( {
@@ -70,6 +71,7 @@ import { XiriGanttComponent } from '../gantt/gantt.component';
 	                       XiriPageHeaderComponent,
 	                       XiriSectionComponent,
 	                       XiriDividerComponent,
+	                       XiriSkeletonComponent,
 	                       XiriStatGridComponent,
 	                       XiriToolbarComponent,
 	                       XiriDescriptionListComponent,
@@ -86,8 +88,8 @@ import { XiriGanttComponent } from '../gantt/gantt.component';
 export class XiriDynComponentComponent {
 	
 	data = input.required<XiriDynData[]>();
-	filterData = input<any>( undefined );
-	dyncomponent = input<TemplateRef<any>>();
+	filterData = input<Record<string, unknown> | null | undefined>( undefined );
+	dyncomponent = input<TemplateRef<unknown>>();
 	
 	dataInt = computed( () => {
 		

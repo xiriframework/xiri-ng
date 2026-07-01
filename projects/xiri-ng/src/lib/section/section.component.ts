@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, forwardRef, input, signal, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, input, signal, TemplateRef, OnInit } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
@@ -23,15 +23,12 @@ export interface XiriSectionSettings {
 	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ MatIcon, MatDivider, XiriButtonlineComponent, forwardRef( () => XiriDynComponentComponent ) ]
             } )
-export class XiriSectionComponent {
+export class XiriSectionComponent implements OnInit {
 
 	settings = input.required<XiriSectionSettings>();
-	dyncomponent = input<TemplateRef<any>>();
+	dyncomponent = input<TemplateRef<unknown>>();
 
 	collapsed = signal<boolean>( false );
-
-	constructor() {
-	}
 
 	ngOnInit() {
 		if ( this.settings().collapsed ) {

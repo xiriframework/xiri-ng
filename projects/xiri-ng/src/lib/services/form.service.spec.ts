@@ -3,10 +3,11 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import { XiriFormService } from './form.service';
+import { XiriFormService, XiriFormServiceError, XiriFormServiceReturn } from './form.service';
 import { XiriDataService } from './data.service';
 import { XiriSessionStorageService } from './sessionStorage.service';
 import { XiriFormField } from '../formfields/field.interface';
+import { XiriButton } from '../button/button.component';
 
 describe( 'XiriFormService', () => {
 	let service: XiriFormService;
@@ -45,7 +46,7 @@ describe( 'XiriFormService', () => {
 
 	describe( 'get', () => {
 		it( 'should call dataService.get when data is null', () => {
-			dataService.get.mockReturnValue( of( { buttons: [{ label: 'OK' }] as any, fields: [], url: '/test' } ) );
+			dataService.get.mockReturnValue( of( { buttons: [{ label: 'OK' }] as unknown as XiriButton[], fields: [], url: '/test' } ) );
 
 			service.get( 'form/load', null ).subscribe();
 
@@ -55,7 +56,7 @@ describe( 'XiriFormService', () => {
 
 		it( 'should call dataService.post when data is provided', () => {
 			const data = { id: 1 };
-			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as any, fields: [], url: '/test' } ) );
+			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as unknown as XiriButton[], fields: [], url: '/test' } ) );
 
 			service.get( 'form/load', data ).subscribe();
 
@@ -63,7 +64,7 @@ describe( 'XiriFormService', () => {
 		} );
 
 		it( 'should call dataService.post when data is undefined (no second arg)', () => {
-			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as any, fields: [], url: '/test' } ) );
+			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as unknown as XiriButton[], fields: [], url: '/test' } ) );
 
 			service.get( 'form/load' ).subscribe();
 
@@ -73,7 +74,7 @@ describe( 'XiriFormService', () => {
 		it( 'should merge data with extra when posting', () => {
 			const data = { id: 1 };
 			const extra = { page: 2 };
-			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as any, fields: [], url: '/test' } ) );
+			dataService.post.mockReturnValue( of( { buttons: [{ label: 'OK' }] as unknown as XiriButton[], fields: [], url: '/test' } ) );
 
 			service.get( 'form/load', data, extra ).subscribe();
 
@@ -87,7 +88,7 @@ describe( 'XiriFormService', () => {
 			} );
 			dataService.post.mockReturnValue( throwError( () => httpError ) );
 
-			let error: any;
+			let error: XiriFormServiceError | undefined;
 			service.get( 'form/load', {} ).subscribe( {
 				error: ( err ) => error = err,
 			} );
@@ -99,7 +100,7 @@ describe( 'XiriFormService', () => {
 			const httpError = new HttpErrorResponse( { status: 403 } );
 			dataService.post.mockReturnValue( throwError( () => httpError ) );
 
-			let error: any;
+			let error: XiriFormServiceError | undefined;
 			service.get( 'form/load', {} ).subscribe( {
 				error: ( err ) => error = err,
 			} );
@@ -111,7 +112,7 @@ describe( 'XiriFormService', () => {
 			const httpError = new HttpErrorResponse( { status: 404 } );
 			dataService.post.mockReturnValue( throwError( () => httpError ) );
 
-			let error: any;
+			let error: XiriFormServiceError | undefined;
 			service.get( 'form/load', {} ).subscribe( {
 				error: ( err ) => error = err,
 			} );
@@ -123,7 +124,7 @@ describe( 'XiriFormService', () => {
 			const httpError = new HttpErrorResponse( { status: 0 } );
 			dataService.post.mockReturnValue( throwError( () => httpError ) );
 
-			let error: any;
+			let error: XiriFormServiceError | undefined;
 			service.get( 'form/load', {} ).subscribe( {
 				error: ( err ) => error = err,
 			} );
@@ -143,7 +144,7 @@ describe( 'XiriFormService', () => {
 				],
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.url ).toBe( '/submit' );
 			expect( result.buttons ).toEqual( [{ label: 'Save' }] );
@@ -159,10 +160,10 @@ describe( 'XiriFormService', () => {
 					{ id: 'name', type: 'text' },
 					{ id: 'email', type: 'text' },
 				],
-				model: { name: 'John' } as any,
+				model: { name: 'John' },
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			const nameField = result.fields!.find( f => f.id === 'name' );
 			const emailField = result.fields!.find( f => f.id === 'email' );
@@ -179,7 +180,7 @@ describe( 'XiriFormService', () => {
 				],
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.fields!.length ).toBe( 1 );
 			expect( result.fields![0].id ).toBe( 'visible' );
@@ -189,28 +190,28 @@ describe( 'XiriFormService', () => {
 			const res = {
 				type: 'question',
 				buttons: [{ label: 'Yes' }, { label: 'No' }],
-				fields: { id: 'q1', text: 'Are you sure?' } as any,
+				fields: { id: 'q1', text: 'Are you sure?' },
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.type ).toBe( 'question' );
 			expect( result.fields!.length ).toBe( 1 );
-			expect( ( result.fields![0] as any ).type ).toBe( 'question' );
+			expect( result.fields![0].type ).toBe( 'question' );
 		} );
 
 		it( 'should handle waiting type', () => {
 			const res = {
 				type: 'waiting',
 				buttons: [{ label: 'Cancel' }],
-				fields: { id: 'w1', text: 'Processing...' } as any,
+				fields: { id: 'w1', text: 'Processing...' },
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.type ).toBe( 'waiting' );
 			expect( result.fields!.length ).toBe( 1 );
-			const field = result.fields![0] as any;
+			const field = result.fields![0];
 			expect( field.type ).toBe( 'waiting' );
 			expect( field.done ).toBe( false );
 			expect( field.value ).toBe( 'Processing...' );
@@ -222,7 +223,7 @@ describe( 'XiriFormService', () => {
 				fields: [],
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.extra ).toEqual( {} );
 		} );
@@ -231,10 +232,10 @@ describe( 'XiriFormService', () => {
 			const res = {
 				buttons: [{ label: 'OK' }],
 				fields: [],
-				extra: { key: 'value' } as any,
+				extra: { key: 'value' },
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.extra ).toEqual( { key: 'value' } );
 		} );
@@ -250,8 +251,8 @@ describe( 'XiriFormService', () => {
 				fields: [],
 			};
 
-			expect( service.parse( withTime as any ).time ).toBe( 5000 );
-			expect( service.parse( withoutTime as any ).time ).toBe( 2000 );
+			expect( service.parse( withTime as unknown as XiriFormServiceReturn ).time ).toBe( 5000 );
+			expect( service.parse( withoutTime as unknown as XiriFormServiceReturn ).time ).toBe( 2000 );
 		} );
 
 		it( 'should return done observable with goto navigation', () => {
@@ -261,7 +262,7 @@ describe( 'XiriFormService', () => {
 					done: false,
 				};
 
-				const result = service.parse( res as any );
+				const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 				expect( result.done ).toBeTruthy();
 				result.done!.subscribe( () => {
@@ -278,7 +279,7 @@ describe( 'XiriFormService', () => {
 					done: true,
 				};
 
-				const result = service.parse( res as any );
+				const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 				expect( result.done ).toBeTruthy();
 				result.done!.subscribe( () => {
@@ -294,7 +295,7 @@ describe( 'XiriFormService', () => {
 					done: false,
 				};
 
-				const result = service.parse( res as any );
+				const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 				expect( result.done ).toBeTruthy();
 				result.done!.subscribe( () => {
@@ -305,14 +306,14 @@ describe( 'XiriFormService', () => {
 		} );
 
 		it( 'should handle unknown form type gracefully', () => {
-			const consoleSpy = vi.spyOn( console, 'log' ).mockImplementation( () => {} );
+			const consoleSpy = vi.spyOn( console, 'log' ).mockImplementation( () => { /* intentionally empty */ } );
 			const res = {
 				type: 'unknown_type',
 				buttons: [{ label: 'OK' }],
 				fields: [],
 			};
 
-			const result = service.parse( res as any );
+			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
 			expect( result.fields!.length ).toBe( 0 );
 			expect( consoleSpy ).toHaveBeenCalledWith( 'XiriFormService unknown form type', 'unknown_type' );

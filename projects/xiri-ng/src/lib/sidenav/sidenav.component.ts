@@ -48,7 +48,7 @@ export class XiriSidenavComponent {
 	private cdr: ChangeDetectorRef = inject( ChangeDetectorRef );
 	
 	settings = input<XiriSidebarSettings>();
-	loading: boolean = true;
+	loading = true;
 	fields: XiriNavigationField[] = [];
 	private prefix: string;
 	
@@ -85,7 +85,7 @@ export class XiriSidenavComponent {
 			return;
 
 		for ( let i = 0; i != fields.length; i++ ) {
-			let field = fields[ i ];
+			const field = fields[ i ];
 
 			if ( field.path )
 				field.regex = new RegExp( '^' + field.path );

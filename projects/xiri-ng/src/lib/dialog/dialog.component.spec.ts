@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { XiriDialogComponent, XiriDialogSettings } from './dialog.component';
+import { XiriDialogComponent } from './dialog.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
@@ -52,7 +52,7 @@ describe( 'XiriDialogComponent', () => {
 		mockDownloadService = { download: vi.fn().mockReturnValue( true ) };
 	}
 
-	function createComponent( initData: any ) {
+	function createComponent( initData: Record<string, unknown> ) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
 			imports: [ XiriDialogComponent, NoopAnimationsModule ],
@@ -416,7 +416,7 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test/override', size: 'sm' } );
 			fixture.detectChanges();
 
-			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: any[] ) => c[ 0 ] );
+			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: unknown[] ) => c[ 0 ] );
 			expect( calls[ calls.length - 1 ] ).toBe( '1200px' );
 		} );
 
@@ -463,7 +463,7 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test/mobile' } );
 			fixture.detectChanges();
 
-			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: any[] ) => c[ 0 ] );
+			const calls = mockDialogRef.updateSize.mock.calls.map( ( c: unknown[] ) => c[ 0 ] );
 			expect( calls[ calls.length - 1 ] ).toBe( '90vw' );
 		} );
 	} );
@@ -473,7 +473,8 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test' } );
 			fixture.detectChanges();
 
-			( component as any ).to = setTimeout( () => {}, 10000 );
+			( component as unknown as { to: ReturnType<typeof setTimeout> } ).to =
+				setTimeout( () => { /* intentionally empty */ }, 10000 );
 			const clearSpy = vi.spyOn( globalThis, 'clearTimeout' );
 			component.ngOnDestroy();
 			expect( clearSpy ).toHaveBeenCalled();
@@ -493,7 +494,7 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test' } );
 			fixture.detectChanges();
 
-			( component as any ).url = 'report/download';
+			( component as unknown as { url: string } ).url = 'report/download';
 			const openSpy = vi.spyOn( window, 'open' ).mockReturnValue( {} as Window );
 			component.download( null );
 
@@ -505,7 +506,7 @@ describe( 'XiriDialogComponent', () => {
 			createComponent( { type: 'load', url: 'test' } );
 			fixture.detectChanges();
 
-			( component as any ).url = 'report/download';
+			( component as unknown as { url: string } ).url = 'report/download';
 			const openSpy = vi.spyOn( window, 'open' ).mockReturnValue( null );
 			component.download( null );
 

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from "rxjs";
+import { UntypedFormGroup } from '@angular/forms';
 import { Location } from '@angular/common';
 import { XiriButton } from "../button/button.component";
 import { XiriFormService, XiriFormServiceData, XiriFormServiceError } from "../services/form.service";
@@ -15,7 +16,7 @@ import { XiriFormField } from "../formfields/field.interface";
 export interface XiriFormSettings {
 	load?: boolean
 	url: string
-	fields?: any[]
+	fields?: XiriFormField[]
 	buttons?: XiriButton[]
 	header?: string
 }
@@ -49,8 +50,8 @@ export class XiriFormComponent implements OnInit {
 	private url: string;
 	public buttons: XiriButton[] = [];
 	private extra = {};
-	private formValues: any = null;
-	public formValid: boolean = true;
+	private formValues: object | null | undefined = null;
+	public formValid = true;
 	public checkSubject: Subject<void> = new Subject<void>();
 	
 	
@@ -64,7 +65,7 @@ export class XiriFormComponent implements OnInit {
 			this.loadData( this.formService.parse( this.settings() ) );
 	}
 	
-	private send( data: any ) {
+	private send( data: object | null | undefined ) {
 		
 		this.loading.set( true );
 		this.error.set( '' );
@@ -114,11 +115,11 @@ export class XiriFormComponent implements OnInit {
 		if ( button.action == 'back' )
 			this.location.back();
 		else if ( button.action == 'get' ) {
-			this.url = <string> button.url;
+			this.url = button.url as string;
 			this.loadingButton.set( button );
 			this.startSend( null );
 		} else if ( button.action == 'post' ) {
-			this.url = <string> button.url;
+			this.url = button.url as string;
 			this.loadingButton.set( button );
 			this.startSend( button.data );
 		} else if ( button.action == 'debug' ) {
@@ -146,7 +147,7 @@ export class XiriFormComponent implements OnInit {
 		}
 	}
 	
-	private startSend( data: any ): void {
+	private startSend( data: object | null | undefined ): void {
 		
 		setTimeout( () => {
 			if ( this.formValid )
@@ -156,8 +157,8 @@ export class XiriFormComponent implements OnInit {
 		}, 10 );
 	}
 	
-	public formChanged( event: any ) {
-		
+	public formChanged( event: UntypedFormGroup ) {
+
 		this.formValid = event.valid;
 		this.formValues = event.value;
 		

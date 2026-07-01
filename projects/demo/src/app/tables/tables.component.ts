@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
+import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.interface';
 import { XiriTagChip } from 'projects/xiri-ng/src/lib/formfields/field.interface';
 import { XiriButton } from 'projects/xiri-ng/src/lib/button/button.component';
@@ -14,6 +14,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-tables',
 	            templateUrl: './tables.component.html',
 	            styleUrl: './tables.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class TablesComponent {
@@ -163,18 +164,18 @@ export class TablesComponent {
 			{
 				id: 'content4', name: 'content4', format: 'buttons',
 				buttons: [
-					<XiriButton> { action: 'api', hint: 'briefed', color: 'primary', icon: 'task_alt' },
-					<XiriButton> { action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' },
-					<XiriButton> { action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' },
-					<XiriButton> { action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' }
+					({ action: 'api', hint: 'briefed', color: 'primary', icon: 'task_alt' } as XiriButton),
+					({ action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' } as XiriButton),
+					({ action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' } as XiriButton),
+					({ action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' } as XiriButton)
 				],
 			},
 			{ id: 'content5', name: 'content5', format: 'html' },
 			{
 				id: 'nums', name: 'nums', format: 'buttons',
 				buttons: [
-					<XiriButton> { action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' },
-					<XiriButton> { action: 'link', hint: 'briefed', color: 'primary', icon: 'task_alt' }
+					({ action: 'icon', hint: 'briefed', color: 'accent', icon: 'done' } as XiriButton),
+					({ action: 'link', hint: 'briefed', color: 'primary', icon: 'task_alt' } as XiriButton)
 				],
 			}
 		],
@@ -212,7 +213,7 @@ export class TablesComponent {
 			{ id: 15, name: 'Laptop Stand', nameLink: '/Overview', price: [ '39.90', 39.90 ], category: 'Accessories', info: [ 'Aluminum', 'Height adjustable' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
 			{ id: 16, name: 'Powerbank 20k', nameLink: '/Forms', price: [ '44.99', 44.99 ], category: 'Electronics', info: [ '20,000mAh', 'USB-C PD' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
 		],
-		fields: <XiriTableField[]> [
+		fields: [
 			{ id: 'id', name: 'ID', sticky: true, footer: 'no' },
 			{ id: 'name', name: 'Product', format: 'link', footer: 'no' },
 			{ id: 'price', name: 'Price', format: 'number', align: 'right', textSuffix: ' EUR', footer: 'sum', webformat: '1.2-2' },
@@ -220,16 +221,16 @@ export class TablesComponent {
 			{ id: 'info', name: 'Details', format: 'text2', footer: 'no' },
 			{
 				id: 'actions', name: 'Actions', format: 'buttons', footer: 'no',
-				buttons: [ <XiriButton> {
+				buttons: [ ({
 					action: 'menu', icon: 'more_vert', color: 'primary', hint: 'Actions',
 					menuItems: [
 						{ action: 'link', icon: 'home', text: 'Home' },
 						{ action: 'link', icon: 'edit', text: 'Edit' },
 						{ action: 'link', icon: 'table_chart', text: 'Table' },
 					]
-				} ],
+				} as XiriButton) ],
 			}
-		],
+		] as XiriTableField[],
 		options: {
 			reload: true, sort: true, search: true, dense: true, pagination: true,
 			itemsPerPage: 5, pageSizes: [ 5, 10 ],
@@ -244,23 +245,23 @@ export class TablesComponent {
 		data: [
 			{
 				id: 1, name: 'Project Alpha', status: 'Active', priority: 'High', assigned: 'Max',
-				tags: <XiriTagChip[]> [ { label: 'Frontend', color: 'primary' }, { label: 'Angular', color: 'emerald' } ]
+				tags: [ { label: 'Frontend', color: 'primary' }, { label: 'Angular', color: 'emerald' } ] as XiriTagChip[]
 			},
 			{
 				id: 2, name: 'Project Beta', status: 'Paused', priority: 'Medium', assigned: 'Anna',
-				tags: <XiriTagChip[]> [ { label: 'Backend', color: 'accent' }, { label: 'DevOps', color: 'warn' } ]
+				tags: [ { label: 'Backend', color: 'accent' }, { label: 'DevOps', color: 'warn' } ] as XiriTagChip[]
 			},
 			{
 				id: 3, name: 'Project Gamma', status: 'Active', priority: 'Low', assigned: 'Tom',
-				tags: <XiriTagChip[]> [ { label: 'DevOps', color: 'warn' }, { label: 'Docker', color: 'blue' } ]
+				tags: [ { label: 'DevOps', color: 'warn' }, { label: 'Docker', color: 'blue' } ] as XiriTagChip[]
 			},
 			{
 				id: 4, name: 'Project Delta', status: 'Completed', priority: 'High', assigned: 'Lisa',
-				tags: <XiriTagChip[]> [ { label: 'Testing', color: 'success' }, { label: 'QA', color: 'green' } ]
+				tags: [ { label: 'Testing', color: 'success' }, { label: 'QA', color: 'green' } ] as XiriTagChip[]
 			},
 			{
 				id: 5, name: 'Project Epsilon', status: 'Active', priority: 'Medium', assigned: 'Max',
-				tags: <XiriTagChip[]> [ { label: 'Design', color: 'purple' }, { label: 'UX', color: 'orange' } ]
+				tags: [ { label: 'Design', color: 'purple' }, { label: 'UX', color: 'orange' } ] as XiriTagChip[]
 			},
 		],
 		fields: [
@@ -283,43 +284,43 @@ export class TablesComponent {
 		data: [
 			{
 				id: 1, item: 'A-422',
-				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
-				issues: <XiriTagChip[]>[ { label: 'Channel 1', color: 'red' } ],
-				metric1: <XiriTagChip[]>[ { label: '90%', color: 'lightgray' } ],
-				metric2: <XiriTagChip[]>[ { label: '70%', color: 'lightgray' } ],
-				metric3: <XiriTagChip[]>[ { label: '45%', color: 'red' } ],
+				state: [ { label: 'Attention', color: 'warn' } ] as XiriTagChip[],
+				issues: [ { label: 'Channel 1', color: 'red' } ] as XiriTagChip[],
+				metric1: [ { label: '90%', color: 'lightgray' } ] as XiriTagChip[],
+				metric2: [ { label: '70%', color: 'lightgray' } ] as XiriTagChip[],
+				metric3: [ { label: '45%', color: 'red' } ] as XiriTagChip[],
 			},
 			{
 				id: 2, item: 'B-689',
-				state: <XiriTagChip[]>[ { label: 'Not available', color: 'gray' } ],
-				issues: <XiriTagChip[]>[ { label: 'Channel 2', color: 'red' } ],
-				metric1: <XiriTagChip[]>[ { label: '100%', color: 'success' } ],
-				metric2: <XiriTagChip[]>[ { label: '85%', color: 'lightgray' } ],
-				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+				state: [ { label: 'Not available', color: 'gray' } ] as XiriTagChip[],
+				issues: [ { label: 'Channel 2', color: 'red' } ] as XiriTagChip[],
+				metric1: [ { label: '100%', color: 'success' } ] as XiriTagChip[],
+				metric2: [ { label: '85%', color: 'lightgray' } ] as XiriTagChip[],
+				metric3: [ { label: 'N/A', color: 'gray' } ] as XiriTagChip[],
 			},
 			{
 				id: 3, item: 'C-310',
-				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
-				issues: <XiriTagChip[]>[ { label: 'Channel 3', color: 'red' } ],
-				metric1: <XiriTagChip[]>[ { label: '88%', color: 'lightgray' } ],
-				metric2: <XiriTagChip[]>[ { label: '90%', color: 'success' } ],
-				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+				state: [ { label: 'Attention', color: 'warn' } ] as XiriTagChip[],
+				issues: [ { label: 'Channel 3', color: 'red' } ] as XiriTagChip[],
+				metric1: [ { label: '88%', color: 'lightgray' } ] as XiriTagChip[],
+				metric2: [ { label: '90%', color: 'success' } ] as XiriTagChip[],
+				metric3: [ { label: 'N/A', color: 'gray' } ] as XiriTagChip[],
 			},
 			{
 				id: 4, item: 'D-431',
-				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
-				issues: <XiriTagChip[]>[ { label: 'Channel 4', color: 'red' } ],
-				metric1: <XiriTagChip[]>[ { label: '32%', color: 'red' } ],
-				metric2: <XiriTagChip[]>[ { label: '7%', color: 'red' } ],
-				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+				state: [ { label: 'Attention', color: 'warn' } ] as XiriTagChip[],
+				issues: [ { label: 'Channel 4', color: 'red' } ] as XiriTagChip[],
+				metric1: [ { label: '32%', color: 'red' } ] as XiriTagChip[],
+				metric2: [ { label: '7%', color: 'red' } ] as XiriTagChip[],
+				metric3: [ { label: 'N/A', color: 'gray' } ] as XiriTagChip[],
 			},
 			{
 				id: 5, item: 'E-59',
-				state: <XiriTagChip[]>[ { label: 'Attention', color: 'warn' } ],
-				issues: <XiriTagChip[]>[ { label: 'Channel 5', color: 'warn' } ],
-				metric1: <XiriTagChip[]>[ { label: '48%', color: 'red' } ],
-				metric2: <XiriTagChip[]>[ { label: '90%', color: 'success' } ],
-				metric3: <XiriTagChip[]>[ { label: 'N/A', color: 'gray' } ],
+				state: [ { label: 'Attention', color: 'warn' } ] as XiriTagChip[],
+				issues: [ { label: 'Channel 5', color: 'warn' } ] as XiriTagChip[],
+				metric1: [ { label: '48%', color: 'red' } ] as XiriTagChip[],
+				metric2: [ { label: '90%', color: 'success' } ] as XiriTagChip[],
+				metric3: [ { label: 'N/A', color: 'gray' } ] as XiriTagChip[],
 			},
 		],
 		fields: [
@@ -389,10 +390,10 @@ export class TablesComponent {
 	rawTableSettings: XiriRawTableSettings = {
 		dense: 2,
 		data: [
-			{ id: 1, name: 'Widget Alpha', category: 'UI', price: [ '1,234.56', 1234.56 ], status: 0, tags: <XiriTagChip[]>[ { label: 'UI', color: 'primary' }, { label: 'Angular', color: 'emerald' } ] },
-			{ id: 2, name: 'Widget Beta', category: 'API', price: [ '567.89', 567.89 ], status: 1, tags: <XiriTagChip[]>[ { label: 'API', color: 'accent' } ] },
-			{ id: 3, name: 'Widget Gamma', category: 'UI', price: [ '99.00', 99.00 ], status: 0, tags: <XiriTagChip[]>[ { label: 'UI', color: 'primary' }, { label: 'Testing', color: 'success' } ] },
-			{ id: 4, name: 'Widget Delta', category: 'Backend', price: [ '2,500.00', 2500.00 ], status: 1, tags: <XiriTagChip[]>[ { label: 'Backend', color: 'warn' }, { label: 'Docker', color: 'blue' } ] },
+			{ id: 1, name: 'Widget Alpha', category: 'UI', price: [ '1,234.56', 1234.56 ], status: 0, tags: [ { label: 'UI', color: 'primary' }, { label: 'Angular', color: 'emerald' } ] as XiriTagChip[] },
+			{ id: 2, name: 'Widget Beta', category: 'API', price: [ '567.89', 567.89 ], status: 1, tags: [ { label: 'API', color: 'accent' } ] as XiriTagChip[] },
+			{ id: 3, name: 'Widget Gamma', category: 'UI', price: [ '99.00', 99.00 ], status: 0, tags: [ { label: 'UI', color: 'primary' }, { label: 'Testing', color: 'success' } ] as XiriTagChip[] },
+			{ id: 4, name: 'Widget Delta', category: 'Backend', price: [ '2,500.00', 2500.00 ], status: 1, tags: [ { label: 'Backend', color: 'warn' }, { label: 'Docker', color: 'blue' } ] as XiriTagChip[] },
 		],
 		fields: [
 			{ id: 'id', name: 'ID', align: 'center' },
@@ -559,7 +560,7 @@ tb.ChipsField("tags", "Tags", tagsAcc)
 tbl := tb.Build()
 tbl.SetData(widgets) // statische Daten`;
 
-	onRowClicked( row: any ): void {
+	onRowClicked( row: XiriTableRow ): void {
 		console.log( 'Row clicked:', row );
 		this._snackBar.open( 'Row clicked: ' + ( row.name || row.id ), 'OK', { duration: 2000 } );
 	}

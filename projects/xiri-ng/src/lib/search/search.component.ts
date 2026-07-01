@@ -46,13 +46,13 @@ export class XiriSearchComponent implements OnInit {
 	private destroyRef = inject( DestroyRef );
 	private filter: Subject<string> = new Subject<string>();
 	
-	public _text: string = '';
-	public show: boolean = false;
+	public _text = '';
+	public show = false;
 	
 	constructor() {
 		
 		effect( () => {
-			let num = this.reset();
+			const num = this.reset();
 			if ( num != -1 ) {
 				this.show = this.open();
 				this._text = '';
@@ -60,7 +60,7 @@ export class XiriSearchComponent implements OnInit {
 			}
 		} );
 		effect( () => {
-			let num = this.focus();
+			const num = this.focus();
 			if ( num != -1 ) {
 				this.show = true;
 				this._search()?.nativeElement.focus();

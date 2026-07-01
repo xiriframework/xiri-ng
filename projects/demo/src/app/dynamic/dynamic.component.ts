@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
@@ -12,6 +12,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-dynamic',
 	            templateUrl: './dynamic.component.html',
 	            styleUrl: './dynamic.component.scss',
+	            changeDetection: ChangeDetectionStrategy.OnPush,
 	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriBreadcrumbComponent ]
             } )
 export class DynamicComponent {
@@ -54,37 +55,37 @@ export class DynamicComponent {
 
 	cardData: XiriDynData[] = [ {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card mit Buttons',
 			headerIcon: 'home',
 			data: this.content,
-			buttonsTop: <XiriButtonlineSettings> { buttons: this.buttons }
-		}
+			buttonsTop: { buttons: this.buttons } as XiriButtonlineSettings
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Einfache Card',
 			data: this.content
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card mit Subheader',
 			headerSub: 'subheader',
 			data: this.content
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card komplett',
 			headerSub: 'subheader',
 			headerIcon: 'home',
 			data: this.content,
 			buttons: this.buttons,
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'card',
-		data: <XiriCardSettings> {
+		data: {
 			header: 'Card mit Link-Rows',
 			headerSub: 'subheader',
 			headerIcon: 'home',
@@ -99,7 +100,7 @@ export class DynamicComponent {
 			} ],
 			fields: [ { id: 'text', name: 'Link', format: 'linkrow' } ],
 			buttons: this.buttons,
-		}
+		} as XiriCardSettings
 	}, {
 		type: 'test',
 		data: '123 test out'

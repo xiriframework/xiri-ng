@@ -9,7 +9,7 @@ export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'li
 export interface XiriDynData {
 	id?: number
 	type: XiriDynDataType | ( string & {} )
-	data?: any
+	data?: unknown
 	display?: string
 	newRow?: boolean
 	mode?: string

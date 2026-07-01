@@ -4,7 +4,7 @@ import { XiriSessionStorageService } from './sessionStorage.service';
 
 describe( 'XiriSessionStorageService', () => {
 	let service: XiriSessionStorageService;
-	let mockSessionStorage: { [key: string]: string };
+	let mockSessionStorage: Record<string, string>;
 
 	let getItemSpy: ReturnType<typeof vi.fn>;
 	let setItemSpy: ReturnType<typeof vi.fn>;
@@ -91,9 +91,9 @@ describe( 'XiriSessionStorageService', () => {
 		it( 'should persist to sessionStorage', () => {
 			service.set( 'persist', 'value' );
 			expect( setItemSpy ).toHaveBeenCalled();
-			const call = setItemSpy.mock.calls.find( ( c: any[] ) => c[0] === 'persist' );
+			const call = setItemSpy.mock.calls.find( ( c: unknown[] ) => c[0] === 'persist' );
 			expect( call ).toBeTruthy();
-			const parsed = JSON.parse( call![1] );
+			const parsed = JSON.parse( call![1] as string );
 			expect( parsed.value ).toBe( 'value' );
 			expect( parsed.time ).toBeDefined();
 		} );

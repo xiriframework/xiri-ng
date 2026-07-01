@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { of, Subject, throwError } from 'rxjs';
-import { XiriTableComponent, XiriTableSettings } from './table.component';
+import { XiriTableComponent, XiriTableRow, XiriTableSettings } from './table.component';
+import { XiriButton } from '../button/button.component';
+import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
@@ -12,9 +15,29 @@ import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
+// Narrow view onto the component's private members the tests reach into.
+interface TableInternals {
+	_displayeddata: XiriTableRow[];
+	callReturn( result: unknown ): void;
+	getSortingDataAccessor(): ( data: XiriTableRow, sortHeaderId: string ) => string | number;
+	dialogRef?: { close( value: unknown ): void };
+	_changeDetectorRef: ChangeDetectorRef;
+}
+
+function internals( component: XiriTableComponent ): TableInternals {
+	return component as unknown as TableInternals;
+}
+
+// A table-response callbacks bag (matches XiriResponseHandlerService.handle's second arg).
+interface ResponseCallbacks {
+	onTableRefresh?: () => void;
+	onTableUpdate?: ( id: unknown, field: string, content: unknown ) => void;
+}
+
 @Component( {
 	selector: 'xiri-table-test-host',
 	template: `<xiri-table [settings]="settings()" />`,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [ XiriTableComponent ],
 } )
 class TestHostComponent {
@@ -250,7 +273,7 @@ describe( 'XiriTableComponent', () => {
 				initialized: new Subject(),
 				pageIndex: 0,
 				pageSize: 50,
-			} as any;
+			} as unknown as MatPaginator;
 			component.searchDo( 'test' );
 			expect( firstPageSpy ).toHaveBeenCalled();
 		} );
@@ -272,7 +295,7 @@ describe( 'XiriTableComponent', () => {
 			} );
 
 			// Simulate _displayeddata (normally set by dataSource.connect)
-			( component as any )._displayeddata = component.dataSource.data;
+			internals( component )._displayeddata = component.dataSource.data;
 
 			component.masterToggle();
 			expect( component.selection.selected.length ).toBe( 2 );
@@ -290,7 +313,7 @@ describe( 'XiriTableComponent', () => {
 				],
 				options: { select: true },
 			} );
-			( component as any )._displayeddata = component.dataSource.data;
+			internals( component )._displayeddata = component.dataSource.data;
 
 			component.masterToggle();
 			expect( component.selection.selected.length ).toBe( 1 );
@@ -302,7 +325,7 @@ describe( 'XiriTableComponent', () => {
 				data: [ { id: 1, name: 'A' }, { id: 2, name: 'B' } ],
 				options: { select: true },
 			} );
-			( component as any )._displayeddata = component.dataSource.data;
+			internals( component )._displayeddata = component.dataSource.data;
 
 			expect( component.isAllSelected() ).toBe( false );
 			component.masterToggle();
@@ -372,7 +395,7 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Test' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			expect( component.editingCell() ).toBeNull();
 		} );
 
@@ -381,7 +404,7 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = undefined;
 			const row = { id: 1, name: 'Test' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			expect( component.editingCell() ).toBeNull();
 		} );
 
@@ -390,7 +413,7 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Test' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			expect( component.editingCell() ).toEqual( { row, field: 'name' } );
 		} );
 
@@ -399,7 +422,7 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Original' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			row.name = 'Changed';
 			component.cancelInlineEdit();
 
@@ -412,7 +435,7 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Test' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			expect( component.isEditing( row, 'name' ) ).toBe( true );
 			expect( component.isEditing( row, 'other' ) ).toBe( false );
 		} );
@@ -430,11 +453,11 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Original' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			row.name = 'Updated';
 
 			mockDataService.post.mockReturnValue( of( {} ) );
-			component.saveInlineEdit( row, column as any );
+			component.saveInlineEdit( row, column as XiriTableField );
 
 			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', {
 				id: 1,
@@ -448,9 +471,9 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Same' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			// Don't change the value
-			component.saveInlineEdit( row, column as any );
+			component.saveInlineEdit( row, column as XiriTableField );
 
 			expect( mockDataService.post ).not.toHaveBeenCalledWith( '/edit', expect.anything() );
 		} );
@@ -460,13 +483,13 @@ describe( 'XiriTableComponent', () => {
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Original' };
 
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			row.name = 'Changed';
 
 			mockDataService.post.mockReturnValue(
 				throwError( () => ( { error: { error: 'Save failed' } } ) )
 			);
-			component.saveInlineEdit( row, column as any );
+			component.saveInlineEdit( row, column as XiriTableField );
 
 			expect( row.name ).toBe( 'Original' );
 			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Save failed' );
@@ -484,7 +507,7 @@ describe( 'XiriTableComponent', () => {
 			const options = [ { value: 'a', label: 'Active' }, { value: 'i', label: 'Inactive' } ];
 
 			mockDataService.get.mockReturnValue( of( options ) );
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 
 			// Synchronous observable completes immediately, so loading is already false
 			expect( component.editableOptionsLoading() ).toBe( false );
@@ -505,7 +528,7 @@ describe( 'XiriTableComponent', () => {
 			mockDataService.get.mockReturnValue(
 				throwError( () => ( { error: 'fail' } ) )
 			);
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 
 			expect( component.editingCell() ).toBeNull();
 			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Optionen konnten nicht geladen werden' );
@@ -515,13 +538,13 @@ describe( 'XiriTableComponent', () => {
 			const column = { id: 'name', name: 'Name', editable: true };
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Orig' };
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 			row.name = 'New';
 
 			mockDataService.post.mockReturnValue( of( {} ) );
 			const event = new KeyboardEvent( 'keydown', { key: 'Enter' } );
 			vi.spyOn( event, 'preventDefault' );
-			component.onInlineEditKeydown( event, row, column as any );
+			component.onInlineEditKeydown( event, row, column as XiriTableField );
 
 			expect( event.preventDefault ).toHaveBeenCalled();
 		} );
@@ -530,11 +553,11 @@ describe( 'XiriTableComponent', () => {
 			const column = { id: 'name', name: 'Name', editable: true };
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Orig' };
-			component.startInlineEdit( row, column as any );
+			component.startInlineEdit( row, column as XiriTableField );
 
 			const event = new KeyboardEvent( 'keydown', { key: 'Escape' } );
 			vi.spyOn( event, 'preventDefault' );
-			component.onInlineEditKeydown( event, row, column as any );
+			component.onInlineEditKeydown( event, row, column as XiriTableField );
 
 			expect( event.preventDefault ).toHaveBeenCalled();
 			expect( component.editingCell() ).toBeNull();
@@ -544,14 +567,14 @@ describe( 'XiriTableComponent', () => {
 	describe( 'getEditableOptions', () => {
 		it( 'should return column editableOptions if available', () => {
 			const opts = [ { value: 'a', label: 'A' } ];
-			const column = { id: 'x', name: 'X', editableOptions: opts } as any;
+			const column = { id: 'x', name: 'X', editableOptions: opts } as XiriTableField;
 			expect( component.getEditableOptions( column ) ).toBe( opts );
 		} );
 
 		it( 'should fall back to loadedEditableOptions signal', () => {
 			const loaded = [ { value: 'b', label: 'B' } ];
 			component.loadedEditableOptions.set( loaded );
-			const column = { id: 'x', name: 'X' } as any;
+			const column = { id: 'x', name: 'X' } as XiriTableField;
 			expect( component.getEditableOptions( column ) ).toEqual( loaded );
 		} );
 	} );
@@ -559,7 +582,7 @@ describe( 'XiriTableComponent', () => {
 	describe( 'chips editing', () => {
 		it( 'should update chips values on selection change', () => {
 			const opts = [ { value: 'v1', label: 'L1', color: 'red' } ];
-			const column = { id: 'tags', name: 'Tags', editable: true, editableOptions: opts } as any;
+			const column = { id: 'tags', name: 'Tags', editable: true, editableOptions: opts } as XiriTableField;
 			const row = { id: 1, tags: [] };
 
 			component.onChipsSelectionChange( row, column, [ 'v1' ] );
@@ -572,7 +595,7 @@ describe( 'XiriTableComponent', () => {
 	describe( 'callReturn behavior', () => {
 		it( 'should delegate to responseHandler.handle', () => {
 			const result = { page: 'refresh' };
-			( component as any ).callReturn( result );
+			internals( component ).callReturn( result );
 			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( result, expect.objectContaining( {
 				onTableRefresh: expect.any( Function ),
 				onTableUpdate: expect.any( Function ),
@@ -580,57 +603,57 @@ describe( 'XiriTableComponent', () => {
 		} );
 
 		it( 'should not fail on null result', () => {
-			expect( () => ( component as any ).callReturn( null ) ).not.toThrow();
+			expect( () => internals( component ).callReturn( null ) ).not.toThrow();
 		} );
 
 		it( 'should not fail on undefined result', () => {
-			expect( () => ( component as any ).callReturn( undefined ) ).not.toThrow();
+			expect( () => internals( component ).callReturn( undefined ) ).not.toThrow();
 		} );
 
 		it( 'should update table row via onTableUpdate callback', () => {
 			component.dataSource.data = [ { id: 5, name: 'Old' } ];
-			mockResponseHandler.handle.mockImplementation( ( _result: any, callbacks: any ) => {
+			mockResponseHandler.handle.mockImplementation( ( _result: unknown, callbacks?: ResponseCallbacks ) => {
 				callbacks?.onTableUpdate?.( 5, 'name', 'New' );
 			} );
-			( component as any ).callReturn( { table: 'update', id: 5, field: 'name', content: 'New' } );
+			internals( component ).callReturn( { table: 'update', id: 5, field: 'name', content: 'New' } );
 			expect( component.dataSource.data[ 0 ].name ).toBe( 'New' );
 		} );
 	} );
 
 	describe( 'buttonReturn', () => {
 		it( 'should do nothing when event.done is false', () => {
-			component.buttonReturn( { done: false, result: { page: 'refresh' }, button: {} as any, loading: false } );
+			component.buttonReturn( { done: false, result: { page: 'refresh' }, button: {} as XiriButton, loading: false } );
 			expect( mockResponseHandler.handle ).not.toHaveBeenCalled();
 		} );
 
 		it( 'should call callReturn when event.done is true', () => {
 			const result = { goto: '/page' };
-			component.buttonReturn( { done: true, result, button: {} as any, loading: false } );
+			component.buttonReturn( { done: true, result, button: {} as XiriButton, loading: false } );
 			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( result, expect.anything() );
 		} );
 	} );
 
 	describe( 'saveCallCheck', () => {
 		it( 'should return true when all checked fields have values', () => {
-			const button = { check: [ 'name', 'age' ] } as any;
+			const button = { check: [ 'name', 'age' ] } as unknown as XiriButton;
 			const row = { name: 'Test', age: 5 };
 			expect( component.saveCallCheck( button, row ) ).toBe( true );
 		} );
 
 		it( 'should return false when a checked field is empty', () => {
-			const button = { check: [ 'name' ] } as any;
+			const button = { check: [ 'name' ] } as unknown as XiriButton;
 			const row = { name: '' };
 			expect( component.saveCallCheck( button, row ) ).toBe( false );
 		} );
 
 		it( 'should return false when a checked field is null', () => {
-			const button = { check: [ 'name' ] } as any;
+			const button = { check: [ 'name' ] } as unknown as XiriButton;
 			const row = { name: null };
 			expect( component.saveCallCheck( button, row ) ).toBe( false );
 		} );
 
 		it( 'should return false when a checked field is undefined', () => {
-			const button = { check: [ 'name' ] } as any;
+			const button = { check: [ 'name' ] } as unknown as XiriButton;
 			const row = { name: undefined };
 			expect( component.saveCallCheck( button, row ) ).toBe( false );
 		} );
@@ -638,14 +661,14 @@ describe( 'XiriTableComponent', () => {
 
 	describe( 'sorting data accessor', () => {
 		it( 'should return raw value for non-number columns', () => {
-			const accessor = ( component as any ).getSortingDataAccessor();
-			component.displayedColumns = [ { id: 'name', name: 'Name' } as any ];
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'name', name: 'Name' } as XiriTableField ];
 			expect( accessor( { name: 'Alice' }, 'name' ) ).toBe( 'Alice' );
 		} );
 
 		it( 'should return index 1 for number format columns', () => {
-			const accessor = ( component as any ).getSortingDataAccessor();
-			component.displayedColumns = [ { id: 'val', name: 'Val', format: 'number' } as any ];
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'val', name: 'Val', format: 'number' } as XiriTableField ];
 			expect( accessor( { val: [ 'display', 42 ] }, 'val' ) ).toBe( 42 );
 		} );
 	} );
@@ -653,7 +676,7 @@ describe( 'XiriTableComponent', () => {
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();
-			( component as any ).dialogRef = { close: closeSpy };
+			internals( component ).dialogRef = { close: closeSpy };
 			component.ngOnDestroy();
 			expect( closeSpy ).toHaveBeenCalledWith( null );
 		} );
@@ -661,8 +684,8 @@ describe( 'XiriTableComponent', () => {
 
 	describe( 'pasteInput', () => {
 		it( 'should return false when inputPaste is not true', () => {
-			const column = { id: 'name', name: 'Name', inputPaste: false } as any;
-			const event = { clipboardData: { getData: vi.fn().mockReturnValue( '' ) } };
+			const column = { id: 'name', name: 'Name', inputPaste: false } as XiriTableField;
+			const event = { clipboardData: { getData: vi.fn().mockReturnValue( '' ) } } as unknown as ClipboardEvent;
 			expect( component.pasteInput( event, {}, column ) ).toBe( false );
 		} );
 	} );
@@ -686,7 +709,7 @@ describe( 'XiriTableComponent', () => {
 
 		it( 'should assign fallback id to field without id', () => {
 			createFixture( {
-				fields: [ { id: undefined as any, name: 'NoId' } ],
+				fields: [ { id: undefined as unknown as string, name: 'NoId' } ],
 				data: [],
 			} );
 
@@ -723,7 +746,7 @@ describe( 'XiriTableComponent', () => {
 
 			createFixture( { url: 'test/data' } );
 
-			const cdr = ( component as any )._changeDetectorRef as ChangeDetectorRef;
+			const cdr = internals( component )._changeDetectorRef;
 			const spy = vi.spyOn( cdr, 'markForCheck' );
 
 			// Trigger reload which calls loadData → POST → success → markForCheck
@@ -738,7 +761,7 @@ describe( 'XiriTableComponent', () => {
 
 			createFixture( { url: 'test/data' } );
 
-			const cdr = ( component as any )._changeDetectorRef as ChangeDetectorRef;
+			const cdr = internals( component )._changeDetectorRef;
 			const spy = vi.spyOn( cdr, 'markForCheck' );
 
 			mockDataService.post.mockReturnValue(
@@ -754,7 +777,7 @@ describe( 'XiriTableComponent', () => {
 
 			createFixture( { url: 'test/data' } );
 
-			const cdr = ( component as any )._changeDetectorRef as ChangeDetectorRef;
+			const cdr = internals( component )._changeDetectorRef;
 			const spy = vi.spyOn( cdr, 'markForCheck' );
 
 			mockDataService.post.mockReturnValue( of( null ) );

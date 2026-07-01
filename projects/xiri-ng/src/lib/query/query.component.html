@@ -25,7 +25,7 @@
 	</div>
 	@if (settings().buttonline) {
 		<div class="xcol formbtnline" [class]="settings().buttonline.display">
-			<xiri-buttonline [settings]="settings().buttonline.data" [filterData]="filterData()" [disabled]="!formValid()"
+			<xiri-buttonline [settings]="$any(settings().buttonline.data)" [filterData]="filterData()" [disabled]="!formValid()"
 			                 (result)="clickedButton($event)"></xiri-buttonline>
 		</div>
 		@if (loading()) {

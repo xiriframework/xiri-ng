@@ -54,8 +54,8 @@ export class XiriLinksComponent implements OnDestroy {
 	private dialog = inject( MatDialog );
 	private router = inject( Router );
 	
-	private dialogRef?: MatDialogRef<any>;
-	
+	private dialogRef?: MatDialogRef<unknown>;
+
 	ngOnDestroy(): void {
 		if ( this.dialogRef )
 			this.dialogRef.close( null );
@@ -72,7 +72,7 @@ export class XiriLinksComponent implements OnDestroy {
 			data: data,
 		} );
 		
-		this.dialogRef.afterClosed().subscribe( ( result: any ) => {
+		this.dialogRef.afterClosed().subscribe( ( result: { page?: string; refresh?: string } | null ) => {
 			if ( !result )
 				return;
 			if ( result.page == 'refresh' || result.refresh == 'page' )

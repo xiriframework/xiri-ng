@@ -23,6 +23,7 @@ import { XiriButtonstyleComponent } from '../buttonstyle/buttonstyle.component';
 import { XiriErrorComponent } from '../error/error.component';
 import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface XiriStepperSettings {
 	url?: string
@@ -33,9 +34,26 @@ export interface XiriStepperStep {
 	url?: string
 	title: string
 	fields: XiriFormField[]
-	data?: any
-	extra?: any
+	data?: Record<string, unknown>
+	extra?: Record<string, unknown>
 	buttons: XiriButton[]
+}
+
+// Event emitted by xiri-form-fields (carries the underlying FormGroup, exposing valid/value/pristine).
+export interface XiriStepperFormChangeEvent {
+	valid: boolean
+	value: Record<string, unknown> | null
+	pristine?: boolean
+}
+
+// Backend response to a step check (next step definition, step jump or final goto).
+export interface XiriStepperResponse {
+	step?: number
+	fields?: XiriFormField[]
+	buttons?: XiriButton[]
+	url?: string
+	goto?: string
+	[ key: string ]: unknown
 }
 
 interface StepState {
@@ -49,8 +67,8 @@ interface StepState {
 	errorMsg: WritableSignal<string | null>
 	fields: WritableSignal<XiriFormField[]>
 	buttons: WritableSignal<XiriButton[]>
-	data?: any
-	extra?: any
+	data?: Record<string, unknown>
+	extra?: Record<string, unknown>
 }
 
 
@@ -117,10 +135,10 @@ export class XiriStepperComponent implements OnInit {
 		}
 	}
 
-	formChanged( step: StepState, event: any, i: number ) {
+	formChanged( step: StepState, event: XiriStepperFormChangeEvent, i: number ) {
 
 		if ( event.valid )
-			step.data = event.value;
+			step.data = event.value as Record<string, unknown>;
 		if ( !event.pristine ) {
 			step.completed.set( false );
 			const steps = this.steps();
@@ -189,7 +207,7 @@ export class XiriStepperComponent implements OnInit {
 
 		const x = this.sendStep( current ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
-				next: ( res: any ) => {
+				next: ( res: XiriStepperResponse | null ) => {
 
 					if ( res == null ) {
 						this.showError( stepCurrent, null );
@@ -240,7 +258,7 @@ export class XiriStepperComponent implements OnInit {
 		this.calls.push( x );
 	}
 
-	private showError( stepCurrent: StepState, err: any ) {
+	private showError( stepCurrent: StepState, err: HttpErrorResponse | null ) {
 
 		if ( err == null )
 			stepCurrent.errorMsg.set( 'Unknown error' );
@@ -255,9 +273,9 @@ export class XiriStepperComponent implements OnInit {
 		stepCurrent.completed.set( false );
 	}
 
-	private sendStep( i: number ): Observable<any> {
+	private sendStep( i: number ): Observable<XiriStepperResponse | null> {
 		const steps = this.steps();
-		let data = {};
+		let data: Record<string, unknown> = {};
 		const step = steps[ i ];
 
 		for ( let x = 0; x <= i; x++ )
@@ -267,7 +285,7 @@ export class XiriStepperComponent implements OnInit {
 			data = { ...data, ...step.extra };
 
 		const url = step.url ? step.url : this.settings().url;
-		return this.dataService.post( url, data );
+		return this.dataService.post( url, data ) as Observable<XiriStepperResponse | null>;
 	}
 
 }

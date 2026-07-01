@@ -1,7 +1,7 @@
 <ng-container [formGroup]="parts">
 	<input matInput formControlName="date" class="date" [required]="required" [min]="minDate" [max]="maxDate" [matDatepicker]="picker">
 
-	@if (type == 'datetime') {
+	@if (type === 'datetime') {
 		<mat-select formControlName="hour" class="time" [required]="required">
 			@for (h of hours; track h; let i = $index) {
 				<mat-option [value]="i">{{ h }}</mat-option>
