@@ -3,7 +3,7 @@ import {
 	inject,
 	Input,
 	OnInit,
-	ViewChild,
+	viewChild
 } from '@angular/core';
 import {
 	ControlValueAccessor,
@@ -72,7 +72,7 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 
 	dateControl = new FormControl<Date | null>( null );
 
-	@ViewChild( 'picker' ) picker?: MatDatepicker<Date>;
+	readonly picker = viewChild<MatDatepicker<Date>>('picker');
 
 	private _lastValue: number | null = null;
 	public type = 'yearmonth';
@@ -147,7 +147,7 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 	onYearMonthSelected( date: Date ): void {
 		const normalized = new Date( date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0 );
 		this.dateControl.setValue( normalized );
-		this.picker?.close();
+		this.picker()?.close();
 	}
 
 	private runCheck(): void {

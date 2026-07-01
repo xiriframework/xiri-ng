@@ -10,7 +10,8 @@ import {
 	OnDestroy,
 	OnInit,
 	output,
-	signal
+	signal,
+	input
 } from "@angular/core";
 import {
 	AbstractControl,
@@ -136,10 +137,7 @@ export abstract class XiriFieldMain<T = unknown>
 	protected _id: string;
 
 
-	@Input( {
-		        transform: ( value: unknown ) => ( value == null ? 0 : numberAttribute( value ) ),
-	        } )
-	tabIndex = 0;
+	readonly tabIndex = input(0, { transform: (value: unknown) => (value == null ? 0 : numberAttribute(value)) });
 
 
 	@Input()
@@ -272,10 +270,10 @@ export abstract class XiriFieldMain<T = unknown>
 		this.stateChanges.next();
 	}
 
-	@Input( 'aria-describedby' ) ariaDescribedby: string;
+	readonly ariaDescribedby = input<string>(undefined, { alias: "aria-describedby" });
 
 	get userAriaDescribedBy(): string {
-		return this.ariaDescribedby;
+		return this.ariaDescribedby();
 	}
 
 }
