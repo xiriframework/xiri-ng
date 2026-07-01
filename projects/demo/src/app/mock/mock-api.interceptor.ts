@@ -547,7 +547,7 @@ function getQueryPage(): any {
 						data: {
 							class: 'center',
 							buttons: [
-								{ text: 'Test', type: 'raised', action: 'api', url: 'Test/Query/Table', color: 'primary' }
+								{ text: 'Test', type: 'raised', action: 'api', url: 'Test/Query/Table', color: 'primary', autoLoad: true }
 							]
 						}
 					}

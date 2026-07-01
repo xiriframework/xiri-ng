@@ -497,4 +497,54 @@ describe('XiriButtonComponent', () => {
 			expect(fixture.nativeElement.querySelector('xiri-buttonstyle button')?.textContent?.trim()).toContain('Start');
 		});
 	});
+
+	describe('auto-load', () => {
+		it('should auto-trigger the api action once on load when autoLoad is true', () => {
+			mockDataService.post.mockReturnValue(of({}));
+			host.filterData.set({ x: 1 });
+			host.btn.set(makeButton({ action: 'api', url: '/auto', autoLoad: true }));
+			fixture.detectChanges();
+
+			expect(mockDataService.post).toHaveBeenCalledTimes(1);
+			expect(mockDataService.post).toHaveBeenCalledWith('/auto', { x: 1 });
+		});
+
+		it('should not auto-trigger when autoLoad is not set', () => {
+			mockDataService.post.mockReturnValue(of({}));
+			host.filterData.set({ x: 1 });
+			host.btn.set(makeButton({ action: 'api', url: '/manual' }));
+			fixture.detectChanges();
+
+			expect(mockDataService.post).not.toHaveBeenCalled();
+		});
+
+		it('should auto-trigger only once even when filterData changes afterwards', () => {
+			mockDataService.post.mockReturnValue(of({}));
+			host.filterData.set({ x: 1 });
+			host.btn.set(makeButton({ action: 'api', url: '/auto', autoLoad: true }));
+			fixture.detectChanges();
+
+			host.filterData.set({ x: 2 });
+			fixture.detectChanges();
+			host.filterData.set({ x: 3 });
+			fixture.detectChanges();
+
+			expect(mockDataService.post).toHaveBeenCalledTimes(1);
+		});
+
+		it('should defer auto-trigger while disabled (filterData null) and fire once enabled', () => {
+			mockDataService.post.mockReturnValue(of({}));
+			host.filterData.set(null);
+			host.btn.set(makeButton({ action: 'api', url: '/auto', autoLoad: true }));
+			fixture.detectChanges();
+
+			expect(mockDataService.post).not.toHaveBeenCalled();
+
+			host.filterData.set({ x: 1 });
+			fixture.detectChanges();
+
+			expect(mockDataService.post).toHaveBeenCalledTimes(1);
+			expect(mockDataService.post).toHaveBeenCalledWith('/auto', { x: 1 });
+		});
+	});
 });

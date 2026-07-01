@@ -208,6 +208,8 @@ Keine Pagination, kein Sort, keine API — nur Daten rendern.
 
 Debounce 300ms, ergebnis unter dem Filter als `XiriDynData[]`.
 
+**Auto-Load beim Öffnen:** Mit gesetzter `url` lädt die Query automatisch beim ersten gültigen Filter-Zustand. Nutzt der Filter stattdessen einen `buttonline`-Button zum Nachladen, setze `autoLoad: true` an diesem Button (`action:'api'`) → er feuert einmalig automatisch beim Laden, sobald der Filter gültig ist (siehe xiri-button unten).
+
 ## xiri-dialog — Modal-Dialog
 
 ```typescript
@@ -250,6 +252,8 @@ buttons: XiriButton[] = [
 **Selbst-pollender Button + Button-Patch:** Enthält die Antwort (api oder Dialog) `poll` (ms) + `pollUrl`, pollt der Button selbsttätig den Status und zeigt Spinner/Countdown bzw. `text` im Button, bis eine Antwort ohne `poll` kommt. Jede Antwort darf zudem ein `button`-Objekt (`text/color/icon/type/hint/disabled`) mitschicken, das den Button verändert (z. B. am Ende „Erledigt ✓"/grün/disabled). Backend: `response.NewReturnPoll(...).WithText(...).WithButton(...)`. Details: `references/components.md`.
 
 `data?: Record<string, any>` — Custom-Payload, das beim Klick mit `filterData` gemerged in den POST-Body geht (für `action: 'api'` / `'download'`). Der Backend-Builder (`xiri-go`) setzt das via `button.WithData(...)`. Beispiel: CSV-Download-Button hat `data: { _csv: true }`, das Backend liest das Flag in `LoadFilterData` und schaltet auf CSV-Output.
+
+`autoLoad?: boolean` — löst die Button-Aktion **einmalig automatisch beim Laden** aus, sobald der Button nicht mehr disabled ist (`filterData !== null` und nicht via `disabled` gesperrt). Für Filter mit „Suchen"-Button, dessen Ergebnis ohne initialen Klick erscheinen soll. Backend: `button.WithAutoLoad(true)`. Details: `references/components.md`.
 
 ## xiri-stepper — Multi-Step Wizard
 

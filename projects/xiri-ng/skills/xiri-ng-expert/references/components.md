@@ -195,6 +195,8 @@ interface XiriButtonResult {
 
 **Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
 
+**Auto-Load (`button.autoLoad`):** Mit `autoLoad: true` löst der Button seine Aktion **einmalig automatisch beim Laden** aus, sobald er nicht mehr disabled ist — d. h. `filterData !== null` **und** nicht via `disabled` gesperrt (in einer `xiri-query` bindet die Query `disabled = !formValid`, also feuert es erst bei gültigem Filter). Typischer Fall: ein Filter mit „Suchen"-Button (`action:'api'`), dessen Ergebnisse ohne initialen Klick erscheinen sollen. Feuert **genau einmal** (One-shot, per `effect` intern); spätere `filterData`-Änderungen lösen kein erneutes Auto-Load aus — dann klickt der Nutzer wie gewohnt. Backend-Setter: `button.WithAutoLoad(true)` (siehe xiri-go-expert). Alternative ohne Button: `XiriQuerySettings.url` setzen → die Query lädt selbst automatisch beim ersten gültigen Filter-Zustand.
+
 JSON-Beispiele:
 ```json
 // läuft (vom Status-Endpoint, vom Button gepollt):
@@ -251,6 +253,7 @@ interface XiriButton {
   tabIndex?: number;
   inline?: boolean;
   disabled?: boolean;
+  autoLoad?: boolean;   // Aktion einmalig automatisch beim Laden auslösen (siehe unten)
 
   data?: any;
   target?: string;

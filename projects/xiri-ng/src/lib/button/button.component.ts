@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnDestroy, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, OnDestroy, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriColor } from '../types/color.type';
@@ -33,7 +33,10 @@ export interface XiriButton {
 	tabIndex?: number
 	inline?: boolean
 	disabled?: boolean
-	
+	// When true, the button triggers its action automatically once on load,
+	// as soon as it is no longer disabled (i.e. filter is valid/present).
+	autoLoad?: boolean
+
 	data?: Record<string, any>
 	target?: string
 	loading?: boolean
@@ -81,6 +84,8 @@ export class XiriButtonComponent implements OnDestroy {
 	private dialogRef?: MatDialogRef<any> = undefined;
 	private destroyRef = inject( DestroyRef );
 	protected loading = signal<boolean>( false );
+	// Guards the one-shot auto-load trigger (see constructor) so it fires only once.
+	private _autoTriggered = false;
 
 	// Self-polling: when a processed response (api result or dialog afterClosed) contains a
 	// "poll" interval (ms), the button keeps GET-polling "pollUrl" until a response without
@@ -130,11 +135,27 @@ export class XiriButtonComponent implements OnDestroy {
 			return this.url();
 		return this.displayButton().url;
 	} );
-	
+
+	constructor() {
+		// Auto-load: when the button opts in via autoLoad, run its action once as soon
+		// as it becomes enabled (filter valid/present). Subsequent filter changes do not
+		// re-trigger it — only the initial load is automatic.
+		effect( () => {
+			this.filterData(); // track filter changes so the effect re-evaluates
+			if ( this.button().autoLoad && !this._autoTriggered && !this._disabled() ) {
+				this._autoTriggered = true;
+				this.runAction();
+			}
+		} );
+	}
+
 	clicked( event: MouseEvent ) {
-		
 		event.stopPropagation();
-		
+		this.runAction();
+	}
+
+	private runAction() {
+
 		if ( this._disabled() ) {
 			this.result.emit( {
 				                  button: this.button(),
