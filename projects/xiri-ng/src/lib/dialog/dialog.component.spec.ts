@@ -8,7 +8,6 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriDownloadService } from '../services/download.service';
 import { Router } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe( 'XiriDialogComponent', () => {
 	let fixture: ComponentFixture<XiriDialogComponent>;
@@ -55,7 +54,7 @@ describe( 'XiriDialogComponent', () => {
 	function createComponent( initData: Record<string, unknown> ) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
-			imports: [ XiriDialogComponent, NoopAnimationsModule ],
+			imports: [ XiriDialogComponent ],
 			providers: [
 				{ provide: MatDialogRef, useValue: mockDialogRef },
 				{ provide: MAT_DIALOG_DATA, useValue: initData },

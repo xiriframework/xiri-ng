@@ -8,7 +8,6 @@ import { provideHttpClient, withFetch, withInterceptors } from "@angular/common/
 import { mockApiInterceptor } from "./app/mock/mock-api.interceptor";
 import { LayoutModule } from "@angular/cdk/layout";
 import { provideRouter, withRouterConfig } from "@angular/router";
-import { provideAnimationsAsync } from "@angular/platform-browser/animations/async";
 
 
 bootstrapApplication( AppComponent, {
@@ -18,7 +17,6 @@ bootstrapApplication( AppComponent, {
 			LayoutModule
 		),
 		provideDateFnsAdapter(),
-		provideAnimationsAsync(),
 		provideHttpClient( withFetch(), withInterceptors( [ mockApiInterceptor ] ) ),
 		provideXiriServices( { api: '/api/' } ),
 		provideRouter( AppRoutes, withRouterConfig( { onSameUrlNavigation: 'reload' } ) )

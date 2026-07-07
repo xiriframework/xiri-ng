@@ -3,7 +3,6 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { XiriRawTableComponent, XiriRawTableSettings } from './xiri-raw-table.component';
 import { XiriNumberService } from '../services/number.service';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component( {
 	selector: 'xiri-raw-table-test-host',
@@ -34,7 +33,7 @@ describe( 'XiriRawTableComponent', () => {
 		mockNumberService = { formatNumber: vi.fn().mockReturnValue( '0' ) };
 
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriNumberService, useValue: mockNumberService },
 			],

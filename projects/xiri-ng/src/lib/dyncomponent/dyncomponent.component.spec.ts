@@ -3,7 +3,6 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { XiriDynComponentComponent } from './dyncomponent.component';
 import { XiriDynData } from './dyndata.interface';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
@@ -29,7 +28,7 @@ describe( 'XiriDynComponentComponent', () => {
 
 	beforeEach( () => {
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriDataService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ), postDownload: vi.fn() } },
 				{ provide: XiriFormService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), parse: vi.fn().mockReturnValue( {} ), loadState: vi.fn().mockImplementation( ( _: unknown, f: unknown ) => f ), saveState: vi.fn() } },

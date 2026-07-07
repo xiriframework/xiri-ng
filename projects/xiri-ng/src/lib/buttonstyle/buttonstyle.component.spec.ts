@@ -3,7 +3,6 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriButtonstyleComponent } from './buttonstyle.component';
 import { XiriButton } from '../button/button.component';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 	return {
@@ -31,7 +30,7 @@ describe('XiriButtonstyleComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 		}).compileComponents();
 		fixture = TestBed.createComponent(TestHostComponent);
 		host = fixture.componentInstance;

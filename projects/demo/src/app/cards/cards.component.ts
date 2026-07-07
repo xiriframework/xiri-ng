@@ -187,12 +187,12 @@ export class CardsComponent {
 
 	public card = {
 		"header": "Admin",
-		"headerSub": null,
+		"headerSub": undefined,
 		"headerIcon": "admin_panel_settings",
-		"headerIconColor": null,
+		"headerIconColor": undefined,
 		"type": "table",
-		"buttonsBottom": null,
-		"buttonsTop": null,
+		"buttonsBottom": undefined,
+		"buttonsTop": undefined,
 		"forceMinWidth": true,
 		"fields": [
 			{

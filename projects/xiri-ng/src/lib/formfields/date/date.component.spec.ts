@@ -3,7 +3,6 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { de } from 'date-fns/locale/de';
@@ -39,7 +38,7 @@ describe( 'XiriDateComponent', () => {
 		dateComponent: XiriDateComponent;
 	} {
 		TestBed.configureTestingModule( {
-			imports:   [ HostComponent, NoopAnimationsModule, MatFormFieldModule ],
+			imports:   [ HostComponent, MatFormFieldModule ],
 			providers: [
 				{ provide: MAT_DATE_LOCALE, useValue: locale === 'de' ? de : enUS },
 				...provideDateFnsAdapter(),

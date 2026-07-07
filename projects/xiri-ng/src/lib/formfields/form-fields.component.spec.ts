@@ -5,7 +5,6 @@ import { of, Subject } from 'rxjs';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
 import { UntypedFormGroup } from '@angular/forms';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { XiriDataServiceConfig } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { HttpClient } from '@angular/common/http';
@@ -43,7 +42,7 @@ describe( 'XiriFormFieldsComponent', () => {
 
 	beforeEach( () => {
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriDataServiceConfig, useValue: { api: '/api/' } },
 				{ provide: HttpClient, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) } },

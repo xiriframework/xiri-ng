@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriTabsComponent, XiriTabsSettings, XiriTabSettings } from './tabs.component';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 let tabCounter = 0;
 function makeTab(overrides: Partial<XiriTabSettings> = {}): XiriTabSettings {
@@ -29,7 +28,7 @@ describe('XiriTabsComponent', () => {
 	beforeEach(async () => {
 		tabCounter = 0;
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 		}).compileComponents();
 		fixture = TestBed.createComponent(TestHostComponent);
 		host = fixture.componentInstance;

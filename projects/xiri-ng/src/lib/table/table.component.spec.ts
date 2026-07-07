@@ -13,7 +13,6 @@ import { XiriNumberService } from '../services/number.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 // Narrow view onto the component's private members the tests reach into.
 interface TableInternals {
@@ -91,7 +90,7 @@ describe( 'XiriTableComponent', () => {
 		fixture?.destroy();
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: mockDataService },

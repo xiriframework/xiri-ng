@@ -213,8 +213,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	public isSmall = false;
 	public opened = false;
-	private sub: Subscription = null;
-	private subSidebar: Subscription = null;
+	private sub: Subscription | null = null;
+	private subSidebar: Subscription | null = null;
 
 	constructor() {
 

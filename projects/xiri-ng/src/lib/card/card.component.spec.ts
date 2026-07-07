@@ -7,7 +7,6 @@ import { XiriDownloadService } from '../services/download.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { of, throwError, Subject } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -30,7 +29,7 @@ describe('XiriCardComponent', () => {
 		};
 
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: XiriDownloadService, useValue: { download: vi.fn() } },

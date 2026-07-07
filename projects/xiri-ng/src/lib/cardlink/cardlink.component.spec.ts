@@ -3,7 +3,6 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriCardlinkComponent, XiriCardlinkSettings } from './cardlink.component';
 import { ActivatedRoute } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
 	selector: 'test-host',
@@ -20,7 +19,7 @@ describe('XiriCardlinkComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: ActivatedRoute, useValue: {} },
 			],

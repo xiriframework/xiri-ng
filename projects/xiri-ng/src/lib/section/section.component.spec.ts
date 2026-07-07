@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, input, OnInit } from '@angular/core';
 import { XiriSectionSettings } from './section.component';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
 
@@ -81,7 +80,7 @@ describe('XiriSectionComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 		}).compileComponents();
 		fixture = TestBed.createComponent(TestHostComponent);
 		host = fixture.componentInstance;

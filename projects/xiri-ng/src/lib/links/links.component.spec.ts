@@ -6,7 +6,6 @@ import { XiriButton } from '../button/button.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 function makeLink(overrides: Partial<XiriButton> = {}): XiriButton {
 	return {
@@ -39,7 +38,7 @@ describe('XiriLinksComponent', () => {
 		mockRouter = { navigate: vi.fn().mockReturnValue(Promise.resolve(true)), url: '/current' };
 
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: MatDialog, useValue: mockDialog },
 				{ provide: Router, useValue: mockRouter },

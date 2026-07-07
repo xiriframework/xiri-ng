@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriExpansionComponent, XiriExpansionSettings, XiriExpansionPanelSettings } from './expansion.component';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 let panelCounter = 0;
 function makePanel(overrides: Partial<XiriExpansionPanelSettings> = {}): XiriExpansionPanelSettings {
@@ -29,7 +28,7 @@ describe('XiriExpansionComponent', () => {
 	beforeEach(async () => {
 		panelCounter = 0;
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 		}).compileComponents();
 		fixture = TestBed.createComponent(TestHostComponent);
 		host = fixture.componentInstance;

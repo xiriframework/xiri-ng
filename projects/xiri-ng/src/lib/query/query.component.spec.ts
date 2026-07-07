@@ -6,7 +6,6 @@ import { XiriQueryComponent, XiriQuerySettings } from './query.component';
 import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component( {
 	selector: 'xiri-query-test-host',
@@ -53,7 +52,7 @@ describe( 'XiriQueryComponent', () => {
 	function createFixture( settings?: XiriQuerySettings ) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: XiriFormService, useValue: mockFormService },

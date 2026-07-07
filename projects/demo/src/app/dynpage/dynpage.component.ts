@@ -26,7 +26,7 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	private route: ActivatedRoute = inject( ActivatedRoute );
 	
 	public loading = true;
-	public data = signal<XiriDynData[] | null>( null );
+	public data = signal<XiriDynData[]>( [] );
 	public bread: unknown = null;
 	private subs: Subscription = new Subscription();
 	public error = false;
@@ -47,7 +47,7 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	private load() {
 		
 		this.loading = true;
-		this.data.set( null );
+		this.data.set( [] );
 		this.bread = null;
 		this.error = false;
 		

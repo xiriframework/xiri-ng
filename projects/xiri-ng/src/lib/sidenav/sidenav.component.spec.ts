@@ -4,7 +4,6 @@ import { Component, signal } from '@angular/core';
 import { XiriSidenavComponent, XiriSidebarSettings, XiriNavigationField } from './sidenav.component';
 import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
 	selector: 'test-host',
@@ -30,7 +29,7 @@ describe('XiriSidenavComponent', () => {
 		};
 
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: Router, useValue: mockRouter },
 				{ provide: ActivatedRoute, useValue: {} },

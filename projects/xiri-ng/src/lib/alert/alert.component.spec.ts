@@ -4,7 +4,6 @@ import { of } from 'rxjs';
 import { XiriAlertComponent, XiriAlertConfig } from './alert.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 describe( 'XiriAlertComponent', () => {
 	let fixture: ComponentFixture<XiriAlertComponent>;
@@ -25,7 +24,7 @@ describe( 'XiriAlertComponent', () => {
 		};
 
 		TestBed.configureTestingModule( {
-			imports: [ XiriAlertComponent, NoopAnimationsModule ],
+			imports: [ XiriAlertComponent ],
 			providers: [
 				{ provide: MatDialogRef, useValue: mockDialogRef },
 				{ provide: MAT_DIALOG_DATA, useValue: initData },

@@ -6,7 +6,6 @@ import { UntypedFormGroup } from '@angular/forms';
 import { XiriFormComponent, XiriFormSettings } from './form.component';
 import { XiriFormService, XiriFormServiceData } from '../services/form.service';
 import { Location } from '@angular/common';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component( {
 	selector: 'xiri-form-test-host',
@@ -50,7 +49,7 @@ describe( 'XiriFormComponent', () => {
 	function createFixture( settings?: XiriFormSettings ) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriFormService, useValue: mockFormService },
 				{ provide: Location, useValue: mockLocation },

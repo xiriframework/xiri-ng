@@ -5,7 +5,6 @@ import { XiriListComponent, XiriListSettings, XiriListItem, XiriListSection } fr
 import { XiriDataService } from '../services/data.service';
 import { of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 function makeItem(overrides: Partial<XiriListItem> = {}): XiriListItem {
 	return {
@@ -44,7 +43,7 @@ describe('XiriListComponent', () => {
 		mockDataService = { get: vi.fn().mockReturnValue(of({})) };
 
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: ActivatedRoute, useValue: {} },

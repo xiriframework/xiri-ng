@@ -109,7 +109,7 @@ export class FormsComponent {
 			class: 'xcol-md-6 xcol-xl-3',
 			required: false,
 			url: 'Test/Search/Select',
-			params: null,
+			params: undefined,
 			list: [ { id: 1, name: 'Option 1' } ],
 			id: 'select2',
 		}, {

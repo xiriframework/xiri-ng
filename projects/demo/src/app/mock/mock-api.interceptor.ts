@@ -32,12 +32,12 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Stepper API
 	if ( req.url.includes( 'Test/Stepper/Step' ) ) {
-		return of( new HttpResponse( { status: 200, body: getStepperResponse( req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getStepperResponse( req.body as MockRequestBody ) } ) );
 	}
 
 	// Search Select API
 	if ( req.url.includes( 'Test/Search/Select' ) ) {
-		return of( new HttpResponse( { status: 200, body: getSearchSelectResponse( req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getSearchSelectResponse( req.body as MockRequestBody ) } ) );
 	}
 
 	// Wait API (simulates delay)
@@ -48,7 +48,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	// Tabs2 Table APIs
 	if ( req.url.includes( '/api/tabs2/' ) ) {
 		const type = req.url.split( '/api/tabs2/' )[ 1 ];
-		return of( new HttpResponse( { status: 200, body: getTableResponse( type, req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getTableResponse( type, req.body as MockRequestBody ) } ) );
 	}
 
 	// DynPage routes
@@ -118,7 +118,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	}
 
 	if ( req.url.includes( 'Test/Group/GroupData' ) ) {
-		return of( new HttpResponse( { status: 200, body: getGroupTableData( req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getGroupTableData( req.body as MockRequestBody ) } ) );
 	}
 
 	if ( req.url.includes( 'Test/Form/Page' ) ) {
@@ -127,7 +127,7 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Server-side table data
 	if ( req.url.includes( 'Test/Table/ServerData' ) ) {
-		return of( new HttpResponse( { status: 200, body: getServerTableData( req.body ) } ) ).pipe( delay( 300 ) );
+		return of( new HttpResponse( { status: 200, body: getServerTableData( req.body as MockRequestBody ) } ) ).pipe( delay( 300 ) );
 	}
 
 	// Auto-refresh / poll demo: simulates a background worker that finishes over a few cycles.
@@ -152,11 +152,11 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Table data endpoints for Test/Test/Home
 	if ( req.url.includes( 'Test/Test/Table1Data' ) ) {
-		return of( new HttpResponse( { status: 200, body: getTable1Data( req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getTable1Data( req.body as MockRequestBody ) } ) );
 	}
 
 	if ( req.url.includes( 'Test/Test/Table2Data' ) ) {
-		return of( new HttpResponse( { status: 200, body: getTable2Data( req.body ) } ) );
+		return of( new HttpResponse( { status: 200, body: getTable2Data( req.body as MockRequestBody ) } ) );
 	}
 
 	// Query result table

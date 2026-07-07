@@ -8243,7 +8243,7 @@ export class SelectsComponent {
 			class: 'xcol-md-6 xcol-xl-4',
 			id: 'treeselect3',
 			hint: 'test',
-			list: null,
+			list: undefined,
 			required: false,
 		} ],
 		buttons: [ {

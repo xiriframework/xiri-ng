@@ -8,7 +8,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @Component({
 	selector: 'test-host',
@@ -30,7 +29,7 @@ describe('XiriToolbarComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [TestHostComponent, NoopAnimationsModule],
+			imports: [TestHostComponent],
 			providers: [
 				{ provide: XiriDataService, useValue: { post: vi.fn().mockReturnValue(of({})), postFileResponse: vi.fn().mockReturnValue(of({})) } },
 				{ provide: XiriDownloadService, useValue: { download: vi.fn() } },

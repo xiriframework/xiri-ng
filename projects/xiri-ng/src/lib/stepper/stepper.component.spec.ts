@@ -6,7 +6,6 @@ import { XiriStepperComponent, XiriStepperSettings } from './stepper.component';
 import { XiriDataService } from '../services/data.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
 @Component( {
@@ -61,7 +60,7 @@ describe( 'XiriStepperComponent', () => {
 	function createFixture( settings?: XiriStepperSettings ) {
 		TestBed.resetTestingModule();
 		TestBed.configureTestingModule( {
-			imports: [ TestHostComponent, NoopAnimationsModule ],
+			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: Location, useValue: mockLocation },

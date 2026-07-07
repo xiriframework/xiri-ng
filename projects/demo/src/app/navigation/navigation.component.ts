@@ -82,7 +82,7 @@ export class NavigationComponent {
 	};
 
 	// --- Headers ---
-	header = { text: 'Default (null)', color: 'primary', size: null } as XiriHeaderSettings;
+	header = { text: 'Default', color: 'primary', size: '' } as XiriHeaderSettings;
 	headerX1 = { text: 'Size x1', size: 'x1', color: 'primary' } as XiriHeaderSettings;
 	headerX15 = { text: 'Size x15', size: 'x15', color: 'accent' } as XiriHeaderSettings;
 	headerX2 = { text: 'Size x2', size: 'x2', color: 'primary' } as XiriHeaderSettings;
