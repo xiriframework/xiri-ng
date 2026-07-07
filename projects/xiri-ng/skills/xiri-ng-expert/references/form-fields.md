@@ -219,10 +219,12 @@ Array = **UND**-Verknüpfung:
 
 ```typescript
 export interface XiriFormFieldSelectOption {
-  id: number;
+  id: number | string;
   name: string;
   disabled?: boolean;
   color?: XiriColor;
+  isGroup?: boolean;                       // markiert einen Gruppen-/Elternknoten (treeselect)
+  children?: XiriFormFieldSelectOption[];  // verschachtelte Optionen → Hierarchie für treeselect
 }
 ```
 
@@ -234,6 +236,19 @@ Inline (statisch):
     { id: 1, name: 'Aktiv',    color: 'success' },
     { id: 2, name: 'Inaktiv',  color: 'warn' },
     { id: 3, name: 'Gesperrt', color: 'error', disabled: true },
+  ]}
+```
+
+Hierarchisch (`treeselect` — Optionen über `children` verschachteln; auswählbar sind die Blattknoten, `isGroup` markiert Elternknoten):
+
+```typescript
+{ id: 'region', type: 'treeselect', name: 'Region',
+  list: [
+    { id: 'eu', name: 'Europa', isGroup: true, children: [
+      { id: 'at', name: 'Österreich' },
+      { id: 'de', name: 'Deutschland' },
+    ]},
+    { id: 'us', name: 'USA' },
   ]}
 ```
 
