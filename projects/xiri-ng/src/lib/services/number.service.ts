@@ -15,49 +15,19 @@ export class XiriNumberService {
 		if ( value === null || value === undefined ) {
 			return '';
 		}
-		
-		let options: Intl.NumberFormatOptions;
-		
-		switch ( webformat ) {
-			case 'integer':
-				options = {
-					style: 'decimal',
-					minimumFractionDigits: 0,
-					maximumFractionDigits: 0
-				};
-				break;
-			case 'float1':
-				options = {
-					style: 'decimal',
-					minimumFractionDigits: 1,
-					maximumFractionDigits: 1
-				};
-				break;
-			case 'float2':
-				options = {
-					style: 'decimal',
-					minimumFractionDigits: 2,
-					maximumFractionDigits: 2
-				};
-				break;
-			case 'float3':
-				options = {
-					style: 'decimal',
-					minimumFractionDigits: 3,
-					maximumFractionDigits: 3
-				};
-				break;
-			case 'float4':
-				options = {
-					style: 'decimal',
-					minimumFractionDigits: 4,
-					maximumFractionDigits: 4
-				};
-				break;
-			default:
-				options = { style: 'decimal' };
+
+		const digits = webformat === 'integer'
+			? 0
+			: /^float\d+$/.test( webformat ?? '' )
+				? Number( webformat!.slice( 5 ) )
+				: undefined;
+
+		const options: Intl.NumberFormatOptions = { style: 'decimal' };
+		if ( digits !== undefined ) {
+			options.minimumFractionDigits = digits;
+			options.maximumFractionDigits = digits;
 		}
-		
+
 		return new Intl.NumberFormat( this.currentLocale, options ).format( value );
 	}
 }

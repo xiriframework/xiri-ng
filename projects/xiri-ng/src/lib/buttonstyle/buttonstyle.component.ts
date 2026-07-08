@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { MatButton, MatFabButton, MatIconButton, MatMiniFabButton } from "@angular/material/button";
 import { MatIcon } from "@angular/material/icon";
 import { XiriButton } from "../button/button.component";
@@ -14,7 +15,8 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 		            MatIconButton,
 		            MatMiniFabButton,
 		            MatTooltip,
-		            MatProgressSpinner
+		            MatProgressSpinner,
+		            NgTemplateOutlet
 	            ],
 	            templateUrl: './buttonstyle.component.html',
 	            styleUrl: './buttonstyle.component.scss',

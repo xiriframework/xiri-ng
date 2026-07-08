@@ -1,3 +1,14 @@
+<ng-template #textContent>
+	@if (loading()) {
+		<mat-spinner diameter="20"></mat-spinner>
+		@if (pollText() || countdown() > 0) {
+			<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+		}
+	} @else {
+		{{ button().text }}
+	}
+</ng-template>
+
 @switch (button().type) {
 	@case ('icon') {
 		<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
@@ -35,14 +46,7 @@
 		        [color]="button().color || 'primary'"
 		        [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-				@if (pollText() || countdown() > 0) {
-					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-				}
-			} @else {
-				{{ button().text }}
-			}
+			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 		</button>
 	}
 	@case ('basic') {
@@ -52,14 +56,7 @@
 		        [color]="button().color || 'primary'"
 		        [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-				@if (pollText() || countdown() > 0) {
-					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-				}
-			} @else {
-				{{ button().text }}
-			}
+			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 		</button>
 	}
 	@case ('stroked') {
@@ -69,14 +66,7 @@
 		        [color]="button().color || 'primary'"
 		        [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-				@if (pollText() || countdown() > 0) {
-					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-				}
-			} @else {
-				{{ button().text }}
-			}
+			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 		</button>
 	}
 	@case ('flat') {
@@ -86,14 +76,7 @@
 		        [color]="button().color || 'primary'"
 		        [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-				@if (pollText() || countdown() > 0) {
-					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-				}
-			} @else {
-				{{ button().text }}
-			}
+			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 		</button>
 	}
 	@case ('minifab') {
@@ -137,14 +120,7 @@
 			        [color]="button().color || 'primary'"
 			        [disabled]="disabled() || loading()"
 			        [tabIndex]="button().tabIndex">
-				@if (loading()) {
-					<mat-spinner diameter="20"></mat-spinner>
-					@if (pollText() || countdown() > 0) {
-						<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-					}
-				} @else {
-					{{ button().text }}
-				}
+				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 			</button>
 		}
 	}

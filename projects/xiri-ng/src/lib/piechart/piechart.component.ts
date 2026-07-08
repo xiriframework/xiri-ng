@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
-import { resolveColor } from '../echarts/color';
+import { resolveColor, FALLBACK_COLORS } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
 import { XiriEchartsCallbackParams } from '../echarts/params';
 
@@ -78,5 +78,3 @@ export class XiriPieChartComponent {
 		};
 	} );
 }
-
-const FALLBACK_COLORS = [ '#8b5cf6', '#10b981', '#1e88e5', '#fb8c00', '#e53935', '#fbc02d', '#43a047', '#616161' ];
