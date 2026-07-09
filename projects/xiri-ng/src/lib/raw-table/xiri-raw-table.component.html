@@ -20,7 +20,8 @@
 					@case ('link') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
 							@if ($any(row)[column.id + 'Link']) {
-								<a [routerLink]="$any(row)[column.id + 'Link'] | xiriUrl" class="tablelink">{{ $any(row)[column.id] }}</a>
+								@let cellUrl = $any(row)[column.id + 'Link'] | xiriUrl;
+								<a [routerLink]="cellUrl?.path" [queryParams]="cellUrl?.queryParams" class="tablelink">{{ $any(row)[column.id] }}</a>
 							} @else {
 								<span>{{ $any(row)[column.id] }}</span>
 							}
@@ -42,7 +43,8 @@
 					@case ('linkrow') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
 							@if ($any(row)[column.id + 'Link']) {
-								<a [routerLink]="$any(row)[column.id + 'Link'] | xiriUrl">
+								@let rowUrl = $any(row)[column.id + 'Link'] | xiriUrl;
+								<a [routerLink]="rowUrl?.path" [queryParams]="rowUrl?.queryParams">
 									<div class="linkrow">
 										@if ($any(row)['icon']) {
 											@if ($any(row)['iconSet']) {

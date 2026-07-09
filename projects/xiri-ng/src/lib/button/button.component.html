@@ -1,6 +1,7 @@
 @switch (button().action) {
 	@case ('link') {
-		<a [routerLink]="_url() | xiriUrl" [href]="_url()" (click)="clicked($event)">
+		@let linkUrl = _url() | xiriUrl;
+		<a [routerLink]="linkUrl?.path" [queryParams]="linkUrl?.queryParams" [href]="_url()" (click)="clicked($event)">
 			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 		</a>
 	}
@@ -21,7 +22,8 @@
 			@for (item of button().menuItems; track item) {
 				@switch (item.action) {
 					@case ('link') {
-						<a mat-menu-item [routerLink]="item.url | xiriUrl">
+						@let menuUrl = item.url | xiriUrl;
+						<a mat-menu-item [routerLink]="menuUrl?.path" [queryParams]="menuUrl?.queryParams">
 							@if (item.icon) {
 								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
 							}

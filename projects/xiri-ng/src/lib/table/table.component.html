@@ -101,7 +101,8 @@
 																@if (row[column.id][i][j] !== false) {
 																	@switch (item.action) {
 																		@case ('link') {
-																			<a mat-menu-item [routerLink]="row[column.id][i][j] | xiriUrl">
+																			@let menuUrl = row[column.id][i][j] | xiriUrl;
+																			<a mat-menu-item [routerLink]="menuUrl?.path" [queryParams]="menuUrl?.queryParams">
 																				@if (item.icon) {
 																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
 																				}
@@ -154,7 +155,8 @@
 											<ng-container *ngTemplateOutlet="treePrefix; context: { $implicit: row }"></ng-container>
 										}
 										@if (row[column.id + 'Link']) {
-											<a [routerLink]="row[column.id + 'Link'] | xiriUrl" class="tablelink">{{ row[column.id] }}</a>
+											@let cellUrl = row[column.id + 'Link'] | xiriUrl;
+											<a [routerLink]="cellUrl?.path" [queryParams]="cellUrl?.queryParams" class="tablelink">{{ row[column.id] }}</a>
 										} @else {
 											<span>{{ row[column.id] }}</span>
 										}

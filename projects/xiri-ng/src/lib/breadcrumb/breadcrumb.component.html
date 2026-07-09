@@ -11,7 +11,8 @@
 							{{ item.label }}
 						</a>
 					} @else {
-						<a [routerLink]="item.link | xiriUrl">
+						@let itemUrl = item.link | xiriUrl;
+						<a [routerLink]="itemUrl?.path" [queryParams]="itemUrl?.queryParams">
 							@if (item.icon) {
 								<mat-icon>{{ item.icon }}</mat-icon>
 							}
