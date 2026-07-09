@@ -4,6 +4,7 @@
 
 export * from './lib/types/color.type';
 export { SafehtmlPipe } from "./lib/pipes/safehtml.pipe";
+export { XiriUrlPipe } from "./lib/pipes/url.pipe";
 
 export * from "./lib/formfields/field.interface";
 export * from "./lib/formfields/form-fields.component";

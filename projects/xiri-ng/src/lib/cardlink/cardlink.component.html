@@ -1,4 +1,4 @@
-<a [routerLink]="settings().link">
+<a [routerLink]="settings().link | xiriUrl">
 	@if (compact()) {
 		<div class="card xiri-cardlink-flat" matRipple>
 			<mat-card-header>

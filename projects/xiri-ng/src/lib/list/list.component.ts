@@ -6,6 +6,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { XiriUrlPipe } from '../pipes/url.pipe';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import {
 	MatListItem,
@@ -57,6 +58,7 @@ export interface XiriListItem {
 		            MatListItemMeta,
 		            MatIconButton,
 		            MatTooltip,
+		            XiriUrlPipe,
 	            ],
             } )
 export class XiriListComponent {

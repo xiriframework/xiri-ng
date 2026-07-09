@@ -3,6 +3,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatRipple } from '@angular/material/core';
 import { MatCard, MatCardHeader, MatCardAvatar, MatCardTitle, MatCardSubtitle } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
+import { XiriUrlPipe } from '../pipes/url.pipe';
 
 export interface XiriCardlinkSettings {
 	link: string
@@ -24,7 +25,8 @@ export interface XiriCardlinkSettings {
 	                       MatCardAvatar,
 	                       MatIcon,
 	                       MatCardTitle,
-	                       MatCardSubtitle ],
+	                       MatCardSubtitle,
+	                       XiriUrlPipe ],
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriCardlinkComponent {

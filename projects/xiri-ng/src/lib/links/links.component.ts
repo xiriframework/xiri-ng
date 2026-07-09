@@ -6,6 +6,7 @@ import { XiriColor } from '../types/color.type';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Router, RouterLink } from "@angular/router";
+import { XiriUrlPipe } from "../pipes/url.pipe";
 import { MatIconButton } from '@angular/material/button';
 import { MatListItem, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
@@ -43,7 +44,8 @@ export interface XiriLinksSettings {
 	                       RouterLink,
 	                       MatLine,
 	                       MatIconButton,
-	                       NgTemplateOutlet ],
+	                       NgTemplateOutlet,
+	                       XiriUrlPipe ],
 	            host: { '[class.compact]': 'compact()' }
             } )
 export class XiriLinksComponent implements OnDestroy {

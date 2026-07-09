@@ -11,7 +11,7 @@
 							{{ item.label }}
 						</a>
 					} @else {
-						<a [routerLink]="item.link">
+						<a [routerLink]="item.link | xiriUrl">
 							@if (item.icon) {
 								<mat-icon>{{ item.icon }}</mat-icon>
 							}

@@ -249,6 +249,8 @@ buttons: XiriButton[] = [
 
 `action`: `'api' | 'dialog' | 'download' | 'link' | 'back' | 'close' | 'return' | 'menu' | …`.
 
+**Navigations-Links mit Query-String:** `action: 'link'` sowie alle URL-basierten Navigations-Links (`cardlink.link`, `links`/`list`/`sidenav`/`breadcrumb`-Items, Tabellen-Link-Felder) akzeptieren URLs mit Query-String, z. B. `/Admin/Devices/Table?config=98`. Die interne `xiriUrl`-Pipe wandelt den String in eine `UrlTree`; der `?…`-Teil wird korrekt zu Route-Query-Params geparst (vorher wurde `?` als literales Segment percent-encodiert → 404). Kein separates `queryParams`-Feld nötig — alles steht im URL-String. Gilt **nicht** für `action: 'href'` (externer Link, roher String).
+
 **Selbst-pollender Button + Button-Patch:** Enthält die Antwort (api oder Dialog) `poll` (ms) + `pollUrl`, pollt der Button selbsttätig den Status und zeigt Spinner/Countdown bzw. `text` im Button, bis eine Antwort ohne `poll` kommt. Jede Antwort darf zudem ein `button`-Objekt (`text/color/icon/type/hint/disabled`) mitschicken, das den Button verändert (z. B. am Ende „Erledigt ✓"/grün/disabled). Backend: `response.NewReturnPoll(...).WithText(...).WithButton(...)`. Details: `references/components.md`.
 
 `data?: Record<string, any>` — Custom-Payload, das beim Klick mit `filterData` gemerged in den POST-Body geht (für `action: 'api'` / `'download'`). Der Backend-Builder (`xiri-go`) setzt das via `button.WithData(...)`. Beispiel: CSV-Download-Button hat `data: { _csv: true }`, das Backend liest das Flag in `LoadFilterData` und schaltet auf CSV-Output.

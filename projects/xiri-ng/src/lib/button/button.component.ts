@@ -13,6 +13,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatIcon } from "@angular/material/icon";
 import { MatIconButton } from "@angular/material/button";
 import { MatTooltip } from "@angular/material/tooltip";
+import { XiriUrlPipe } from "../pipes/url.pipe";
 
 
 export interface XiriButton {
@@ -75,7 +76,8 @@ export interface XiriButtonResponse {
 		            XiriButtonstyleComponent,
 		            RouterLink,
 		            MatMenu, MatMenuItem, MatMenuTrigger,
-		            MatIcon, MatIconButton, MatTooltip
+		            MatIcon, MatIconButton, MatTooltip,
+	            XiriUrlPipe
 	            ],
             } )
 export class XiriButtonComponent implements OnDestroy {

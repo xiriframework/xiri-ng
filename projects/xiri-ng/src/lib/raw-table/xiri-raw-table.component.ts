@@ -14,6 +14,7 @@ import {
 } from "@angular/material/table";
 import { XiriTableField } from "./tabefield.interface";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
+import { XiriUrlPipe } from '../pipes/url.pipe';
 import { RouterLink } from '@angular/router';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
@@ -47,7 +48,8 @@ export interface XiriRawTableSettings {
 	                       MatHeaderRow,
 	                       MatRowDef,
 	                       MatRow,
-	                       SafehtmlPipe ],
+	                       SafehtmlPipe,
+	                       XiriUrlPipe ],
             } )
 export class XiriRawTableComponent {
 	

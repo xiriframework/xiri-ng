@@ -45,6 +45,7 @@ import { XiriTableField } from "../raw-table/tabefield.interface";
 import { XiriSessionStorageService } from "../services/sessionStorage.service";
 import { XiriNumberService } from "../services/number.service";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
+import { XiriUrlPipe } from '../pipes/url.pipe';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -188,7 +189,7 @@ export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './
 	                       MatProgressSpinner,
 	                       MatPaginator,
 	                       NgTemplateOutlet,
-	                       SafehtmlPipe, XiriButtonComponent, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
+	                       SafehtmlPipe, XiriUrlPipe, XiriButtonComponent, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
 	                       MatFooterRow, MatFooterRowDef, MatFooterCell, MatFooterCellDef,
 	                       MatMenu, MatMenuItem, MatMenuTrigger,
 	                       MatSelect, MatOption,

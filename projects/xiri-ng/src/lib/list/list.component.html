@@ -6,7 +6,7 @@
 		<mat-card-content>
 			<mat-nav-list>
 				@for (item of section.data; track item) {
-					<a mat-list-item [routerLink]="item.url" class="linelink">
+					<a mat-list-item [routerLink]="item.url | xiriUrl" class="linelink">
 						<div matListItemIcon class="list-icon" [class]="item.iconColor">
 							@if (item.iconSet) {
 								<mat-icon [fontSet]="item.iconSet">{{ item.icon }}</mat-icon>

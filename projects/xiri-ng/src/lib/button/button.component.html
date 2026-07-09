@@ -1,6 +1,6 @@
 @switch (button().action) {
 	@case ('link') {
-		<a [routerLink]="_url()" [href]="_url()" (click)="clicked($event)">
+		<a [routerLink]="_url() | xiriUrl" [href]="_url()" (click)="clicked($event)">
 			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 		</a>
 	}
@@ -21,7 +21,7 @@
 			@for (item of button().menuItems; track item) {
 				@switch (item.action) {
 					@case ('link') {
-						<a mat-menu-item [routerLink]="item.url">
+						<a mat-menu-item [routerLink]="item.url | xiriUrl">
 							@if (item.icon) {
 								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
 							}

@@ -44,7 +44,7 @@
 	<mat-nav-list>
 		@for (item of settings().data; track item) {
 			@if (!item.action || item.action === 'link') {
-				<a mat-list-item [routerLink]="item.url">
+				<a mat-list-item [routerLink]="item.url | xiriUrl">
 					<div matLine>{{ item.text }}</div>
 					@if (item.icon) {
 						<button mat-icon-button [attr.aria-label]="item.text">

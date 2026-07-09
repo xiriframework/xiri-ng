@@ -7,7 +7,7 @@
 @for (nav of fields; track nav) {
 
 	@if ( nav.link ) {
-		<a mat-list-item [routerLink]="nav.link" [class.active]="nav.active">
+		<a mat-list-item [routerLink]="nav.link | xiriUrl" [class.active]="nav.active">
 			@if (nav.iconSet) {
 				<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
 			} @else {
@@ -30,7 +30,7 @@
 		<div class="submenu" [class.expanded]="nav.showSubmenu">
 			@for (subnav of nav.sub; track subnav) {
 				@if (subnav.link) {
-					<a mat-list-item [routerLink]="subnav.link" [class.active]="subnav.active">{{ subnav.name }}</a>
+					<a mat-list-item [routerLink]="subnav.link | xiriUrl" [class.active]="subnav.active">{{ subnav.name }}</a>
 				} @else if (subnav.menu) {
 					<mat-list-item (click)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.enter)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.space)="subnav.showSubmenu = !subnav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="subnav.showSubmenu" class="parent">
 						<span matListItemTitle>{{ subnav.name }}</span>
@@ -41,7 +41,7 @@
 					<div class="submenu submenu-nested" [class.expanded]="subnav.showSubmenu">
 						@for (subsubnav of subnav.sub; track subsubnav) {
 							@if (subsubnav.link) {
-								<a mat-list-item [routerLink]="subsubnav.link" [class.active]="subsubnav.active">{{ subsubnav.name }}</a>
+								<a mat-list-item [routerLink]="subsubnav.link | xiriUrl" [class.active]="subsubnav.active">{{ subsubnav.name }}</a>
 							} @else if (subsubnav.extern) {
 								<a mat-list-item [href]="subsubnav.extern">{{ subsubnav.name }}</a>
 							}

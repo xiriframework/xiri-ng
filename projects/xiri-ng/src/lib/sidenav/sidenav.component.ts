@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, effect, inject, input } from '@angular/core';
 import { filter } from "rxjs";
 import { Event, NavigationEnd, Router, RouterLink } from "@angular/router";
+import { XiriUrlPipe } from "../pipes/url.pipe";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIcon } from '@angular/material/icon';
 import { MatListItem, MatListItemIcon, MatListItemMeta, MatListItemTitle } from '@angular/material/list';
@@ -39,6 +40,7 @@ export interface XiriNavigationField {
 		            MatListItemIcon,
 		            MatListItemTitle,
 		            MatListItemMeta,
+		            XiriUrlPipe,
 	            ],
             } )
 export class XiriSidenavComponent {
