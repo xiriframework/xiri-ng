@@ -192,4 +192,16 @@ describe( 'XiriRawTableComponent', () => {
 		expect( component.displayedColumns.length ).toBe( 3 );
 		expect( component.columnsToDisplay ).toEqual( [ 'col1', 'col2', 'col3' ] );
 	} );
+
+	it( 'hängt die format-Klasse an display an (number)', () => {
+		host.settings.set( {
+			data: [],
+			fields: [ { id: 'n', name: 'N', format: 'number' } ],
+		} );
+		fixture.detectChanges();
+		component = host.rawTable();
+
+		const col = component.displayedColumns.find( c => c.id === 'n' );
+		expect( col!.display ).toContain( 'number' );
+	} );
 } );

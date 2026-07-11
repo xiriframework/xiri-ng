@@ -74,20 +74,22 @@ export class XiriRawTableComponent {
 	}
 	
 	private loadFields( fields: XiriTableField[] ) {
-		
+
 		this.displayedColumns = [];
 		this.columnsToDisplay = [];
-		
+
 		for ( let fid = 0; fid != fields.length; fid++ ) {
 			const column = fields[ fid ];
-			
+
 			if ( column.format == 'id' )
 				continue;
 			if ( !column.display )
 				column.display = '';
+			if ( column.format )
+				column.display = column.format + ' ' + column.display;
 			if ( column.align )
 				column.display += ` align-${ column.align }`;
-			
+
 			this.displayedColumns.push( column );
 			this.columnsToDisplay.push( column.name );
 		}

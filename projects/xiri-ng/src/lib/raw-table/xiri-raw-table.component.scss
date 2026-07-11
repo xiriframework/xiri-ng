@@ -90,6 +90,13 @@ table {
 			color:     var(--on-surface-variant, #42474E);
 		}
 
+		// Numerische Spalten: rechtsbündig + gleiche Ziffernbreite.
+		// MUSS vor den .align-* Regeln stehen, damit explizites align:'left'/'center' gewinnt.
+		&.number {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}
+
 		&.right, &.align-right {
 			text-align:   right;
 			padding-left: 1rem;
@@ -111,6 +118,13 @@ table {
 	}
 
 	th.mat-mdc-header-cell {
+		// Numerische Spalten: rechtsbündig + gleiche Ziffernbreite.
+		// MUSS vor den .align-* Regeln stehen, damit explizites align:'left'/'center' gewinnt.
+		&.number {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}
+
 		&.align-right {
 			text-align: right;
 		}
