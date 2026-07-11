@@ -296,6 +296,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		return merged;
 	}
 
+	// Density-Klasse reaktiv aus settings() ableiten, damit ein Live-Umschalten des density-Werts
+	// wirkt (options wird sonst nur einmal in ngOnInit gemergt und würde nicht reagieren).
+	public densityClass = computed( () => 'density-' + ( this.mergeOptions( this.settings().options ?? {} ).density ?? 'regular' ) );
+
 	private tableStateKey(): string | null {
 		return this.options.saveStateId ? this.options.saveStateId + ':table' : null;
 	}

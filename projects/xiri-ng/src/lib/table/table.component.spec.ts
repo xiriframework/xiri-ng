@@ -434,10 +434,21 @@ describe( 'XiriTableComponent', () => {
 
 	describe( 'density', () => {
 		it( 'setzt density-Klasse am table-Element', () => {
-			component.options = { ...component.options, density: 'compact' };
-			fixture.detectChanges();
+			createFixture( { options: { density: 'compact' } } );
 			const table = fixture.nativeElement.querySelector( 'table' );
 			expect( table.classList.contains( 'density-compact' ) ).toBe( true );
+		} );
+
+		it( 'aktualisiert die density-Klasse reaktiv bei settings-Änderung', () => {
+			createFixture( { options: { density: 'regular' } } );
+			let table = fixture.nativeElement.querySelector( 'table' );
+			expect( table.classList.contains( 'density-regular' ) ).toBe( true );
+
+			host.settings.set( { options: { density: 'relaxed' } } );
+			fixture.detectChanges();
+			table = fixture.nativeElement.querySelector( 'table' );
+			expect( table.classList.contains( 'density-relaxed' ) ).toBe( true );
+			expect( table.classList.contains( 'density-regular' ) ).toBe( false );
 		} );
 
 		it( 'mappt dense:true auf density compact (Alias)', () => {
