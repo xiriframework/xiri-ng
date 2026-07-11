@@ -10,7 +10,6 @@ export interface XiriSidepanelConfig {
 	title?: string;
 	width?: string;
 	data?: unknown;
-	url?: string;
 }
 
 @Injectable( { providedIn: 'root' } )
