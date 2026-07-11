@@ -22,6 +22,7 @@ import {
 	Validators
 } from '@angular/forms';
 import { XiriFormField, XiriFormFieldCondition, XiriFormFieldSelectOption } from './field.interface';
+import { colsToClasses } from '../layout/cols.directive';
 import { Observable } from "rxjs";
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFileComponent } from './file/file.component';
@@ -206,7 +207,7 @@ export class XiriFormFieldsComponent implements OnInit {
 			if ( !field.subtype )
 				field.subtype = field.type;
 			if ( !field.class )
-				field.class = 'xcol';
+				field.class = field.cols !== undefined ? colsToClasses( field.cols ) : 'xcol';
 			
 			switch ( field.type ) {
 				case 'email':

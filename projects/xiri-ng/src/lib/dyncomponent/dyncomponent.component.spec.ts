@@ -205,4 +205,18 @@ describe( 'XiriDynComponentComponent', () => {
 			expect( component.dataInt()[ 0 ].type ).toBe( 'unknown' );
 		} );
 	} );
+
+	describe( 'resolveClass', () => {
+		it( 'display überstimmt cols', () => {
+			expect( component.resolveClass( { type: 'stat', display: 'xcol xcol-md-12', cols: 6 } ) ).toBe( 'xcol xcol-md-12' );
+		} );
+
+		it( 'cols wird gemappt, wenn kein display', () => {
+			expect( component.resolveClass( { type: 'stat', cols: { md: 6 } } ) ).toBe( 'xcol xcol-md-6' );
+		} );
+
+		it( 'ohne display und cols wird der fallback verwendet', () => {
+			expect( component.resolveClass( { type: 'stat' }, 'xcol xcol-md-6 xcol-xl-4' ) ).toBe( 'xcol xcol-md-6 xcol-xl-4' );
+		} );
+	} );
 } );

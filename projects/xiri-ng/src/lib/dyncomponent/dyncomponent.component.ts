@@ -1,5 +1,6 @@
 import { Component, computed, forwardRef, input, TemplateRef } from '@angular/core';
 import { XiriDynData } from "./dyndata.interface";
+import { colsToClasses } from '../layout/cols.directive';
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { XiriImagetextComponent } from '../imagetext/imagetext.component';
 import { XiriMultiprogressComponent } from '../multiprogress/multiprogress.component';
@@ -111,4 +112,12 @@ export class XiriDynComponentComponent {
 			return d;
 		} );
 	} );
+
+	resolveClass( obj: XiriDynData, fallback = 'xcol' ): string {
+		if ( obj.display )
+			return obj.display;
+		if ( obj.cols !== undefined )
+			return colsToClasses( obj.cols );
+		return fallback;
+	}
 }

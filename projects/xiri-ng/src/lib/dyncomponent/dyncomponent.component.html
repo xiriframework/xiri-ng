@@ -2,32 +2,32 @@
 
 	@switch (obj.type) {
 		@case ('card') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-4')" [class.xcol-start]="obj.newRow">
 				<xiri-card [settings]="$any(obj.data)"></xiri-card>
 			</div>
 		}
 		@case ('buttonline') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-buttonline [settings]="$any(obj.data)" [filterData]="filterData()"></xiri-buttonline>
 			</div>
 		}
 		@case ('table') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-table [settings]="$any(obj.data)" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-table>
 			</div>
 		}
 		@case ('cardlink') {
-			<div [class]="obj.display || 'xcol xcol-md-4 xcol-lg-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-4 xcol-lg-3')" [class.xcol-start]="obj.newRow">
 				<xiri-cardlink [settings]="$any(obj.data)"></xiri-cardlink>
 			</div>
 		}
 		@case ('links') {
-			<div [class]="obj.display || 'xcol xcol-md-4 xcol-lg-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-4 xcol-lg-3')" [class.xcol-start]="obj.newRow">
 				<xiri-links [settings]="$any(obj.data)"></xiri-links>
 			</div>
 		}
 		@case ('form') {
-			<div [class]="obj.display || 'xcol form'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol form')" [class.xcol-start]="obj.newRow">
 				<mat-card class="mat-mdc-elevation-specific mat-elevation-z2">
 					@if ($any(obj.data).header) {
 						<mat-card-header>
@@ -41,69 +41,69 @@
 			</div>
 		}
 		@case ('query') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-query [settings]="$any(obj.data)" [dyncomponent]="selfdyncomponent"></xiri-query>
 			</div>
 		}
 		@case ('stepper') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-stepper [settings]="$any(obj.data)"></xiri-stepper>
 			</div>
 		}
 		@case ('header') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-header [settings]="$any(obj.data)"></xiri-header>
 			</div>
 		}
 		@case ('list') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-list [settings]="$any(obj.data)"></xiri-list>
 			</div>
 		}
 		@case ('spacer') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<div class="spacer">&nbsp;</div>
 			</div>
 		}
 		@case ('container') {
 			@if (obj.data) {
-				<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+				<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 					<xiri-dyncomponent [data]="$any(obj.data)" [dyncomponent]="dyncomponent()" class="row"></xiri-dyncomponent>
 				</div>
 			}
 		}
 		@case ('infopoint') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-infopoint [settings]="$any(obj.data)"></xiri-infopoint>
 			</div>
 		}
 		@case ('multiprogress') {
-			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-4')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-multiprogress [settings]="$any(obj.data)"></xiri-multiprogress> } @placeholder { <xiri-skeleton type="rect" height="48px" /> }
 			</div>
 		}
 		@case ('progress') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-4')" [class.xcol-start]="obj.newRow">
 				<xiri-progress [settings]="$any(obj.data)"></xiri-progress>
 			</div>
 		}
 		@case ('imagetext') {
-			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-4')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-imagetext [settings]="$any(obj.data)"></xiri-imagetext> } @placeholder { <xiri-skeleton type="rect" height="120px" /> }
 			</div>
 		}
 		@case ('tabs') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-tabs [settings]="$any(obj.data)" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-tabs>
 			</div>
 		}
 		@case ('expansion') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-expansion [settings]="$any(obj.data)" [filterData]="filterData()" [dyncomponent]="selfdyncomponent"></xiri-expansion>
 			</div>
 		}
 		@case ('infotext') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@if ($any(obj.data).html) {
 					<div class="infotext" [innerHtml]="$any(obj.data).text | safeHtml"></div>
 				} @else {
@@ -112,102 +112,102 @@
 			</div>
 		}
 		@case ('html') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<div class="html" [innerHtml]="$any(obj.data).html | safeHtml"></div>
 			</div>
 		}
 		@case ('stat') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-4')" [class.xcol-start]="obj.newRow">
 				<xiri-stat [settings]="$any(obj.data)"></xiri-stat>
 			</div>
 		}
 		@case ('empty-state') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-empty-state [settings]="$any(obj.data)"></xiri-empty-state>
 			</div>
 		}
 		@case ('timeline') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-timeline [settings]="$any(obj.data)"></xiri-timeline> } @placeholder { <xiri-skeleton type="rect" height="96px" /> }
 			</div>
 		}
 		@case ('page-header') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-page-header [settings]="$any(obj.data)"></xiri-page-header> } @placeholder { <xiri-skeleton type="rect" height="64px" /> }
 			</div>
 		}
 		@case ('section') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<xiri-section [settings]="$any(obj.data)" [dyncomponent]="dyncomponent()"></xiri-section>
 			</div>
 		}
 		@case ('divider') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-divider [settings]="$any(obj.data)"></xiri-divider> } @placeholder { <xiri-skeleton type="rect" height="16px" /> }
 			</div>
 		}
 		@case ('stat-grid') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-stat-grid [settings]="$any(obj.data)"></xiri-stat-grid> }
 			</div>
 		}
 		@case ('toolbar') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-toolbar [settings]="$any(obj.data)" [filterData]="filterData()"></xiri-toolbar> }
 			</div>
 		}
 		@case ('description-list') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-description-list [settings]="$any(obj.data)"></xiri-description-list> }
 			</div>
 		}
 		@case ('barchart') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-barchart [mode]="obj.mode ?? 'simple'" [settings]="$any(obj.data)"></xiri-barchart> }
 			</div>
 		}
 		@case ('linechart') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-linechart [settings]="$any(obj.data)"></xiri-linechart> }
 			</div>
 		}
 		@case ('piechart') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-piechart [settings]="$any(obj.data)"></xiri-piechart> }
 			</div>
 		}
 		@case ('gaugechart') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-gaugechart [settings]="$any(obj.data)"></xiri-gaugechart> }
 			</div>
 		}
 		@case ('bulletchart') {
-			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-bulletchart [settings]="$any(obj.data)"></xiri-bulletchart> }
 			</div>
 		}
 		@case ('heatmap') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-heatmap [settings]="$any(obj.data)"></xiri-heatmap> }
 			</div>
 		}
 		@case ('calendar') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-calendar [settings]="$any(obj.data)"></xiri-calendar> }
 			</div>
 		}
 		@case ('tree') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-tree [settings]="$any(obj.data)"></xiri-tree> }
 			</div>
 		}
 		@case ('sankey') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-sankey [settings]="$any(obj.data)"></xiri-sankey> }
 			</div>
 		}
 		@case ('gantt') {
-			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-gantt [settings]="$any(obj.data)"></xiri-gantt> }
 			</div>
 		}
