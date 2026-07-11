@@ -1,4 +1,4 @@
-import { Component, computed, effect, input } from '@angular/core';
+import { Component, computed, effect, input, signal } from '@angular/core';
 import {
 	MatTableDataSource,
 	MatTable,
@@ -26,6 +26,7 @@ export type XiriRawTableRow = Record<string, unknown>;
 export interface XiriRawTableSettings {
 	data: unknown
 	fields?: XiriTableField[]
+	density?: 'compact' | 'regular' | 'relaxed'
 	dense?: number
 	forceMinWidth?: boolean
 	showHeader?: boolean
@@ -59,14 +60,14 @@ export class XiriRawTableComponent {
 	displayedColumns: XiriTableField[] = [];
 	columnsToDisplay: string[] = [];
 	dataSource = new MatTableDataSource<XiriRawTableRow>();
-	tableClass = 'dense-6';
+	tableClass = signal( 'dense-6' );
 
 	constructor() {
 		effect( () => {
-			if ( this.settings().dense )
-				this.tableClass = 'dense-' + this.settings().dense;
-			if ( this.settings().forceMinWidth )
-				this.tableClass += ' force-min-width';
+			const DENSITY_TO_LEVEL = { compact: 6, regular: 2, relaxed: 0 } as const;
+			const density = this.settings().density;
+			const level = density ? DENSITY_TO_LEVEL[ density ] : ( this.settings().dense ?? 6 );
+			this.tableClass.set( 'dense-' + level + ( this.settings().forceMinWidth ? ' force-min-width' : '' ) );
 
 			this.loadFields( this.settings().fields ?? [] );
 			this.dataSource.data = this.settings().data as XiriRawTableRow[];

@@ -1,4 +1,4 @@
-<div class="table-out" [class]="tableClass">
+<div class="table-out" [class]="tableClass()">
 	<table mat-table [dataSource]="dataSource">
 		@for (column of displayedColumns; track column) {
 			<ng-container [matColumnDef]="column.name">

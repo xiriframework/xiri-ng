@@ -60,7 +60,7 @@ describe( 'XiriRawTableComponent', () => {
 	} );
 
 	it( 'should use default table class dense-6', () => {
-		expect( component.tableClass ).toContain( 'dense-6' );
+		expect( component.tableClass() ).toContain( 'dense-6' );
 	} );
 
 	it( 'should apply custom dense value', () => {
@@ -72,7 +72,7 @@ describe( 'XiriRawTableComponent', () => {
 		fixture.detectChanges();
 		component = host.rawTable();
 
-		expect( component.tableClass ).toContain( 'dense-3' );
+		expect( component.tableClass() ).toContain( 'dense-3' );
 	} );
 
 	it( 'should add force-min-width class when forceMinWidth is true', () => {
@@ -84,7 +84,7 @@ describe( 'XiriRawTableComponent', () => {
 		fixture.detectChanges();
 		component = host.rawTable();
 
-		expect( component.tableClass ).toContain( 'force-min-width' );
+		expect( component.tableClass() ).toContain( 'force-min-width' );
 	} );
 
 	it( 'should skip fields with format "id"', () => {
@@ -173,7 +173,7 @@ describe( 'XiriRawTableComponent', () => {
 		fixture.detectChanges();
 		component = host.rawTable();
 
-		expect( component.tableClass ).not.toContain( 'force-min-width' );
+		expect( component.tableClass() ).not.toContain( 'force-min-width' );
 	} );
 
 	it( 'should handle multiple fields with mixed formats', () => {
@@ -203,5 +203,11 @@ describe( 'XiriRawTableComponent', () => {
 
 		const col = component.displayedColumns.find( c => c.id === 'n' );
 		expect( col!.display ).toContain( 'number' );
+	} );
+
+	it( 'mappt density regular auf table-density -2', () => {
+		host.settings.set( { density: 'regular', data: [], fields: [] } );
+		fixture.detectChanges();
+		expect( component.tableClass() ).toContain( 'dense-2' );
 	} );
 } );
