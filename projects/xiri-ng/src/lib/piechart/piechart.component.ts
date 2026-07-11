@@ -23,6 +23,9 @@ export interface XiriPieChartSettings {
 @Component( {
 	selector: 'xiri-piechart',
 	template: `
+		@if (warn()) {
+			<div class="chart-hint">Mehr als 4 Segmente erschweren den Vergleich — Balken- oder Tabellendarstellung erwägen.</div>
+		}
 		<xiri-echarts-host
 			[option]="option()"
 			[compact]="compact()"
@@ -36,6 +39,8 @@ export class XiriPieChartComponent {
 	settings = input.required<XiriPieChartSettings>();
 
 	compact = computed<boolean>( () => !!this.settings().compact );
+
+	warn = computed<boolean>( () => ( this.settings().slices ?? [] ).length > 4 );
 
 	option = computed( () => {
 		const s = this.settings();
