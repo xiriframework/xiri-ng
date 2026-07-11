@@ -68,6 +68,8 @@ export * from './lib/stat-grid/stat-grid.component';
 export * from './lib/toolbar/toolbar.component';
 export * from './lib/description-list/description-list.component';
 
+export * from './lib/layout/cols.directive';
+
 export * from './lib/services/data.service';
 export * from './lib/services/date.service';
 export * from './lib/services/form.service';

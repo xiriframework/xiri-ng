@@ -1,3 +1,4 @@
+import { XiriCols } from '../layout/cols.directive';
 
 export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'links' | 'form' |
 	'query' | 'stepper' | 'header' | 'list' | 'spacer' | 'container' | 'infopoint' |
@@ -13,4 +14,5 @@ export interface XiriDynData {
 	display?: string
 	newRow?: boolean
 	mode?: string
+	cols?: XiriCols
 }

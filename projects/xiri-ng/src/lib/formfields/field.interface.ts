@@ -1,5 +1,6 @@
 import { FormControl, ValidatorFn } from "@angular/forms";
 import { XiriColor } from '../types/color.type';
+import { XiriCols } from '../layout/cols.directive';
 
 export interface XiriFormValidator {
 	id: string
@@ -40,6 +41,7 @@ export interface XiriFormField {
 	name?: string
 	hint?: string
 	class?: string
+	cols?: XiriCols
 	textPrefix?: string
 	textSuffix?: string
 	iconPrefix?: string
