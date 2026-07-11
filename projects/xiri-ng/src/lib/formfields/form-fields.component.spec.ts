@@ -228,7 +228,7 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'anrede' )!.value ).toBe( 'f' );
 		} );
 
-		it( 'should write selection into the form control', () => {
+		it( 'should update the form control when the user clicks a radio option in the DOM', () => {
 			host.fields.set( [ {
 				id: 'anrede',
 				type: 'radio',
@@ -236,7 +236,13 @@ describe( 'XiriFormFieldsComponent', () => {
 			} ] );
 			fixture.detectChanges();
 
-			component.formGroup.get( 'anrede' )!.setValue( 'm' );
+			const inputs: NodeListOf<HTMLInputElement> =
+				fixture.nativeElement.querySelectorAll( 'mat-radio-button input[type="radio"]' );
+			expect( inputs.length ).toBe( 2 );
+
+			inputs[ 1 ].click();
+			fixture.detectChanges();
+
 			expect( component.formGroup.get( 'anrede' )!.value ).toBe( 'm' );
 		} );
 	} );

@@ -251,7 +251,10 @@
 					@if (field.name) {
 						<span class="radio-label" [id]="field.id + '-label'">{{ field.name }}</span>
 					}
-					<mat-radio-group [formControlName]="field.id" [attr.aria-labelledby]="field.id + '-label'">
+					<mat-radio-group
+						[formControlName]="field.id"
+						[attr.aria-labelledby]="field.name ? field.id + '-label' : null"
+					>
 						@for (x of field.list; track x.id) {
 							<mat-radio-button [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-radio-button>
 						}
