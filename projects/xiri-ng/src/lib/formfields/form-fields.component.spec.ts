@@ -190,6 +190,57 @@ describe( 'XiriFormFieldsComponent', () => {
 		} );
 	} );
 
+	describe( 'radio field handling', () => {
+		it( 'rendert eine mat-radio-button pro Option', () => {
+			host.fields.set( [ {
+				id: 'anrede',
+				type: 'radio',
+				name: 'Anrede',
+				array: [ 'f', 'm' ],
+			} ] );
+			fixture.detectChanges();
+
+			const radios = fixture.nativeElement.querySelectorAll( 'mat-radio-button' );
+			expect( radios.length ).toBe( 2 );
+		} );
+
+		it( 'should transform array into list for radio', () => {
+			host.fields.set( [ {
+				id: 'anrede',
+				type: 'radio',
+				array: [ 'f', 'm' ],
+			} ] );
+			fixture.detectChanges();
+
+			const field = component.fields()![ 0 ];
+			expect( field.list ).toEqual( [ { id: 'f', name: 'f' }, { id: 'm', name: 'm' } ] );
+			expect( field.multiple ).toBe( false );
+		} );
+
+		it( 'should default value to first list item', () => {
+			host.fields.set( [ {
+				id: 'anrede',
+				type: 'radio',
+				list: [ { id: 'f', name: 'Frau' }, { id: 'm', name: 'Herr' } ],
+			} ] );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'anrede' )!.value ).toBe( 'f' );
+		} );
+
+		it( 'should write selection into the form control', () => {
+			host.fields.set( [ {
+				id: 'anrede',
+				type: 'radio',
+				list: [ { id: 'f', name: 'Frau' }, { id: 'm', name: 'Herr' } ],
+			} ] );
+			fixture.detectChanges();
+
+			component.formGroup.get( 'anrede' )!.setValue( 'm' );
+			expect( component.formGroup.get( 'anrede' )!.value ).toBe( 'm' );
+		} );
+	} );
+
 	describe( 'treeselect field handling', () => {
 		it( 'should set tree=true for treeselect', () => {
 			host.fields.set( [ {

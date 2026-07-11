@@ -246,6 +246,28 @@
 					}
 				</div>
 			}
+			@case ('radio') {
+				<div class="radio" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+					@if (field.name) {
+						<span class="radio-label" [id]="field.id + '-label'">{{ field.name }}</span>
+					}
+					<mat-radio-group [formControlName]="field.id" [attr.aria-labelledby]="field.id + '-label'">
+						@for (x of field.list; track x.id) {
+							<mat-radio-button [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-radio-button>
+						}
+					</mat-radio-group>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali) {
+						<ng-container ngProjectAs="mat-error">
+							@if (formGroup.get(field.id)?.hasError(vali.id)) {
+								<mat-error>{{ vali.message }}</mat-error>
+							}
+						</ng-container>
+					}
+				</div>
+			}
 			@case ('volume') {
 				<div [class]="field.class" [hidden]="field.hide">
 					<xiri-volume [field]="field" [formControlName]="field.id"></xiri-volume>

@@ -28,6 +28,7 @@ import { XiriFileComponent } from './file/file.component';
 import { XiriTimelimitComponent } from './timelimit/timelimit.component';
 import { XiriVolumeComponent } from './volume/volume.component';
 import { MatCheckbox } from '@angular/material/checkbox';
+import { MatRadioButton, MatRadioGroup } from '@angular/material/radio';
 import { XiriDateTimeRangeComponent } from './datetimerange/datetimerange.component';
 import { XiriDateRangeComponent } from './daterange/daterange.component';
 import { XiriDateComponent } from './date/date.component';
@@ -74,6 +75,8 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            XiriDateRangeComponent,
 		            XiriDateTimeRangeComponent,
 		            MatCheckbox,
+		            MatRadioButton,
+		            MatRadioGroup,
 		            XiriVolumeComponent,
 		            XiriTimelimitComponent,
 		            XiriFileComponent,
@@ -247,6 +250,15 @@ export class XiriFormFieldsComponent implements OnInit {
 						field.required = true;
 					break;
 				
+				case 'radio':
+					fillListFromArray( field );
+					if ( field.value === undefined && field.list?.length )
+						field.value = field.list[ 0 ].id;
+					field.multiple = false;
+					if ( field.required === undefined )
+						field.required = true;
+					break;
+
 				case 'select':
 				case 'object':
 				case 'model':
@@ -257,17 +269,8 @@ export class XiriFormFieldsComponent implements OnInit {
 					}
 					if ( field.subtype == 'object' )
 						field.subtype = 'model';
-					
-					if ( field.list === undefined && field.array !== undefined ) {
-						const list: XiriFormFieldSelectOption[] = [];
-						field.array.forEach( val => {
-							list.push( {
-								           id: val as unknown as number,
-								           name: val as unknown as string,
-							           } )
-						} );
-						field.list = list;
-					}
+
+					fillListFromArray( field );
 
 					if ( field.subtype === 'model' ) {
 						if ( field.value === undefined && field.list !== undefined && field.list.length != 0 )
@@ -527,6 +530,19 @@ export class XiriFormFieldsComponent implements OnInit {
 			default:
 				return true;
 		}
+	}
+}
+
+function fillListFromArray( field: XiriFormField ): void {
+	if ( field.list === undefined && field.array !== undefined ) {
+		const list: XiriFormFieldSelectOption[] = [];
+		field.array.forEach( val => {
+			list.push( {
+				           id: val as unknown as number,
+				           name: val as unknown as string,
+			           } )
+		} );
+		field.list = list;
 	}
 }
 
