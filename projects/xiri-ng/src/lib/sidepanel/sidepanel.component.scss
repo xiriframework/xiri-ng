@@ -1,0 +1,26 @@
+:host {
+	display:         flex;
+	flex-direction:  column;
+	height:          100%;
+	background:      var(--mat-sys-surface, #fff);
+	box-shadow:       var(--xiri-elevation-2, 0 0 16px rgba(0, 0, 0, 0.2));
+}
+
+.sidepanel-header {
+	display:         flex;
+	align-items:     center;
+	justify-content: space-between;
+	padding:         var(--xiri-spacing-md);
+	border-bottom:   1px solid var(--xiri-border-color, rgba(0, 0, 0, 0.12));
+}
+
+.sidepanel-title {
+	font-size:   var(--xiri-font-size-title);
+	font-weight: 500;
+}
+
+.sidepanel-content {
+	flex:      1 1 auto;
+	overflow-y: auto;
+	padding:   var(--xiri-spacing-md);
+}

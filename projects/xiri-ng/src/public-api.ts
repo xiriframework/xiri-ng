@@ -16,6 +16,9 @@ export * from "./lib/table/table.component";
 
 export * from "./lib/form/form.component";
 export * from "./lib/dialog/dialog.component";
+export * from './lib/sidepanel/sidepanel-ref';
+export * from './lib/sidepanel/sidepanel.component';
+export * from './lib/sidepanel/sidepanel.service';
 export * from './lib/query/query.component';
 
 export * from "./lib/card/card.component";
