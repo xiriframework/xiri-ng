@@ -122,4 +122,19 @@
 		</div>
 	</div>
 
+	<!-- Table 11: Density + Number Column -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDensity">
+				<mat-button-toggle-group [value]="density()" (change)="setDensity($event.value)">
+					<mat-button-toggle value="compact">Compact</mat-button-toggle>
+					<mat-button-toggle value="regular">Regular</mat-button-toggle>
+					<mat-button-toggle value="relaxed">Relaxed</mat-button-toggle>
+				</mat-button-toggle-group>
+				<xiri-table [settings]="densityData()"></xiri-table>
+				<app-go-code [code]="goDensityCode" title="JSON: density + format:'number'"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

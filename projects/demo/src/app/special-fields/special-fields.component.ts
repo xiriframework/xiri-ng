@@ -67,6 +67,14 @@ export class SpecialFieldsComponent {
 		iconColor: 'primary',
 	};
 
+	sectionRadio: XiriSectionSettings = {
+		title: 'Radio',
+		subtitle: "type: 'radio' - Radio-button group for small, mutually exclusive option sets. " +
+			'Options via list ({id, name, color, disabled}) or the array shorthand.',
+		icon: 'radio_button_checked',
+		iconColor: 'accent',
+	};
+
 	fileForm: XiriFormSettings = {
 		load: false,
 		url: '',
@@ -268,4 +276,47 @@ f2 := field.NewFileField("file2", "Multiple Files", false).
     SetClass("xcol-md-6 xcol-xl-4")
 // Freie Texteingabe oder Autocomplete aus Liste
 // Enter oder Komma zum Hinzufügen`;
+
+	radioForm: XiriFormSettings = {
+		load: false,
+		url: '',
+		fields: [ {
+			type: 'radio',
+			name: 'Priority',
+			class: 'xcol-md-6 xcol-xl-4',
+			id: 'priority',
+			hint: 'Options via "list" (id/name/color)',
+			list: [
+				{ id: 'low', name: 'Low' },
+				{ id: 'medium', name: 'Medium' },
+				{ id: 'high', name: 'High', color: 'warn' },
+			],
+		}, {
+			type: 'radio',
+			name: 'Shipping',
+			class: 'xcol-md-6 xcol-xl-4',
+			id: 'shipping',
+			hint: 'Options via "array" shorthand (auto-converted to list)',
+			array: [ 'Standard', 'Express', 'Overnight' ],
+		} ],
+		buttons: [ {
+			text: 'Debug',
+			type: 'raised',
+			default: true,
+			action: 'debug'
+		} ]
+	};
+
+	goRadioCode = `{
+  "type": "radio",
+  "id": "priority",
+  "name": "Priority",
+  "list": [
+    { "id": "low", "name": "Low" },
+    { "id": "medium", "name": "Medium" },
+    { "id": "high", "name": "High", "color": "warn" }
+  ]
+}
+// Kurzform: "array": ["Standard", "Express", "Overnight"]
+// wird automatisch in "list" umgewandelt`;
 }

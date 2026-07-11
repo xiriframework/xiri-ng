@@ -167,6 +167,43 @@
 		</div>
 	</div>
 
+	<!-- cols + Container Queries -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionColsCQ">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>
+							Media Query (<code>.xrow</code>) — bricht anhand der <b>Viewport</b>-Breite um.
+							Bleibt hier 3-spaltig, weil der Viewport breit ist, obwohl diese Spalte selbst schmal ist:
+						</p>
+						<div class="xrow demo-cq-row">
+							<div class="xcol-md-4"><div class="demo-box">1</div></div>
+							<div class="xcol-md-4"><div class="demo-box">2</div></div>
+							<div class="xcol-md-4"><div class="demo-box">3</div></div>
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<p>
+							Container Query (<code>.xrow.xrow-cq</code>) — bricht anhand der <b>Containerbreite</b> um.
+							Da diese Spalte schmal ist, stapeln sich die xcol-md-4-Kacheln hier:
+						</p>
+						<div class="xrow xrow-cq demo-cq-row">
+							<div class="xcol-md-4"><div class="demo-box">1</div></div>
+							<div class="xcol-md-4"><div class="demo-box">2</div></div>
+							<div class="xcol-md-4"><div class="demo-box">3</div></div>
+						</div>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goColsCQCode" title="HTML: .xrow-cq"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 	<!-- DynComponent Integration -->
 	<div class="xrow">
 		<div class="xcol">

@@ -296,4 +296,23 @@
 		</div>
 	</div>
 
+	<!-- 14: Bullet Chart -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionBullet">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-bulletchart [settings]="bulletRevenue"></xiri-bulletchart>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-bulletchart [settings]="bulletSla"></xiri-bulletchart>
+					</div>
+					<div class="xcol-md-4">
+						<app-go-code [code]="goBulletCode" title="JSON: dyncomponent type 'bulletchart'"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>

@@ -84,6 +84,14 @@ export class LayoutComponent {
 		iconColor: 'accent',
 	};
 
+	sectionColsCQ: XiriSectionSettings = {
+		title: 'cols + Container Queries (.xrow-cq)',
+		subtitle: 'xcol-md-* bricht per Default am Viewport um (@media). Die Klasse xrow-cq lässt dieselben ' +
+			'xcol-*-Klassen stattdessen an der Containerbreite umbrechen (@container).',
+		icon: 'view_column',
+		iconColor: 'tertiary',
+	};
+
 	sectionDynComponent: XiriSectionSettings = {
 		title: 'DynComponent Integration',
 		subtitle: 'Alle neuen Komponenten via XiriDynComponentComponent kombiniert',
@@ -449,6 +457,21 @@ tb2 := toolbar.New().
 
 // Minimal
 tb3 := toolbar.New().Title("Minimal Toolbar")`;
+
+	goColsCQCode = `<!-- normal: bricht anhand des Viewports um -->
+<div class="xrow">
+  <div class="xcol-md-4">...</div>
+  <div class="xcol-md-4">...</div>
+  <div class="xcol-md-4">...</div>
+</div>
+
+<!-- opt-in Container Queries: gleiche xcol-* Klassen, -->
+<!-- aber Umbruch anhand der Breite DIESES Containers -->
+<div class="xrow xrow-cq">
+  <div class="xcol-md-4">...</div>
+  <div class="xcol-md-4">...</div>
+  <div class="xcol-md-4">...</div>
+</div>`;
 
 	goDescListCode = `// Stacked, 2 Spalten
 dl := descriptionlist.New().Layout("stacked").Columns(2)

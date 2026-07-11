@@ -11,6 +11,7 @@ import { XiriCalendarComponent, XiriCalendarSettings } from 'projects/xiri-ng/sr
 import { XiriTreeComponent, XiriTreeSettings } from 'projects/xiri-ng/src/lib/tree/tree.component';
 import { XiriSankeyComponent, XiriSankeySettings } from 'projects/xiri-ng/src/lib/sankey/sankey.component';
 import { XiriGanttComponent, XiriGanttSettings } from 'projects/xiri-ng/src/lib/gantt/gantt.component';
+import { XiriBulletChartComponent, XiriBulletChartSettings } from 'projects/xiri-ng/src/lib/bulletchart/bulletchart.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component({
@@ -30,6 +31,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		XiriTreeComponent,
 		XiriSankeyComponent,
 		XiriGanttComponent,
+		XiriBulletChartComponent,
 		GoCodePanelComponent,
 	],
 })
@@ -666,4 +668,45 @@ g := gantt.New("project").Title("Project plan").
     Task(2, "UAT",        t0+30*day,  t0+35*day, core.ColorYellow).
     Task(3, "Go-live",    t0+35*day,  t0+36*day, core.ColorRed).
     XRange(t0, t0+40*day)`;
+
+	// --- Bullet Chart ---
+
+	sectionBullet: XiriSectionSettings = {
+		title: '14: Bullet Chart',
+		subtitle: 'xiri-bulletchart: kompakte Gauge-Alternative — value als Balken, target als markLine. ' +
+			'max steuert die Skala, compact:true verschmälert den Balken.',
+		icon: 'linear_scale',
+		iconColor: 'success',
+	};
+
+	bulletRevenue: XiriBulletChartSettings = {
+		title: 'Quartalsumsatz',
+		label: 'Q3',
+		value: 82,
+		target: 90,
+		max: 120,
+		color: 'blue',
+	};
+
+	bulletSla: XiriBulletChartSettings = {
+		title: 'SLA-Erfüllung',
+		label: 'SLA',
+		value: 97,
+		target: 95,
+		max: 100,
+		color: 'success',
+		compact: true,
+	};
+
+	goBulletCode = `{
+  "type": "bulletchart",
+  "data": {
+    "title": "Quartalsumsatz",
+    "label": "Q3",
+    "value": 82,
+    "target": 90,
+    "max": 120,
+    "color": "blue"
+  }
+}`;
 }

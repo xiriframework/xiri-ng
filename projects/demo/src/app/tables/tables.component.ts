@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
@@ -7,6 +7,7 @@ import { XiriTagChip } from 'projects/xiri-ng/src/lib/formfields/field.interface
 import { XiriButton } from 'projects/xiri-ng/src/lib/button/button.component';
 import { XiriRawTableComponent, XiriRawTableSettings } from 'projects/xiri-ng/src/lib/raw-table/xiri-raw-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
@@ -14,7 +15,10 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-tables',
 	            templateUrl: './tables.component.html',
 	            styleUrl: './tables.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [
+		            XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent,
+		            GoCodePanelComponent, XiriBreadcrumbComponent, MatButtonToggleGroup, MatButtonToggle
+	            ]
             } )
 export class TablesComponent {
 
@@ -93,6 +97,14 @@ export class TablesComponent {
 		subtitle: 'Simple table without server connection. Suitable for static data. Supports dense, number, icon formats.',
 		icon: 'table_chart',
 		iconColor: 'accent',
+	};
+
+	sectionDensity: XiriSectionSettings = {
+		title: '11: Density + Number Column',
+		subtitle: "options.density: 'compact' | 'regular' | 'relaxed' switches row height live. " +
+			"format:'number' columns are automatically right-aligned with tabular-nums — no align needed.",
+		icon: 'density_medium',
+		iconColor: 'tertiary',
 	};
 
 	public data: XiriTableSettings = {
@@ -571,6 +583,42 @@ tb.ChipsField("tags", "Tags", tagsAcc)
 
 tbl := tb.Build()
 tbl.SetData(widgets) // statische Daten`;
+
+	// --- 11: Density + Number Column ---
+	density = signal<'compact' | 'regular' | 'relaxed'>( 'regular' );
+
+	densityData = computed<XiriTableSettings>( () => ( {
+		data: [
+			{ id: 1, product: 'Laptop Pro 15', revenue: 128450.5 },
+			{ id: 2, product: 'Wireless Mouse', revenue: 2430 },
+			{ id: 3, product: 'Monitor 27"', revenue: 45870.25 },
+			{ id: 4, product: 'USB-C Hub', revenue: 980.9 },
+			{ id: 5, product: 'Docking Station', revenue: 15920 },
+		],
+		fields: [
+			{ id: 'id', name: 'ID' },
+			{ id: 'product', name: 'Product' },
+			{ id: 'revenue', name: 'Revenue', format: 'number' },
+		],
+		options: {
+			title: '11: Density + Number Column',
+			density: this.density(),
+			sort: true, search: true,
+		},
+		hasFilter: false
+	} ) );
+
+	setDensity( density: 'compact' | 'regular' | 'relaxed' ): void {
+		this.density.set( density );
+	}
+
+	goDensityCode = `{
+  "options": { "density": "compact" },
+  "fields": [
+    { "id": "revenue", "name": "Revenue", "format": "number" }
+  ]
+}
+// format:'number' -> rechtsbündig + tabular-nums, ganz ohne "align"`;
 
 	onRowClicked( row: XiriTableRow ): void {
 		console.log( 'Row clicked:', row );

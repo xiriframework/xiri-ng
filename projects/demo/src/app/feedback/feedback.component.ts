@@ -11,6 +11,9 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriButton, XiriButtonComponent } from 'projects/xiri-ng/src/lib/button/button.component';
+import { XiriSidepanelService } from 'projects/xiri-ng/src/lib/sidepanel/sidepanel.service';
+import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
@@ -34,6 +37,8 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 export class FeedbackComponent {
 
 	private dialog = inject( MatDialog );
+	private sidepanel = inject( XiriSidepanelService );
+	private _snackBar = inject( MatSnackBar );
 
 	breadcrumbs: XiriBreadcrumbItem[] = [
 		{ label: 'Home', link: '/Overview', icon: 'home' },
@@ -66,6 +71,14 @@ export class FeedbackComponent {
 		title: 'XiriAlertComponent (Dialog)',
 		subtitle: 'Modal dialog for warnings and information. Opened via MatDialog.open().',
 		icon: 'notification_important',
+		iconColor: 'accent',
+	};
+
+	sectionSidepanel: XiriSectionSettings = {
+		title: 'XiriSidepanelService',
+		subtitle: 'Rechts einschiebendes Panel als Dialog-Alternative. ESC oder Backdrop-Klick schließt es; ' +
+			'afterClosed() liefert das Ergebnis, analog zu MatDialogRef.',
+		icon: 'vertical_split',
 		iconColor: 'accent',
 	};
 
@@ -174,5 +187,16 @@ return wc.Component(response.NewReturnSuccess("Worker fertig").
 			};
 
 		this.dialog.open( XiriAlertComponent, { data: config } );
+	}
+
+	sidepanelData: XiriDynData[] = [
+		{ type: 'html', data: { html: '<h3>Max Mustermann</h3><p>Kundennummer: K-10293</p><p>Status: <b>Aktiv</b></p>' } }
+	];
+
+	openSidepanel(): void {
+		const ref = this.sidepanel.open( { title: 'Kundendetails', data: this.sidepanelData } );
+		ref.afterClosed().subscribe( () => {
+			this._snackBar.open( 'Side-Panel geschlossen', 'OK', { duration: 2000 } );
+		} );
 	}
 }
