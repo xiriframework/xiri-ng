@@ -173,6 +173,15 @@ mat-card.xiritablecard {
 			}
 		}
 
+		// Numerische Spalten: rechtsbündig + gleiche Ziffernbreite.
+		// MUSS vor den .align-* Regeln stehen, damit explizites align:'left'/'center' gewinnt.
+		td.number,
+		th.number,
+		td.mat-mdc-footer-cell.number {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+		}
+
 		td, th {
 			&.right, &.align-right {
 				text-align: right;

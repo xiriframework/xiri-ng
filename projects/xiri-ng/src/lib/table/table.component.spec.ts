@@ -144,6 +144,16 @@ describe( 'XiriTableComponent', () => {
 			expect( component.columnsToDisplay ).toContain( 'age' );
 		} );
 
+		it( 'gibt numerischen Spalten die number-Klasse (Basis für Rechtsbündigkeit)', () => {
+			createFixture( {
+				fields: [ { id: 'betrag', name: 'Betrag', format: 'number' } ],
+				data: [],
+			} );
+
+			const col = component.displayedColumns.find( c => c.id === 'betrag' );
+			expect( col!.display ).toContain( 'number' );
+		} );
+
 		it( 'should skip fields with format "id"', () => {
 			createFixture( {
 				fields: [
