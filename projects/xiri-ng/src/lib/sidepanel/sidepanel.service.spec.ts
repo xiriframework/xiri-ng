@@ -17,4 +17,13 @@ describe( 'XiriSidepanelService', () => {
 		ref.close( 'ok' );
 		expect( await closed ).toBe( 'ok' );
 	} );
+
+	it( 'Escape-Taste schließt das Panel (CDK keydown dispatcher)', async () => {
+		const ref = service.open( { title: 'Detail', data: { x: 1 } } );
+		const closed = firstValueFrom( ref.afterClosed() );
+
+		document.body.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Escape', keyCode: 27, bubbles: true } ) );
+
+		await expect( closed ).resolves.toBeUndefined();
+	} );
 } );

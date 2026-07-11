@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Overlay } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
+import { ESCAPE } from '@angular/cdk/keycodes';
+import { filter } from 'rxjs/operators';
 import { XiriSidepanelComponent } from './sidepanel.component';
 import { XiriSidepanelRef } from './sidepanel-ref';
 
@@ -33,6 +35,7 @@ export class XiriSidepanelService {
 		cmp.setInput( 'ref', ref );
 
 		overlayRef.backdropClick().subscribe( () => ref.close() );
+		overlayRef.keydownEvents().pipe( filter( e => e.keyCode === ESCAPE ) ).subscribe( () => ref.close() );
 
 		return ref;
 	}
