@@ -83,7 +83,7 @@
 	}
 
 	@each $abbr, $size in $breakpoints {
-		@container xrow (min-width: $size) {
+		@container xrow (min-width: #{$size}) {
 			// Container query variants — opt-in via .xrow-cq
 			@for $i from 1 through 12 {
 				.xrow-cq > .xcol-#{$abbr}-#{$i} {
