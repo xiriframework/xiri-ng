@@ -50,6 +50,7 @@ export * from './lib/barchart/barchart.component';
 export * from './lib/linechart/linechart.component';
 export * from './lib/piechart/piechart.component';
 export * from './lib/gaugechart/gaugechart.component';
+export * from './lib/bulletchart/bulletchart.component';
 export * from './lib/heatmap/heatmap.component';
 export * from './lib/calendar/calendar.component';
 export * from './lib/tree/tree.component';

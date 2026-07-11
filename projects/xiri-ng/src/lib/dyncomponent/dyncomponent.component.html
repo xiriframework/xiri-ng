@@ -181,6 +181,11 @@
 				@defer { <xiri-gaugechart [settings]="$any(obj.data)"></xiri-gaugechart> }
 			</div>
 		}
+		@case ('bulletchart') {
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-3'" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-bulletchart [settings]="$any(obj.data)"></xiri-bulletchart> }
+			</div>
+		}
 		@case ('heatmap') {
 			<div [class]="obj.display || 'xcol'" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-heatmap [settings]="$any(obj.data)"></xiri-heatmap> }

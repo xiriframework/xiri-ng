@@ -4,7 +4,7 @@ export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'li
 	'multiprogress' | 'imagetext' | 'tabs' | 'expansion' | 'infotext' | 'html' | 'stat' |
 	'empty-state' | 'timeline' | 'page-header' | 'section' | 'divider' | 'stat-grid' |
 	'toolbar' | 'description-list' | 'barchart' | 'linechart' | 'piechart' | 'gaugechart' |
-	'heatmap' | 'calendar' | 'tree' | 'sankey' | 'gantt';
+	'bulletchart' | 'heatmap' | 'calendar' | 'tree' | 'sankey' | 'gantt';
 
 export interface XiriDynData {
 	id?: number

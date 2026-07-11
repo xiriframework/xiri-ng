@@ -32,6 +32,7 @@ import { XiriBarChartComponent } from '../barchart/barchart.component';
 import { XiriLineChartComponent } from '../linechart/linechart.component';
 import { XiriPieChartComponent } from '../piechart/piechart.component';
 import { XiriGaugeChartComponent } from '../gaugechart/gaugechart.component';
+import { XiriBulletChartComponent } from '../bulletchart/bulletchart.component';
 import { XiriHeatmapComponent } from '../heatmap/heatmap.component';
 import { XiriCalendarComponent } from '../calendar/calendar.component';
 import { XiriTreeComponent } from '../tree/tree.component';
@@ -80,6 +81,7 @@ import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
 	                       XiriLineChartComponent,
 	                       XiriPieChartComponent,
 	                       XiriGaugeChartComponent,
+	                       XiriBulletChartComponent,
 	                       XiriHeatmapComponent,
 	                       XiriCalendarComponent,
 	                       XiriTreeComponent,
