@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'  # Trigger on tags starting with 'v' (e.g., v0.2.1)
 
+# Serialize publish runs so concurrent tag pushes don't race the npm `latest` tag
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 # Permissions needed for OIDC authentication
 permissions:
   id-token: write  # Required for OIDC trusted publishing to npm
