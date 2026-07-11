@@ -307,16 +307,14 @@ f2 := field.NewFileField("file2", "Multiple Files", false).
 		} ]
 	};
 
-	goRadioCode = `{
-  "type": "radio",
-  "id": "priority",
-  "name": "Priority",
-  "list": [
-    { "id": "low", "name": "Low" },
-    { "id": "medium", "name": "Medium" },
-    { "id": "high", "name": "High", "color": "warn" }
-  ]
-}
-// Kurzform: "array": ["Standard", "Express", "Overnight"]
-// wird automatisch in "list" umgewandelt`;
+	goRadioCode = `priority := field.NewRadioField("priority", "Priority", true,
+    []field.SelectOption{
+        {Value: "low", Label: "Low"},
+        {Value: "medium", Label: "Medium"},
+        {Value: "high", Label: "High"},
+    }).SetClass("xcol-md-6 xcol-xl-4")
+
+builder.AddField(priority)
+// NewRadioField teilt sich Parsing/Validierung mit dem Select-Feld
+// und exportiert type:"radio" + list (id/name) für die mat-radio-group.`;
 }

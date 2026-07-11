@@ -698,15 +698,7 @@ g := gantt.New("project").Title("Project plan").
 		compact: true,
 	};
 
-	goBulletCode = `{
-  "type": "bulletchart",
-  "data": {
-    "title": "Quartalsumsatz",
-    "label": "Q3",
-    "value": 82,
-    "target": 90,
-    "max": 120,
-    "color": "blue"
-  }
-}`;
+	goBulletCode = `b := bulletchart.New("revenue").
+    Title("Quartalsumsatz").Value(82).Target(90).Max(120).
+    Color(core.ColorBlue).Label("Q3")`;
 }
