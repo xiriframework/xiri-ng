@@ -34,6 +34,7 @@ export * from "./lib/header/header.component";
 export * from './lib/list/list.component';
 export * from './lib/infopoint/infopoint.component';
 export * from './lib/multiprogress/multiprogress.component';
+export * from './lib/progress/progress.component';
 export * from './lib/imagetext/imagetext.component';
 export * from './lib/search/search.component';
 export * from './lib/sidenav/sidenav.component';

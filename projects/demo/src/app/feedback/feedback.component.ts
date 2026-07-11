@@ -6,6 +6,7 @@ import { XiriDoneComponent } from 'projects/xiri-ng/src/lib/done/done.component'
 import { XiriErrorComponent } from 'projects/xiri-ng/src/lib/error/error.component';
 import { XiriAlertComponent, XiriAlertConfig } from 'projects/xiri-ng/src/lib/alert/alert.component';
 import { XiriMultiprogressComponent, XiriMultiprogressSettings } from 'projects/xiri-ng/src/lib/multiprogress/multiprogress.component';
+import { XiriProgressComponent, XiriProgressSettings } from 'projects/xiri-ng/src/lib/progress/progress.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
@@ -22,6 +23,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		            XiriDoneComponent,
 		            XiriErrorComponent,
 		            XiriMultiprogressComponent,
+		            XiriProgressComponent,
 		            MatButton,
 		            MatIcon,
 		            XiriBreadcrumbComponent,
@@ -72,6 +74,29 @@ export class FeedbackComponent {
 		subtitle: 'Multiple progress bars with header, icon, and color configuration. show limits the visible count.',
 		icon: 'linear_scale',
 		iconColor: 'primary',
+	};
+
+	sectionProgress: XiriSectionSettings = {
+		title: 'XiriProgressComponent',
+		subtitle: 'Single determinate progress bar with "x of y" semantics for honest process tracking (backfills, backtest runs). Also supports an indeterminate mode.',
+		icon: 'donut_large',
+		iconColor: 'primary',
+	};
+
+	progressDeterminate: XiriProgressSettings = {
+		label: 'Symbole verarbeitet',
+		current: 3,
+		total: 10,
+		value: 30,
+		color: 'primary',
+	};
+
+	progressIndeterminate: XiriProgressSettings = {
+		label: 'Backtest läuft…',
+		current: 0,
+		total: 0,
+		value: 0,
+		indeterminate: true,
 	};
 
 	sectionButtonPoll: XiriSectionSettings = {

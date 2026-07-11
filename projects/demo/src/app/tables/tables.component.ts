@@ -385,6 +385,19 @@ export class TablesComponent {
 		hasFilter: false
 	};
 
+	public dataError: XiriTableSettings = {
+		url: 'Test/Error/Fail',
+		fields: [
+			{ id: 'id', name: 'ID' },
+			{ id: 'name', name: 'Name' },
+		],
+		options: {
+			title: '10: Error + Retry (500)',
+			textNoData: 'No data',
+		},
+		hasFilter: false
+	};
+
 	// --- RawTable ---
 	rawTableSettings: XiriRawTableSettings = {
 		dense: 2,

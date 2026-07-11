@@ -51,6 +51,9 @@
 .stat-content {
 	display: flex;
 	align-items: center;
+	// In schmalen Spalten das Trend-Badge unter den Text umbrechen lassen,
+	// statt die Textspalte auf Breite 0 zu quetschen.
+	flex-wrap: wrap;
 	gap: var(--xiri-spacing-md);
 	min-width: 0;
 }
@@ -68,7 +71,9 @@
 
 .stat-data {
 	flex: 1;
-	min-width: 0;
+	// ponytail: feste Mindestbreite (~80px), damit Wert/Label nie auf 0 kollabieren;
+	// darunter greift der Umbruch in .stat-content. Bei Bedarf feintunen.
+	min-width: 5rem;
 }
 
 .stat-value {
@@ -90,6 +95,16 @@
 .stat-label {
 	font-size: var(--xiri-font-size-label);
 	color: var(--on-surface-variant, #44474F);
+	margin-top: 2px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.stat-reference {
+	font-size: var(--xiri-font-size-label);
+	color: var(--on-surface-variant, #44474F);
+	opacity: 0.7;
 	margin-top: 2px;
 	overflow: hidden;
 	text-overflow: ellipsis;

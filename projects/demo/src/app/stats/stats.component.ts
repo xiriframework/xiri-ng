@@ -50,6 +50,7 @@ export class StatsComponent {
 		label: 'Total Users',
 		icon: 'group',
 		iconColor: 'primary',
+		reference: 'Ziel: 1.000',
 		trend: { value: 12.5, direction: 'up' },
 	};
 
@@ -68,6 +69,7 @@ export class StatsComponent {
 		icon: 'speed',
 		iconColor: 'accent',
 		suffix: '%',
+		reference: 'SLA ≥ 95 %',
 		trend: { value: 0.1, direction: 'neutral' },
 	};
 

@@ -1,0 +1,9 @@
+<div class="xiri-progress">
+	<div class="progress-head">
+		<span class="progress-label">{{ settings().label }}</span>
+		@if (!settings().indeterminate) {
+			<span class="progress-count">{{ settings().current }} / {{ settings().total }}</span>
+		}
+	</div>
+	<mat-progress-bar [mode]="mode()" [value]="settings().value" [class]="settings().color || ''"></mat-progress-bar>
+</div>

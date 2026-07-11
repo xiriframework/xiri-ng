@@ -3,6 +3,7 @@ import { XiriDynData } from "./dyndata.interface";
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { XiriImagetextComponent } from '../imagetext/imagetext.component';
 import { XiriMultiprogressComponent } from '../multiprogress/multiprogress.component';
+import { XiriProgressComponent } from '../progress/progress.component';
 import { XiriInfopointComponent } from '../infopoint/infopoint.component';
 import { XiriListComponent } from '../list/list.component';
 import { XiriHeaderComponent } from '../header/header.component';
@@ -59,6 +60,7 @@ import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
 	                       XiriListComponent,
 	                       XiriInfopointComponent,
 	                       XiriMultiprogressComponent,
+	                       XiriProgressComponent,
 	                       XiriImagetextComponent,
 	                       NgTemplateOutlet,
 	                       SafehtmlPipe,

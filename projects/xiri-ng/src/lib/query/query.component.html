@@ -10,7 +10,12 @@
 				<div class="query">
 					<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
 					@if (error()) {
-						<div class="error">{{ error() }}</div>
+						<div class="error">
+							<span>{{ error() }}</span>
+							<button mat-button type="button" data-testid="query-retry" (click)="retry()">
+								<mat-icon>refresh</mat-icon> Retry
+							</button>
+						</div>
 					}
 				</div>
 			</mat-expansion-panel>
@@ -18,7 +23,12 @@
 			<div class="query">
 				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
 				@if (error()) {
-					<div class="error">{{ error() }}</div>
+					<div class="error">
+						<span>{{ error() }}</span>
+						<button mat-button type="button" data-testid="query-retry" (click)="retry()">
+							<mat-icon>refresh</mat-icon> Retry
+						</button>
+					</div>
 				}
 			</div>
 		}
@@ -40,7 +50,7 @@
 		</div>
 	}
 	@if (data()) {
-		<div class="xcol">
+		<div class="xcol" [class.is-loading]="loading()">
 			<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: data() }"></ng-container>
 		</div>
 	}

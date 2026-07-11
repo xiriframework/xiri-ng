@@ -155,6 +155,19 @@ describe( 'XiriStatComponent', () => {
 		expect( value.classList.contains( 'success' ) ).toBe( true );
 	} );
 
+	it( 'should not render reference when not provided', () => {
+		expect( fixture.nativeElement.querySelector( '.stat-reference' ) ).toBeFalsy();
+	} );
+
+	it( 'should render reference when provided', () => {
+		host.settings.set( { value: '1,4', label: 'PF', reference: 'Gate ≥ 1,1' } );
+		fixture.detectChanges();
+
+		const ref = fixture.nativeElement.querySelector( '.stat-reference' );
+		expect( ref ).toBeTruthy();
+		expect( ref.textContent ).toContain( 'Gate ≥ 1,1' );
+	} );
+
 	it( 'should handle empty string value', () => {
 		host.settings.set( { value: '', label: 'Empty' } );
 		fixture.detectChanges();

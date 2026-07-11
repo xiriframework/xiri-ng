@@ -59,7 +59,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSelect, MatOption } from '@angular/material/select';
-import { NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { MatCard } from '@angular/material/card';
 import { XiriEmptyStateComponent } from '../empty-state/empty-state.component';
 import { XiriColor } from '../types/color.type';
@@ -189,6 +189,7 @@ export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './
 	                       MatProgressSpinner,
 	                       MatPaginator,
 	                       NgTemplateOutlet,
+	                       DatePipe,
 	                       SafehtmlPipe, XiriUrlPipe, XiriButtonComponent, MatHeaderCellDef, MatCellDef, MatHeaderRowDef, MatRowDef,
 	                       MatFooterRow, MatFooterRowDef, MatFooterCell, MatFooterCellDef,
 	                       MatMenu, MatMenuItem, MatMenuTrigger,
@@ -243,6 +244,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private autoRefreshTimer?: ReturnType<typeof setTimeout>;
 	private countdownTimer?: ReturnType<typeof setInterval>;
 	autoRefresh = signal<{ intervalMs: number; nextAt: number } | null>( null );
+	// Timestamp of the last successful load, shown as "Stand HH:MM" so a stale/polled
+	// view never lets the user act on silently outdated numbers.
+	lastUpdated = signal<Date | null>( null );
 	private _now = signal<number>( Date.now() );
 	countdown = computed<number>( () => {
 		const ar = this.autoRefresh();
@@ -510,6 +514,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 						this.paginator().length = res.totalCount;
 					}
 					this.setData( res.data );
+					this.lastUpdated.set( new Date() );
 					if ( res.poll )
 						this.scheduleAutoRefresh( res.poll );
 					else

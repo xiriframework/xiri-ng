@@ -82,6 +82,11 @@
 				@defer (on viewport) { <xiri-multiprogress [settings]="$any(obj.data)"></xiri-multiprogress> } @placeholder { <xiri-skeleton type="rect" height="48px" /> }
 			</div>
 		}
+		@case ('progress') {
+			<div [class]="obj.display || 'xcol xcol-md-6 xcol-xl-4'" [class.xcol-start]="obj.newRow">
+				<xiri-progress [settings]="$any(obj.data)"></xiri-progress>
+			</div>
+		}
 		@case ('imagetext') {
 			<div [class]="obj.display || 'xcol xcol-md-4'" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-imagetext [settings]="$any(obj.data)"></xiri-imagetext> } @placeholder { <xiri-skeleton type="rect" height="120px" /> }

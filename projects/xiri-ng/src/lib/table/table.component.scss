@@ -111,6 +111,15 @@ mat-card.xiritablecard {
 				}
 			}
 		}
+
+		.lastupdated-indicator {
+			display:     inline-flex;
+			align-items: center;
+			padding:     2px 8px;
+			font-size:   var(--xiri-font-size-small, 0.8rem);
+			color:       var(--on-surface-variant, #44474F);
+			opacity:     0.75;
+		}
 	}
 
 	@keyframes xiri-autorefresh-spin {

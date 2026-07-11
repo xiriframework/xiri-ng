@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { XiriQueryComponent, XiriQuerySettings } from './query.component';
 import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
@@ -362,6 +362,52 @@ describe( 'XiriQueryComponent', () => {
 				button: {} as XiriButton,
 			} );
 			expect( component.loading() ).toBe( false );
+		} );
+	} );
+
+	describe( 'stale-while-revalidate', () => {
+		it( 'should keep old data and set loading while a reload is pending', () => {
+			mockDataService.post.mockReturnValue( of( { data: [ { type: 'card', data: {} } ] } ) );
+
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+
+			component.formChanged( { valid: true, value: { f: 'a' } } );
+			expect( component.data() ).toBeTruthy();
+
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending.asObservable() );
+			component.retry();
+
+			// Old data must stay visible (no empty flash) while the request is in flight.
+			expect( component.data() ).toBeTruthy();
+			expect( component.loading() ).toBe( true );
+
+			pending.next( { data: [ { type: 'card', data: {} } ] } );
+			expect( component.loading() ).toBe( false );
+		} );
+	} );
+
+	describe( 'retry', () => {
+		it( 'should show a retry button on error and re-load on click', () => {
+			mockDataService.post.mockReturnValue( throwError( () => ( { status: 500 } ) ) );
+
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+
+			component.formChanged( { valid: true, value: { f: 'test' } } );
+			fixture.detectChanges();
+
+			const btn = fixture.nativeElement.querySelector( '[data-testid="query-retry"]' ) as HTMLButtonElement;
+			expect( btn ).toBeTruthy();
+
+			const callsBefore = mockDataService.post.mock.calls.length;
+			btn.click();
+			expect( mockDataService.post.mock.calls.length ).toBe( callsBefore + 1 );
 		} );
 	} );
 

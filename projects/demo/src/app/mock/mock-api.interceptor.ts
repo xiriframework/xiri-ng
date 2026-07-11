@@ -30,6 +30,15 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return next( req );
 	}
 
+	// Error API — always fails, to demo the differentiated error message + retry button.
+	if ( req.url.includes( 'Test/Error/Fail' ) ) {
+		return throwError( () => new HttpErrorResponse( {
+			status: 500,
+			error: { error: 'Server konnte die Daten nicht laden' },
+			statusText: 'Internal Server Error',
+		} ) ).pipe( delay( 400 ) );
+	}
+
 	// Stepper API
 	if ( req.url.includes( 'Test/Stepper/Step' ) ) {
 		return of( new HttpResponse( { status: 200, body: getStepperResponse( req.body as MockRequestBody ) } ) );

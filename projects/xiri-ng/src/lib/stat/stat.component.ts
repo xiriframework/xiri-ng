@@ -18,6 +18,7 @@ export interface XiriStatSettings {
 	prefix?: string
 	suffix?: string
 	color?: XiriColor
+	reference?: string
 	compact?: boolean
 }
 

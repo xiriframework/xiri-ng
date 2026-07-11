@@ -1,0 +1,19 @@
+.xiri-progress {
+	display:        flex;
+	flex-direction: column;
+	gap:            var(--xiri-spacing-xs, 4px);
+}
+
+.progress-head {
+	display:         flex;
+	justify-content: space-between;
+	align-items:     baseline;
+	gap:             var(--xiri-spacing-sm, 8px);
+	font-size:       var(--xiri-font-size-label);
+}
+
+.progress-count {
+	color:       var(--on-surface-variant, #44474F);
+	font-weight: 500;
+	flex-shrink: 0;
+}

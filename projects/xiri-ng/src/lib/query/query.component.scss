@@ -4,6 +4,13 @@
 	padding-right: var(--xiri-spacing-md);
 }
 
+// Stale-while-revalidate: dim the previous result while a reload is in flight.
+.is-loading {
+	opacity: 0.5;
+	transition: opacity 0.15s ease-in-out;
+	pointer-events: none;
+}
+
 .query-expansion {
 	.query {
 		padding-left:  0;

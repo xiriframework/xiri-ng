@@ -254,6 +254,41 @@ describe( 'XiriTableComponent', () => {
 			expect( component.dataSource.data ).toEqual( [] );
 			expect( component.loading() ).toBe( false );
 		} );
+
+		it( 'should set lastUpdated after a successful URL load', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], fields: [ { id: 'name', name: 'Name' } ] } ) );
+
+			createFixture( { url: 'test/data', fields: [ { id: 'name', name: 'Name' } ] } );
+
+			expect( component.lastUpdated() ).not.toBeNull();
+		} );
+
+		it( 'should render the data-age indicator after a load', () => {
+			mockDataService.post.mockReturnValue( of( { data: [], fields: [ { id: 'name', name: 'Name' } ] } ) );
+
+			createFixture( { url: 'test/data', fields: [ { id: 'name', name: 'Name' } ] } );
+			fixture.detectChanges();
+
+			const el = fixture.nativeElement.querySelector( '[data-testid="table-last-updated"]' );
+			expect( el ).toBeTruthy();
+		} );
+
+		it( 'should show a retry button on error and reload on click', () => {
+			mockDataService.post.mockReturnValue(
+				throwError( () => ( { error: { error: 'Server error' } } ) )
+			);
+
+			createFixture( { url: 'test/data', fields: [ { id: 'name', name: 'Name' } ] } );
+			fixture.detectChanges();
+
+			const btn = fixture.nativeElement.querySelector( '[data-testid="table-retry"]' ) as HTMLButtonElement;
+			expect( btn ).toBeTruthy();
+
+			mockDataService.post.mockReturnValue( of( { data: [] } ) );
+			const callsBefore = mockDataService.post.mock.calls.length;
+			btn.click();
+			expect( mockDataService.post.mock.calls.length ).toBe( callsBefore + 1 );
+		} );
 	} );
 
 	describe( 'search', () => {

@@ -21,6 +21,7 @@ import { XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriButtonResult } from "../button/button.component";
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
 import { MatIcon } from "@angular/material/icon";
+import { MatButton } from "@angular/material/button";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -46,7 +47,7 @@ export interface XiriQueryFormChangeEvent {
 	            selector: 'xiri-query',
 	            templateUrl: './query.component.html',
 	            styleUrl: './query.component.scss',
-	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatProgressSpinner ],
+	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatButton, MatProgressSpinner ],
             } )
 export class XiriQueryComponent implements OnInit {
 
@@ -137,6 +138,12 @@ export class XiriQueryComponent implements OnInit {
 		}
 	}
 	
+	// Re-runs the last URL load after an error; filter payload is retained in dynData.filterData.
+	public retry() {
+		if ( this.settings().url )
+			this.load();
+	}
+
 	public clickedButton( event: XiriButtonResult ) {
 		
 		if ( !event.loading && event.done ) {
@@ -152,16 +159,20 @@ export class XiriQueryComponent implements OnInit {
 	}
 	
 	private load() {
-		
-		this.data.set( null );
+
+		// Stale-while-revalidate: keep the previous data() visible (dimmed via loading())
+		// instead of flashing empty on every navigation/filter change.
 		this.error.set( null );
-		
+		this.loading.set( true );
+
 		const call = this.dataService.post( this.settings().url ?? '', this.dynData.filterData );
-		
+
 		call.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
 				next: ( res: unknown ) => {
+					this.loading.set( false );
 					if ( !res ) {
+						this.data.set( null );
 						this.error.set( 'Unknown Error' );
 						this.cdr.markForCheck();
 						return;
@@ -176,6 +187,8 @@ export class XiriQueryComponent implements OnInit {
 					this.cdr.markForCheck();
 				},
 				error: ( err: HttpErrorResponse ) => {
+					this.loading.set( false );
+					this.data.set( null );
 					if ( err.status === 404 )
 						this.error.set( 'Page not found' );
 					else if ( err.status === 401 )

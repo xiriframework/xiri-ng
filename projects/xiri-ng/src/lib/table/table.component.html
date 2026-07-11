@@ -16,6 +16,11 @@
 						<span>Auto-Refresh aktiv · nächste in {{ countdown() }}s</span>
 					</div>
 				}
+				@if (lastUpdated(); as updated) {
+					<div class="lastupdated-indicator" data-testid="table-last-updated" role="status" aria-live="polite">
+						Stand {{ updated | date:'HH:mm' }}
+					</div>
+				}
 				@if (treeEnabled) {
 					<div class="buttons xiri-tree-actions">
 						<button mat-icon-button (click)="expandAllNodes()" color="primary"
@@ -363,7 +368,12 @@
 						<div class="nodata">{{ options.textNoData }}</div>
 					}
 				} @else if (errorMsg) {
-					<div class="alert alert-danger">{{ errorMsg }}</div>
+					<div class="alert alert-danger">
+						<span>{{ errorMsg }}</span>
+						<button mat-button type="button" data-testid="table-retry" (click)="reload()">
+							<mat-icon>autorenew</mat-icon> Retry
+						</button>
+					</div>
 				}
 			}
 

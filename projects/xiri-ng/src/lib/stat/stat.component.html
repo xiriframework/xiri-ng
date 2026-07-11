@@ -28,6 +28,9 @@
 				}
 			</div>
 			<div class="stat-label">{{ settings().label }}</div>
+			@if (settings().reference; as reference) {
+				<div class="stat-reference">{{ reference }}</div>
+			}
 		</div>
 		@if (settings().trend; as trend) {
 			<div class="stat-trend" [class]="trend.direction">
