@@ -73,6 +73,15 @@
 		}
 	}
 
+	// Reset viewport-based spans for .xrow-cq children (specificity 0,2,0 beats the
+	// always-active .xcol-{bp}-{i} media rule above at 0,1,0), so a container narrower
+	// than the viewport breakpoint falls back to the mobile default instead of inheriting
+	// a span meant for a wide viewport. The @container rules below share this same
+	// specificity and come later in source order, so they win once the container matches.
+	.xrow-cq > [class*='xcol-'] {
+		grid-column-end: span 12;
+	}
+
 	@each $abbr, $size in $breakpoints {
 		@container xrow (min-width: $size) {
 			// Container query variants — opt-in via .xrow-cq

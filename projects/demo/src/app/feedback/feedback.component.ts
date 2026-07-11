@@ -166,6 +166,10 @@ return wc.Component(response.NewReturnSuccess("Worker fertig").
 		]
 	};
 
+	sidepanelData: XiriDynData[] = [
+		{ type: 'html', data: { html: '<h3>Max Mustermann</h3><p>Kundennummer: K-10293</p><p>Status: <b>Aktiv</b></p>' } }
+	];
+
 	openAlert( type: 'warning' | 'info' ): void {
 		const config: XiriAlertConfig = type === 'warning'
 			? {
@@ -188,10 +192,6 @@ return wc.Component(response.NewReturnSuccess("Worker fertig").
 
 		this.dialog.open( XiriAlertComponent, { data: config } );
 	}
-
-	sidepanelData: XiriDynData[] = [
-		{ type: 'html', data: { html: '<h3>Max Mustermann</h3><p>Kundennummer: K-10293</p><p>Status: <b>Aktiv</b></p>' } }
-	];
 
 	openSidepanel(): void {
 		const ref = this.sidepanel.open( { title: 'Kundendetails', data: this.sidepanelData } );

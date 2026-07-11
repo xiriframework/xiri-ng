@@ -589,11 +589,11 @@ tbl.SetData(widgets) // statische Daten`;
 
 	densityData = computed<XiriTableSettings>( () => ( {
 		data: [
-			{ id: 1, product: 'Laptop Pro 15', revenue: 128450.5 },
-			{ id: 2, product: 'Wireless Mouse', revenue: 2430 },
-			{ id: 3, product: 'Monitor 27"', revenue: 45870.25 },
-			{ id: 4, product: 'USB-C Hub', revenue: 980.9 },
-			{ id: 5, product: 'Docking Station', revenue: 15920 },
+			{ id: 1, product: 'Laptop Pro 15', revenue: [ '128,450.50', 128450.5 ] },
+			{ id: 2, product: 'Wireless Mouse', revenue: [ '2,430.00', 2430 ] },
+			{ id: 3, product: 'Monitor 27"', revenue: [ '45,870.25', 45870.25 ] },
+			{ id: 4, product: 'USB-C Hub', revenue: [ '980.90', 980.9 ] },
+			{ id: 5, product: 'Docking Station', revenue: [ '15,920.00', 15920 ] },
 		],
 		fields: [
 			{ id: 'id', name: 'ID' },
