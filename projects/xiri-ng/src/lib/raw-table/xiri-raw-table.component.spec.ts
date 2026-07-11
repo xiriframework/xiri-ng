@@ -210,4 +210,22 @@ describe( 'XiriRawTableComponent', () => {
 		fixture.detectChanges();
 		expect( component.tableClass() ).toContain( 'dense-2' );
 	} );
+
+	it( 'mappt density compact auf dense-6', () => {
+		host.settings.set( { density: 'compact', data: [], fields: [] } );
+		fixture.detectChanges();
+		expect( component.tableClass() ).toContain( 'dense-6' );
+	} );
+
+	it( 'mappt density relaxed auf dense-1', () => {
+		host.settings.set( { density: 'relaxed', data: [], fields: [] } );
+		fixture.detectChanges();
+		expect( component.tableClass() ).toContain( 'dense-1' );
+	} );
+
+	it( 'faellt bei dense:0 auf den Default dense-6 zurueck', () => {
+		host.settings.set( { data: [], fields: [], dense: 0 } );
+		fixture.detectChanges();
+		expect( component.tableClass() ).toContain( 'dense-6' );
+	} );
 } );

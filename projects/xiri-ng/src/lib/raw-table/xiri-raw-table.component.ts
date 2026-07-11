@@ -64,9 +64,9 @@ export class XiriRawTableComponent {
 
 	constructor() {
 		effect( () => {
-			const DENSITY_TO_LEVEL = { compact: 6, regular: 2, relaxed: 0 } as const;
+			const DENSITY_TO_LEVEL = { compact: 6, regular: 2, relaxed: 1 } as const;
 			const density = this.settings().density;
-			const level = density ? DENSITY_TO_LEVEL[ density ] : ( this.settings().dense ?? 6 );
+			const level = density ? DENSITY_TO_LEVEL[ density ] : ( this.settings().dense || 6 );
 			this.tableClass.set( 'dense-' + level + ( this.settings().forceMinWidth ? ' force-min-width' : '' ) );
 
 			this.loadFields( this.settings().fields ?? [] );
