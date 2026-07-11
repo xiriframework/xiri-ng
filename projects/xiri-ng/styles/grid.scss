@@ -21,6 +21,11 @@
 		}
 	}
 
+	.xrow-cq {
+		container-type: inline-size;
+		container-name: xrow;
+	}
+
 	.xcol {
 		grid-column-end: span 12;
 		max-width:       100%;
@@ -64,6 +69,25 @@
 
 			.x-#{$abbr}-none {
 				display: none !important;
+			}
+		}
+	}
+
+	@each $abbr, $size in $breakpoints {
+		@container xrow (min-width: $size) {
+			// Container query variants — opt-in via .xrow-cq
+			@for $i from 1 through 12 {
+				.xrow-cq > .xcol-#{$abbr}-#{$i} {
+					grid-column-end: span $i;
+				}
+				.xrow-cq > .xcol-middle-#{$abbr}-#{$i} {
+					grid-column-start: math.ceil(calc((12 - $i )/2)) + 1;
+					grid-column-end:   math.ceil(calc((12 - $i )/2)) + $i + 1;
+				}
+				.xrow-cq > .xcol-right-#{$abbr}-#{$i} {
+					grid-column-start: calc(12 - $i + 1);
+					grid-column-end:   13;
+				}
 			}
 		}
 	}
