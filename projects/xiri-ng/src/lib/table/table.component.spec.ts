@@ -432,6 +432,20 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	describe( 'density', () => {
+		it( 'setzt density-Klasse am table-Element', () => {
+			component.options = { ...component.options, density: 'compact' };
+			fixture.detectChanges();
+			const table = fixture.nativeElement.querySelector( 'table' );
+			expect( table.classList.contains( 'density-compact' ) ).toBe( true );
+		} );
+
+		it( 'mappt dense:true auf density compact (Alias)', () => {
+			const merged = component.mergeOptions( { dense: true } );
+			expect( merged.density ).toBe( 'compact' );
+		} );
+	} );
+
 	describe( 'inline editing', () => {
 		it( 'should not start edit if column is not editable', () => {
 			const column = { id: 'name', name: 'Name', editable: false };

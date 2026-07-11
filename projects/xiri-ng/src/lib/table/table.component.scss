@@ -129,9 +129,24 @@ mat-card.xiritablecard {
 
 	table {
 		width: 100%;
-		--mat-table-header-container-height: 42px;
-		--mat-table-footer-container-height: 42px;
-		--mat-table-row-item-container-height: 42px;
+
+		&.density-regular {
+			--mat-table-header-container-height: 42px;
+			--mat-table-footer-container-height: 42px;
+			--mat-table-row-item-container-height: 42px;
+		}
+
+		&.density-compact {
+			--mat-table-header-container-height: 32px;
+			--mat-table-footer-container-height: 32px;
+			--mat-table-row-item-container-height: 32px;
+		}
+
+		&.density-relaxed {
+			--mat-table-header-container-height: 52px;
+			--mat-table-footer-container-height: 52px;
+			--mat-table-row-item-container-height: 52px;
+		}
 
 		th.mat-mdc-header-cell:not(:first-of-type),
 		td.mat-mdc-cell:not(:first-of-type),
@@ -143,12 +158,6 @@ mat-card.xiritablecard {
 		td.mat-mdc-cell:not(:last-of-type),
 		td.mat-mdc-footer-cell:not(:last-of-type) {
 			padding-right: 7px;
-		}
-
-		tr.mat-mdc-header-row {
-			&.dense {
-				height: 28px;
-			}
 		}
 
 		tr.mat-mdc-row {

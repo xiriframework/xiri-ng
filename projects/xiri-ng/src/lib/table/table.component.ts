@@ -120,6 +120,7 @@ export interface XiriTableEmptyState {
 export interface XiriTableOptions {
 	reload?: boolean
 	dense?: boolean
+	density?: 'compact' | 'regular' | 'relaxed'
 	sort?: boolean
 	search?: boolean
 	class?: string
@@ -259,6 +260,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public options: XiriTableOptions = {
 		reload: false,
 		dense: false,
+		density: 'regular',
 		sort: true,
 		search: true,
 		pagination: true,
@@ -285,6 +287,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private _firstData = true;
 	public searchText = '';
 	public searchTextInit = '';
+
+	// Resolves the legacy dense:true alias to density:'compact' when density itself is not set explicitly.
+	public mergeOptions( incoming: XiriTableOptions ): XiriTableOptions {
+		const merged: XiriTableOptions = { ...incoming };
+		if ( merged.density === undefined && merged.dense === true )
+			merged.density = 'compact';
+		return merged;
+	}
 
 	private tableStateKey(): string | null {
 		return this.options.saveStateId ? this.options.saveStateId + ':table' : null;
@@ -344,7 +354,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	public ngOnInit() {
 		
 		if ( this.settings().options )
-			this.options = { ...this.options, ...this.settings().options };
+			this.options = { ...this.options, ...this.mergeOptions( this.settings().options as XiriTableOptions ) };
 		const settingsFields = this.settings().fields;
 		if ( settingsFields )
 			this.loadFields( settingsFields );

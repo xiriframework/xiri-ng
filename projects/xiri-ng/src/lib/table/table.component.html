@@ -52,6 +52,7 @@
 			<div class="tableout-wrap">
 			<div class="tableout" [class.is-loading]="loading()" [style.max-height]="options.scrollHeight || null">
 				<table mat-table [dataSource]="dataSource" matSort [style.min-width]="options.minWidth ?? '100%'"
+				       [class]="'density-' + options.density"
 				       [class.borders]="options.borders" [class.bordersHeader]="options.bordersHeader"
 				       [trackBy]="trackByRowId">
 
