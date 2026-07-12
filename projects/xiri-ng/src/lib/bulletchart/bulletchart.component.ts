@@ -34,18 +34,36 @@ export class XiriBulletChartComponent {
 		const s = this.settings();
 		const color = resolveColor( s.color, '#8b5cf6' );
 		const max = s.max ?? Math.max( s.value, s.target ?? 0 ) * 1.2;
+		const compact = this.compact();
+		const valueText = s.label ? `${ s.value } ${ s.label }` : `${ s.value }`;
 
 		return {
-			grid: { left: 8, right: 8, top: 8, bottom: 8, containLabel: false },
-			xAxis: { type: 'value', max, show: false },
-			yAxis: { type: 'category', data: [ s.label ?? '' ], show: false },
+			// right: Platz für das Value-Label; top: Platz für das Ziel-Label über der Linie.
+			grid: { left: 8, right: 56, top: 22, bottom: 8, containLabel: false },
+			xAxis: { type: 'value', min: 0, max, show: false },
+			yAxis: { type: 'category', data: [ '' ], show: false },
 			series: [ {
 				type: 'bar',
 				data: [ s.value ],
-				barWidth: this.compact() ? 12 : 18,
+				barWidth: compact ? 14 : 20,
 				itemStyle: { color, borderRadius: 4 },
+				label: {
+					show: true,
+					position: 'right',
+					formatter: valueText,
+					fontWeight: 'bold',
+					color: '#333'
+				},
 				markLine: s.target !== undefined ? {
 					symbol: 'none',
+					precision: 0,
+					label: {
+						show: true,
+						position: 'end',
+						formatter: `Ziel ${ s.target }`,
+						color: '#666',
+						fontSize: 11
+					},
 					data: [ { xAxis: s.target, lineStyle: { color: '#333', width: 2, type: 'solid' } } ]
 				} : undefined
 			} ]
