@@ -74,6 +74,26 @@
 
 	}
 
+	.radio {
+		display:        flex;
+		flex-direction: column;
+		gap:            var(--xiri-spacing-xs);
+
+		.radio-label {
+			font-size: var(--xiri-font-size-label);
+		}
+
+		mat-radio-group {
+			display:   flex;
+			flex-wrap: wrap;
+			gap:       var(--xiri-spacing-xs) var(--xiri-spacing-md);
+		}
+
+		mat-hint {
+			font-size: var(--xiri-font-size-helper);
+		}
+	}
+
 	.info {
 		padding-top:    0.8rem;
 		padding-bottom: 0.4rem;
