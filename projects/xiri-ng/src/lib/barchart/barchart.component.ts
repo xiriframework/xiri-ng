@@ -49,6 +49,7 @@ export interface XiriBarChartSettings {
 		<xiri-echarts-host
 			[option]="option()"
 			[compact]="compact()"
+			[chartHeight]="chartHeight()"
 			[title]="settings().title"
 			(itemClick)="onItemClick($event)">
 		</xiri-echarts-host>
@@ -63,6 +64,16 @@ export class XiriBarChartComponent {
 	private router = inject( Router );
 
 	compact = computed<boolean>( () => !!this.settings().compact );
+
+	// Rotierte X-Achsen-Labels brauchen vertikalen Platz. Bei fixer 200px-Höhe würden
+	// lange, schräg/vertikal gestellte Labels sonst unten abgeschnitten.
+	chartHeight = computed<string>( () => {
+		if ( this.compact() ) return '200px';
+		const rot = Math.abs( this.settings().xLabelRotate ?? 0 );
+		if ( rot >= 60 ) return '280px';
+		if ( rot >= 30 ) return '250px';
+		return '200px';
+	} );
 
 	onItemClick( e: XiriEchartsClick ): void {
 		const s = this.settings();
@@ -85,10 +96,12 @@ export class XiriBarChartComponent {
 		}
 	} );
 
-	// Rotated x-axis labels (interval: 0 forces all labels — no thinning on narrow bars).
+	// X-axis labels. Always return a config object — `axisLabel: undefined` suppresses
+	// the category labels entirely in echarts. interval: 0 forces all labels when rotated
+	// (they fit at an angle); otherwise echarts thins them automatically to avoid overlap.
 	private xLabelConfig() {
 		const r = this.settings().xLabelRotate;
-		return r != null ? { rotate: r, interval: 0 } : undefined;
+		return r != null ? { rotate: r, interval: 0 } : { rotate: 0 };
 	}
 
 	private baseGrid() {
@@ -97,7 +110,11 @@ export class XiriBarChartComponent {
 		if ( this.compact() ) {
 			return { left: 0, right: 0, top: 4, bottom: 0, containLabel: true };
 		}
-		return { left: 32, right: 16, top: 24, bottom: 24, containLabel: true };
+		// Wert-Labels stehen über den Balken (position 'top') und fallen NICHT unter
+		// containLabel — ohne zusätzlichen Rand oben werden sie am Canvas-Rand gekappt.
+		const s = this.settings();
+		const topLabels = !!s.showValues && s.labelPosition !== 'inside';
+		return { left: 32, right: 16, top: topLabels ? 34 : 24, bottom: 24, containLabel: true };
 	}
 
 	private simpleOption() {

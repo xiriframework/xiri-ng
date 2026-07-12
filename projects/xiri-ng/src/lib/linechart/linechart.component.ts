@@ -30,6 +30,7 @@ export interface XiriLineChartSettings {
 		<xiri-echarts-host
 			[option]="option()"
 			[compact]="compact()"
+			[chartHeight]="chartHeight()"
 			[title]="settings().title">
 		</xiri-echarts-host>
 	`,
@@ -40,6 +41,15 @@ export class XiriLineChartComponent {
 	settings = input.required<XiriLineChartSettings>();
 
 	compact = computed<boolean>( () => !!this.settings().compact );
+
+	// Rotierte X-Achsen-Labels brauchen vertikalen Platz — sonst unten abgeschnitten.
+	chartHeight = computed<string>( () => {
+		if ( this.compact() ) return '200px';
+		const rot = Math.abs( this.settings().xLabelRotate ?? 0 );
+		if ( rot >= 60 ) return '280px';
+		if ( rot >= 30 ) return '250px';
+		return '200px';
+	} );
 
 	option = computed( () => {
 		const s = this.settings();
@@ -89,7 +99,7 @@ export class XiriLineChartComponent {
 				boundaryGap: false,
 				axisLine: { show: false },
 				axisTick: { show: false },
-				axisLabel: s.xLabelRotate != null ? { rotate: s.xLabelRotate, interval: 0 } : undefined
+				axisLabel: s.xLabelRotate != null ? { rotate: s.xLabelRotate, interval: 0 } : { rotate: 0 }
 			},
 			yAxis: {
 				type: 'value',

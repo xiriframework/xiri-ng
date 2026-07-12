@@ -42,8 +42,13 @@ export class XiriHeatmapComponent {
 	compact = computed<boolean>( () => !!this.settings().compact );
 
 	height = computed<string>( () => {
-		const rows = this.settings().yLabels.length || 1;
-		const px = Math.max( 200, rows * 32 + 40 );
+		const s = this.settings();
+		const rows = s.yLabels.length || 1;
+		// Rotierte X-Labels brauchen zusätzlichen vertikalen Platz unter der Matrix.
+		const rot = Math.abs( s.xLabelRotate ?? 0 );
+		const rotExtra = rot >= 60 ? 70 : rot >= 30 ? 50 : 0;
+		// rows*32 für die Zellen + 76 für Titel, X-Achsen-Labels und Rand.
+		const px = Math.max( 220, rows * 32 + 76 + rotExtra );
 		return px + 'px';
 	} );
 
@@ -58,7 +63,7 @@ export class XiriHeatmapComponent {
 		return {
 			grid: this.compact()
 				? { left: 0, right: 0, top: 4, bottom: 0, containLabel: true }
-				: { left: 32, right: 16, top: 24, bottom: 24, containLabel: true },
+				: { left: 32, right: 64, top: 24, bottom: 24, containLabel: true },
 			tooltip: {
 				position: 'top',
 				formatter: ( p: XiriEchartsCallbackParams ) => {
@@ -74,7 +79,7 @@ export class XiriHeatmapComponent {
 				splitArea: { show: true },
 				axisLine: { show: false },
 				axisTick: { show: false },
-				axisLabel: s.xLabelRotate != null ? { rotate: s.xLabelRotate, interval: 0 } : undefined
+				axisLabel: { interval: 0, rotate: s.xLabelRotate ?? 0 }
 			},
 			yAxis: {
 				type: 'category',
@@ -87,9 +92,9 @@ export class XiriHeatmapComponent {
 				min,
 				max,
 				calculable: true,
-				orient: 'horizontal',
-				left: 'center',
-				bottom: 0,
+				orient: 'vertical',
+				right: 8,
+				top: 'middle',
 				inRange: { color: [ lowColor, highColor ] },
 				show: !this.compact()
 			},
