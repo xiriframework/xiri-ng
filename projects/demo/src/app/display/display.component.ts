@@ -100,7 +100,7 @@ export class DisplayComponent {
 
 	// --- ImageText ---
 	imagetext1: XiriImagetextSettings = {
-		url: 'https://via.placeholder.com/300x200',
+		url: 'assets/sample-preview.svg',
 		info: 'Sample image',
 		header: 'Project Preview',
 		headerIcon: 'image',
@@ -108,7 +108,7 @@ export class DisplayComponent {
 		headerSub: 'With icon and subtitle'
 	};
 	imagetext2: XiriImagetextSettings = {
-		url: 'https://via.placeholder.com/300x200',
+		url: 'assets/sample-dashboard.svg',
 		info: 'Second example',
 		header: 'Dashboard',
 		headerIcon: 'dashboard',

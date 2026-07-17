@@ -1,4 +1,4 @@
-<mat-horizontal-stepper [linear]="true" (selectionChange)="stepChanged( $event )" [hidden]="done()">
+<mat-stepper [orientation]="orientation()" [linear]="true" (selectionChange)="stepChanged( $event )" [hidden]="done()">
 	@for (step of steps(); track i; let i = $index) {
 		<mat-step [label]="step.title" [completed]="step.completed()">
 			<div class="xrow">
@@ -27,7 +27,7 @@
 			</div>
 		</mat-step>
 	}
-</mat-horizontal-stepper>
+</mat-stepper>
 
 @if (done()) {
 	<div class="xcol done">

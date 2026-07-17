@@ -47,12 +47,15 @@
 .right {
 	text-align:      right;
 	flex-grow:       1;
+	min-width:       0; // erlaubt Schrumpfen statt das feste Icon zu verdrängen
 
 	display:         flex;
 	flex-direction:  column;
 	justify-content: center;
 
 	padding-left:    7px;
+
+	overflow-wrap:   anywhere; // Umbruch statt unsichtbares Abschneiden auf schmalen Hosts
 
 	.text {
 		color:     var(--on-surface-variant, rgba(0, 0, 0, 0.54));

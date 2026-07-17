@@ -9,7 +9,16 @@ mat-spinner {
 
 	h1[mat-dialog-title] {
 		margin-bottom: 0;
+		flex:          0 1 auto; // Material setzt flex-shrink:0 — überschreiben, damit der Titel schrumpfen darf
+		min-width:     0;        // Titel darf umbrechen statt die Surface über 90vw zu verbreitern
+		overflow-wrap: anywhere;
 	}
+}
+
+// Ein breites Kind (z. B. Raw-Table) scrollt innerhalb des Contents,
+// statt die Dialog-Surface aufzublähen.
+mat-dialog-content {
+	overflow-x: auto;
 }
 
 .dynamic-form {

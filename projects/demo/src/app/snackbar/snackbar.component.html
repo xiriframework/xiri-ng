@@ -52,12 +52,7 @@
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-section [settings]="sectionUsage">
-				<pre><code>private snackbar = inject(XiriSnackbarService);
-
-this.snackbar.success('Saved!');
-this.snackbar.error('Failed!', 5000);
-this.snackbar.info('Info', 3000, 'Dismiss');
-this.snackbar.warning('Check input!');</code></pre>
+				<app-go-code [code]="usageCode" title="TypeScript"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>

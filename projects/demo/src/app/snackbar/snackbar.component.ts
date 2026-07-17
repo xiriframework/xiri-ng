@@ -5,6 +5,7 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 
 @Component( {
 	            selector: 'app-snackbar',
@@ -15,7 +16,8 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 		            XiriSectionComponent,
 		            MatButton,
 		            MatIcon,
-		            XiriBreadcrumbComponent
+		            XiriBreadcrumbComponent,
+		            GoCodePanelComponent
 	            ]
             } )
 export class SnackbarComponent {
@@ -52,6 +54,13 @@ export class SnackbarComponent {
 		title: 'Usage',
 		icon: 'code',
 	};
+
+	usageCode = `private snackbar = inject(XiriSnackbarService);
+
+this.snackbar.success('Saved!');
+this.snackbar.error('Failed!', 5000);
+this.snackbar.info('Info', 3000, 'Dismiss');
+this.snackbar.warning('Check input!');`;
 
 	showSuccess(): void {
 		this.snackbar.success( 'Operation completed successfully!' );

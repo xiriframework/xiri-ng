@@ -8,9 +8,10 @@ import {
 	viewChild,
 	WritableSignal
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { XiriButton } from "../button/button.component";
-import { Observable, Subscription } from "rxjs";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { map, Observable, Subscription } from "rxjs";
 import { MatStep, MatStepper } from "@angular/material/stepper";
 import { XiriDataService } from "../services/data.service";
 import { Location } from "@angular/common";
@@ -89,8 +90,17 @@ export class XiriStepperComponent implements OnInit {
 	private location: Location = inject( Location );
 	private router: Router = inject( Router );
 	private destroyRef = inject( DestroyRef );
+	private breakpointObserver = inject( BreakpointObserver );
 
 	settings = input.required<XiriStepperSettings>();
+
+	// Auf Phone (XSmall) vertikal, damit die Schrittbezeichnungen nicht abgeschnitten werden.
+	orientation = toSignal(
+		this.breakpointObserver.observe( Breakpoints.XSmall ).pipe(
+			map( result => result.matches ? 'vertical' : 'horizontal' as const )
+		),
+		{ initialValue: 'horizontal' as const }
+	);
 
 	public done = signal( false );
 	private calls: Subscription[] = [];
