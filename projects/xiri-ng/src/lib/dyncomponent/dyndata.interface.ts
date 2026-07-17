@@ -2,7 +2,7 @@ import { XiriCols } from '../layout/cols.directive';
 
 export type XiriDynDataType = 'card' | 'buttonline' | 'table' | 'cardlink' | 'links' | 'form' |
 	'query' | 'stepper' | 'header' | 'list' | 'spacer' | 'container' | 'infopoint' |
-	'multiprogress' | 'imagetext' | 'tabs' | 'expansion' | 'infotext' | 'html' | 'stat' |
+	'multiprogress' | 'progress' | 'imagetext' | 'tabs' | 'expansion' | 'infotext' | 'html' | 'stat' |
 	'empty-state' | 'timeline' | 'page-header' | 'section' | 'divider' | 'stat-grid' |
 	'toolbar' | 'description-list' | 'barchart' | 'linechart' | 'piechart' | 'gaugechart' |
 	'bulletchart' | 'heatmap' | 'calendar' | 'tree' | 'sankey' | 'gantt';

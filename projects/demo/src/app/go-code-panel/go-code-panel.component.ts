@@ -8,4 +8,6 @@ import { Component, input } from '@angular/core';
 export class GoCodePanelComponent {
     code  = input.required<string>();
     title = input<string>('Go');
+    // Ausnahme-Override: einzelne Panels können offen starten. Default eingeklappt.
+    expanded = input<boolean>(false);
 }

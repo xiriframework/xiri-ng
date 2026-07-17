@@ -37,7 +37,7 @@ export class FormsComponent {
 
 	sectionSections: XiriSectionSettings = {
 		title: 'Collapsible Sections & Dividers',
-		subtitle: "type: 'header' with collapsible: true creates an expandable section that runs until the next header. Multiple collapsible headers stack as independent siblings — collapsing one (e.g. 'Advanced Settings') leaves the following section ('Notifications') fully visible. type: 'divider' adds a visual separator.",
+		subtitle: "type: 'header' with collapsible: true creates an expandable section that runs until the next header; multiple headers stack as independent siblings. type: 'divider' adds a visual separator.",
 		icon: 'view_agenda',
 	};
 
@@ -55,7 +55,7 @@ export class FormsComponent {
 		fields: [ {
 			type: 'text',
 			name: 'Text',
-			value: 'test',
+			value: 'Projekt Nordwind',
 			class: 'xcol-md-6 xcol-xl-3',
 			id: 'text1',
 		}, {
@@ -284,7 +284,7 @@ export class FormsComponent {
 	};
 
 	goFieldTypesCode = `fg := group.NewFormGroup([]field.FormField{
-    field.NewTextField("text1", "Text", false, "test").
+    field.NewTextField("text1", "Text", false, "Projekt Nordwind").
         SetClass("xcol-md-6 xcol-xl-3"),
     field.NewIntField("int1", "Int", false, 1).
         SetClass("xcol-md-6 xcol-xl-3"),

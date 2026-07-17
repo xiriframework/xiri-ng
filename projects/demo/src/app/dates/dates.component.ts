@@ -55,7 +55,7 @@ export class DatesComponent {
 			min: ( new Date().getTime() ) / 1000 - ( 3600 * 24 * 14 ),
 			max: ( new Date().getTime() ) / 1000 + ( 3600 * 24 ),
 			id: 'datetime',
-			hint: 'test',
+			hint: 'Datum und Uhrzeit wählen',
 			required: false,
 		}, {
 			type: 'yearmonth',
@@ -124,7 +124,7 @@ export class DatesComponent {
 			},
 		],
 		buttons: [ {
-			text: 'Ok',
+			text: 'Auswahl übernehmen',
 			type: 'raised',
 			default: true,
 			action: 'debug'

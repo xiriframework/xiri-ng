@@ -114,7 +114,7 @@ export class FeedbackComponent {
 
 	sectionButtonPoll: XiriSectionSettings = {
 		title: 'Selbst-pollender Button (Background Worker)',
-		subtitle: 'Der Button stößt einen Worker an; die Antwort liefert ein "poll"-Intervall + "pollUrl". Der Button fragt den Status selbsttätig ab und zeigt Spinner + Countdown IM Button, bis der Worker fertig ist (Antwort ohne "poll") — dann Erfolgs-Snackbar.',
+		subtitle: 'Der Button stößt einen Worker an und pollt selbsttätig den Status — mit Spinner und Countdown im Button, bis der Worker fertig ist und eine Erfolgs-Snackbar erscheint.',
 		icon: 'sync',
 		iconColor: 'primary',
 	};

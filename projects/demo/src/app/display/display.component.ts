@@ -87,13 +87,13 @@ export class DisplayComponent {
 
 	// --- Infopoint ---
 	infopoint = {
-		text: 'Test',
-		info: 'Info text longer',
+		text: 'Offline',
+		info: 'No connection for 5 minutes',
 		icon: 'wifi',
 		iconColor: 'red'
 	} as XiriInfopointSettings;
 	infopoint2 = {
-		info: 'Info',
+		info: 'Vehicle currently moving',
 		icon: 'directions_car',
 		iconColor: 'emerald'
 	} as XiriInfopointSettings;
@@ -135,26 +135,26 @@ export class DisplayComponent {
 		sections: [ {
 			name: 'Favorites',
 			data: [ {
-				name: 'test',
-				info: 'info',
-				icon: 'home',
+				name: 'Dashboard',
+				info: 'Main overview',
+				icon: 'dashboard',
 				iconColor: 'emerald',
-				url: 'test',
+				url: '/Overview',
 				hasFavorite: true,
 				isFavorite: true
 			}, {
-				name: 'test',
-				info: 'info',
-				icon: 'home',
+				name: 'Open Orders',
+				info: '12 pending',
+				icon: 'table_chart',
 				iconColor: 'emerald',
-				url: 'test',
+				url: '/Tables',
 				hasFavorite: true,
 			}, {
-				name: 'test',
-				info: 'info',
-				icon: 'home',
+				name: 'New Entry',
+				info: 'Create a record',
+				icon: 'edit',
 				iconColor: 'emerald',
-				url: 'test',
+				url: '/Forms',
 				hasFavorite: true,
 			} ]
 		}, {

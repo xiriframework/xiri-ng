@@ -184,7 +184,7 @@ export class NavigationComponent {
 								{ id: 'email', name: 'Email', type: 'email' },
 							],
 							buttons: [
-								{ text: 'Submit', type: 'raised', action: 'submit', color: 'primary' }
+								{ text: 'Save', type: 'raised', action: 'submit', color: 'primary' }
 							]
 						} as XiriFormSettings
 					}

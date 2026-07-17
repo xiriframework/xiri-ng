@@ -261,7 +261,7 @@ function getStepperResponse( body: MockRequestBody ): unknown {
 			],
 			buttons: [
 				{ text: 'Back', type: 'basic', action: 'prev' },
-				{ text: 'Submit', type: 'raised', action: 'next', default: true, color: 'primary' }
+				{ text: 'Complete registration', type: 'raised', action: 'next', default: true, color: 'primary' }
 			]
 		};
 	}
@@ -278,13 +278,13 @@ function getSearchSelectResponse( body: MockRequestBody ): unknown[] {
 		return [];
 	}
 
-	// Generate test data
+	// Generate sample results
 	const data = [];
 	for ( let i = 10; i < 16; i++ ) {
-		data.push( { id: i, name: 'test ' + i } );
+		data.push( { id: i, name: 'Fahrzeug ' + i } );
 	}
 	for ( let i = 20; i < 26; i++ ) {
-		data.push( { id: i, name: 'test ' + i } );
+		data.push( { id: i, name: 'Fahrzeug ' + i } );
 	}
 
 	// Filter by search term
@@ -575,7 +575,7 @@ function getQueryPage(): unknown {
 						data: {
 							class: 'center',
 							buttons: [
-								{ text: 'Test', type: 'raised', action: 'api', url: 'Test/Query/Table', color: 'primary', autoLoad: true }
+								{ text: 'Daten laden', type: 'raised', action: 'api', url: 'Test/Query/Table', color: 'primary', autoLoad: true }
 							]
 						}
 					}
@@ -653,13 +653,13 @@ function getFormPage(): unknown {
 				type: 'form',
 				data: {
 					url: 'Test/Form/Page',
-					header: 'Test Form',
+					header: 'Upload Document',
 					fields: [
 						{ id: 'name', type: 'text', name: 'Name', required: true },
 						{ id: 'file', type: 'file', name: 'File', hint: 'Maximum 10MB', required: false, multiple: true, pattern: '.pdf,.jpg' }
 					],
 					buttons: [
-						{ text: 'Submit', type: 'raised', action: 'next', default: true, color: 'primary' },
+						{ text: 'Upload', type: 'raised', action: 'next', default: true, color: 'primary' },
 						{ text: 'Cancel', type: 'basic', action: 'back' }
 					]
 				}

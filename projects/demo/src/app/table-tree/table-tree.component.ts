@@ -55,7 +55,7 @@ export class TableTreeComponent {
 
 	sectionBasic: XiriSectionSettings = {
 		title:    '1: Basis-Baum (collapse/expand, Suche, Persistenz)',
-		subtitle: 'Mehrere Roots, Tiefe 4. Pfeile klappen einzelne Knoten auf, die Toolbar-Buttons alle. Der Expand-State wird im localStorage gespeichert (persistStateKey). Die Suche zeigt Treffer + gedimmte Vorfahren.',
+		subtitle: 'Mehrere Roots mit Tiefe 4; Pfeile klappen einzelne Knoten auf, Toolbar-Buttons alle. Der Expand-State bleibt im localStorage erhalten, die Suche hebt Treffer samt Vorfahren hervor.',
 		icon:     'account_tree',
 	};
 

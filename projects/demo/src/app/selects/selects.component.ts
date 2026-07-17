@@ -42,7 +42,7 @@ export class SelectsComponent {
 			name: 'multiselect',
 			class: 'xcol-start xcol-md-6 xcol-xl-4',
 			id: 'multiselect',
-			hint: 'test',
+			hint: 'Höchstens 3 Einträge wählbar',
 			max: 3,
 			value: [ 3 ],
 			list: [
@@ -78,7 +78,7 @@ export class SelectsComponent {
 			name: 'treeselect',
 			class: 'xcol-md-6 xcol-xl-4',
 			id: 'treeselect',
-			hint: 'test',
+			hint: 'Hierarchische Auswahl',
 			// max:      3,
 			// value:    [ 3 ],
 			list: [
@@ -8242,7 +8242,7 @@ export class SelectsComponent {
 			name: 'treeselect3',
 			class: 'xcol-md-6 xcol-xl-4',
 			id: 'treeselect3',
-			hint: 'test',
+			hint: 'Kategorie wählen',
 			list: undefined,
 			required: false,
 		} ],
@@ -8251,7 +8251,7 @@ export class SelectsComponent {
 			type: 'raised',
 			action: 'simulate'
 		}, {
-			text: 'Ok',
+			text: 'Übernehmen',
 			type: 'raised',
 			default: true,
 			action: 'simulate'

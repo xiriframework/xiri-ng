@@ -87,7 +87,7 @@ export class TablesComponent {
 
 	sectionTable9: XiriSectionSettings = {
 		title: '9: Auto-Refresh (Background Worker)',
-		subtitle: 'Das Backend signalisiert per "poll" ein Intervall (ms). Die Tabelle lädt selbsttätig neu und zeigt im Header einen Auto-Refresh-Indikator mit Countdown, bis der Worker fertig ist. Danach entfällt "poll" und das Polling stoppt automatisch.',
+		subtitle: 'Per "poll"-Intervall lädt die Tabelle selbsttätig neu und zeigt im Header einen Auto-Refresh-Indikator mit Countdown. Sobald der Worker fertig ist, stoppt das Polling automatisch.',
 		icon: 'sync',
 		iconColor: 'primary',
 	};

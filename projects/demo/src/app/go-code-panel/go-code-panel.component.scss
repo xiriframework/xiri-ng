@@ -9,15 +9,28 @@
 }
 
 .go-code-header {
+    // summary: nativer Marker dient als Auf/Zu-Indikator, tastaturbedienbar (Enter/Space)
     padding: 8px 16px;
     background: var(--surface-variant);
     border-bottom: 1px solid var(--outline-variant);
+    cursor: pointer;
+    user-select: none;
+
+    &:focus-visible {
+        outline: 2px solid var(--primary, #6750a4);
+        outline-offset: -2px;
+    }
 
     .go-code-label {
         font-size: var(--xiri-font-size-label);
         font-weight: 500;
         color: var(--on-surface);
     }
+}
+
+// Eingeklappt: kein unterer Rand am Header nötig
+.go-code-panel:not([open]) .go-code-header {
+    border-bottom: none;
 }
 
 .go-code-body {

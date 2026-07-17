@@ -1,6 +1,6 @@
-<div class="go-code-panel">
-    <div class="go-code-header">
+<details class="go-code-panel" [open]="expanded()">
+    <summary class="go-code-header">
         <span class="go-code-label">{{ title() }}</span>
-    </div>
+    </summary>
     <pre class="go-code-body"><code>{{ code() }}</code></pre>
-</div>
+</details>
