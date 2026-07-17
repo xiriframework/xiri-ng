@@ -1,0 +1,8 @@
+// ============================================
+// Shared Mixins
+// ============================================
+
+// Fixed-width digits for numeric columns / counters (avoids layout jitter).
+@mixin xiri-tabular-nums {
+	font-variant-numeric: tabular-nums;
+}

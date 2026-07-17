@@ -175,4 +175,20 @@ describe('XiriButtonstyleComponent', () => {
 		const btn = fixture.nativeElement.querySelector('button');
 		expect(btn).toBeFalsy();
 	});
+
+	it('should set aria-label on icon-only button from hint', () => {
+		host.btn.set(makeButton({ type: 'icon', icon: 'edit', hint: 'Bearbeiten', text: undefined }));
+		fixture.detectChanges();
+
+		const btn = fixture.nativeElement.querySelector('button[mat-icon-button]');
+		expect(btn?.getAttribute('aria-label')).toBe('Bearbeiten');
+	});
+
+	it('should fall back to text for aria-label when no hint on icon-only button', () => {
+		host.btn.set(makeButton({ type: 'icon', icon: 'delete', hint: undefined, text: 'Löschen' }));
+		fixture.detectChanges();
+
+		const btn = fixture.nativeElement.querySelector('button[mat-icon-button]');
+		expect(btn?.getAttribute('aria-label')).toBe('Löschen');
+	});
 });

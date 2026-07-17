@@ -1,6 +1,7 @@
 @use 'sass:list';
 @use 'sass:map';
 @use 'colors' as *;
+@use 'mixins';
 
 // ============================================
 // Color Variant Mixins
@@ -109,7 +110,7 @@ mat-icon {
 // ============================================
 .mat-small-icon-button {
 	--mat-icon-button-state-layer-size:  28px;
-	--mat-icon-button-touch-target-size: 28px;
+	--mat-icon-button-touch-target-size: 44px; // WCAG 2.5.5: Hit-Area ≥ 44px, Icon bleibt klein
 	--mat-icon-button-icon-size:         18px;
 
 	.mat-icon {
@@ -122,7 +123,7 @@ mat-icon {
 
 .mat-medium-icon-button {
 	--mat-icon-button-state-layer-size:  36px;
-	--mat-icon-button-touch-target-size: 36px;
+	--mat-icon-button-touch-target-size: 44px; // WCAG 2.5.5: Hit-Area ≥ 44px, Icon bleibt klein
 	--mat-icon-button-icon-size:         22px;
 
 	.mat-icon {
@@ -174,10 +175,17 @@ td.align-right .xiri-chips-display {
 	display:          inline-block;
 	padding:          2px 8px;
 	border-radius:    12px;
-	font-size:        12px;
+	font-size:        var(--xiri-font-size-helper);
 	line-height:      1.6;
 	background-color: var(--surface-variant, #DEE3EB);
 	color:            var(--on-surface-variant, #42474E);
+}
+
+// ============================================
+// Tabular Numbers Utility
+// ============================================
+.xiri-tabular-nums {
+	@include mixins.xiri-tabular-nums;
 }
 
 // ============================================

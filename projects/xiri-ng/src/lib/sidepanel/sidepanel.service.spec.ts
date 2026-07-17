@@ -26,4 +26,25 @@ describe( 'XiriSidepanelService', () => {
 
 		await expect( closed ).resolves.toBeUndefined();
 	} );
+
+	it( 'stellt beim Schließen den Fokus auf das auslösende Element zurück', () => {
+		const trigger = document.createElement( 'button' );
+		document.body.appendChild( trigger );
+		trigger.focus();
+		expect( document.activeElement ).toBe( trigger );
+
+		const ref = service.open( { title: 'Detail' } );
+
+		// Simuliere, dass der Fokus in das Panel gewandert ist.
+		const inside = document.createElement( 'input' );
+		document.body.appendChild( inside );
+		inside.focus();
+		expect( document.activeElement ).not.toBe( trigger );
+
+		ref.close();
+		expect( document.activeElement ).toBe( trigger );
+
+		trigger.remove();
+		inside.remove();
+	} );
 } );

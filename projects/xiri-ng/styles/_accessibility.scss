@@ -2,6 +2,17 @@
 // Global Accessibility Styles
 // ============================================
 
+// Base line-height for body text (WCAG 1.4.12 recommendation).
+// Only body + native headings — Material components set their own
+// line-height (sometimes 1) deliberately, do not override those here.
+body {
+	line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	line-height: 1.25;
+}
+
 // Focus-visible indicator for keyboard navigation
 // Uses :focus-visible to only show on keyboard focus, not mouse clicks
 *:focus-visible {
@@ -31,6 +42,19 @@
 // Material form fields
 .mat-mdc-form-field:focus-within {
 	// Material handles this internally, no override needed
+}
+
+// Windows High Contrast Mode / forced-colors basics
+@media (forced-colors: active) {
+	*:focus-visible {
+		outline: 2px solid;
+	}
+
+	// State conveyed only via background-color would otherwise disappear;
+	// keep it legible with an explicit border.
+	.xiri-chip-display {
+		border: 1px solid;
+	}
 }
 
 // Skip link for keyboard users

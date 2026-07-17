@@ -2,6 +2,16 @@ mat-spinner {
 	margin: var(--xiri-spacing-md);
 }
 
+.dialog-header {
+	display:         flex;
+	align-items:     center;
+	justify-content: space-between;
+
+	h1[mat-dialog-title] {
+		margin-bottom: 0;
+	}
+}
+
 .dynamic-form {
 	margin-bottom: var(--xiri-spacing-md);
 

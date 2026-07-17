@@ -12,6 +12,7 @@
 @switch (button().type) {
 	@case ('icon') {
 		<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+		        [attr.aria-label]="button().hint || button().text"
 		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()">
 			@if (loading()) {
 				<mat-spinner diameter="20"></mat-spinner>
@@ -81,6 +82,7 @@
 	}
 	@case ('minifab') {
 		<button mat-mini-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+		        [attr.aria-label]="button().hint || button().text"
 		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
@@ -92,6 +94,7 @@
 	}
 	@case ('fab') {
 		<button mat-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+		        [attr.aria-label]="button().hint || button().text"
 		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 		        [tabIndex]="button().tabIndex">
 			@if (loading()) {
@@ -104,6 +107,7 @@
 	@default {
 		@if (button().icon) {
 			<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+			        [attr.aria-label]="button().hint || button().text"
 			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 			        [tabIndex]="button().tabIndex">
 				@if (loading()) {

@@ -1,3 +1,4 @@
+@use '../../../styles/mixins';
 
 mat-card.xiritablecard {
 	padding:       0;
@@ -188,7 +189,7 @@ mat-card.xiritablecard {
 		th.number,
 		td.mat-mdc-footer-cell.number {
 			text-align: right;
-			font-variant-numeric: tabular-nums;
+			@include mixins.xiri-tabular-nums;
 		}
 
 		td, th {
@@ -256,7 +257,8 @@ mat-card.xiritablecard {
 		border-radius: var(--xiri-radius-xs);
 		padding:       2px 4px;
 
-		&:hover {
+		&:hover,
+		&:focus-visible {
 			background-color: var(--surface-variant, #DEE3EB);
 
 			.xiri-edit-icon {

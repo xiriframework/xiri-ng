@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError } from 'rxjs';
@@ -6,6 +6,18 @@ import { UntypedFormGroup } from '@angular/forms';
 import { XiriFormComponent, XiriFormSettings } from './form.component';
 import { XiriFormService, XiriFormServiceData } from '../services/form.service';
 import { Location } from '@angular/common';
+
+function stubLocalStorage(): void {
+	const store: Record<string, string> = {};
+	vi.stubGlobal( 'localStorage', {
+		getItem: vi.fn( ( key: string ) => store[ key ] ?? null ),
+		setItem: vi.fn( ( key: string, value: string ) => { store[ key ] = value; } ),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		length: 0,
+		key: vi.fn(),
+	} );
+}
 
 @Component( {
 	selector: 'xiri-form-test-host',
@@ -48,6 +60,7 @@ describe( 'XiriFormComponent', () => {
 
 	function createFixture( settings?: XiriFormSettings ) {
 		TestBed.resetTestingModule();
+		stubLocalStorage();
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
@@ -68,6 +81,10 @@ describe( 'XiriFormComponent', () => {
 	beforeEach( () => {
 		initMocks();
 		createFixture();
+	} );
+
+	afterEach( () => {
+		vi.unstubAllGlobals();
 	} );
 
 	it( 'should create', () => {

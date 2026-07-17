@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { XiriDialogComponent } from './dialog.component';
@@ -8,6 +8,18 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriDownloadService } from '../services/download.service';
 import { Router } from '@angular/router';
 import { BreakpointObserver } from '@angular/cdk/layout';
+
+function stubLocalStorage(): void {
+	const store: Record<string, string> = {};
+	vi.stubGlobal( 'localStorage', {
+		getItem: vi.fn( ( key: string ) => store[ key ] ?? null ),
+		setItem: vi.fn( ( key: string, value: string ) => { store[ key ] = value; } ),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		length: 0,
+		key: vi.fn(),
+	} );
+}
 
 describe( 'XiriDialogComponent', () => {
 	let fixture: ComponentFixture<XiriDialogComponent>;
@@ -53,6 +65,7 @@ describe( 'XiriDialogComponent', () => {
 
 	function createComponent( initData: Record<string, unknown> ) {
 		TestBed.resetTestingModule();
+		stubLocalStorage();
 		TestBed.configureTestingModule( {
 			imports: [ XiriDialogComponent ],
 			providers: [
@@ -72,6 +85,10 @@ describe( 'XiriDialogComponent', () => {
 
 	beforeEach( () => {
 		initMocks();
+	} );
+
+	afterEach( () => {
+		vi.unstubAllGlobals();
 	} );
 
 	describe( 'creation and init', () => {
@@ -485,6 +502,59 @@ describe( 'XiriDialogComponent', () => {
 			fixture.detectChanges();
 
 			expect( () => component.ngOnDestroy() ).not.toThrow();
+		} );
+	} );
+
+	describe( 'close button', () => {
+		it( 'should render close button for form type and close on click', () => {
+			const formResponse = {
+				buttons: [ { text: 'Save', action: 'save', type: 'raised' } ],
+				fields: [ { id: 'name', type: 'text', value: 'test' } ],
+				header: 'Edit Form',
+			};
+			createComponent( { type: 'form', url: 'test/form', ...formResponse } );
+			fixture.detectChanges();
+
+			const closeButton: HTMLButtonElement | null =
+				fixture.nativeElement.querySelector( 'button[mat-icon-button][aria-label="Schließen"]' );
+			expect( closeButton ).toBeTruthy();
+
+			closeButton!.click();
+			expect( mockDialogRef.close ).toHaveBeenCalledWith( null );
+		} );
+
+		it( 'should not render close button for waiting type', () => {
+			const response = {
+				buttons: [ { text: 'Wait', action: 'wait', type: 'raised' } ],
+				fields: { text: 'Processing...' },
+				header: 'Waiting',
+				type: 'waiting',
+				time: 3000,
+			};
+			mockDataService.get.mockReturnValue( of( response ) );
+
+			createComponent( { type: 'load', url: 'test' } );
+			fixture.detectChanges();
+
+			const closeButton = fixture.nativeElement.querySelector( 'button[mat-icon-button][aria-label="Schließen"]' );
+			expect( closeButton ).toBeFalsy();
+		} );
+	} );
+
+	describe( 'field cloning', () => {
+		it( 'should not mutate the original field object passed inline', () => {
+			const field: Record<string, unknown> = { id: 'name', type: 'text' };
+			const formResponse = {
+				buttons: [ { text: 'Save', action: 'save', type: 'raised' } ],
+				fields: [ field ],
+				header: 'Edit Form',
+				model: { name: 'X' },
+			};
+			createComponent( { type: 'form', url: 'test/form', ...formResponse } );
+			fixture.detectChanges();
+
+			expect( field.value ).toBeUndefined();
+			expect( component.formFields()![ 0 ].value ).toBe( 'X' );
 		} );
 	} );
 

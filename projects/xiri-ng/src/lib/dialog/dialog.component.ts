@@ -21,6 +21,8 @@ import { XiriDoneComponent } from '../done/done.component';
 import { XiriErrorComponent } from '../error/error.component';
 import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDownloadService } from "../services/download.service";
 import { parseHttpError } from '../services/error.util';
@@ -78,7 +80,9 @@ const DIALOG_SIZE_MAP: Record<string, string> = {
 	                       XiriDoneComponent,
 	                       MatDivider,
 	                       MatDialogActions,
-	                       XiriButtonstyleComponent ]
+	                       XiriButtonstyleComponent,
+	                       MatIconButton,
+	                       MatIcon ]
             } )
 export class XiriDialogComponent implements OnDestroy {
 	dialogRef = inject<MatDialogRef<XiriDialogComponent>>( MatDialogRef );
@@ -212,21 +216,22 @@ export class XiriDialogComponent implements OnDestroy {
 			this.extra = res.extra || {};
 
 			if ( this.type() == 'form' ) {
-				( inFields as XiriFormField[] ).forEach( ( field: XiriFormField ) => {
-					if ( field.hide == true )
+				( inFields as XiriFormField[] ).forEach( ( origField: XiriFormField ) => {
+					if ( origField.hide == true )
 						return;
+					const field = { ...origField };
 					if ( model[ field.id ] !== undefined )
 						field.value = model[ field.id ];
 
 					formData!.push( field );
 				} );
 			} else if ( this.type() == 'question' ) {
-				const field = inFields as XiriFormField;
+				const field = { ...( inFields as XiriFormField ) };
 				field.type = 'question';
 				formData.push( field );
 				this.formValid.set( true );
 			} else if ( this.type() == 'waiting' ) {
-				const field = inFields as XiriFormField & { text?: unknown };
+				const field = { ...( inFields as XiriFormField & { text?: unknown } ) };
 				field.type = 'waiting';
 				field.done = false;
 				field.value = field.text;

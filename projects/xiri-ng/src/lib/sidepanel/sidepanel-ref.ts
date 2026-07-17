@@ -4,7 +4,7 @@ import { OverlayRef } from '@angular/cdk/overlay';
 export class XiriSidepanelRef {
 	private readonly closed$ = new Subject<unknown>();
 
-	constructor( private readonly overlayRef?: OverlayRef ) {
+	constructor( private readonly overlayRef?: OverlayRef, private readonly previouslyFocused?: HTMLElement | null ) {
 	}
 
 	afterClosed(): Observable<unknown> {
@@ -13,6 +13,7 @@ export class XiriSidepanelRef {
 
 	close( result?: unknown ): void {
 		this.overlayRef?.dispose();
+		this.previouslyFocused?.focus?.();
 		this.closed$.next( result );
 		this.closed$.complete();
 	}

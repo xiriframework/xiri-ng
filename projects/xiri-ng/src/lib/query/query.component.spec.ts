@@ -7,6 +7,18 @@ import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
 
+function stubLocalStorage(): void {
+	const store: Record<string, string> = {};
+	vi.stubGlobal( 'localStorage', {
+		getItem: vi.fn( ( key: string ) => store[ key ] ?? null ),
+		setItem: vi.fn( ( key: string, value: string ) => { store[ key ] = value; } ),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		length: 0,
+		key: vi.fn(),
+	} );
+}
+
 @Component( {
 	selector: 'xiri-query-test-host',
 	template: `<xiri-query [settings]="settings()" (filterChange)="onChange($event)" />`,
@@ -51,6 +63,7 @@ describe( 'XiriQueryComponent', () => {
 
 	function createFixture( settings?: XiriQuerySettings ) {
 		TestBed.resetTestingModule();
+		stubLocalStorage();
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
@@ -75,6 +88,7 @@ describe( 'XiriQueryComponent', () => {
 
 	afterEach( () => {
 		vi.useRealTimers();
+		vi.unstubAllGlobals();
 	} );
 
 	it( 'should create', () => {

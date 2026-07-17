@@ -8,6 +8,18 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 
+function stubLocalStorage(): void {
+	const store: Record<string, string> = {};
+	vi.stubGlobal( 'localStorage', {
+		getItem: vi.fn( ( key: string ) => store[ key ] ?? null ),
+		setItem: vi.fn( ( key: string, value: string ) => { store[ key ] = value; } ),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		length: 0,
+		key: vi.fn(),
+	} );
+}
+
 @Component( {
 	selector: 'xiri-stepper-test-host',
 	template: `<xiri-stepper [settings]="settings()" />`,
@@ -59,6 +71,7 @@ describe( 'XiriStepperComponent', () => {
 
 	function createFixture( settings?: XiriStepperSettings ) {
 		TestBed.resetTestingModule();
+		stubLocalStorage();
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
@@ -84,6 +97,7 @@ describe( 'XiriStepperComponent', () => {
 
 	afterEach( () => {
 		vi.useRealTimers();
+		vi.unstubAllGlobals();
 	} );
 
 	it( 'should create', () => {
