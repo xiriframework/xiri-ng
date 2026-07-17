@@ -25,6 +25,7 @@ Versionierung nach [Semantic Versioning](https://semver.org/lang/de/).
 ### Changed
 
 - **Ehrliche UI-States** für Query / Table / Stat — klare Leer-, Lade- und Fehlerzustände statt stiller Leere.
+- **Dependencies**: `ngx-mat-select-search` auf 9.0.0 angehoben (setzt `@angular/material` ≥ 17 voraus, auf Angular 22 erfüllt); Angular auf 22.0.7 / CDK+Material 22.0.4→22.0.5, eslint 10.7.0.
 
 ### Fixed
 
