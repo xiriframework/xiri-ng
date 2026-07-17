@@ -77,7 +77,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Tables',
 			icon: 'table_chart',
 			menu: true,
-			regex: /^(Tables|InlineEditTable|TableTree|Query)/,
+			regex: /^(Tables|InlineEditTable|TableTree|Query|MasterDetail)/,
 			sub: [ {
 				name: 'Tables',
 				icon: 'table_chart',
@@ -94,6 +94,10 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: 'Tree Table',
 				icon: 'account_tree',
 				link: 'TableTree'
+			}, {
+				name: 'Master-Detail',
+				icon: 'vertical_split',
+				link: 'MasterDetail'
 			} ]
 		}, {
 			name: 'Cards',
@@ -159,7 +163,7 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Data Display',
 			icon: 'visibility',
 			menu: true,
-			regex: /^(Display|Stats|Timeline|BarCharts)/,
+			regex: /^(Display|Stats|Timeline|BarCharts|EntitySummary)/,
 			sub: [ {
 				name: 'Components',
 				icon: 'visibility',
@@ -176,6 +180,10 @@ export class AppComponent implements OnInit, OnDestroy {
 				name: 'Timeline',
 				icon: 'timeline',
 				link: 'Timeline'
+			}, {
+				name: 'Entity Summary',
+				icon: 'badge',
+				link: 'EntitySummary'
 			} ]
 		}, {
 			name: 'Workflows',

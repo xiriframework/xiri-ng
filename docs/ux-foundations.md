@@ -152,6 +152,42 @@ und die nächste notwendige Aktion bleiben immer sichtbar.
 - Texte bei 200 % Zoom vollständig erreichbar.
 - Reduced Motion für Skeleton-, Done-, Chart- und Panel-Animationen respektieren.
 
+## Seitenrezepte (bestehende Komponenten)
+
+Wiederkehrende Muster, die **keine eigene Komponente** brauchen — sie komponieren
+vorhandene Bausteine. Erst wenn sich ein Rezept nachweislich oft identisch
+wiederholt, lohnt die Promotion zu einer Komponente.
+
+### Entity Summary
+
+Gemeinsamer Kopf für ein Objekt (Kunde, Auftrag, Gerät, Projekt, Benutzer).
+Komposition in fester Reihenfolge:
+
+```text
+Breadcrumb
+Page Header (Titel, Subtitle, Icon) + genau EINE primäre Aktion
+Status (xiri-status)
+Stat Grid (max. 3 kompakte Kennzahlen)
+Description List (max. ~4 Metadaten)
+Buttonline (sekundäre Aktionen)
+```
+
+Regeln: nur eine primäre Aktion (nie im Overflow); sekundäre Aktionen getrennt;
+fehlende optionale Bereiche hinterlassen keine Leerabstände; auf Phone stacken
+Identität → Status → Metadaten → Aktionen. Referenz-Demo: Route `EntitySummary`.
+
+### Master-Detail
+
+Liste mit Detail ohne Verlust des Listen-Kontexts. Master = `xiri-query` +
+`xiri-table`; Detail = `XiriSidepanelService.open({ title, data })` als
+Overlay, ausgelöst über den `clickedRow`-Output der Tabelle.
+
+Kernpunkt: Das Detail ist ein Overlay, die Master-Komponenten bleiben montiert —
+dadurch überleben Filterzustand und Scrollposition das Öffnen/Schließen (im
+Gegensatz zu einer eigenen Detailroute, die die Liste zerstören würde). Server:
+Auswahl → POST → `XiriDynData[]` für den Detailbereich. Referenz-Demo: Route
+`MasterDetail`.
+
 ## Verhältnis zu ux-recommendations.md
 
 Die bestehende [`ux-recommendations.md`](./ux-recommendations.md) ist in Teilen veraltet

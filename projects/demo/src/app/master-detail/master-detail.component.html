@@ -1,0 +1,38 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Das Rezept: Erklärung + Kernpunkt -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionRecipe">
+				<xiri-callout [settings]="recipeCallout"></xiri-callout>
+				<app-go-code [code]="goCode" title="Go: Master-Liste + Detail-Handler"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Master-Liste mit Filter, Detail als Sidepanel-Overlay -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionList">
+				<xiri-query [settings]="querySettings" [count]="count()"
+				            (filterChange)="onFilterChange($event)"></xiri-query>
+				<xiri-table [settings]="tableSettings()" (clickedRow)="onRowClicked($event)"></xiri-table>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

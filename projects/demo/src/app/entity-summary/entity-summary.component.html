@@ -1,0 +1,79 @@
+<div class="xcontainer-fluid">
+
+	<!-- 1. Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- 2. Page-Header: Identität + primäre Aktion -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- 3. Status -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-status [settings]="status"></xiri-status>
+		</div>
+	</div>
+
+	<!-- 4. Stat-Grid: max 3 kompakte Kennzahlen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-stat-grid [settings]="stats"></xiri-stat-grid>
+		</div>
+	</div>
+
+	<!-- 5. Description-List: max ~4 Metadaten -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-description-list [settings]="meta"></xiri-description-list>
+		</div>
+	</div>
+
+	<!-- 6. Buttonline: sekundäre Aktionen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-buttonline [settings]="secondaryActions"></xiri-buttonline>
+		</div>
+	</div>
+
+	<!-- Erklärung: Rezept statt eigener Component-Typ -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionRecipe">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>
+							Dies ist <b>kein eigener Component-Typ</b>, sondern ein festes
+							Kompositions-Rezept aus bereits vorhandenen Bausteinen. Die Reihenfolge
+							transportiert die Hierarchie eines Detailkopfs:
+						</p>
+						<ol>
+							<li>Breadcrumb (Herkunft)</li>
+							<li>Page-Header mit genau <b>einer</b> primären Aktion (Identität)</li>
+							<li>Status (Zustand)</li>
+							<li>Stat-Grid mit max. 3 kompakten Kennzahlen</li>
+							<li>Description-List mit ca. 4 Metadaten</li>
+							<li>Buttonline für sekundäre Aktionen</li>
+						</ol>
+						<p>
+							Regeln: nur eine primäre Aktion, nie im Overflow; sekundäre Aktionen
+							separat; fehlende optionale Bereiche entfallen ganz und hinterlassen
+							keine Lücken. Auf dem Phone stapeln die Blöcke von selbst in der
+							Reihenfolge Identität → Status → Metadaten → Aktionen.
+						</p>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goCode" title="Go: Komposition (pageheader + stat + descriptionlist + buttonline)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
