@@ -1,0 +1,59 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Query mit sichtbarem Filterzustand -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDemo">
+				<div class="xrow">
+					<div class="xcol-md-7">
+						<xiri-query [settings]="querySettings" [count]="count()"
+						            (filterChange)="onFilterChange($event)"></xiri-query>
+
+						<table class="query-demo-results">
+							<thead>
+								<tr>
+									<th>Referenz</th>
+									<th>Auftrag</th>
+									<th>Status</th>
+									<th>Kategorie</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (order of results(); track order.ref) {
+									<tr>
+										<td>{{ order.ref }}</td>
+										<td>{{ order.title }}</td>
+										<td>{{ statusName(order.status) }}</td>
+										<td>{{ order.category }}</td>
+									</tr>
+								} @empty {
+									<tr>
+										<td colspan="4">Keine Treffer für die aktuellen Filter.</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+					<div class="xcol-md-5">
+						<app-go-code [code]="goQueryCode" title="Go: query"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

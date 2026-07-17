@@ -17,6 +17,31 @@ mat-card.xiritablecard {
 		display: inline-block;
 		width:   100%;
 
+		.xiri-bulk-bar {
+			display:          flex;
+			align-items:      center;
+			gap:              var(--xiri-spacing-sm);
+			padding:          var(--xiri-spacing-xs) var(--xiri-spacing-sm);
+			background:       var(--mat-sys-secondary-container, #e0e0e0);
+			color:            var(--mat-sys-on-secondary-container, inherit);
+			border-radius:    var(--xiri-radius-sm, 4px);
+			margin-bottom:    var(--xiri-spacing-xs);
+
+			&.sticky {
+				position: sticky;
+				top:      0;
+				z-index:  5;
+			}
+
+			.xiri-bulk-count {
+				font-weight: 500;
+			}
+
+			.xiri-bulk-spacer {
+				flex: 1 1 auto;
+			}
+		}
+
 		.tableout-wrap {
 			position: relative;
 		}

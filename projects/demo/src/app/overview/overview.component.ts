@@ -1,17 +1,25 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipsModule } from '@angular/material/chips';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
-import { XiriCardlinkComponent, XiriCardlinkSettings } from 'projects/xiri-ng/src/lib/cardlink/cardlink.component';
-import { MatButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { COMPONENT_CATALOG } from './component-catalog';
 
 @Component( {
 	            selector: 'app-overview',
 	            templateUrl: './overview.component.html',
 	            styleUrl: './overview.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriCardlinkComponent, MatButton, MatIcon, XiriBreadcrumbComponent ]
+	            imports: [
+		            XiriPageHeaderComponent, XiriSectionComponent, MatButton, MatIcon, XiriBreadcrumbComponent,
+		            RouterLink, FormsModule, MatFormFieldModule, MatInputModule, MatChipsModule,
+	            ],
             } )
 export class OverviewComponent {
 
@@ -23,7 +31,7 @@ export class OverviewComponent {
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'XIRI UI Library',
-		subtitle: 'Angular UI Component Library',
+		subtitle: 'Durchsuchbarer Component-Katalog',
 		icon: 'dashboard',
 		iconColor: 'primary',
 	};
@@ -33,23 +41,34 @@ export class OverviewComponent {
 		icon: 'palette',
 	};
 
-	sectionCategories: XiriSectionSettings = {
-		title: 'All Categories',
+	sectionCatalog: XiriSectionSettings = {
+		title: 'Component-Katalog',
 		icon: 'grid_view',
 	};
 
-	cardlinks: XiriCardlinkSettings[] = [
-		{ link: '/Forms', icon: 'edit_note', iconSet: 'material-symbols-outlined', text: 'Basic Fields', sub: 'Text, Number, Email, Select, ...' },
-		{ link: '/Dates', icon: 'calendar_month', iconSet: 'material-symbols-outlined', text: 'Date & Time', sub: 'Date, DateTime, DateRange' },
-		{ link: '/Selects', icon: 'checklist', iconSet: 'material-symbols-outlined', text: 'Select Fields', sub: 'MultiSelect, TreeSelect' },
-		{ link: '/SpecialFields', icon: 'tune', iconSet: 'material-symbols-outlined', text: 'Special Fields', sub: 'File, Volume, Timelimit' },
-		{ link: '/Tables', icon: 'table_chart', iconSet: 'material-symbols-outlined', text: 'Tables', sub: '6 Tables + RawTable' },
-		{ link: '/Cards', icon: 'dashboard', iconSet: 'material-symbols-outlined', text: 'Cards', sub: 'Card Variants & DynComponent' },
-		{ link: '/Navigation', icon: 'menu_open', iconSet: 'material-symbols-outlined', text: 'Navigation & Layout', sub: 'Header, Buttonline, Search, Tabs' },
-		{ link: '/Feedback', icon: 'notifications', iconSet: 'material-symbols-outlined', text: 'Feedback & Status', sub: 'Done, Error, Alert, Dialog' },
-		{ link: '/Display', icon: 'visibility', iconSet: 'material-symbols-outlined', text: 'Data Display', sub: 'Infopoint, Links, List, Imagetext' },
-		{ link: '/Workflow', icon: 'account_tree', iconSet: 'material-symbols-outlined', text: 'Workflows', sub: 'Stepper, Query + Tabs' },
-		{ link: '/Dynamic', icon: 'dynamic_form', iconSet: 'material-symbols-outlined', text: 'Dynamic', sub: 'DynComponent & DynPage' },
-		{ link: '/Services', icon: 'build', iconSet: 'material-symbols-outlined', text: 'Services', sub: 'Theme, Data, Date, Number, Storage' },
-	];
+	protected readonly catalog = COMPONENT_CATALOG;
+	protected readonly categories = [ ...new Set( COMPONENT_CATALOG.map( ( e ) => e.category ) ) ];
+
+	protected readonly search = signal( '' );
+	protected readonly category = signal<string | null>( null );
+
+	protected readonly filtered = computed( () => {
+		const term = this.search().trim().toLowerCase();
+		const cat = this.category();
+		return this.catalog.filter( ( e ) => {
+			if ( cat && e.category !== cat ) {
+				return false;
+			}
+			if ( !term ) {
+				return true;
+			}
+			return e.name.toLowerCase().includes( term )
+				|| e.type.toLowerCase().includes( term )
+				|| e.keywords.some( ( k ) => k.toLowerCase().includes( term ) );
+		} );
+	} );
+
+	protected selectCategory( cat: string | null ): void {
+		this.category.set( this.category() === cat ? null : cat );
+	}
 }

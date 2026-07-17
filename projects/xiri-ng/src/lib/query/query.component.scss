@@ -11,6 +11,24 @@
 	pointer-events: none;
 }
 
+.query-filter-state {
+	display:     flex;
+	align-items: center;
+	flex-wrap:   wrap;
+	gap:         var(--xiri-spacing-sm);
+	margin-top:  var(--xiri-spacing-sm);
+
+	.reset-filters mat-icon {
+		margin-right: var(--xiri-spacing-xs);
+	}
+}
+
+.query-result-count {
+	margin-top:  var(--xiri-spacing-sm);
+	color:       var(--mat-sys-on-surface-variant, inherit);
+	font-size:   0.9rem;
+}
+
 .query-expansion {
 	.query {
 		padding-left:  0;

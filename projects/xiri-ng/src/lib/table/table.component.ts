@@ -129,6 +129,13 @@ export interface XiriTableOptions {
 	pageSizes?: number[]
 	select?: boolean
 	selectButtons?: XiriButton[]
+	// UX-007 Bulk-Actions (additiv): when set, a selection column is shown and a sticky
+	// context bar with these actions appears once at least one row is selected.
+	bulkActions?: XiriButton[]
+	// Offer "select all results" (whole filter, not just the current page) in the bulk bar.
+	selectAllResults?: boolean
+	// Keep the bulk context bar pinned to the top while scrolling.
+	stickyBulkBar?: boolean
 	title?: string
 	textNoData?: string
 	emptyState?: XiriTableEmptyState
@@ -235,6 +242,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	extraHeaders: string[] = [];
 
 	public selection = new SelectionModel<XiriTableRow>( true, [] );
+	// UX-007: true once the user opted into "all results" (whole filter) instead of just the
+	// selected rows on the current page. Reset whenever the selection is cleared or changed.
+	public bulkAllResults = signal<boolean>( false );
 	private dialogRef?: MatDialogRef<unknown>;
 	private reloadAbort$ = new Subject<void>();
 
@@ -468,6 +478,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		
 		this.errorMsg = '';
 		this.selection.clear();
+		this.bulkAllResults.set( false );
 		this.dynData.data = null;
 		// Cancel any pending auto-refresh while this load is in flight; the response decides
 		// whether to reschedule (res.poll present) or stop (clearAutoRefresh).
@@ -554,7 +565,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.extraHeaderFields = [];
 		this.extraHeaders = [];
 		
-		if ( this.options.select )
+		if ( this.showSelectColumn )
 			this.columnsToDisplay.push( 'select' );
 		
 		for ( let fid = 0; fid != fields.length; fid++ ) {
@@ -753,6 +764,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	masterToggle() {
+		this.bulkAllResults.set( false );
 		if ( this.isAllSelected() ) {
 			this.selection.clear();
 		} else {
@@ -761,6 +773,120 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					this.selection.select( row );
 			} );
 		}
+	}
+
+	// Toggles a single row and drops the "all results" mode: an individual change means the
+	// user is now working with an explicit per-row selection again, not the whole filter.
+	toggleRow( row: XiriTableRow ) {
+		this.bulkAllResults.set( false );
+		this.selection.toggle( row );
+	}
+
+	// ============================================================================
+	// UX-007 Bulk actions
+	// ============================================================================
+
+	get bulkActionsEnabled(): boolean {
+		return ( this.options.bulkActions?.length ?? 0 ) > 0;
+	}
+
+	// The selection column is shown for legacy select mode OR when bulk actions are configured.
+	get showSelectColumn(): boolean {
+		return !!this.options.select || this.bulkActionsEnabled;
+	}
+
+	// The sticky context bar is only meaningful in bulk mode and only once something is selected.
+	get bulkBarActive(): boolean {
+		return this.bulkActionsEnabled && this.selection.hasValue();
+	}
+
+	// Exact total number of results behind the current filter (all pages), NOT just the page:
+	// the server-side totalCount when known, otherwise every filtered client-side row.
+	bulkTotalCount(): number {
+		return this.options.serverSide ? this._totalCount() : this.dataSource.filteredData.length;
+	}
+
+	// The count the triggered action operates on: the whole filtered result in "all results"
+	// mode, otherwise the explicitly selected rows on the current page.
+	bulkCount(): number {
+		return this.bulkAllResults() ? this.bulkTotalCount() : this.selection.selected.length;
+	}
+
+	// Offer "select all results" only when the current page is fully selected and there are
+	// genuinely more results behind the filter than are selected right now.
+	canSelectAllResults(): boolean {
+		return !!this.options.selectAllResults
+			&& !this.bulkAllResults()
+			&& this.selection.hasValue()
+			&& this.isAllSelected()
+			&& this.bulkTotalCount() > this.selection.selected.length;
+	}
+
+	selectAllResults(): void {
+		this.bulkAllResults.set( true );
+	}
+
+	cancelBulk(): void {
+		this.selection.clear();
+		this.bulkAllResults.set( false );
+	}
+
+	// Dispatches a bulk action. The payload always carries the selected ids, the selection
+	// mode (page vs. all results) and the exact count; in "all results" mode it additionally
+	// carries the active filter so the backend acts on the whole result set, never silently
+	// on just the current page. Destructive actions (color 'warn') confirm with the exact count.
+	bulkAction( event: MouseEvent, button: XiriButton ): void {
+		event.stopPropagation();
+		if ( this.selection.isEmpty() )
+			return;
+
+		const allResults = this.bulkAllResults();
+		const count = this.bulkCount();
+
+		if ( button.color === 'warn' ) {
+			const label = button.text || 'Aktion ausführen';
+			if ( !confirm( `${ label }: ${ count } ${ count === 1 ? 'Eintrag' : 'Einträge' }? Dies kann nicht rückgängig gemacht werden.` ) )
+				return;
+		}
+
+		const payload: Record<string, unknown> = {
+			ids:   this.getSelectionIDs(),
+			mode:  allResults ? 'allResults' : 'page',
+			count: count,
+		};
+		if ( allResults )
+			payload.filter = this._filterData() ?? null;
+
+		switch ( button.action ) {
+			case 'dialog': {
+				const data: XiriTableDialogData = { ...button, type: 'data', data: payload };
+				this.dialogRef = this.dialog.open( XiriDialogComponent, { data } );
+				this.dialogRef.afterClosed().subscribe( ( result ) => {
+					this.clearBulk();
+					this.callReturn( result );
+				} );
+				break;
+			}
+			case 'download':
+				this.dataService.postFileResponse( button.url ?? '', payload ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+					next: ( result ) => this.downloadService.download( result, button.filename || 'download.csv', false ),
+					error: ( err: unknown ) => this.snackbar.error( errorMessage( err ) || 'Download Error' ),
+				} );
+				break;
+			default:
+				this.dataService.post( button.url ?? '', payload ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
+					next: ( result: unknown ) => {
+						this.clearBulk();
+						this.callReturn( result );
+					},
+					error: ( err: unknown ) => this.snackbar.error( errorMessage( err ) || 'Unknown Error' ),
+				} );
+		}
+	}
+
+	private clearBulk(): void {
+		this.selection.clear();
+		this.bulkAllResults.set( false );
 	}
 
 	clicked( row: XiriTableRow ) {

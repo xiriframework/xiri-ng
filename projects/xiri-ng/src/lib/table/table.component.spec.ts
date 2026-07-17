@@ -376,6 +376,103 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	describe( 'bulk actions (UX-007)', () => {
+		const apiButton: XiriButton = { text: 'Archive', type: 'button', action: 'api', url: '/bulk/archive', color: 'primary' };
+		const delButton: XiriButton = { text: 'Delete', type: 'button', action: 'api', url: '/bulk/delete', color: 'warn' };
+
+		function bulkFixture( extra: Partial<XiriTableSettings['options']> = {} ) {
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { id: 1, name: 'A' }, { id: 2, name: 'B' } ],
+				options: { bulkActions: [ apiButton ], ...extra },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+		}
+
+		it( 'shows the selection column when bulkActions are set (even without options.select)', () => {
+			bulkFixture();
+			expect( component.showSelectColumn ).toBe( true );
+			expect( component.columnsToDisplay[ 0 ] ).toBe( 'select' );
+		} );
+
+		it( 'shows the bulk bar only once at least one row is selected', () => {
+			bulkFixture();
+			fixture.detectChanges();
+			expect( fixture.nativeElement.querySelector( '[data-testid="table-bulk-bar"]' ) ).toBeNull();
+
+			component.selection.select( component.dataSource.data[ 0 ] );
+			internals( component )._changeDetectorRef.markForCheck();
+			fixture.detectChanges();
+			expect( fixture.nativeElement.querySelector( '[data-testid="table-bulk-bar"]' ) ).toBeTruthy();
+		} );
+
+		it( 'passes mode "page" and the selected ids to the action', () => {
+			bulkFixture();
+			component.masterToggle(); // selects both page rows
+			mockDataService.post.mockReturnValue( of( {} ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/bulk/archive', expect.objectContaining( {
+				ids: [ 1, 2 ],
+				mode: 'page',
+				count: 2,
+			} ) );
+			// page mode must NOT smuggle a filter that would widen the scope
+			const payload = mockDataService.post.mock.calls.at( -1 )![ 1 ] as Record<string, unknown>;
+			expect( 'filter' in payload ).toBe( false );
+		} );
+
+		it( 'passes mode "allResults" with the total count and the filter, NOT just the page', () => {
+			bulkFixture( { serverSide: true, selectAllResults: true } );
+			component.selection.select( component.dataSource.data[ 0 ] );
+			( component as unknown as { _totalCount: { set( n: number ): void } } )._totalCount.set( 100 );
+			component.selectAllResults();
+			mockDataService.post.mockReturnValue( of( {} ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			const payload = mockDataService.post.mock.calls.at( -1 )![ 1 ] as Record<string, unknown>;
+			expect( payload.mode ).toBe( 'allResults' );
+			expect( payload.count ).toBe( 100 );
+			expect( 'filter' in payload ).toBe( true );
+		} );
+
+		it( 'bulkCount reflects the whole result set in allResults mode', () => {
+			bulkFixture( { serverSide: true } );
+			component.selection.select( component.dataSource.data[ 0 ] );
+			( component as unknown as { _totalCount: { set( n: number ): void } } )._totalCount.set( 42 );
+
+			expect( component.bulkCount() ).toBe( 1 ); // page mode: one selected
+			component.selectAllResults();
+			expect( component.bulkCount() ).toBe( 42 ); // all-results mode: full total
+		} );
+
+		it( 'confirms destructive actions with the exact count and aborts on cancel', () => {
+			bulkFixture();
+			component.masterToggle();
+			const confirmSpy = vi.spyOn( window, 'confirm' ).mockReturnValue( false );
+
+			component.bulkAction( new MouseEvent( 'click' ), delButton );
+
+			expect( confirmSpy ).toHaveBeenCalledWith( expect.stringContaining( '2' ) );
+			expect( mockDataService.post ).not.toHaveBeenCalledWith( '/bulk/delete', expect.anything() );
+			confirmSpy.mockRestore();
+		} );
+
+		it( 'clears the selection after a successful action', () => {
+			bulkFixture();
+			component.masterToggle();
+			expect( component.selection.hasValue() ).toBe( true );
+			mockDataService.post.mockReturnValue( of( {} ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			expect( component.selection.isEmpty() ).toBe( true );
+			expect( component.bulkAllResults() ).toBe( false );
+		} );
+	} );
+
 	describe( 'clicked row', () => {
 		it( 'should emit clickedRow event', () => {
 			const emitSpy = vi.fn();

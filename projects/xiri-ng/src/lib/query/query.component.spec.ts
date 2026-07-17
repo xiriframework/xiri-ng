@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError, Subject } from 'rxjs';
-import { XiriQueryComponent, XiriQuerySettings } from './query.component';
+import { XiriQueryComponent, XiriQueryResultCount, XiriQuerySettings } from './query.component';
 import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
@@ -21,7 +21,7 @@ function stubLocalStorage(): void {
 
 @Component( {
 	selector: 'xiri-query-test-host',
-	template: `<xiri-query [settings]="settings()" (filterChange)="onChange($event)" />`,
+	template: `<xiri-query [settings]="settings()" [count]="count()" (filterChange)="onChange($event)" />`,
 	imports: [ XiriQueryComponent ],
 } )
 class TestHostComponent {
@@ -30,6 +30,7 @@ class TestHostComponent {
 			{ id: 'search', type: 'text', value: '' },
 		],
 	} );
+	count = signal<XiriQueryResultCount | null>( null );
 	query = viewChild.required( XiriQueryComponent );
 	changeEvents: ( Record<string, unknown> | null )[] = [];
 	onChange( event: Record<string, unknown> | null ) {
@@ -422,6 +423,124 @@ describe( 'XiriQueryComponent', () => {
 			const callsBefore = mockDataService.post.mock.calls.length;
 			btn.click();
 			expect( mockDataService.post.mock.calls.length ).toBe( callsBefore + 1 );
+		} );
+	} );
+
+	describe( 'active filters', () => {
+		it( 'should expose active filters with readable label and formatted value', async () => {
+			createFixture( {
+				fields: [
+					{ id: 'search', type: 'text', name: 'Suchbegriff', value: 'Hydraulik' },
+					{ id: 'status', type: 'select', name: 'Status', value: 2, required: false, list: [
+						{ id: 1, name: 'Offen' },
+						{ id: 2, name: 'Erledigt' },
+					] },
+				],
+				showActiveFilters: true,
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			const filters = component.activeFilters();
+			expect( filters.length ).toBe( 2 );
+			expect( filters[ 0 ] ).toEqual( { id: 'search', label: 'Suchbegriff', value: 'Hydraulik' } );
+			expect( filters.find( f => f.id === 'status' )?.value ).toBe( 'Erledigt' );
+		} );
+
+		it( 'should not list empty fields as active filters', async () => {
+			createFixture( {
+				fields: [ { id: 'search', type: 'text', name: 'Suchbegriff', value: '' } ],
+				showActiveFilters: true,
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.activeFilters().length ).toBe( 0 );
+		} );
+
+		it( 'should render removable chips in the DOM when showActiveFilters is set', async () => {
+			createFixture( {
+				fields: [ { id: 'search', type: 'text', name: 'Suchbegriff', value: 'Hydraulik' } ],
+				showActiveFilters: true,
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			const chip = fixture.nativeElement.querySelector( '[data-testid="query-filter-chip"]' );
+			expect( chip ).toBeTruthy();
+			expect( chip.textContent ).toContain( 'Suchbegriff' );
+			expect( chip.textContent ).toContain( 'Hydraulik' );
+		} );
+
+		it( 'removing a chip clears the field and triggers the same filter flow as apply', async () => {
+			vi.useFakeTimers();
+			createFixture( {
+				fields: [ { id: 'search', type: 'text', name: 'Suchbegriff', value: 'Hydraulik' } ],
+				showActiveFilters: true,
+			} );
+			await vi.runOnlyPendingTimersAsync();
+			fixture.detectChanges();
+
+			expect( component.activeFilters().length ).toBe( 1 );
+			host.changeEvents = [];
+
+			component.removeFilter( 'search' );
+
+			// Field value cleared immediately, chip gone.
+			const field = component.formFields()!.find( f => f.id === 'search' )!;
+			expect( field.control!.value ).toBe( '' );
+			expect( component.activeFilters().length ).toBe( 0 );
+
+			// The filter flow runs (debounced) just like editing/applying the form.
+			vi.advanceTimersByTime( 350 );
+			expect( host.changeEvents.length ).toBeGreaterThan( 0 );
+		} );
+
+		it( 'reset clears all filters and triggers the filter flow', async () => {
+			vi.useFakeTimers();
+			createFixture( {
+				fields: [
+					{ id: 'search', type: 'text', name: 'Suchbegriff', value: 'Hydraulik' },
+					{ id: 'ref', type: 'text', name: 'Referenz', value: 'A-100' },
+				],
+				showActiveFilters: true,
+			} );
+			await vi.runOnlyPendingTimersAsync();
+			fixture.detectChanges();
+
+			expect( component.activeFilters().length ).toBe( 2 );
+			host.changeEvents = [];
+
+			component.resetFilters();
+
+			expect( component.activeFilters().length ).toBe( 0 );
+			vi.advanceTimersByTime( 350 );
+			expect( host.changeEvents.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'result count', () => {
+		it( 'should display the result count when showResultCount is set', async () => {
+			createFixture( {
+				fields: [ { id: 'search', type: 'text', value: '' } ],
+				showResultCount: true,
+			} );
+			host.count.set( { filtered: 12, total: 40 } );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			const el = fixture.nativeElement.querySelector( '[data-testid="query-result-count"]' );
+			expect( el ).toBeTruthy();
+			expect( el.textContent ).toContain( '12' );
+			expect( el.textContent ).toContain( '40' );
+		} );
+
+		it( 'should not render the count when showResultCount is not set', async () => {
+			host.count.set( { filtered: 12 } );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( fixture.nativeElement.querySelector( '[data-testid="query-result-count"]' ) ).toBeNull();
 		} );
 	} );
 

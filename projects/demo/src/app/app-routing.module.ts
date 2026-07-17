@@ -12,6 +12,7 @@ import { SkeletonComponent } from "./skeleton/skeleton.component";
 import { EmptyStateComponent } from "./empty-state/empty-state.component";
 import { StatusComponent } from "./status/status.component";
 import { CalloutComponent } from "./callout/callout.component";
+import { QueryDemoComponent } from "./query-demo/query-demo.component";
 import { StatsComponent } from "./stats/stats.component";
 import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
 import { TimelineComponent } from "./timeline/timeline.component";
@@ -35,6 +36,7 @@ export const AppRoutes: Routes = [
 	{ path: 'Selects', component: SelectsComponent },
 	{ path: 'SpecialFields', component: SpecialFieldsComponent },
 	{ path: 'Tables', component: TablesComponent },
+	{ path: 'Query', component: QueryDemoComponent },
 	{ path: 'Cards', component: CardsComponent },
 	{ path: 'Navigation', component: NavigationComponent },
 	{ path: 'Feedback', component: FeedbackComponent },

@@ -9,6 +9,7 @@
 				</mat-expansion-panel-header>
 				<div class="query">
 					<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
+					<ng-container *ngTemplateOutlet="filterState"></ng-container>
 					@if (error()) {
 						<div class="error">
 							<span>{{ error() }}</span>
@@ -22,6 +23,7 @@
 		} @else {
 			<div class="query">
 				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" display="line"></xiri-form-fields>
+				<ng-container *ngTemplateOutlet="filterState"></ng-container>
 				@if (error()) {
 					<div class="error">
 						<span>{{ error() }}</span>
@@ -55,3 +57,34 @@
 		</div>
 	}
 </div>
+
+<ng-template #filterState>
+	@if (settings().showActiveFilters && activeFilters().length) {
+		<div class="query-filter-state">
+			<mat-chip-set aria-label="Aktive Filter">
+				@for (filter of activeFilters(); track filter.id) {
+					<mat-chip data-testid="query-filter-chip" (removed)="removeFilter(filter.id)">
+						<span class="chip-label">{{ filter.label }}: {{ filter.value }}</span>
+						<button matChipRemove type="button"
+						        [attr.aria-label]="'Filter entfernen: ' + filter.label + ' ' + filter.value">
+							<mat-icon>cancel</mat-icon>
+						</button>
+					</mat-chip>
+				}
+			</mat-chip-set>
+			<button mat-button type="button" class="reset-filters" data-testid="query-reset-filters"
+			        (click)="resetFilters()">
+				<mat-icon>filter_list_off</mat-icon> Alle zurücksetzen
+			</button>
+		</div>
+	}
+	@if (settings().showResultCount && resultCount(); as rc) {
+		<div class="query-result-count" data-testid="query-result-count" aria-live="polite">
+			@if (rc.total !== undefined) {
+				<span><strong>{{ rc.filtered }}</strong> von {{ rc.total }} Treffern</span>
+			} @else {
+				<span><strong>{{ rc.filtered }}</strong> Treffer</span>
+			}
+		</div>
+	}
+</ng-template>

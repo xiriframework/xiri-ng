@@ -77,11 +77,15 @@ export class AppComponent implements OnInit, OnDestroy {
 			name: 'Tables',
 			icon: 'table_chart',
 			menu: true,
-			regex: /^(Tables|InlineEditTable|TableTree)/,
+			regex: /^(Tables|InlineEditTable|TableTree|Query)/,
 			sub: [ {
 				name: 'Tables',
 				icon: 'table_chart',
 				link: 'Tables'
+			}, {
+				name: 'Query & Filter',
+				icon: 'filter_alt',
+				link: 'Query'
 			}, {
 				name: 'Inline Edit',
 				icon: 'edit_note',

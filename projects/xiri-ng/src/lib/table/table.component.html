@@ -1,7 +1,40 @@
 <mat-card class="xiritablecard mat-mdc-elevation-specific mat-elevation-z3">
 	<div class="xiritable" [class]="options.class">
 		<div class="table-full">
-			<div class="header">
+			@if (bulkBarActive) {
+				<div class="xiri-bulk-bar" [class.sticky]="options.stickyBulkBar" role="toolbar"
+				     aria-label="Massenaktionen" data-testid="table-bulk-bar">
+					<button mat-icon-button (click)="cancelBulk()" matTooltip="Auswahl aufheben"
+					        aria-label="Auswahl aufheben">
+						<mat-icon>close</mat-icon>
+					</button>
+					<span class="xiri-bulk-count" aria-live="polite" data-testid="table-bulk-count">
+						@if (bulkAllResults()) {
+							Alle {{ bulkTotalCount() }} Ergebnisse ausgewählt
+						} @else {
+							{{ selection.selected.length }} ausgewählt
+						}
+					</span>
+					@if (canSelectAllResults()) {
+						<button mat-button color="primary" (click)="selectAllResults()"
+						        data-testid="table-bulk-selectall">
+							Alle {{ bulkTotalCount() }} Ergebnisse auswählen
+						</button>
+					}
+					<span class="xiri-bulk-spacer"></span>
+					@for (button of options.bulkActions; track button) {
+						<button mat-button [color]="button.color || 'primary'"
+						        (click)="bulkAction($event, button)"
+						        [matTooltip]="button.hint" [matTooltipDisabled]="!button.hint">
+							@if (button.icon) {
+								<mat-icon>{{ button.icon }}</mat-icon>
+							}
+							{{ button.text }}
+						</button>
+					}
+				</div>
+			}
+			<div class="header" [hidden]="bulkBarActive">
 				@if (options.reload) {
 					<div class="buttons">
 						<button mat-icon-button (click)="reload()" color="primary" aria-label="Tabelle neu laden">
@@ -315,7 +348,7 @@
 							</td>
 						</ng-container>
 					}
-					@if (options.select) {
+					@if (showSelectColumn) {
 						<ng-container matColumnDef="select" [sticky]="true">
 							<th mat-header-cell *matHeaderCellDef [style.width]="'65px'">
 								<mat-checkbox (change)="$event ? masterToggle() : null"
@@ -327,7 +360,7 @@
 								@if (row.select !== false) {
 									<mat-checkbox
 											(click)="$event.stopPropagation()"
-											(change)="$event ? selection.toggle(row) : null"
+											(change)="$event ? toggleRow(row) : null"
 											[checked]="selection.isSelected(row)">
 									</mat-checkbox>
 								}

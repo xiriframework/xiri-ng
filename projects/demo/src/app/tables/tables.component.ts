@@ -350,6 +350,44 @@ export class TablesComponent {
 		hasFilter: false
 	};
 
+	sectionBulk: XiriSectionSettings = {
+		title: '5b: Bulk Actions (Kontextleiste)',
+		subtitle: 'options.bulkActions + selectAllResults + stickyBulkBar: Zeile(n) auswählen -> sticky Kontextleiste mit Anzahl, ' +
+			'"Alle Ergebnisse auswählen", Aktionen und Abbrechen. Die Action erhält IDs + Modus (Seite vs. alle Ergebnisse); ' +
+			'destruktive Aktionen (color: warn) bestätigen mit exakter Anzahl.',
+		icon: 'checklist',
+		iconColor: 'primary',
+	};
+
+	public dataBulk: XiriTableSettings = {
+		data: [
+			{ id: 1, name: 'Invoice #1001', customer: 'Acme GmbH', status: 'Open' },
+			{ id: 2, name: 'Invoice #1002', customer: 'Globex AG', status: 'Paid' },
+			{ id: 3, name: 'Invoice #1003', customer: 'Initech', status: 'Open' },
+			{ id: 4, name: 'Invoice #1004', customer: 'Umbrella', status: 'Overdue' },
+			{ id: 5, name: 'Invoice #1005', customer: 'Soylent', status: 'Open' },
+		],
+		fields: [
+			{ id: 'id', name: 'ID', sticky: true },
+			{ id: 'name', name: 'Invoice' },
+			{ id: 'customer', name: 'Customer' },
+			{ id: 'status', name: 'Status' },
+		],
+		options: {
+			sort: true, search: true, borders: true,
+			title: '5b: Bulk Actions',
+			textNoData: 'No invoices',
+			selectAllResults: true,
+			stickyBulkBar: true,
+			bulkActions: [
+				{ text: 'Archivieren', type: 'button', action: 'api', url: 'Test/Bulk/Archive', icon: 'archive', color: 'primary' },
+				{ text: 'Exportieren', type: 'button', action: 'download', url: 'Test/Bulk/Export', icon: 'download', color: 'accent' },
+				{ text: 'Löschen', type: 'button', action: 'api', url: 'Test/Bulk/Delete', icon: 'delete', color: 'warn' },
+			],
+		},
+		hasFilter: false
+	};
+
 	public data6: XiriTableSettings = {
 		url: 'Test/Table/ServerData',
 		options: {
@@ -502,6 +540,31 @@ tb.SetOptions(table.TableOptions{
     Borders: true, Sort: true, Search: true,
     MinWidth: "800px",
 })`;
+
+	goBulkCode = `tb := table.NewBuilder[Invoice](ctx, t)
+
+tb.IntField("id", "ID", idAcc).Sticky()
+tb.TextField("name", "Invoice", nameAcc)
+tb.TextField("customer", "Customer", custAcc)
+tb.TextField("status", "Status", statusAcc)
+
+// UX-007: Bulk-Actions + Kontextleiste
+tb.BulkActions(
+    button.NewTableButton(core.ButtonActionApi, "archive",
+        xurl.NewUrl("Test/Bulk/Archive"), "ARCHIVIEREN",
+        core.ColorPrimary, false, nil),
+    button.NewTableButton(core.ButtonActionDownload, "download",
+        xurl.NewUrl("Test/Bulk/Export"), "EXPORTIEREN",
+        core.ColorAccent, false, nil),
+    button.NewTableButton(core.ButtonActionApi, "delete",
+        xurl.NewUrl("Test/Bulk/Delete"), "LOESCHEN",
+        core.ColorWarning, false, nil), // warn => Bestätigung mit Anzahl
+).
+    SelectAllResults(). // "Alle Ergebnisse auswählen" (ganzer Filter)
+    StickyBulkBar()     // Leiste bleibt beim Scrollen oben
+
+// Handler: die Action erhält { ids, mode: "page"|"allResults", count, filter }
+// bei mode == "allResults" gilt der aktive Filter, nicht nur die Seite.`;
 
 	goTable6Code = `tb := table.NewBuilder[Employee](ctx, t)
 

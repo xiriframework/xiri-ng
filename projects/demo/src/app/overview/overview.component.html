@@ -27,17 +27,52 @@
 		</div>
 	</div>
 
-	<!-- All Categories -->
+	<!-- Component-Katalog -->
 	<div class="xrow">
 		<div class="xcol">
-			<xiri-section [settings]="sectionCategories">
-				<div class="xrow">
-					@for (card of cardlinks; track card.link) {
-						<div class="xcol-md-6 xcol-xl-3">
-							<xiri-cardlink [settings]="card"></xiri-cardlink>
-						</div>
+			<xiri-section [settings]="sectionCatalog">
+
+				<!-- Suche -->
+				<mat-form-field appearance="outline" class="catalog-search">
+					<mat-label>Suche nach Name, Typ oder Keyword</mat-label>
+					<mat-icon matPrefix>search</mat-icon>
+					<input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="z. B. chart, table, form">
+				</mat-form-field>
+
+				<!-- Kategorie-Filter -->
+				<div class="catalog-filters">
+					<button type="button" class="filter-chip" [class.active]="category() === null" (click)="selectCategory(null)">
+						Alle
+					</button>
+					@for (cat of categories; track cat) {
+						<button type="button" class="filter-chip" [class.active]="category() === cat" (click)="selectCategory(cat)">
+							{{ cat }}
+						</button>
 					}
 				</div>
+
+				<p class="catalog-count">{{ filtered().length }} von {{ catalog.length }} Komponenten</p>
+
+				<!-- Ergebnis-Grid -->
+				<div class="catalog-grid">
+					@for (entry of filtered(); track entry.type) {
+						<a class="catalog-item" [routerLink]="[entry.route]">
+							<div class="catalog-item-head">
+								<span class="catalog-name">{{ entry.name }}</span>
+								<code class="catalog-type">{{ entry.type }}</code>
+							</div>
+							<span class="catalog-category">{{ entry.category }}</span>
+							<div class="catalog-badges">
+								<span class="badge" [class.on]="entry.angular" title="Angular Component">Angular</span>
+								<span class="badge" [class.on]="entry.dyncomponent" title="DynComponent @case">JSON</span>
+								<span class="badge" [class.on]="entry.goBuilder" title="Go Builder">Go</span>
+							</div>
+						</a>
+					} @empty {
+						<p class="catalog-empty">Keine Komponente gefunden.</p>
+					}
+				</div>
+
 			</xiri-section>
 		</div>
 	</div>
