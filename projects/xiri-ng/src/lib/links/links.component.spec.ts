@@ -167,6 +167,29 @@ describe('XiriLinksComponent', () => {
 		expect(icon).toBeTruthy();
 	});
 
+	it('should position item icons as leading list icons, not stacked buttons', () => {
+		host.settings.set({
+			data: [makeLink({ text: 'Link', action: 'link', url: '/a', icon: 'home' })],
+		});
+		fixture.detectChanges();
+
+		const item = fixture.nativeElement.querySelector('.mat-mdc-list-item');
+		expect(item).toBeTruthy();
+		expect(item.querySelector('mat-icon.mat-mdc-list-item-icon')).toBeTruthy();
+		expect(item.querySelector('button')).toBeNull();
+	});
+
+	it('should position dialog item icons as leading list icons', () => {
+		host.settings.set({
+			data: [makeLink({ text: 'Dlg', action: 'dialog', icon: 'info' })],
+		});
+		fixture.detectChanges();
+
+		const item = fixture.nativeElement.querySelector('.mat-mdc-list-item');
+		expect(item.querySelector('mat-icon.mat-mdc-list-item-icon')).toBeTruthy();
+		expect(item.querySelector('button')).toBeNull();
+	});
+
 	it('should update when settings change', () => {
 		host.settings.set({ data: [makeLink({ text: 'First' })] });
 		fixture.detectChanges();

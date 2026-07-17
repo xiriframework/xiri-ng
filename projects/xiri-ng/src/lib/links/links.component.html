@@ -46,21 +46,17 @@
 			@if (!item.action || item.action === 'link') {
 				@let itemUrl = item.url | xiriUrl;
 				<a mat-list-item [routerLink]="itemUrl?.path" [queryParams]="itemUrl?.queryParams">
-					<div matLine>{{ item.text }}</div>
 					@if (item.icon) {
-						<button mat-icon-button [attr.aria-label]="item.text">
-							<mat-icon>{{ item.icon }}</mat-icon>
-						</button>
+						<mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
 					}
+					<span matListItemTitle>{{ item.text }}</span>
 				</a>
 			} @else if (item.action === 'dialog') {
 				<mat-list-item (click)="openDialog( item ) && $event.stopPropagation()" (keydown.enter)="openDialog( item )" (keydown.space)="openDialog( item ); $event.preventDefault()">
-					<div matLine>{{ item.text }}</div>
 					@if (item.icon) {
-						<button mat-icon-button [attr.aria-label]="item.text">
-							<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
-						</button>
+						<mat-icon matListItemIcon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
 					}
+					<span matListItemTitle>{{ item.text }}</span>
 				</mat-list-item>
 			}
 		}

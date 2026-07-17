@@ -1,14 +1,12 @@
 import { Component, computed, inject, input, OnDestroy } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { MatLine } from "@angular/material/core";
 import { XiriButton } from "../button/button.component";
 import { XiriColor } from '../types/color.type';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { Router, RouterLink } from "@angular/router";
 import { XiriUrlPipe } from "../pipes/url.pipe";
-import { MatIconButton } from '@angular/material/button';
-import { MatListItem, MatNavList } from '@angular/material/list';
+import { MatListItem, MatListItemIcon, MatListItemTitle, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
 import {
 	MatCard,
@@ -41,9 +39,9 @@ export interface XiriLinksSettings {
 	                       MatCardContent,
 	                       MatNavList,
 	                       MatListItem,
+	                       MatListItemIcon,
+	                       MatListItemTitle,
 	                       RouterLink,
-	                       MatLine,
-	                       MatIconButton,
 	                       NgTemplateOutlet,
 	                       XiriUrlPipe ],
 	            host: { '[class.compact]': 'compact()' }
