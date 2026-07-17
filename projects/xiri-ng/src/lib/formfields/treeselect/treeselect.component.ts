@@ -165,6 +165,9 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 	}
 	
 	private _input: number[] = [];
+	// Unterdrückt das Zurückschreiben an das FormControl, während writeValue die Auswahl aus dem
+	// Modell in den Baum spiegelt (CVA-Vertrag: writeValue darf onChange nicht auslösen).
+	private _suppressEmit = false;
 
 	@Input()
 	get value(): number[] | undefined {
@@ -186,10 +189,13 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 	}
 	
 	private runCheck(): void {
-		
+
 		if ( !this.ngControl )
 			return;
-		
+
+		if ( this._suppressEmit )
+			return;
+
 		const val = this.value;
 		this.runChangeValue( val );
 	}
@@ -203,7 +209,40 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 	}
 	
 	writeValue( value: number[] ): void {
-		this.value = value;
+		this._input = value ?? [];
+		this.applyInputSelection();
+	}
+
+	// Spiegelt this._input in die sichtbare Baum-Auswahl (checklistSelection + node.state), ohne
+	// an das FormControl zurückzuschreiben. Dadurch räumt ein programmatisches reset()/setValue()
+	// (z. B. Query-Filter-Chip entfernen oder „Alle zurücksetzen") die Auswahl wirklich ab, statt
+	// den alten Stand über den value-Getter erneut zu emittieren.
+	private applyInputSelection(): void {
+		const data = this.dataSource?.data ?? [];
+		if ( data.length === 0 )
+			return; // Baumdaten noch nicht geladen – ngAfterViewInit wendet _input später an
+
+		this._suppressEmit = true;
+		try {
+			this.checklistSelection.clear();
+			data.forEach( root => this.resetNodeState( root ) );
+			for ( const id of this._input ) {
+				for ( const d of data ) {
+					const node = this.findNodeById( id as unknown as number, d );
+					if ( node )
+						this.treeItemSelectionToggle( node );
+				}
+			}
+		} finally {
+			this._suppressEmit = false;
+		}
+		this._changeDetectorRef.markForCheck();
+	}
+
+	private resetNodeState( node: XiriTreeselectTreeNode ): void {
+		node.state = 0;
+		if ( node.children )
+			node.children.forEach( child => this.resetNodeState( child ) );
 	}
 	
 	/**
