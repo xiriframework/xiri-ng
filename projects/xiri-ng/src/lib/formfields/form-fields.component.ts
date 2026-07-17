@@ -1,8 +1,10 @@
 import {
+	afterRenderEffect,
 	Component,
 	computed,
 	DestroyRef,
 	effect,
+	ElementRef,
 	inject,
 	input,
 	OnInit,
@@ -46,8 +48,65 @@ import { AsyncPipe } from '@angular/common';
 import { MatError, MatFormField, MatHint, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { SafehtmlPipe } from "../pipes/safehtml.pipe";
 import { XiriChipsComponent } from './chips/chips.component';
+import { XiriLocaleService } from '../services/locale.service';
 
 export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
+
+type XiriValidationLang = 'de' | 'en';
+
+function formatValidationDate( lang: XiriValidationLang, unixSeconds: number ): string {
+	return new Intl.DateTimeFormat( lang === 'en' ? 'en-US' : 'de-AT' ).format( new Date( unixSeconds * 1000 ) );
+}
+
+const validationMessages: Record<XiriValidationLang, {
+	required: string;
+	invalidFormat: string;
+	invalidEmail: string;
+	valueRequired: string;
+	minLength: ( min: number ) => string;
+	maxLength: ( max: number ) => string;
+	minNumber: ( min: number ) => string;
+	maxNumber: ( max: number ) => string;
+	minDate: ( date: string ) => string;
+	maxDate: ( date: string ) => string;
+	minDateRange: ( date: string ) => string;
+	maxDateRange: ( date: string ) => string;
+	minSelection: ( min: number ) => string;
+	maxSelection: ( max: number ) => string;
+}> = {
+	de: {
+		required: 'Pflichtfeld – bitte ausfüllen',
+		invalidFormat: 'Bitte ein gültiges Format eingeben',
+		invalidEmail: 'Bitte eine gültige E-Mail-Adresse eingeben',
+		valueRequired: 'Bitte einen Wert angeben',
+		minLength: min => `Mindestens ${ min } Zeichen erforderlich`,
+		maxLength: max => `Maximal ${ max } Zeichen erlaubt`,
+		minNumber: min => `Mindestens ${ min } erforderlich`,
+		maxNumber: max => `Maximal ${ max } erlaubt`,
+		minDate: date => `Datum darf nicht vor ${ date } liegen`,
+		maxDate: date => `Datum darf nicht nach ${ date } liegen`,
+		minDateRange: date => `Startdatum muss nach ${ date } liegen`,
+		maxDateRange: date => `Enddatum muss vor ${ date } liegen`,
+		minSelection: min => `Mindestens ${ min } Einträge auswählen`,
+		maxSelection: max => `Maximal ${ max } Einträge auswählen`,
+	},
+	en: {
+		required: 'Required field',
+		invalidFormat: 'Please enter a valid format',
+		invalidEmail: 'Please enter a valid email address',
+		valueRequired: 'Please provide a value',
+		minLength: min => `At least ${ min } characters required`,
+		maxLength: max => `Maximum ${ max } characters allowed`,
+		minNumber: min => `Minimum value is ${ min }`,
+		maxNumber: max => `Maximum value is ${ max }`,
+		minDate: date => `Date must not be before ${ date }`,
+		maxDate: date => `Date must not be after ${ date }`,
+		minDateRange: date => `Start date must be after ${ date }`,
+		maxDateRange: date => `End date must be before ${ date }`,
+		minSelection: min => `Select at least ${ min } items`,
+		maxSelection: max => `Select at most ${ max } items`,
+	},
+};
 
 
 @Component( {
@@ -91,6 +150,8 @@ export class XiriFormFieldsComponent implements OnInit {
 	
 	private formBuilder = inject( UntypedFormBuilder );
 	private destroyRef = inject( DestroyRef );
+	private elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
+	private readonly localeService = inject( XiriLocaleService );
 	
 	form = input<XiriFormField[] | null>( null );
 	display = input<XiriFormFieldDisplay>( 'full' );
@@ -105,8 +166,28 @@ export class XiriFormFieldsComponent implements OnInit {
 	collapsedSections = signal<Set<string>>( new Set() );
 	private _fieldsLoaded = false;
 	private _initialEmitDone = false;
-	
+	private _autoFocusDone = false;
+
 	constructor() {
+
+		// Fokussiert nach dem ersten Render das erste sichtbare, interaktive Feld (spart den ersten Klick).
+		// Nicht-interaktive Feldtypen (header, divider, info, html) rendern kein fokussierbares Element
+		// und werden dadurch automatisch übersprungen, ebenso versteckte (showWhen/collapsed) Felder,
+		// die per @if gar nicht ins DOM kommen. Felder mit field.hide bleiben aber via [hidden] im DOM und
+		// müssen daher explizit über einen [hidden]-Vorfahren ausgefiltert werden. Der Selektor beschränkt
+		// sich bewusst auf echte Eingabe-Elemente, damit der klappbare Header (tabindex="0") kein Ziel ist.
+		afterRenderEffect( () => {
+			this.fields();
+			if ( this._autoFocusDone )
+				return;
+			const target = Array.from(
+				this.elementRef.nativeElement.querySelectorAll<HTMLElement>( 'input, mat-select, textarea' )
+			).find( el => !el.closest( '[hidden]' ) );
+			if ( target ) {
+				this._autoFocusDone = true;
+				target.focus( { preventScroll: true } );
+			}
+		} );
 		
 		this.formGroup = this.formBuilder.group( {} );
 		
@@ -345,101 +426,120 @@ export class XiriFormFieldsComponent implements OnInit {
 	}
 	
 	private bindValidations( field: XiriFormField ) {
-		
+
 		const validList: ValidatorFn[] = [];
 
 		if ( field.validations === undefined ) {
-			
+
 			field.validations = [];
-			
+			// Sprache wird bei jedem Zugriff auf `message` frisch aus dem Service gelesen (Getter),
+			// damit die Fehlertexte bei einem Sprachwechsel ohne Neuaufbau der Validatoren umschalten.
+			const localeService = this.localeService;
+			const langFor = (): XiriValidationLang => localeService.language();
+			const messagesFor = () => validationMessages[ langFor() ];
+
 			if ( field.min !== undefined ) {
-				if ( field.type == 'number' || field.type == 'date' )
+				const min = field.min;
+				if ( field.type == 'number' )
 					field.validations.push( {
 						                        id: 'min',
-						                        validator: Validators.min( field.min ),
-						                        message: 'Minimum not reached'
+						                        validator: Validators.min( min ),
+						                        get message() { return messagesFor().minNumber( min ); }
+					                        } );
+				else if ( field.type == 'date' )
+					field.validations.push( {
+						                        id: 'min',
+						                        validator: Validators.min( min ),
+						                        get message() { return messagesFor().minDate( formatValidationDate( langFor(), min ) ); }
 					                        } );
 				else if ( field.type == 'daterange' || field.type == 'datetimerange' )
 					field.validations.push( {
 						                        id: 'min',
-						                        validator: validatorDateRangeStart( field.min ),
-						                        message: 'Check Minimum Date'
+						                        validator: validatorDateRangeStart( min ),
+						                        get message() { return messagesFor().minDateRange( formatValidationDate( langFor(), min ) ); }
 					                        } );
 				else if ( field.type == 'multiselect' || field.type == 'treeselect' )
 					field.validations.push( {
 						                        id: 'min',
-						                        validator: validatorArrayMin( field.min ),
-						                        message: 'Minimum not reached'
+						                        validator: validatorArrayMin( min ),
+						                        get message() { return messagesFor().minSelection( min ); }
 					                        } );
 				else
 					field.validations.push( {
-						                        id: 'min',
-						                        validator: Validators.minLength( field.min ),
-						                        message: 'Check Format'
+						                        id: 'minlength',
+						                        validator: Validators.minLength( min ),
+						                        get message() { return messagesFor().minLength( min ); }
 					                        } );
 			}
 			if ( field.max !== undefined ) {
-				if ( field.type == 'number' || field.type == 'date' )
+				const max = field.max;
+				if ( field.type == 'number' )
 					field.validations.push( {
 						                        id: 'max',
-						                        validator: Validators.max( field.max ),
-						                        message: 'Maximum reached'
+						                        validator: Validators.max( max ),
+						                        get message() { return messagesFor().maxNumber( max ); }
+					                        } );
+				else if ( field.type == 'date' )
+					field.validations.push( {
+						                        id: 'max',
+						                        validator: Validators.max( max ),
+						                        get message() { return messagesFor().maxDate( formatValidationDate( langFor(), max ) ); }
 					                        } );
 				else if ( field.type == 'daterange' || field.type == 'datetimerange' )
 					field.validations.push( {
 						                        id: 'max',
-						                        validator: validatorDateRangeEnd( field.max ),
-						                        message: 'Max Date reached'
+						                        validator: validatorDateRangeEnd( max ),
+						                        get message() { return messagesFor().maxDateRange( formatValidationDate( langFor(), max ) ); }
 					                        } );
 				else if ( field.type == 'multiselect' || field.type == 'treeselect' )
 					field.validations.push( {
 						                        id: 'max',
-						                        validator: validatorArrayMax( field.max ),
-						                        message: 'Maximum reached'
+						                        validator: validatorArrayMax( max ),
+						                        get message() { return messagesFor().maxSelection( max ); }
 					                        } );
 				else
 					field.validations.push( {
-						                        id: 'max',
-						                        validator: Validators.maxLength( field.max ),
-						                        message: 'Maximum reached'
+						                        id: 'maxlength',
+						                        validator: Validators.maxLength( max ),
+						                        get message() { return messagesFor().maxLength( max ); }
 					                        } );
 			}
-			
+
 			if ( field.pattern !== undefined ) {
 				field.validations.push( {
 					                        id: 'pattern',
 					                        validator: Validators.pattern( field.pattern ),
-					                        message: 'Check Format'
+					                        get message() { return messagesFor().invalidFormat; }
 				                        } );
 			} else {
 				if ( field.type == 'text' && field.subtype == 'email' ) {
 					field.validations.push( {
 						                        id: 'email',
 						                        validator: Validators.email,
-						                        message: 'Check Format'
+						                        get message() { return messagesFor().invalidEmail; }
 					                        } );
 				}
 			}
-			
+
 			if ( field.required == true ) {
 				field.validations.push( {
 					                        id: 'required',
 					                        validator: Validators.required,
-					                        message: 'Required',
+					                        get message() { return messagesFor().required; },
 				                        } );
 			} else {
 				field.validations.push( {
 					                        id: 'undefined',
 					                        validator: validatorUndefined(),
-					                        message: 'Check Format',
+					                        get message() { return messagesFor().valueRequired; },
 				                        } );
 			}
 		}
-		
+
 		field.validations.forEach( valid => {
 			validList.push( valid.validator );
 		} );
-		
+
 		return validList.length ? Validators.compose( validList ) : null;
 	}
 	

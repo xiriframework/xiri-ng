@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { of, Subject } from 'rxjs';
@@ -7,6 +7,7 @@ import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface
 import { UntypedFormGroup } from '@angular/forms';
 import { XiriDataServiceConfig } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
+import { XiriLocaleService } from '../services/locale.service';
 import { HttpClient } from '@angular/common/http';
 import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
@@ -35,12 +36,26 @@ class TestHostComponent {
 	}
 }
 
+function stubLocalStorage(): void {
+	const store: Record<string, string> = {};
+	vi.stubGlobal( 'localStorage', {
+		getItem: vi.fn( ( key: string ) => store[ key ] ?? null ),
+		setItem: vi.fn( ( key: string, value: string ) => { store[ key ] = value; } ),
+		removeItem: vi.fn(),
+		clear: vi.fn(),
+		length: 0,
+		key: vi.fn(),
+	} );
+}
+
 describe( 'XiriFormFieldsComponent', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 	let host: TestHostComponent;
 	let component: XiriFormFieldsComponent;
 
 	beforeEach( () => {
+		stubLocalStorage();
+
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
@@ -56,6 +71,10 @@ describe( 'XiriFormFieldsComponent', () => {
 		host = fixture.componentInstance;
 		fixture.detectChanges();
 		component = host.formFields();
+	} );
+
+	afterEach( () => {
+		vi.unstubAllGlobals();
 	} );
 
 	it( 'should create', () => {
@@ -137,6 +156,16 @@ describe( 'XiriFormFieldsComponent', () => {
 			fixture.detectChanges();
 
 			expect( component.fields()![ 0 ].type ).toBe( 'number' );
+		} );
+	} );
+
+	describe( 'redundant placeholder', () => {
+		it( 'should not repeat the label as a placeholder on a text field', () => {
+			host.fields.set( [ { id: 'name', type: 'text', name: 'Full Name', value: '' } ] );
+			fixture.detectChanges();
+
+			const input: HTMLInputElement = fixture.nativeElement.querySelector( 'input' );
+			expect( input.getAttribute( 'placeholder' ) ).not.toBe( 'Full Name' );
 		} );
 	} );
 
@@ -883,6 +912,156 @@ describe( 'XiriFormFieldsComponent', () => {
 			fixture.detectChanges();
 
 			expect( component.formGroup.get( 'q' )!.value ).toBe( 'Are you sure?' );
+		} );
+	} );
+
+	describe( 'validation messages (i18n)', () => {
+		function createLocalizedFixture( lang: 'de' | 'en' ) {
+			TestBed.resetTestingModule();
+			stubLocalStorage();
+			TestBed.configureTestingModule( {
+				imports: [ TestHostComponent ],
+				providers: [
+					{ provide: XiriDataServiceConfig, useValue: { api: '/api/' } },
+					{ provide: HttpClient, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) } },
+					{ provide: XiriSnackbarService, useValue: { error: vi.fn() } },
+					{ provide: MAT_DATE_LOCALE, useValue: enUS },
+					...provideDateFnsAdapter(),
+				],
+			} );
+			TestBed.inject( XiriLocaleService ).setLanguage( lang );
+			const localFixture = TestBed.createComponent( TestHostComponent );
+			const localHost = localFixture.componentInstance;
+			localFixture.detectChanges();
+			return { fixture: localFixture, host: localHost, component: localHost.formFields() };
+		}
+
+		it( 'shows the German required message for de', () => {
+			const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+			h.fields.set( [ { id: 'name', type: 'text', required: true, value: '' } ] );
+			f.detectChanges();
+
+			const validation = c.fields()![ 0 ].validations!.find( v => v.id === 'required' )!;
+			expect( validation.message ).toBe( 'Pflichtfeld – bitte ausfüllen' );
+		} );
+
+		it( 'shows the English required message for en', () => {
+			const { fixture: f, host: h, component: c } = createLocalizedFixture( 'en' );
+			h.fields.set( [ { id: 'name', type: 'text', required: true, value: '' } ] );
+			f.detectChanges();
+
+			const validation = c.fields()![ 0 ].validations!.find( v => v.id === 'required' )!;
+			expect( validation.message ).toBe( 'Required field' );
+		} );
+
+		it( 'includes the configured limit in the German maxlength message', () => {
+			const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+			h.fields.set( [ { id: 'code', type: 'text', max: 5, value: '' } ] );
+			f.detectChanges();
+
+			const validation = c.fields()![ 0 ].validations!.find( v => v.id === 'maxlength' )!;
+			expect( validation.message ).toBe( 'Maximal 5 Zeichen erlaubt' );
+		} );
+
+		it( 'includes the configured limit in the English minlength message', () => {
+			const { fixture: f, host: h, component: c } = createLocalizedFixture( 'en' );
+			h.fields.set( [ { id: 'code', type: 'text', min: 3, value: '' } ] );
+			f.detectChanges();
+
+			const validation = c.fields()![ 0 ].validations!.find( v => v.id === 'minlength' )!;
+			expect( validation.message ).toBe( 'At least 3 characters required' );
+		} );
+
+		it( 'renders the localized minLength message in the mat-error element (verifies the hasError(vali.id) key match)', () => {
+			const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+			h.fields.set( [ { id: 'code', type: 'text', min: 3, value: 'ab' } ] );
+			f.detectChanges();
+
+			c.formGroup.get( 'code' )!.markAsTouched();
+			f.detectChanges();
+
+			const matError: HTMLElement | null = f.nativeElement.querySelector( 'mat-error' );
+			expect( matError?.textContent ).toContain( 'Mindestens 3 Zeichen erforderlich' );
+		} );
+
+		it( 'wechselt Validierungs-Fehlertexte reaktiv bei setLanguage (ohne Reload)', () => {
+			const locale = TestBed.inject( XiriLocaleService );
+			locale.setLanguage( 'de' );
+
+			host.fields.set( [ { id: 'name', type: 'text', required: true, value: '' } ] );
+			fixture.detectChanges();
+			component.formGroup.get( 'name' )!.markAsTouched();
+			fixture.detectChanges();
+
+			const errDe = fixture.nativeElement.querySelector( 'mat-error' )?.textContent ?? '';
+			expect( errDe ).toContain( 'Pflichtfeld' );
+
+			locale.setLanguage( 'en' );
+			fixture.detectChanges();
+
+			const errEn = fixture.nativeElement.querySelector( 'mat-error' )?.textContent ?? '';
+			expect( errEn ).toContain( 'Required' );
+		} );
+	} );
+
+	describe( 'reines Text-Formular ohne DateAdapter', () => {
+		it( 'rendert ohne NG0201, wenn kein provideDateFnsAdapter() bereitgestellt wird', () => {
+			TestBed.resetTestingModule();
+			stubLocalStorage();
+			TestBed.configureTestingModule( {
+				imports: [ TestHostComponent ],
+				providers: [
+					{ provide: XiriDataServiceConfig, useValue: { api: '/api/' } },
+					{ provide: HttpClient, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) } },
+					{ provide: XiriSnackbarService, useValue: { error: vi.fn() } },
+				],
+			} );
+
+			const textOnlyFixture = TestBed.createComponent( TestHostComponent );
+			const textOnlyHost = textOnlyFixture.componentInstance;
+			textOnlyHost.fields.set( [ { id: 'name', type: 'text', required: true, value: '' } ] );
+
+			expect( () => textOnlyFixture.detectChanges() ).not.toThrow();
+			expect( textOnlyFixture.componentInstance.formFields() ).toBeTruthy();
+		} );
+	} );
+
+	describe( 'auto focus', () => {
+		it( 'should focus the first visible interactive field, skipping a leading non-interactive header', async () => {
+			host.fields.set( [
+				{ id: 'section', type: 'header', value: 'Section' },
+				{ id: 'name', type: 'text', value: '' },
+			] );
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			const input: HTMLInputElement = fixture.nativeElement.querySelector( 'input' );
+			expect( document.activeElement ).toBe( input );
+		} );
+
+		it( 'should skip a leading hidden field and focus the next visible field', async () => {
+			host.fields.set( [
+				{ id: 'token', type: 'text', value: '', hide: true },
+				{ id: 'name', type: 'text', value: '' },
+			] );
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			const inputs: NodeListOf<HTMLInputElement> = fixture.nativeElement.querySelectorAll( 'input' );
+			expect( inputs.length ).toBe( 2 );
+			expect( document.activeElement ).toBe( inputs[ 1 ] );
+		} );
+
+		it( 'should focus the input, not a leading collapsible header toggle', async () => {
+			host.fields.set( [
+				{ id: 'section', type: 'header', value: 'Section', collapsible: true },
+				{ id: 'name', type: 'text', value: '' },
+			] );
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			const input: HTMLInputElement = fixture.nativeElement.querySelector( 'input' );
+			expect( document.activeElement ).toBe( input );
 		} );
 	} );
 } );

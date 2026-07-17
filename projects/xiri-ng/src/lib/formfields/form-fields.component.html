@@ -10,7 +10,6 @@
 					<input matInput
 					       [formControlName]="field.id"
 					       [type]="field.subtype || 'text'"
-					       [placeholder]="field.name || ''"
 					       [autocomplete]="field.name"
 					       [attr.minlength]="field.min"
 					       [attr.maxlength]="field.max"
@@ -49,7 +48,6 @@
 					}
 					<input matInput
 					       [formControlName]="field.id"
-					       [placeholder]="field.name || ''"
 					       [autocomplete]="field.name || field.id"
 					       [lang]="field.locale || ''"
 					       [type]="field.type"
@@ -88,7 +86,6 @@
 					<input matInput
 					       [formControlName]="field.id"
 					       [type]="field.pwdhide ? 'password' : 'text'"
-					       [placeholder]="field.name || ''"
 					       [autocomplete]="field.name"
 					       [attr.minlength]="field.min"
 					       [attr.maxlength]="field.max"
@@ -296,7 +293,7 @@
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
-					<textarea matInput [formControlName]="field.id" [placeholder]="field.name || ''" [required]="!!field.required" [rows]="field.rows || 5"></textarea>
+					<textarea matInput [formControlName]="field.id" [required]="!!field.required" [rows]="field.rows || 5"></textarea>
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
