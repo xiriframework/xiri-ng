@@ -1,0 +1,7 @@
+@if (variant() === 'dot') {
+	<span class="status-dot" aria-hidden="true"></span>
+}
+@if (settings().icon; as icon) {
+	<mat-icon class="status-icon" aria-hidden="true">{{ icon }}</mat-icon>
+}
+<span class="status-label">{{ settings().label }}</span>

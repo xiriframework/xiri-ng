@@ -1,0 +1,48 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Tones -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTones">
+				<xiri-callout [settings]="info"></xiri-callout>
+				<xiri-callout [settings]="success"></xiri-callout>
+				<xiri-callout [settings]="warning"></xiri-callout>
+				<xiri-callout [settings]="error"></xiri-callout>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Titel, Icon, Actions & Dismiss -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionVariants">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-callout [settings]="plain"></xiri-callout>
+						<xiri-callout [settings]="withActions"></xiri-callout>
+						<xiri-callout [settings]="dismissible"></xiri-callout>
+						<xiri-callout [settings]="compact"></xiri-callout>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goCode" title="Go: callout"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

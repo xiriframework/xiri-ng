@@ -126,6 +126,16 @@
 				<xiri-empty-state [settings]="$any(obj.data)"></xiri-empty-state>
 			</div>
 		}
+		@case ('status') {
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
+				<xiri-status [settings]="$any(obj.data)"></xiri-status>
+			</div>
+		}
+		@case ('callout') {
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
+				<xiri-callout [settings]="$any(obj.data)"></xiri-callout>
+			</div>
+		}
 		@case ('timeline') {
 			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-timeline [settings]="$any(obj.data)"></xiri-timeline> } @placeholder { <xiri-skeleton type="rect" height="96px" /> }

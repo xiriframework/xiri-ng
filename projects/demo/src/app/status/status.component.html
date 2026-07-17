@@ -1,0 +1,77 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Badge -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionBadge">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+							@for (s of badges; track s.label) {
+								<xiri-status [settings]="s"></xiri-status>
+							}
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goBadgeCode" title="Go: status"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Dot -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionDot">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+							@for (s of dots; track s.label) {
+								<xiri-status [settings]="s"></xiri-status>
+							}
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goDotCode" title="Go: status"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Text -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionText">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
+							@for (s of texts; track s.label) {
+								<xiri-status [settings]="s"></xiri-status>
+							}
+						</div>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goTextCode" title="Go: status"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

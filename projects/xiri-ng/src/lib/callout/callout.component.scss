@@ -1,0 +1,78 @@
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.callout {
+	--callout-tone: var(--color-info);
+
+	display:          flex;
+	align-items:      flex-start;
+	gap:              var(--xiri-spacing-md);
+
+	padding:          var(--xiri-spacing-md);
+	margin:           var(--xiri-spacing-md) 0;
+
+	border:           1px solid transparent;
+	border-left:      4px solid var(--callout-tone);
+	border-radius:    var(--xiri-radius-sm);
+
+	// Tönung aus dem Tone-Token über der Fläche — trägt hell wie dunkel.
+	background-color: color-mix(in srgb, var(--callout-tone) 12%, var(--surface));
+	color:            var(--on-surface);
+
+	animation:        fadeInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
+
+	&.tone-info    { --callout-tone: var(--color-info); }
+	&.tone-success { --callout-tone: var(--color-success); }
+	&.tone-warning { --callout-tone: var(--color-warning); }
+	&.tone-error   { --callout-tone: var(--error); }
+
+	&.compact {
+		padding: var(--xiri-spacing-sm) var(--xiri-spacing-md);
+		gap:     var(--xiri-spacing-sm);
+	}
+}
+
+.icon {
+	flex-shrink: 0;
+	line-height: 1;
+
+	mat-icon {
+		color: var(--callout-tone);
+	}
+}
+
+.body {
+	flex-grow:     1;
+	min-width:     0; // erlaubt Umbruch statt Sprengen des Containers
+	overflow-wrap: anywhere;
+}
+
+.title {
+	font-weight:   500;
+	margin-bottom: var(--xiri-spacing-xs);
+}
+
+.text {
+	line-height: 1.5;
+	max-width:   70ch; // sinnvolle Zeilenlänge für lange Texte
+}
+
+.actions {
+	display:   flex;
+	flex-wrap: wrap; // Buttons stacken bei schmalem Container
+	gap:       var(--xiri-spacing-sm);
+	margin-top: var(--xiri-spacing-sm);
+}
+
+.dismiss {
+	flex-shrink: 0;
+	margin:      calc(-1 * var(--xiri-spacing-sm)) calc(-1 * var(--xiri-spacing-sm)) 0 0;
+
+	// Sichtbarer Fokus für Tastaturbedienung.
+	&:focus-visible {
+		outline:        2px solid var(--callout-tone);
+		outline-offset: 2px;
+	}
+}

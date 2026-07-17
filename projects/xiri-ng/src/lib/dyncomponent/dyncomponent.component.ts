@@ -40,6 +40,8 @@ import { XiriTreeComponent } from '../tree/tree.component';
 import { XiriSankeyComponent } from '../sankey/sankey.component';
 import { XiriGanttComponent } from '../gantt/gantt.component';
 import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
+import { XiriStatusComponent } from '../status/status.component';
+import { XiriCalloutComponent } from '../callout/callout.component';
 
 
 @Component( {
@@ -70,6 +72,8 @@ import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
 	                       XiriExpansionComponent,
 	                       XiriStatComponent,
 	                       XiriEmptyStateComponent,
+	                       XiriStatusComponent,
+	                       XiriCalloutComponent,
 	                       XiriTimelineComponent,
 	                       XiriPageHeaderComponent,
 	                       XiriSectionComponent,

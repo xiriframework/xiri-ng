@@ -1,0 +1,54 @@
+:host {
+	// Tone-Farbe wird pro Host-Klasse gesetzt; default ist die gedämpfte Neutralfarbe.
+	--status-tone: var(--on-surface-variant, #42474E);
+
+	display:       inline-flex;
+	align-items:   center;
+	gap:           var(--xiri-spacing-xs, 4px);
+	max-width:     100%;
+	font-size:     var(--xiri-font-size-label);
+	line-height:   1.35;
+	vertical-align: middle;
+}
+
+// Tone -> Token-Farbe. Keine Hardcodes; Hell/Dunkel folgt automatisch dem Theme.
+:host(.tone-info)    { --status-tone: var(--color-info); }
+:host(.tone-success) { --status-tone: var(--color-success); }
+:host(.tone-warning) { --status-tone: var(--color-warning); }
+:host(.tone-error)   { --status-tone: var(--error); }
+
+.status-label {
+	min-width:      0;
+	overflow-wrap:  anywhere; // Umbruch statt unsichtbares Abschneiden auf schmalen Hosts (~200 px)
+	// Label bleibt immer auf Theme-Textfarbe -> garantierter Kontrast; die Farbe ist nur redundant.
+	color:          var(--on-surface);
+}
+
+.status-icon {
+	flex:      0 0 auto;
+	color:     var(--status-tone);
+	font-size: var(--xiri-icon-size-sm, 18px);
+	width:     var(--xiri-icon-size-sm, 18px);
+	height:    var(--xiri-icon-size-sm, 18px);
+}
+
+.status-dot {
+	flex:          0 0 auto;
+	width:         0.6em;
+	height:        0.6em;
+	border-radius: var(--xiri-radius-full, 999px);
+	background:    var(--status-tone);
+}
+
+// Badge: getönte Pille. Tone gibt Hintergrund und Rand, der Text bleibt kontraststark.
+:host(.variant-badge) {
+	padding:       var(--xiri-spacing-xs, 4px) var(--xiri-spacing-sm, 8px);
+	border-radius: var(--xiri-radius-full, 999px);
+	background:    color-mix(in srgb, var(--status-tone) 14%, var(--surface));
+	border:        1px solid color-mix(in srgb, var(--status-tone) 38%, transparent);
+}
+
+// Neutrale Badge nutzt die gedämpfte Textfarbe, damit sie sich vom Info-Ton absetzt.
+:host(.tone-neutral.variant-badge) .status-label {
+	color: var(--on-surface-variant, #42474E);
+}

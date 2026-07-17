@@ -1,0 +1,27 @@
+@if (!dismissed()) {
+	<div class="callout" [class]="'tone-' + settings().tone" [class.compact]="compact()" [attr.role]="role()">
+		@if (settings().icon) {
+			<div class="icon">
+				<mat-icon>{{ settings().icon }}</mat-icon>
+			</div>
+		}
+		<div class="body">
+			@if (settings().title) {
+				<div class="title">{{ settings().title }}</div>
+			}
+			<div class="text">{{ settings().text }}</div>
+			@if (settings().actions?.length) {
+				<div class="actions">
+					@for (button of settings().actions!; track button) {
+						<xiri-button [button]="button" (result)="buttonResult.emit( $event )"></xiri-button>
+					}
+				</div>
+			}
+		</div>
+		@if (settings().dismissible) {
+			<button mat-icon-button class="dismiss" (click)="dismiss()" aria-label="Hinweis schließen">
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</div>
+}

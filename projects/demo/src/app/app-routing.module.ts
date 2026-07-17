@@ -10,6 +10,8 @@ import { FeedbackComponent } from "./feedback/feedback.component";
 import { SnackbarComponent } from "./snackbar/snackbar.component";
 import { SkeletonComponent } from "./skeleton/skeleton.component";
 import { EmptyStateComponent } from "./empty-state/empty-state.component";
+import { StatusComponent } from "./status/status.component";
+import { CalloutComponent } from "./callout/callout.component";
 import { StatsComponent } from "./stats/stats.component";
 import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
 import { TimelineComponent } from "./timeline/timeline.component";
@@ -39,6 +41,8 @@ export const AppRoutes: Routes = [
 	{ path: 'Snackbar', component: SnackbarComponent },
 	{ path: 'Skeleton', component: SkeletonComponent },
 	{ path: 'EmptyState', component: EmptyStateComponent },
+	{ path: 'Status', component: StatusComponent },
+	{ path: 'Callout', component: CalloutComponent },
 	{ path: 'Stats', component: StatsComponent },
 	{ path: 'Breadcrumb', component: BreadcrumbComponent },
 	{ path: 'Timeline', component: TimelineComponent },
