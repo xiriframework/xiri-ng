@@ -1,0 +1,126 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Variante 1: Header + Icons -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionKpi">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="kpi"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goKpi" title="Go: multistat"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 2: ohne Header -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionPlain">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="plain"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goPlain" title="Go: multistat (ohne Header)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 3: Einheiten & Trend -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionUnits">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="units"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goUnits" title="Go: multistat (Einheiten)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 4: viele Kennzahlen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionMany">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="many"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goMany" title="Go: multistat (viele)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 4b: vertikale Items -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionVertical">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="vertical"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goVertical" title="Go: multistat (vertikal)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 5: klickbare Zahlen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionLinks">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-multi-stat [settings]="links"></xiri-multi-stat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goLinks" title="Go: multistat (Links)"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Variante 6: AJAX-Nachladen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionAjax">
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goAjax" title="Go: multistat (AJAX + Reload)" [expanded]="true"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

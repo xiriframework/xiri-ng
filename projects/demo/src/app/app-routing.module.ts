@@ -16,6 +16,7 @@ import { QueryDemoComponent } from "./query-demo/query-demo.component";
 import { EntitySummaryComponent } from "./entity-summary/entity-summary.component";
 import { MasterDetailComponent } from "./master-detail/master-detail.component";
 import { StatsComponent } from "./stats/stats.component";
+import { MultiStatComponent } from "./multi-stat/multi-stat.component";
 import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
 import { TimelineComponent } from "./timeline/timeline.component";
 import { BarChartsComponent } from "./barcharts/barcharts.component";
@@ -50,6 +51,7 @@ export const AppRoutes: Routes = [
 	{ path: 'Status', component: StatusComponent },
 	{ path: 'Callout', component: CalloutComponent },
 	{ path: 'Stats', component: StatsComponent },
+	{ path: 'MultiStat', component: MultiStatComponent },
 	{ path: 'Breadcrumb', component: BreadcrumbComponent },
 	{ path: 'Timeline', component: TimelineComponent },
 	{ path: 'BarCharts', component: BarChartsComponent },

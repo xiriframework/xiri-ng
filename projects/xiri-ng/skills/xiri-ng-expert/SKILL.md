@@ -98,7 +98,7 @@ components: XiriDynData[] = [
 // card | buttonline | table | cardlink | links | form | query
 // stepper | header | list | spacer | container | infopoint | multiprogress
 // imagetext | tabs | expansion | infotext | html | stat | empty-state
-// timeline | page-header | section | divider | stat-grid | toolbar
+// timeline | page-header | section | divider | stat-grid | multi-stat | toolbar
 // description-list | barchart   (barchart benötigt zusätzlich `mode`)
 ```
 
@@ -292,7 +292,12 @@ stepperSettings = {
 ```html
 <xiri-stat [settings]="{ value: 1234, label: 'Umsatz', prefix: '€', color: 'primary',
                          trend: { value: 12, direction: 'up' } }"/>
-<xiri-stat-grid [settings]="{ stats: [...], columns: 4, title: 'KPIs' }"/>
+<!-- Mehrere zusammengehörige Zahlen → EINE multi-stat statt mehrerer stat nebeneinander
+     oder eines stat-grid. Items horizontal (Standard), responsiv, klickbar (item.link). -->
+<xiri-multi-stat [settings]="{ title: 'Bestellungen', icon: 'shopping_cart',
+    items: [ { value: 12, label: 'Offen', icon: 'inventory', color: 'orange', link: '/Orders?status=open' },
+             { value: 45, label: 'Fertig', color: 'green', trend: { value: 5, direction: 'up' } } ] }"/>
+<xiri-stat-grid [settings]="{ stats: [...], columns: 4, title: 'KPIs' }"/>  <!-- nur für eigenständige KPI-Karten -->
 <xiri-timeline [settings]="{ items: [...], orientation: 'vertical' }"/>
 <xiri-barchart mode="simple"  [settings]="{ title: 'Weekly', yMin: 0, yMax: 12, color: 'purple',
                                             bars: [{ label: 'M', name: 'Monday', value: 3 }, ...] }"/>

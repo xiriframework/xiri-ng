@@ -74,13 +74,16 @@
 	// ponytail: feste Mindestbreite (~80px), damit Wert/Label nie auf 0 kollabieren;
 	// darunter greift der Umbruch in .stat-content. Bei Bedarf feintunen.
 	min-width: 5rem;
+	// Default-Textfarbe hier (vererbt), NICHT auf .stat-value: sonst gewinnt die
+	// komponenten-scoped Regel (Emulated Encapsulation, höhere Spezifität) gegen
+	// die globale Farbklasse (.success/.orange/…) und color hätte keinen Effekt.
+	color: var(--on-surface, #1B1B1F);
 }
 
 .stat-value {
 	font-size: 1.75rem;
 	font-weight: 600;
 	line-height: 1.2;
-	color: var(--on-surface, #1B1B1F);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

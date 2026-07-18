@@ -27,6 +27,7 @@ import { XiriPageHeaderComponent } from '../page-header/page-header.component';
 import { XiriSectionComponent } from '../section/section.component';
 import { XiriDividerComponent } from '../divider/divider.component';
 import { XiriStatGridComponent } from '../stat-grid/stat-grid.component';
+import { XiriMultiStatComponent } from '../multi-stat/multi-stat.component';
 import { XiriToolbarComponent } from '../toolbar/toolbar.component';
 import { XiriDescriptionListComponent } from '../description-list/description-list.component';
 import { XiriBarChartComponent } from '../barchart/barchart.component';
@@ -80,6 +81,7 @@ import { XiriCalloutComponent } from '../callout/callout.component';
 	                       XiriDividerComponent,
 	                       XiriSkeletonComponent,
 	                       XiriStatGridComponent,
+	                       XiriMultiStatComponent,
 	                       XiriToolbarComponent,
 	                       XiriDescriptionListComponent,
 	                       XiriBarChartComponent,

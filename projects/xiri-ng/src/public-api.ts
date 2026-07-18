@@ -67,6 +67,7 @@ export * from './lib/page-header/page-header.component';
 export * from './lib/section/section.component';
 export * from './lib/divider/divider.component';
 export * from './lib/stat-grid/stat-grid.component';
+export * from './lib/multi-stat/multi-stat.component';
 export * from './lib/toolbar/toolbar.component';
 export * from './lib/description-list/description-list.component';
 

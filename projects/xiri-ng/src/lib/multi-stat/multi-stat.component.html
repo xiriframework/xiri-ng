@@ -1,0 +1,74 @@
+<mat-card class="multi-stat-card mat-mdc-elevation-specific mat-elevation-z2">
+	<mat-card-content>
+		@if (settings().title || settings().icon || (settings().reload && settings().url)) {
+			<div class="multi-stat-header">
+				@if (settings().icon) {
+					<mat-icon [class]="settings().iconColor || 'primary'">{{ settings().icon }}</mat-icon>
+				}
+				@if (settings().title) {
+					<h3 class="multi-stat-title">{{ settings().title }}</h3>
+				}
+				@if (settings().reload && settings().url) {
+					<button mat-icon-button (click)="reload()" [disabled]="loading()" class="reload-btn" aria-label="Neu laden">
+						<mat-icon [class.spinning]="loading()">autorenew</mat-icon>
+					</button>
+				}
+			</div>
+		}
+
+		@if (loading() && !items().length) {
+			<xiri-skeleton type="rect" height="72px"></xiri-skeleton>
+		} @else if (errorMsg()) {
+			<div class="load-error">{{ errorMsg() }}</div>
+		} @else {
+			<div class="multi-stat-items" [class.vertical]="settings().verticalItems">
+				@for (item of items(); track $index) {
+					<div class="multi-stat-item">
+						@if (item.link) {
+							@let itemUrl = item.link | xiriUrl;
+							<a class="multi-stat-link" [routerLink]="itemUrl?.path" [queryParams]="itemUrl?.queryParams">
+								<ng-container *ngTemplateOutlet="itemBody; context: { $implicit: item }"></ng-container>
+							</a>
+						} @else {
+							<ng-container *ngTemplateOutlet="itemBody; context: { $implicit: item }"></ng-container>
+						}
+					</div>
+				}
+			</div>
+		}
+	</mat-card-content>
+</mat-card>
+
+<ng-template #itemBody let-item>
+	@if (item.icon) {
+		<div class="stat-icon">
+			<mat-icon [class]="item.iconColor || 'primary'">{{ item.icon }}</mat-icon>
+		</div>
+	}
+	<div class="stat-data">
+		<div class="stat-value" [class]="item.color || ''">
+			@if (item.prefix) {
+				<span class="prefix">{{ item.prefix }}</span>
+			}
+			{{ item.value }}
+			@if (item.suffix) {
+				<span class="suffix">{{ item.suffix }}</span>
+			}
+		</div>
+		<div class="stat-label">{{ item.label }}</div>
+	</div>
+	@if (item.trend; as trend) {
+		<!-- Trend als Geschwister von .stat-data: horizontal daneben, vertikal darunter.
+		     ponytail: Trend-Mapping dupliziert stat.component.html; teilen wenn ein 3. Nutzer kommt -->
+		<div class="stat-trend" [class]="trend.direction">
+			<mat-icon>
+				@switch (trend.direction) {
+					@case ('up') { trending_up }
+					@case ('down') { trending_down }
+					@default { trending_flat }
+				}
+			</mat-icon>
+			<span>{{ trend.value > 0 ? '+' : '' }}{{ trend.value }}%</span>
+		</div>
+	}
+</ng-template>

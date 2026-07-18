@@ -632,6 +632,9 @@ interface XiriStatSettings {
   prefix?: string;
   suffix?: string;
   color?: XiriColor;
+  reference?: string;           // muted Benchmark-/Anker-Zeile neben dem Wert
+  link?: string;                // macht den Wert klickbar (routerLink + Query-Params);
+                                // v. a. pro Zahl in xiri-multi-stat
   compact?: boolean;            // Skipt eigene mat-card-Hülle, kleinere Schrift —
                                 // für Stats die in einer äußeren Card geschachtelt sind
                                 // (Card-in-Card-Look vermeiden).
@@ -643,7 +646,34 @@ interface XiriStatTrend {
 }
 ```
 
+### xiri-multi-stat
+
+**Standard für mehrere zusammengehörige Zahlen.** Nimm **eine** `xiri-multi-stat`
+statt mehrerer `xiri-stat` nebeneinander (eigene xcol-Spalten) oder `xiri-stat-grid`
+(N Karten), wenn die Zahlen inhaltlich zusammengehören: gemeinsamer Header,
+kompakter, responsiv (Items brechen auf schmalen Breiten sauber um, die Trennlinie
+am Reihenanfang wird ausgeblendet).
+
+```typescript
+@input.required settings: XiriMultiStatSettings;
+
+interface XiriMultiStatSettings {
+  items?: XiriStatSettings[];   // je Zahl eine XiriStatSettings (value/label/icon/
+                                // color/prefix/suffix/trend/link — link macht sie klickbar)
+  title?: string;               // Header-Titel
+  icon?: string;                // Header-Icon
+  iconColor?: XiriColor;
+  verticalItems?: boolean;      // Standard horizontal (Icon links neben Wert/Label);
+                                // true = gestapelt (Icon oben)
+  url?: string;                 // AJAX: lädt items per POST (Card-Muster),
+                                // Header bleibt sofort sichtbar
+  reload?: boolean;             // manueller Reload-Button (nur zusammen mit url)
+}
+```
+
 ### xiri-stat-grid
+
+Für mehrere **eigenständige** Stat-Karten. Zusammengehörige Zahlen → `xiri-multi-stat`.
 
 ```typescript
 @input.required settings: XiriStatGridSettings;

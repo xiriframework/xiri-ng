@@ -42,6 +42,7 @@ export const COMPONENT_CATALOG: CatalogEntry[] = [
 	{ type: 'html', name: 'HTML', category: 'Data Display', angular: false, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'html', 'raw', 'markup' ] },
 	{ type: 'stat', name: 'Stat', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Stats', keywords: [ 'stat', 'kpi', 'metric', 'kennzahl' ] },
 	{ type: 'stat-grid', name: 'Stat Grid', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Stats', keywords: [ 'stat-grid', 'stat', 'kpi', 'grid', 'dashboard' ] },
+	{ type: 'multi-stat', name: 'Multi Stat', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/MultiStat', keywords: [ 'multi-stat', 'stat', 'kpi', 'metric', 'kennzahl' ] },
 	{ type: 'description-list', name: 'Description List', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Layout', keywords: [ 'description-list', 'definition', 'key value', 'metadaten' ] },
 	{ type: 'timeline', name: 'Timeline', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Timeline', keywords: [ 'timeline', 'verlauf', 'history', 'events' ] },
 

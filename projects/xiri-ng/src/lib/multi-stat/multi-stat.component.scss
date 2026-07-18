@@ -1,0 +1,190 @@
+:host {
+	display: block;
+	animation: scaleIn var(--xiri-duration-normal) var(--xiri-easing-decelerate) both;
+}
+
+.multi-stat-card {
+	padding: 0;
+
+	mat-card-content {
+		padding: var(--xiri-spacing-md) var(--xiri-spacing-md);
+	}
+}
+
+.multi-stat-header {
+	display: flex;
+	align-items: center;
+	gap: var(--xiri-spacing-sm);
+	margin-bottom: var(--xiri-spacing-md);
+
+	mat-icon {
+		font-size: 24px;
+		width: 24px;
+		height: 24px;
+		opacity: 0.8;
+	}
+}
+
+.multi-stat-title {
+	margin: 0;
+	font-size: var(--xiri-font-size-body);
+	font-weight: 600;
+	color: var(--on-surface, #1B1B1F);
+}
+
+.multi-stat-items {
+	display: flex;
+	align-items: stretch;
+	// Auf schmalen Kacheln umbrechen statt Zahlen zu quetschen.
+	flex-wrap: wrap;
+	gap: var(--xiri-spacing-md);
+	// Schneidet die Trennlinie des ersten Items jeder (umgebrochenen) Reihe weg —
+	// sie liegt links in der negativen Gap-Zone. `clip` statt `hidden`: kein
+	// Scroll-Container, y bleibt sichtbar.
+	overflow-x: clip;
+}
+
+.multi-stat-item {
+	// flex-basis: auto → Wrap-Entscheidung anhand der echten Inhaltsbreite, damit
+	// breitere Horizontal-Items (Icon + Wert + Trend) umbrechen statt überzulaufen.
+	flex: 1 1 auto;
+	min-width: 5rem;
+	// Standard: horizontal — Icon links neben der Wert/Label-Spalte.
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--xiri-spacing-sm);
+	// Default-Textfarbe hier, NICHT auf .stat-value: sonst gewinnt die
+	// komponenten-scoped Regel (Emulated Encapsulation, höhere Spezifität)
+	// gegen die globale Farbklasse (.orange/.blue/…) und die Zahl bliebe schwarz.
+	color: var(--on-surface, #1B1B1F);
+	position: relative;
+
+	// Vertikale Trennlinie in der Gap-Mitte links vom Item. Beim ersten Item einer
+	// Reihe (x=0) landet sie im negativen Bereich und wird von .multi-stat-items
+	// (overflow-x: clip) weggeschnitten — so kein Divider am linken Reihenrand.
+	&::before {
+		content: '';
+		position: absolute;
+		left: calc(var(--xiri-spacing-md) / -2);
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background: var(--outline-variant, #C4C7CF);
+	}
+}
+
+// Klickbare Zahl: Anker erbt Textfarbe (sonst überschriebe das Browser-Link-Blau
+// die geerbte on-surface-Farbe der .stat-value); übernimmt die Item-Ausrichtung.
+.multi-stat-link {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--xiri-spacing-sm);
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+
+	&:hover .stat-value {
+		text-decoration: underline;
+	}
+}
+
+// Wert/Label/Trend immer als Spalte — im Horizontal-Modus rechts neben dem Icon,
+// im Vertikal-Modus unter dem Icon.
+.stat-data {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+// Opt-in: zurück zum vertikalen Stapel (Icon über Wert/Label, Trend darunter).
+.multi-stat-items.vertical {
+	.multi-stat-item,
+	.multi-stat-link {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 2px;
+	}
+
+	.stat-trend {
+		align-self: flex-start;
+		margin-top: var(--xiri-spacing-xs);
+	}
+}
+
+.reload-btn {
+	margin-left: auto;
+
+	.spinning {
+		animation: multi-stat-spin 1s linear infinite;
+	}
+}
+
+@keyframes multi-stat-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+.load-error {
+	color: var(--error, #E74C3C);
+	font-size: var(--xiri-font-size-label);
+	padding: var(--xiri-spacing-sm) 0;
+}
+
+.stat-icon mat-icon {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	opacity: 0.8;
+}
+
+.stat-value {
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1.2;
+
+	.prefix, .suffix {
+		font-size: var(--xiri-font-size-body);
+		font-weight: 400;
+		opacity: 0.7;
+	}
+}
+
+.stat-label {
+	font-size: var(--xiri-font-size-label);
+	color: var(--on-surface-variant, #44474F);
+}
+
+.stat-trend {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	gap: 2px;
+	font-size: var(--xiri-font-size-label);
+	font-weight: 500;
+	padding: var(--xiri-spacing-xs) var(--xiri-spacing-sm);
+	border-radius: var(--xiri-radius-xs);
+
+	mat-icon {
+		font-size: 18px;
+		width: 18px;
+		height: 18px;
+	}
+
+	&.up {
+		color: var(--color-success, #2ECC71);
+		background-color: color-mix(in srgb, var(--color-success, #2ECC71) 10%, transparent);
+	}
+
+	&.down {
+		color: var(--error, #E74C3C);
+		background-color: color-mix(in srgb, var(--error, #E74C3C) 10%, transparent);
+	}
+
+	&.neutral {
+		color: var(--on-surface-variant, #44474F);
+		background-color: var(--surface-variant, #DEE3EB);
+	}
+}

@@ -161,6 +161,11 @@
 				@defer { <xiri-stat-grid [settings]="$any(obj.data)"></xiri-stat-grid> }
 			</div>
 		}
+		@case ('multi-stat') {
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6')" [class.xcol-start]="obj.newRow">
+				<xiri-multi-stat [settings]="$any(obj.data)"></xiri-multi-stat>
+			</div>
+		}
 		@case ('toolbar') {
 			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-toolbar [settings]="$any(obj.data)" [filterData]="filterData()"></xiri-toolbar> }

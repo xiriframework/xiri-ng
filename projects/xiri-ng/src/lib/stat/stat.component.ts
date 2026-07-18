@@ -20,6 +20,7 @@ export interface XiriStatSettings {
 	color?: XiriColor
 	reference?: string
 	compact?: boolean
+	link?: string
 }
 
 @Component( {
