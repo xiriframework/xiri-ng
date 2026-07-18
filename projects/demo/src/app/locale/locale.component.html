@@ -1,0 +1,104 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- Sprache umschalten -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionSwitch">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>
+							Aktive Sprache: <strong>{{ localeService.language() }}</strong>
+							&nbsp;·&nbsp; localeString: <strong>{{ localeService.localeString() }}</strong>
+						</p>
+						<div class="locale-buttons">
+							<button mat-raised-button
+							        [color]="localeService.language() === 'de' ? 'primary' : undefined"
+							        (click)="setLang( 'de' )">Deutsch</button>
+							<button mat-raised-button
+							        [color]="localeService.language() === 'en' ? 'primary' : undefined"
+							        (click)="setLang( 'en' )">English</button>
+							@if ( frRegistered() ) {
+								<button mat-raised-button
+								        [color]="localeService.language() === 'fr' ? 'primary' : undefined"
+								        (click)="setLang( 'fr' )">Français</button>
+							}
+						</div>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Datum & Zahlen -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionFormats">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<p>unixToStringDateTime: <strong>{{ dateTime() }}</strong></p>
+						<p>unixToStringDate: <strong>{{ dateShort() }}</strong></p>
+						<p>unixToStringDateYear: <strong>{{ dateYear() }}</strong></p>
+						<hr>
+						<p>formatNumber(1234567.89): <strong>{{ numDefault() }}</strong></p>
+						<p>formatNumber(…, 'integer'): <strong>{{ numInteger() }}</strong></p>
+						<p>formatNumber(…, 'float2'): <strong>{{ numFloat2() }}</strong></p>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Validierungs-Fehlertexte -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionValidation">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						<xiri-form-fields [form]="demoForm()" [check]="check$"></xiri-form-fields>
+						<button mat-raised-button color="primary" (click)="triggerValidation()">
+							<mat-icon>rule</mat-icon>
+							Validierung auslösen
+						</button>
+						<p class="locale-hint">Sprache oben umschalten — die Fehlertexte wechseln live mit.</p>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Custom-Sprache -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionCustom">
+				<mat-card class="mat-elevation-z2">
+					<mat-card-content>
+						@if ( frRegistered() ) {
+							<p>Französisch ist registriert und aktiv — Formate und Fehlertexte oben sind jetzt fr-FR.</p>
+						} @else {
+							<p>Registriert Französisch (fr-FR) zur Laufzeit und aktiviert es.</p>
+						}
+						<button mat-raised-button color="accent" (click)="registerFrench()">
+							<mat-icon>add_circle</mat-icon>
+							Französisch registrieren &amp; aktivieren
+						</button>
+					</mat-card-content>
+				</mat-card>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>

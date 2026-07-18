@@ -9,7 +9,7 @@ import { de } from 'date-fns/locale/de';
 import { enUS } from 'date-fns/locale/en-US';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { XiriDateComponent } from './date.component';
-import { XiriDateService } from '../../services/date.service';
+import { XiriLocaleService } from '../../services/locale.service';
 import { XiriFormField } from '../field.interface';
 
 @Component( {
@@ -34,7 +34,7 @@ describe( 'XiriDateComponent', () => {
 	function setupWithTimezone( tz: string, locale: 'de' | 'enUS' = 'de' ): {
 		fixture: ComponentFixture<HostComponent>;
 		host: HostComponent;
-		dateService: XiriDateService;
+		dateService: XiriLocaleService;
 		dateComponent: XiriDateComponent;
 	} {
 		TestBed.configureTestingModule( {
@@ -46,9 +46,8 @@ describe( 'XiriDateComponent', () => {
 		} );
 
 		const fixture       = TestBed.createComponent( HostComponent );
-		const dateService   = TestBed.inject( XiriDateService );
+		const dateService   = TestBed.inject( XiriLocaleService );
 		dateService.setTimezone( tz );
-		dateService.setLocale( locale, locale === 'de' ? de : enUS );
 
 		fixture.detectChanges();
 		const dateComponent = fixture.debugElement.query( By.directive( XiriDateComponent ) ).componentInstance as XiriDateComponent;

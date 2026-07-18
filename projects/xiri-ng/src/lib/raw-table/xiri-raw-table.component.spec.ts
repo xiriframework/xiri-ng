@@ -1,8 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { XiriRawTableComponent, XiriRawTableSettings } from './xiri-raw-table.component';
-import { XiriNumberService } from '../services/number.service';
 
 @Component( {
 	selector: 'xiri-raw-table-test-host',
@@ -27,16 +26,11 @@ describe( 'XiriRawTableComponent', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 	let host: TestHostComponent;
 	let component: XiriRawTableComponent;
-	let mockNumberService: { formatNumber: ReturnType<typeof vi.fn> };
 
 	beforeEach( () => {
-		mockNumberService = { formatNumber: vi.fn().mockReturnValue( '0' ) };
-
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
-			providers: [
-				{ provide: XiriNumberService, useValue: mockNumberService },
-			],
+			providers: [],
 		} );
 
 		fixture = TestBed.createComponent( TestHostComponent );

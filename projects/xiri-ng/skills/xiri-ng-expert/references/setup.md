@@ -137,30 +137,36 @@ this.data.postFileResponse('/api/export', payload).subscribe(res => {
 });
 ```
 
-## XiriDateService
+## XiriLocaleService
 
-Unix-Timestamp ↔ lokale Datums-Strings mit Timezone + Locale.
+Zentraler i18n-/Kontext-Dienst: aktive Sprache, Locale, Timezone, Datums- und Zahlenformatierung sowie lokalisierte Validierungsmeldungen. Ab v0.3.0 sind die früheren `XiriDateService` und `XiriNumberService` hier aufgegangen.
 
 ```typescript
-setTimezone(tz: string): void
-setLocale(localeString: string, locale: Locale): void   // date-fns Locale
+// Sprache / Locale
+language: Signal<XiriLanguage>              // 'de' | 'en' | (string & {})
+localeString: Signal<string>                // z.B. 'de-DE', 'en-GB'
+dateFnsLocale: Signal<Locale | undefined>   // aktives date-fns-Locale
+setLanguage(lang: XiriLanguage): void       // unbekannt → console.warn, kein Wechsel
+validationMessagesFor(): XiriValidationMessages
 
+// Beliebige weitere Sprachen registrieren (vor setLanguage / erstem Formular, im App-Init):
+registerLanguage(code: XiriLanguage, def: XiriLanguageDefinition): void
+// XiriLanguageDefinition = { localeString: string; dateFnsLocale?: Locale; validationMessages: XiriValidationMessages }
+
+// Timezone + Datum (war XiriDateService)
+setTimezone(tz: string): void
 unixToLocal(stime: number): Date | null
 unixToStringDateTime(stime: number): string   // 'yyyy-MM-dd HH:mm'
-unixToStringDate(stime: number): string       // 'd. LLL.'
+unixToStringDate(stime: number): string       // 'd. LLL.'  (Monatsnamen folgen der Sprache)
 unixToStringDateYear(stime: number): string   // 'd. LLL. yy'
 dateToUnix(date: Date): number
-```
 
-Der Backend-`UiContext` schickt Locale/Timezone als Teil der JSON-Responses → Kalibrierung via `setLocale` / `setTimezone` erfolgt typischerweise in einem Auth-/Startup-Flow.
-
-## XiriNumberService
-
-```typescript
-setLocale(locale: string): void   // Default: 'de-DE'
+// Zahlen (war XiriNumberService) — folgt der aktiven Sprache
 formatNumber(value: number, webformat?: string): string
   // webformat: 'integer' | 'float1' | 'float2' | 'float3' | 'float4'
 ```
+
+Das Backend liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App ruft beim Login `setLanguage()` / `setTimezone()`. Der Material-Datepicker-Locale wird per `effect` automatisch angeglichen. Für zusätzliche Sprachen liefert der Client date-fns-Locale + Validierungstexte via `registerLanguage()`.
 
 ## XiriLocalStorageService / XiriSessionStorageService
 

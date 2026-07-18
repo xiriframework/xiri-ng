@@ -3,8 +3,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
 import { XiriDataService } from 'projects/xiri-ng/src/lib/services/data.service';
-import { XiriDateService } from 'projects/xiri-ng/src/lib/services/date.service';
-import { XiriNumberService } from 'projects/xiri-ng/src/lib/services/number.service';
+import { XiriLocaleService } from 'projects/xiri-ng/src/lib/services/locale.service';
 import { XiriLocalStorageService } from 'projects/xiri-ng/src/lib/services/localStorage.service';
 import { XiriSessionStorageService } from 'projects/xiri-ng/src/lib/services/sessionStorage.service';
 import { MatButton } from '@angular/material/button';
@@ -37,8 +36,7 @@ export class ServicesComponent {
 
 	protected themeService = inject( ThemeService );
 	private dataService = inject( XiriDataService );
-	private dateService = inject( XiriDateService );
-	private numberService = inject( XiriNumberService );
+	private localeService = inject( XiriLocaleService );
 	private localStorage = inject( XiriLocalStorageService );
 	private sessionStorage = inject( XiriSessionStorageService );
 
@@ -69,15 +67,15 @@ export class ServicesComponent {
 	};
 
 	sectionDateService: XiriSectionSettings = {
-		title: 'XiriDateService',
-		subtitle: 'Date utilities based on date-fns with timezone support.',
+		title: 'XiriLocaleService — Datum',
+		subtitle: 'Date utilities based on date-fns with timezone + language support (part of XiriLocaleService).',
 		icon: 'calendar_today',
 		iconColor: 'primary',
 	};
 
 	sectionNumberService: XiriSectionSettings = {
-		title: 'XiriNumberService',
-		subtitle: 'Number formatting with locale support. Method: formatNumber(value, webformat?). Formats: default, integer, float1-float4.',
+		title: 'XiriLocaleService — Zahlen',
+		subtitle: 'Number formatting following the active language. Method: formatNumber(value, webformat?). Formats: default, integer, float1-float4.',
 		icon: 'calculate',
 		iconColor: 'accent',
 	};
@@ -109,12 +107,12 @@ export class ServicesComponent {
 
 	constructor() {
 		const nowUnix = Math.floor( Date.now() / 1000 );
-		this.dateNowFormatted = this.dateService.unixToStringDateTime( nowUnix );
-		this.dateNowDate = this.dateService.unixToStringDate( nowUnix );
-		this.dateNowDateYear = this.dateService.unixToStringDateYear( nowUnix );
-		this.numberFormatted = this.numberService.formatNumber( 1234567.89 );
-		this.numberInteger = this.numberService.formatNumber( 1234567.89, 'integer' );
-		this.numberFloat2 = this.numberService.formatNumber( 1234567.89, 'float2' );
+		this.dateNowFormatted = this.localeService.unixToStringDateTime( nowUnix );
+		this.dateNowDate = this.localeService.unixToStringDate( nowUnix );
+		this.dateNowDateYear = this.localeService.unixToStringDateYear( nowUnix );
+		this.numberFormatted = this.localeService.formatNumber( 1234567.89 );
+		this.numberInteger = this.localeService.formatNumber( 1234567.89, 'integer' );
+		this.numberFloat2 = this.localeService.formatNumber( 1234567.89, 'float2' );
 		this.apiUrl = this.dataService.getConfigApi();
 
 		// Load stored values

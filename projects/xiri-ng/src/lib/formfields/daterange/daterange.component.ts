@@ -13,7 +13,7 @@ import {
 	ReactiveFormsModule
 } from '@angular/forms';
 import { MatFormFieldControl, MatSuffix } from '@angular/material/form-field';
-import { XiriDateService } from "../../services/date.service";
+import { XiriLocaleService } from '../../services/locale.service';
 import { XiriFormField } from "../field.interface";
 import { MatIcon } from '@angular/material/icon';
 import {
@@ -77,7 +77,7 @@ export class XiriDateRangeComponent extends XiriFieldMain<DateRange | null | und
 	
 	private _lastValue: DateRange | null = null;
 	
-	private dateService = inject( XiriDateService );
+	private dateService = inject( XiriLocaleService );
 	private fb = inject( FormBuilder );
 
 	constructor() {

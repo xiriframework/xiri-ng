@@ -13,7 +13,7 @@ import {
 	ReactiveFormsModule
 } from '@angular/forms';
 import { MatFormFieldControl, MatSuffix } from '@angular/material/form-field';
-import { XiriDateService } from "../../services/date.service";
+import { XiriLocaleService } from '../../services/locale.service';
 import { XiriFormField } from "../field.interface";
 import { MatOption } from "@angular/material/core";
 import { MatIcon } from '@angular/material/icon';
@@ -87,7 +87,7 @@ export class XiriDateComponent extends XiriFieldMain<number | null | undefined> 
 	            '40', '41', '42', '43', '44', '45', '46', '47', '48', '49',
 	            '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', ];
 	
-	private dateService = inject( XiriDateService );
+	private dateService = inject( XiriLocaleService );
 	private fb = inject( FormBuilder );
 
 	constructor() {

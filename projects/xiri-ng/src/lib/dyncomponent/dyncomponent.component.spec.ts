@@ -7,7 +7,6 @@ import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
-import { XiriNumberService } from '../services/number.service';
 import { of } from 'rxjs';
 
 @Component( {
@@ -34,7 +33,6 @@ describe( 'XiriDynComponentComponent', () => {
 				{ provide: XiriFormService, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), parse: vi.fn().mockReturnValue( {} ), loadState: vi.fn().mockImplementation( ( _: unknown, f: unknown ) => f ), saveState: vi.fn() } },
 				{ provide: XiriSnackbarService, useValue: { error: vi.fn(), success: vi.fn(), handleResponse: vi.fn() } },
 				{ provide: XiriSessionStorageService, useValue: { set: vi.fn(), getTimeout: vi.fn().mockReturnValue( null ) } },
-				{ provide: XiriNumberService, useValue: { formatNumber: vi.fn().mockReturnValue( '0' ) } },
 			],
 		} );
 

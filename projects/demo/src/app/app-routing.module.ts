@@ -24,6 +24,7 @@ import { DisplayComponent } from "./display/display.component";
 import { WorkflowComponent } from "./workflow/workflow.component";
 import { DynamicComponent } from "./dynamic/dynamic.component";
 import { ServicesComponent } from "./services/services.component";
+import { LocaleComponent } from "./locale/locale.component";
 import { LayoutComponent } from "./layout/layout.component";
 import { MultiCardComponent } from "./multi-card/multi-card.component";
 import { InlineEditTableComponent } from "./inline-edit-table/inline-edit-table.component";
@@ -59,6 +60,7 @@ export const AppRoutes: Routes = [
 	{ path: 'Workflow', component: WorkflowComponent },
 	{ path: 'Dynamic', component: DynamicComponent },
 	{ path: 'Services', component: ServicesComponent },
+	{ path: 'Locale', component: LocaleComponent },
 	{ path: 'Layout', component: LayoutComponent },
 	{ path: 'MultiCard', component: MultiCardComponent },
 	{ path: 'InlineEditTable', component: InlineEditTableComponent },

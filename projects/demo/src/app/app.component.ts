@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { XiriDateService } from "projects/xiri-ng/src/lib/services/date.service";
+import { XiriLocaleService } from "projects/xiri-ng/src/lib/services/locale.service";
 import { ThemeService } from "projects/xiri-ng/src/lib/services/theme.service";
 import { Subscription } from "rxjs";
 import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
@@ -12,7 +12,6 @@ import { MatSidenavContainer, MatSidenav, MatSidenavContent } from '@angular/mat
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIconButton } from '@angular/material/button';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
-import { de } from "date-fns/locale/de";
 
 @Component( {
 	            selector: 'app-root',
@@ -35,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	private breakpointObserver = inject( BreakpointObserver );
 	private router = inject( Router );
 	private iconRegistry = inject( MatIconRegistry );
-	private dateService = inject( XiriDateService );
+	private localeService = inject( XiriLocaleService );
 	protected themeService = inject( ThemeService );
 
 
@@ -202,6 +201,10 @@ export class AppComponent implements OnInit, OnDestroy {
 			icon: 'build',
 			link: 'Services'
 		}, {
+			name: 'Locale & Sprachen',
+			icon: 'translate',
+			link: 'Locale'
+		}, {
 			name: 'Server (DynPage)',
 			icon: 'cloud',
 			menu: true,
@@ -243,8 +246,7 @@ export class AppComponent implements OnInit, OnDestroy {
 	constructor() {
 
 		this.iconRegistry.setDefaultFontSetClass( 'material-symbols-outlined' );
-		this.dateService.setLocale( 'de', de );
-		this.dateService.setTimezone( 'Europe/London' );
+		this.localeService.setTimezone( 'Europe/London' );
 	}
 
 	ngOnInit() {

@@ -39,7 +39,7 @@ Alle Services sind `providedIn: 'root'` (automatisch verfügbar nach Provider-Re
 ```typescript
 import {
   XiriDataService, XiriSnackbarService, XiriResponseHandlerService,
-  XiriFormService, XiriDownloadService, XiriDateService, XiriNumberService,
+  XiriFormService, XiriDownloadService, XiriLocaleService,
   XiriLocalStorageService, XiriSessionStorageService, ThemeService,
 } from '@xiriframework/xiri-ng';
 

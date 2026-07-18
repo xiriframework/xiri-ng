@@ -1002,6 +1002,38 @@ describe( 'XiriFormFieldsComponent', () => {
 			const errEn = fixture.nativeElement.querySelector( 'mat-error' )?.textContent ?? '';
 			expect( errEn ).toContain( 'Required' );
 		} );
+
+		it( 'zeigt Validierungstexte einer client-registrierten Custom-Sprache', () => {
+			const locale = TestBed.inject( XiriLocaleService );
+			locale.registerLanguage( 'fr', {
+				localeString: 'fr-FR',
+				validationMessages: {
+					required: 'Champ requis',
+					invalidFormat: 'Format invalide',
+					invalidEmail: 'E-mail invalide',
+					valueRequired: 'Valeur requise',
+					minLength: n => `Au moins ${ n } caractères`,
+					maxLength: n => `Au plus ${ n } caractères`,
+					minNumber: n => `Minimum ${ n }`,
+					maxNumber: n => `Maximum ${ n }`,
+					minDate: d => `Pas avant ${ d }`,
+					maxDate: d => `Pas après ${ d }`,
+					minDateRange: d => `Début après ${ d }`,
+					maxDateRange: d => `Fin avant ${ d }`,
+					minSelection: n => `Au moins ${ n }`,
+					maxSelection: n => `Au plus ${ n }`,
+				},
+			} );
+			locale.setLanguage( 'fr' );
+
+			host.fields.set( [ { id: 'name', type: 'text', required: true, value: '' } ] );
+			fixture.detectChanges();
+			component.formGroup.get( 'name' )!.markAsTouched();
+			fixture.detectChanges();
+
+			const err = fixture.nativeElement.querySelector( 'mat-error' )?.textContent ?? '';
+			expect( err ).toContain( 'Champ requis' );
+		} );
 	} );
 
 	describe( 'reines Text-Formular ohne DateAdapter', () => {

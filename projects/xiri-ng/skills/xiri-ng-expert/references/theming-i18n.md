@@ -73,33 +73,44 @@ Die Komponenten nutzen `mat.*-theme` Tokens — kein Hart-kodiertes CSS.
 
 ## Locale & Sprache
 
-Backend (`xiri-go`) schickt `UiContext` mit Locale/Timezone pro Response. Frontend propagiert das an `XiriDateService` und `XiriNumberService`:
+Alles läuft über den zentralen `XiriLocaleService` (ab v0.3.0; früher getrennte `XiriDateService`/`XiriNumberService`). Backend (`xiri-go`) liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App setzt beim Login nur Sprache + Timezone:
 
 ```typescript
 // z.B. in einem auth-response-handler:
-import { de } from 'date-fns/locale';
+this.locale.setLanguage('de');            // 'de' | 'en' eingebaut
+this.locale.setTimezone('Europe/Vienna');
+// Datepicker-Locale + Validierungstexte + Zahlen/Datumsformate folgen automatisch.
+```
 
-this.date.setLocale('de-DE', de);
-this.date.setTimezone('Europe/Vienna');
-this.number.setLocale('de-DE');
+### Weitere Sprachen registrieren (Client-erweiterbar)
+
+```typescript
+import { fr } from 'date-fns/locale/fr';
+
+this.locale.registerLanguage('fr', {
+  localeString: 'fr-FR',
+  dateFnsLocale: fr,                       // optional (Datepicker + Monatsnamen)
+  validationMessages: { required: 'Champ requis', /* … alle 14 Keys */ },
+});
+this.locale.setLanguage('fr');
 ```
 
 ### Date-Format-Helper
 
 ```typescript
-date.unixToStringDateTime(1708800000)   // '2024-02-24 18:00'
-date.unixToStringDate(1708800000)       // '24. Feb.'
-date.unixToStringDateYear(1708800000)   // '24. Feb. 24'
-date.unixToLocal(1708800000)            // Date-Objekt oder null
-date.dateToUnix(new Date())             // number
+locale.unixToStringDateTime(1708800000)   // '2024-02-24 18:00'
+locale.unixToStringDate(1708800000)       // '24. Feb.'  (Monatsnamen folgen der Sprache)
+locale.unixToStringDateYear(1708800000)   // '24. Feb. 24'
+locale.unixToLocal(1708800000)            // Date-Objekt oder null
+locale.dateToUnix(new Date())             // number
 ```
 
 ### Number-Format-Helper
 
 ```typescript
-number.formatNumber(1234.567, 'integer')  // '1.235'
-number.formatNumber(1234.567, 'float2')   // '1.234,57'
-number.formatNumber(1234.567, 'float4')   // '1.234,5670'
+locale.formatNumber(1234.567, 'integer')  // '1.235'   (folgt der aktiven Sprache)
+locale.formatNumber(1234.567, 'float2')   // '1.234,57'
+locale.formatNumber(1234.567, 'float4')   // '1.234,5670'
 ```
 
 ## SafehtmlPipe

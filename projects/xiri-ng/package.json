@@ -1,6 +1,6 @@
 {
 	"name": "@xiriframework/xiri-ng",
-	"version": "0.2.49",
+	"version": "0.3.0",
 	"description": "Angular UI component library for the Xiri Framework",
 	"license": "Apache-2.0",
 	"repository": {
@@ -32,7 +32,7 @@
 		"date-fns": "^4.3",
 		"@date-fns/tz": "^1.5",
 		"material-symbols": ">=0.44",
-		"ngx-mat-select-search": "^8.0.6",
+		"ngx-mat-select-search": "^9.0.0",
 		"rxjs": "^7.8.2",
 		"echarts": "^6.1"
 	},

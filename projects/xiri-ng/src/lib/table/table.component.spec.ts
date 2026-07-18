@@ -9,7 +9,6 @@ import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
-import { XiriNumberService } from '../services/number.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
@@ -67,7 +66,6 @@ describe( 'XiriTableComponent', () => {
 		set: ReturnType<typeof vi.fn>;
 		getTimeout: ReturnType<typeof vi.fn>;
 	};
-	let mockNumberService: { formatNumber: ReturnType<typeof vi.fn> };
 	let mockResponseHandler: { handle: ReturnType<typeof vi.fn> };
 
 	function initMocks() {
@@ -82,7 +80,6 @@ describe( 'XiriTableComponent', () => {
 			set: vi.fn(),
 			getTimeout: vi.fn().mockReturnValue( null ),
 		};
-		mockNumberService = { formatNumber: vi.fn().mockReturnValue( '0' ) };
 		mockResponseHandler = { handle: vi.fn() };
 	}
 
@@ -97,7 +94,6 @@ describe( 'XiriTableComponent', () => {
 				{ provide: XiriSnackbarService, useValue: mockSnackbar },
 				{ provide: MatDialog, useValue: mockDialog },
 				{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
-				{ provide: XiriNumberService, useValue: mockNumberService },
 				{ provide: XiriResponseHandlerService, useValue: mockResponseHandler },
 			],
 		} );

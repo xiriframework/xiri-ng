@@ -52,61 +52,9 @@ import { XiriLocaleService } from '../services/locale.service';
 
 export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 
-type XiriValidationLang = 'de' | 'en';
-
-function formatValidationDate( lang: XiriValidationLang, unixSeconds: number ): string {
-	return new Intl.DateTimeFormat( lang === 'en' ? 'en-US' : 'de-AT' ).format( new Date( unixSeconds * 1000 ) );
+function formatValidationDate( localeString: string, unixSeconds: number ): string {
+	return new Intl.DateTimeFormat( localeString ).format( new Date( unixSeconds * 1000 ) );
 }
-
-const validationMessages: Record<XiriValidationLang, {
-	required: string;
-	invalidFormat: string;
-	invalidEmail: string;
-	valueRequired: string;
-	minLength: ( min: number ) => string;
-	maxLength: ( max: number ) => string;
-	minNumber: ( min: number ) => string;
-	maxNumber: ( max: number ) => string;
-	minDate: ( date: string ) => string;
-	maxDate: ( date: string ) => string;
-	minDateRange: ( date: string ) => string;
-	maxDateRange: ( date: string ) => string;
-	minSelection: ( min: number ) => string;
-	maxSelection: ( max: number ) => string;
-}> = {
-	de: {
-		required: 'Pflichtfeld – bitte ausfüllen',
-		invalidFormat: 'Bitte ein gültiges Format eingeben',
-		invalidEmail: 'Bitte eine gültige E-Mail-Adresse eingeben',
-		valueRequired: 'Bitte einen Wert angeben',
-		minLength: min => `Mindestens ${ min } Zeichen erforderlich`,
-		maxLength: max => `Maximal ${ max } Zeichen erlaubt`,
-		minNumber: min => `Mindestens ${ min } erforderlich`,
-		maxNumber: max => `Maximal ${ max } erlaubt`,
-		minDate: date => `Datum darf nicht vor ${ date } liegen`,
-		maxDate: date => `Datum darf nicht nach ${ date } liegen`,
-		minDateRange: date => `Startdatum muss nach ${ date } liegen`,
-		maxDateRange: date => `Enddatum muss vor ${ date } liegen`,
-		minSelection: min => `Mindestens ${ min } Einträge auswählen`,
-		maxSelection: max => `Maximal ${ max } Einträge auswählen`,
-	},
-	en: {
-		required: 'Required field',
-		invalidFormat: 'Please enter a valid format',
-		invalidEmail: 'Please enter a valid email address',
-		valueRequired: 'Please provide a value',
-		minLength: min => `At least ${ min } characters required`,
-		maxLength: max => `Maximum ${ max } characters allowed`,
-		minNumber: min => `Minimum value is ${ min }`,
-		maxNumber: max => `Maximum value is ${ max }`,
-		minDate: date => `Date must not be before ${ date }`,
-		maxDate: date => `Date must not be after ${ date }`,
-		minDateRange: date => `Start date must be after ${ date }`,
-		maxDateRange: date => `End date must be before ${ date }`,
-		minSelection: min => `Select at least ${ min } items`,
-		maxSelection: max => `Select at most ${ max } items`,
-	},
-};
 
 
 @Component( {
@@ -435,8 +383,8 @@ export class XiriFormFieldsComponent implements OnInit {
 			// Sprache wird bei jedem Zugriff auf `message` frisch aus dem Service gelesen (Getter),
 			// damit die Fehlertexte bei einem Sprachwechsel ohne Neuaufbau der Validatoren umschalten.
 			const localeService = this.localeService;
-			const langFor = (): XiriValidationLang => localeService.language();
-			const messagesFor = () => validationMessages[ langFor() ];
+			const messagesFor = () => localeService.validationMessagesFor();
+			const localeStringFor = () => localeService.localeString();
 
 			if ( field.min !== undefined ) {
 				const min = field.min;
@@ -450,13 +398,13 @@ export class XiriFormFieldsComponent implements OnInit {
 					field.validations.push( {
 						                        id: 'min',
 						                        validator: Validators.min( min ),
-						                        get message() { return messagesFor().minDate( formatValidationDate( langFor(), min ) ); }
+						                        get message() { return messagesFor().minDate( formatValidationDate( localeStringFor(), min ) ); }
 					                        } );
 				else if ( field.type == 'daterange' || field.type == 'datetimerange' )
 					field.validations.push( {
 						                        id: 'min',
 						                        validator: validatorDateRangeStart( min ),
-						                        get message() { return messagesFor().minDateRange( formatValidationDate( langFor(), min ) ); }
+						                        get message() { return messagesFor().minDateRange( formatValidationDate( localeStringFor(), min ) ); }
 					                        } );
 				else if ( field.type == 'multiselect' || field.type == 'treeselect' )
 					field.validations.push( {
@@ -483,13 +431,13 @@ export class XiriFormFieldsComponent implements OnInit {
 					field.validations.push( {
 						                        id: 'max',
 						                        validator: Validators.max( max ),
-						                        get message() { return messagesFor().maxDate( formatValidationDate( langFor(), max ) ); }
+						                        get message() { return messagesFor().maxDate( formatValidationDate( localeStringFor(), max ) ); }
 					                        } );
 				else if ( field.type == 'daterange' || field.type == 'datetimerange' )
 					field.validations.push( {
 						                        id: 'max',
 						                        validator: validatorDateRangeEnd( max ),
-						                        get message() { return messagesFor().maxDateRange( formatValidationDate( langFor(), max ) ); }
+						                        get message() { return messagesFor().maxDateRange( formatValidationDate( localeStringFor(), max ) ); }
 					                        } );
 				else if ( field.type == 'multiselect' || field.type == 'treeselect' )
 					field.validations.push( {

@@ -10,7 +10,7 @@ import { enUS } from 'date-fns/locale/en-US';
 import { ja } from 'date-fns/locale/ja';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { XiriYearMonthComponent } from './yearmonth.component';
-import { XiriDateService } from '../../services/date.service';
+import { XiriLocaleService } from '../../services/locale.service';
 import { XiriFormField } from '../field.interface';
 
 @Component( {
@@ -35,7 +35,7 @@ describe( 'XiriYearMonthComponent', () => {
 	function setup( tz: string, localeName: 'de' | 'enUS' | 'ja' = 'de' ): {
 		fixture: ComponentFixture<HostComponent>;
 		host: HostComponent;
-		dateService: XiriDateService;
+		dateService: XiriLocaleService;
 		ymComponent: XiriYearMonthComponent;
 	} {
 		const localeMap = { de, enUS, ja };
@@ -49,9 +49,8 @@ describe( 'XiriYearMonthComponent', () => {
 		} );
 
 		const fixture     = TestBed.createComponent( HostComponent );
-		const dateService = TestBed.inject( XiriDateService );
+		const dateService = TestBed.inject( XiriLocaleService );
 		dateService.setTimezone( tz );
-		dateService.setLocale( localeName, localeMap[ localeName ] );
 
 		fixture.detectChanges();
 		const ymComponent = fixture.debugElement.query( By.directive( XiriYearMonthComponent ) ).componentInstance as XiriYearMonthComponent;

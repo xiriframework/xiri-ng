@@ -74,11 +74,9 @@ export * from './lib/description-list/description-list.component';
 export * from './lib/layout/cols.directive';
 
 export * from './lib/services/data.service';
-export * from './lib/services/date.service';
 export * from './lib/services/form.service';
 export * from './lib/services/localStorage.service';
 export * from './lib/services/sessionStorage.service';
-export * from './lib/services/number.service';
 export * from './lib/services/theme.service';
 export * from './lib/services/locale.service';
 export * from './lib/services/snackbar.service';

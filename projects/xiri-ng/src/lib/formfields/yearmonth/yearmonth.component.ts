@@ -21,7 +21,7 @@ import {
 	MatDatepickerToggleIcon
 } from '@angular/material/datepicker';
 import { MatInput } from '@angular/material/input';
-import { XiriDateService } from '../../services/date.service';
+import { XiriLocaleService } from '../../services/locale.service';
 import { XiriFormField } from '../field.interface';
 import { XiriFieldMain } from '../helper/fieldmain';
 
@@ -77,7 +77,7 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 	private _lastValue: number | null = null;
 	public type = 'yearmonth';
 
-	private dateService = inject( XiriDateService );
+	private dateService = inject( XiriLocaleService );
 
 	constructor() {
 		super();

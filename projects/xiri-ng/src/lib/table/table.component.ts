@@ -43,7 +43,7 @@ import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/b
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
 import { XiriSessionStorageService } from "../services/sessionStorage.service";
-import { XiriNumberService } from "../services/number.service";
+import { XiriLocaleService } from '../services/locale.service';
 import { SafehtmlPipe } from '../pipes/safehtml.pipe';
 import { XiriUrlPipe } from '../pipes/url.pipe';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -210,7 +210,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private dataService: XiriDataService = inject( XiriDataService );
 	private router: Router = inject( Router );
 	private sessionStorageService: XiriSessionStorageService = inject( XiriSessionStorageService );
-	private numberService: XiriNumberService = inject( XiriNumberService );
+	private numberService = inject( XiriLocaleService );
 	private snackbar = inject( XiriSnackbarService );
 	private responseHandler = inject( XiriResponseHandlerService );
 	private downloadService = inject( XiriDownloadService );
