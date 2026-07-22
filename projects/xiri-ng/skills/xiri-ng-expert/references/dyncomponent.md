@@ -102,7 +102,7 @@ Der TemplateRef erhält das gesamte `XiriDynData`-Item als Context (`$implicit`)
 
 ## Verschachtelung
 
-`section`, `tabs`, `expansion` und `container` akzeptieren in ihren `data`-Feldern wieder `XiriDynData[]` (rekursiv) — die `xiri-dyncomponent` rendert alle Ebenen durch.
+`section`, `tabs` und `expansion` akzeptieren in ihren `data`-Feldern wieder `XiriDynData[]` (rekursiv); `container` verschachtelt über `{ components: XiriDynData[] }` (siehe Tabelle oben) — die `xiri-dyncomponent` rendert alle Ebenen durch.
 
 ```typescript
 const page: XiriDynData[] = [
