@@ -68,7 +68,7 @@
 		@case ('container') {
 			@if (obj.data) {
 				<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
-					<xiri-dyncomponent [data]="$any(obj.data)" [dyncomponent]="dyncomponent()" class="row"></xiri-dyncomponent>
+					<xiri-dyncomponent [data]="$any(obj.data).components" [dyncomponent]="dyncomponent()" class="xrow"></xiri-dyncomponent>
 				</div>
 			}
 		}

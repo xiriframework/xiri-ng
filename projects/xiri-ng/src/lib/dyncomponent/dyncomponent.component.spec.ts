@@ -202,6 +202,20 @@ describe( 'XiriDynComponentComponent', () => {
 			fixture.detectChanges();
 			expect( component.dataInt()[ 0 ].type ).toBe( 'unknown' );
 		} );
+
+		it( 'rendert Container-Kinder aus data.components', () => {
+			host.data.set( [
+				{ type: 'container', data: { components: [
+					{ type: 'html', data: { html: '<p>KIND</p>' } },
+				] } } as unknown as XiriDynData,
+			] );
+			fixture.detectChanges();
+
+			const el = fixture.nativeElement as HTMLElement;
+			expect( el.querySelector( '.html' ) ).toBeTruthy();
+			expect( el.textContent ).toContain( 'KIND' );
+			expect( el.textContent ).not.toContain( 'unknown type' );
+		} );
 	} );
 
 	describe( 'resolveClass', () => {

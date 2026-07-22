@@ -328,6 +328,17 @@ export class LayoutComponent {
 				]
 			} satisfies XiriDescriptionListSettings
 		},
+		{
+			type: 'container',
+			newRow: true,
+			data: {
+				components: [
+					{ type: 'html', data: { html: '<p>Container groups nested components — rendered inline via the <code>@case (\'container\')</code> renderer.</p>' } },
+					{ type: 'stat', data: { value: '3', label: 'Nested Items', icon: 'widgets', iconColor: 'primary' } },
+					{ type: 'stat', data: { value: 'OK', label: 'Rendering', icon: 'check_circle', iconColor: 'success' } },
+				]
+			}
+		},
 	];
 
 	// --- DescriptionList ---
