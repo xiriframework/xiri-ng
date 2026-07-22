@@ -43,23 +43,26 @@
 		}
 	}
 
+	// min(<wert>, 100%): behält die Mindestbreite, solange die Grid-Zelle groß genug ist,
+	// klemmt sie sonst auf die Zellbreite — sonst überläuft die explizite min-width den
+	// Track (den grid.scss minmax(0,1fr) nicht mehr aufbläht) und erzeugt eine Scrollbar.
 	.date {
 		align-self: start;
-		min-width:       9.5rem;
+		min-width:       min(9.5rem, 100%);
 
 		&.datetime {
-			min-width: 14.5rem;
+			min-width: min(14.5rem, 100%);
 		}
 	}
 
 	.daterange {
 		align-self: start;
-		min-width: 14.5rem;
+		min-width: min(14.5rem, 100%);
 	}
 
 	.datetimerange {
 		align-self: start;
-		min-width: 18.5rem;
+		min-width: min(18.5rem, 100%);
 	}
 
 	.bool {

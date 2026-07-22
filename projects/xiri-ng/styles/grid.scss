@@ -11,7 +11,7 @@
 
 	.xrow {
 		display:               grid;
-		grid-template-columns: repeat(12, 1fr);
+		grid-template-columns: repeat(12, minmax(0, 1fr)); // minmax(0,...) statt 1fr: verhindert Grid-Blowout — mehrspaltige Felder, deren min-content-Summe die (fixe) Container-/Dialogbreite übersteigt, blähen sonst die Tracks auf
 		grid-column-gap:       var(--xiri-grid-column-gap, 24px);
 		grid-row-gap:          var(--xiri-grid-row-gap, 20px);
 		width:                 100%;
