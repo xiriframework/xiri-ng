@@ -6,6 +6,7 @@
     "start": "ng serve --watch --port 4301 --host localhost --hmr demo",
     "build": "ng build --configuration production xiri-ng",
     "test": "ng test",
+    "typecheck": "tsc -p projects/xiri-ng/tsconfig.spec.json --noEmit",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "version": "cd projects/xiri-ng && npm version patch",

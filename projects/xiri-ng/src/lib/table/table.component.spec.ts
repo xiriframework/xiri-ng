@@ -444,6 +444,46 @@ describe( 'XiriTableComponent', () => {
 			expect( component.bulkCount() ).toBe( 42 ); // all-results mode: full total
 		} );
 
+		// Row ids come straight from the backend as int64 values and may exceed the
+		// int32 range, or be non-numeric strings. The old unary-plus coercion turned
+		// 'abc' into NaN and dropped it into the request body.
+		it( 'passes selected ids through verbatim, without numeric coercion', () => {
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [
+					{ id: 3000000000, name: 'Big' },
+					{ id: 'abc', name: 'String' },
+				],
+				options: { bulkActions: [ apiButton ] },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			component.masterToggle();
+			mockDataService.post.mockReturnValue( of( {} ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/bulk/archive', expect.objectContaining( {
+				ids: [ 3000000000, 'abc' ],
+			} ) );
+		} );
+
+		it( 'skips rows without an id instead of sending undefined', () => {
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { id: 7, name: 'A' }, { name: 'No id' } ],
+				options: { bulkActions: [ apiButton ] },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			component.masterToggle();
+			mockDataService.post.mockReturnValue( of( {} ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/bulk/archive', expect.objectContaining( {
+				ids: [ 7 ],
+			} ) );
+		} );
+
 		it( 'confirms destructive actions with the exact count and aborts on cancel', () => {
 			bulkFixture();
 			component.masterToggle();

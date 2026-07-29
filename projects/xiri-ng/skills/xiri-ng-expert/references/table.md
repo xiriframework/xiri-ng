@@ -123,6 +123,23 @@ export interface XiriTableOptions {
 }
 ```
 
+### Row-IDs — nicht konvertieren
+
+Row-IDs (`row.id`, und im Tree-Modus `idField`/`parentIdField`) sind **`string | number`** und
+werden unverändert durchgereicht: in die Selection-Payload, in Tree-Map-/Set-Lookups, in die
+localStorage-Persistenz und in den `{id}`-Platzhalter von `addSubUrl`.
+
+**Niemals `+id`, `Number(id)` oder `parseInt(id)` darauf anwenden.** Das Backend (`xiri-go`)
+liefert `int64`-IDs; eine Coercion rundet alles über 2^53 und macht aus einer nicht-numerischen ID
+`NaN`. Zum Vergleichen `==` (lose) oder `String(a) === String(b)` verwenden, nicht erst casten.
+
+Der exakte Bereich ist **±(2^53−1)** — IDs gehen als JSON-Zahl über die Leitung, `JSON.parse`
+liefert einen double. Die Go-Seite lehnt alles darüber beim Binden ab, statt eine falsche Zeile zu
+treffen.
+
+Selection-Buttons (`options.selectButtons`) posten `{ data: (string | number)[] }`; Bulk-Actions
+posten `{ ids, mode, count }`. Zeilen ohne `id` werden aus der Payload gefiltert.
+
 ### XiriTableField
 
 ```typescript

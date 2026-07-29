@@ -6,7 +6,7 @@
       "prompt": "Erstelle eine Angular-Standalone-Komponente, die vom Backend ein JSON-Array von XiriDynData lädt (/api/dashboard) und per xiri-dyncomponent rendert. Nutze XiriDataService, OnPush und Signals.",
       "expected_output": "Standalone component with @Component decorator, imports XiriDynComponentComponent, injects XiriDataService, uses signal<XiriDynData[]>, loads via data.get(), uses OnPush change detection.",
       "assertions": [
-        {"name": "standalone_component", "type": "code_check", "description": "Component ist standalone: true (Default in Angular 21) oder imports[] ist gesetzt"},
+        {"name": "standalone_component", "type": "code_check", "description": "Component ist standalone: true (Default in Angular 22) oder imports[] ist gesetzt"},
         {"name": "uses_xiri_dyncomponent", "type": "code_check", "description": "Template enthält <xiri-dyncomponent [data]=... und XiriDynComponentComponent ist in imports"},
         {"name": "uses_data_service", "type": "code_check", "description": "Injects XiriDataService via inject() oder constructor und ruft .get('/api/dashboard') auf"},
         {"name": "uses_signals", "type": "code_check", "description": "Nutzt signal<XiriDynData[]>([]) für Daten-State und .set() zum Aktualisieren"},

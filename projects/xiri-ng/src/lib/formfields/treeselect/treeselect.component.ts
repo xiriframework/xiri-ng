@@ -28,9 +28,14 @@ import { XiriSearchComponent } from '../../search/search.component';
 import { XiriFieldMain } from "../helper/fieldmain";
 
 
+// Node ids are backend values passed through untouched — an int64 row id or a string
+// key. Coercing them to number would round anything above 2^53 and make a non-numeric
+// key NaN.
+export type XiriTreeselectId = string | number;
+
 class XiriTreeselectTreeNode {
 	children!: XiriTreeselectTreeNode[];
-	id!: number;
+	id!: XiriTreeselectId;
 	name!: string;
 	hidden!: boolean;
 	state!: number;
@@ -64,9 +69,9 @@ let nextUniqueIdXiriTreeselect = 0;
 		            MatTreeNodeDef,
 	            ]
             } )
-export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined> implements ControlValueAccessor,
-                                                                                            MatFormFieldControl<number[] | undefined>,
-                                                                                            AfterViewInit {
+export class XiriTreeselectComponent extends XiriFieldMain<XiriTreeselectId[] | undefined> implements ControlValueAccessor,
+                                                                                                     MatFormFieldControl<XiriTreeselectId[] | undefined>,
+                                                                                                     AfterViewInit {
 	
 	private dataService = inject( XiriDataService );
 	private snackbar = inject( XiriSnackbarService );
@@ -164,13 +169,13 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 		}
 	}
 	
-	private _input: number[] = [];
+	private _input: XiriTreeselectId[] = [];
 	// Unterdrückt das Zurückschreiben an das FormControl, während writeValue die Auswahl aus dem
 	// Modell in den Baum spiegelt (CVA-Vertrag: writeValue darf onChange nicht auslösen).
 	private _suppressEmit = false;
 
 	@Input()
-	get value(): number[] | undefined {
+	get value(): XiriTreeselectId[] | undefined {
 
 		const result = this.checklistSelection.selected.filter( x => x.state === 1 && !x.children ).map( x => x.id );
 		if ( this.required && result.length == 0 )
@@ -179,7 +184,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 		return result;
 	}
 
-	set value( input: number[] | undefined ) {
+	set value( input: XiriTreeselectId[] | undefined ) {
 
 		if ( input === null || input === undefined )
 			input = [];
@@ -208,7 +213,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 		return this.value === undefined || this.value.length === 0;
 	}
 	
-	writeValue( value: number[] ): void {
+	writeValue( value: XiriTreeselectId[] ): void {
 		this._input = value ?? [];
 		this.applyInputSelection();
 	}
@@ -228,7 +233,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 			data.forEach( root => this.resetNodeState( root ) );
 			for ( const id of this._input ) {
 				for ( const d of data ) {
-					const node = this.findNodeById( id as unknown as number, d );
+					const node = this.findNodeById( id, d );
 					if ( node )
 						this.treeItemSelectionToggle( node );
 				}
@@ -362,7 +367,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<number[] | undefined>
 		}
 	}
 	
-	private findNodeById( id: number, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode | null {
+	private findNodeById( id: XiriTreeselectId, node: XiriTreeselectTreeNode ): XiriTreeselectTreeNode | null {
 
 		if ( node.id == id )
 			return node;

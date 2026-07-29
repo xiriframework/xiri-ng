@@ -269,6 +269,50 @@ describe( 'XiriTableTreeService', () => {
 		expect( service.addSubUrlFor( { id: 42 } ) ).toBe( '/Group/Add?parent=42' );
 	} );
 
+	// Row ids arrive as int64 values from the Go backend. Everything here keys on them
+	// (Map/Set lookups, localStorage round trip, url substitution), so a coercion
+	// anywhere in the chain would break the hierarchy for large ids.
+	describe( 'ids above the int32 range', () => {
+		const bigParent = 3000000000;
+		const bigChild = 4000000000;
+
+		function bigRows() {
+			return [
+				{ id: bigChild, parentId: bigParent, name: 'Child' },
+				{ id: bigParent, parentId: null, name: 'Parent' },
+			];
+		}
+
+		it( 'builds the hierarchy from large id/parentId values', () => {
+			service.init( { idField: 'id', parentIdField: 'parentId', treeColumn: 'name', collapseAllByDefault: true }, 'name' );
+			service.build( bigRows() );
+
+			expect( service.visibleRows().map( r => r.name ) ).toEqual( [ 'Parent' ] );
+			service.toggle( { id: bigParent } );
+			expect( service.visibleRows().map( r => r.name ) ).toEqual( [ 'Parent', 'Child' ] );
+		} );
+
+		it( 'round-trips a large expanded id through localStorage', () => {
+			service.init( {
+				idField: 'id', parentIdField: 'parentId', treeColumn: 'name',
+				collapseAllByDefault: true, persistStateKey: 'big',
+			}, 'name' );
+			service.build( bigRows() );
+			service.toggle( { id: bigParent } );
+
+			expect( mockLocalStorage[ 'xiri-tree-state-big' ] ).toContain( String( bigParent ) );
+
+			service.build( bigRows() );
+			expect( service.visibleRows().some( r => r.name === 'Child' ) ).toBe( true );
+		} );
+
+		it( 'substitutes a large id into the +sub url exactly', () => {
+			service.init( { idField: 'id', parentIdField: 'parentId', addSubUrl: '/Group/Add?parent={id}' }, 'name' );
+			service.build( bigRows() );
+			expect( service.addSubUrlFor( { id: bigParent } ) ).toBe( '/Group/Add?parent=3000000000' );
+		} );
+	} );
+
 	describe( 'canAddSub', () => {
 		it( 'returns true for every row when neither addSubField nor addSubWhen is set', () => {
 			service.init( { idField: 'id', parentIdField: 'parentId', addSubUrl: '/x' }, 'name' );

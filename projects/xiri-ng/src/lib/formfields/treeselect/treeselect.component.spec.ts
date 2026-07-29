@@ -62,3 +62,64 @@ describe( 'XiriTreeselectComponent – writeValue / reset', () => {
 		expect( host.ctrl.value ).toEqual( [ 'B' ] );
 	} );
 } );
+
+// Die Typen waren auf number[] verengt, die Werte selbst wurden aber nie konvertiert.
+// Dieser Block nagelt den CVA-Vertrag fest: IDs kommen unverändert zurück, damit eine
+// spätere Number()/+-Coercion sofort auffällt (die würde IDs über 2^53 runden).
+describe( 'XiriTreeselectComponent – ID-Typen', () => {
+	function hostWith( ids: ( string | number )[], selected: ( string | number )[] ) {
+		@Component( {
+			selector: 'xiri-treeselect-id-host',
+			template: `<xiri-treeselect [field]="field" [formControl]="ctrl"></xiri-treeselect>`,
+			imports: [ XiriTreeselectComponent, ReactiveFormsModule ],
+		} )
+		class Host {
+			field = {
+				id: 'cat', type: 'treeselect', name: 'Kategorie',
+				list: ids.map( id => ( { id, name: `N${ id }` } ) ),
+			} as unknown as XiriFormField;
+			ctrl = new FormControl<unknown>( selected );
+			cmp = viewChild.required( XiriTreeselectComponent );
+		}
+
+		TestBed.configureTestingModule( {
+			imports: [ Host ],
+			providers: [
+				{ provide: XiriDataService, useValue: { get: vi.fn() } },
+				{ provide: XiriSnackbarService, useValue: { error: vi.fn() } },
+			],
+		} );
+		const f = TestBed.createComponent( Host );
+		f.detectChanges();
+		return f;
+	}
+
+	beforeEach( () => TestBed.resetTestingModule() );
+
+	it( 'behält eine ID oberhalb des int32-Bereichs exakt', () => {
+		const big = 3000000000;
+		const f = hostWith( [ big, 7 ], [ big ] );
+
+		expect( f.componentInstance.cmp().value ).toEqual( [ big ] );
+		expect( f.componentInstance.ctrl.value ).toEqual( [ big ] );
+	} );
+
+	it( 'behält gemischte String- und Zahl-IDs unverändert', () => {
+		const f = hostWith( [ 'abc', 42 ], [ 'abc', 42 ] );
+
+		expect( f.componentInstance.cmp().value ).toEqual( [ 'abc', 42 ] );
+	} );
+
+	// Die Weitung selbst ist eine Typänderung — die Runtime behandelte Strings schon
+	// vorher unverändert. Der eigentliche Prüfer ist deshalb der Compiler: dieser
+	// Aufruf ist ungecastet und schlägt bei writeValue( value: number[] ) fehl.
+	it( 'nimmt String-IDs typgeprüft über die CVA-API an', () => {
+		const f = hostWith( [ 'abc', 42 ], [] );
+		const cmp: XiriTreeselectComponent = f.componentInstance.cmp();
+
+		cmp.writeValue( [ 'abc' ] );
+		f.detectChanges();
+
+		expect( cmp.value ).toEqual( [ 'abc' ] );
+	} );
+} );

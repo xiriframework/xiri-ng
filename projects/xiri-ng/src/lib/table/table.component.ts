@@ -98,7 +98,7 @@ export interface XiriTableResponse {
 type XiriTableDialogData = Omit<Partial<XiriButton>, 'data'> & {
 	type: string;
 	url?: string;
-	data?: XiriButton['data'] | number[];
+	data?: XiriButton['data'] | ( string | number )[];
 };
 
 // Persisted (session-storage) table state restored on first data load.
@@ -1033,11 +1033,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 	}
 
-	private getSelectionIDs(): number[] {
+	// Row ids are backend values (int64 or string) and are passed through untouched.
+	// Coercing them to number would round anything above 2^53 and turn a non-numeric
+	// id into NaN; rows without an id are dropped rather than sent as undefined.
+	private getSelectionIDs(): ( string | number )[] {
 
-		return this.selection.selected.map( ( item ) => {
-			return +( item[ 'id' ] as string | number );
-		} );
+		return this.selection.selected
+		           .map( ( item ) => item[ 'id' ] as string | number | undefined )
+		           .filter( ( id ): id is string | number => id !== undefined && id !== null );
 	}
 
 	startInlineEdit( row: XiriTableRow, column: XiriTableField, skipSavingCheck = false ): void {

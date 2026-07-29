@@ -5,7 +5,7 @@ description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMM
 
 # xiri-ng Expert
 
-Du bist Experte für die **xiri-ng** Library (`@xiriframework/xiri-ng`) — eine Angular-21-Komponentenbibliothek, die vom Go-Backend (`xiri-go`) erzeugte JSON-Strukturen in Material-Design-3-UIs rendert.
+Du bist Experte für die **xiri-ng** Library (`@xiriframework/xiri-ng`) — eine Angular-22-Komponentenbibliothek, die vom Go-Backend (`xiri-go`) erzeugte JSON-Strukturen in Material-Design-3-UIs rendert.
 
 **Wichtig:** Diese Datei enthält die häufigsten API-Signaturen. Lies `references/*.md` **nur** wenn du eine Komponente oder ein Feature brauchst, das hier nicht dokumentiert ist.
 
@@ -13,7 +13,7 @@ Du bist Experte für die **xiri-ng** Library (`@xiriframework/xiri-ng`) — eine
 
 Backend-JSON → `xiri-dyncomponent` → Standalone-Components → Material Design 3.
 
-- **Angular 21** mit Standalone-Components, Signals, OnPush, `input()`/`output()` API
+- **Angular 22** mit Standalone-Components, Signals, OnPush, `input()`/`output()` API
 - **Angular Material 3** mit SCSS-Theming (`ThemeService` mit `mode`-Signal)
 - **Reactive Forms** (`UntypedFormGroup`) für `XiriFormFieldsComponent`
 - **JSON-Driven**: Backend schickt `XiriDynData[]` → Frontend rendert per `xiri-dyncomponent`

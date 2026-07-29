@@ -9,6 +9,12 @@ if [[ ! -f projects/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
   exit 1
 fi
 
+# Tests vor dem Bump, damit ein Fehlschlag keinen Versions-Commit hinterlässt.
+# typecheck zusätzlich zu test: `ng test` läuft über esbuild und prüft keine Typen, ein
+# Spec, der einen Typvertrag festnagelt (z. B. string-IDs via writeValue), fällt sonst durch.
+npm test -- --watch=false
+npm run typecheck
+
 # Bump version
 npm run version
 VERSION="v$(node -p "require('./projects/xiri-ng/package.json').version")"

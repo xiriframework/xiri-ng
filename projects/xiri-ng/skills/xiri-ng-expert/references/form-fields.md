@@ -228,6 +228,12 @@ export interface XiriFormFieldSelectOption {
 }
 ```
 
+`id` ist `number | string` und wird **unverändert** durchgereicht — auch von `treeselect`
+(`XiriTreeselectId = string | number`) und `chips`. Nicht per `+id` / `Number(id)` casten: das
+Backend (`xiri-go`) liefert `int64`-IDs, eine Coercion rundet alles über 2^53 und macht aus einer
+nicht-numerischen ID `NaN`. Der exakte Bereich ist ±(2^53−1), weil IDs als JSON-Zahl transportiert
+werden; die Go-Seite lehnt größere Werte beim Binden ab.
+
 Inline (statisch):
 
 ```typescript
