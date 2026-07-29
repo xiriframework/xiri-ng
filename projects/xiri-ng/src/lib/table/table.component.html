@@ -357,7 +357,7 @@
 								</mat-checkbox>
 							</th>
 							<td mat-cell *matCellDef="let row">
-								@if (row.select !== false) {
+								@if (isSelectable(row)) {
 									<mat-checkbox
 											(click)="$event.stopPropagation()"
 											(change)="$event ? toggleRow(row) : null"

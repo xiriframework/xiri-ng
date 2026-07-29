@@ -467,7 +467,10 @@ describe( 'XiriTableComponent', () => {
 			} ) );
 		} );
 
-		it( 'skips rows without an id instead of sending undefined', () => {
+		// A row without an id cannot be the target of an action — the payload only carries ids,
+		// so such a row would be silently absent while `count` still claimed it. It must never
+		// enter the selection in the first place, otherwise count and ids disagree.
+		it( 'never selects rows without an id, so count and ids agree', () => {
 			createFixture( {
 				fields: [ { id: 'name', name: 'Name' } ],
 				data: [ { id: 7, name: 'A' }, { name: 'No id' } ],
@@ -477,11 +480,33 @@ describe( 'XiriTableComponent', () => {
 			component.masterToggle();
 			mockDataService.post.mockReturnValue( of( {} ) );
 
+			expect( component.selection.selected.length ).toBe( 1 );
+			expect( component.bulkCount() ).toBe( 1 );
+
 			component.bulkAction( new MouseEvent( 'click' ), apiButton );
 
 			expect( mockDataService.post ).toHaveBeenCalledWith( '/bulk/archive', expect.objectContaining( {
-				ids: [ 7 ],
+				ids:   [ 7 ],
+				count: 1,
 			} ) );
+		} );
+
+		// Guard against the whole selection being unusable: if every selected row lacks an id,
+		// firing the action would post an empty id list and the backend would act on nothing.
+		it( 'does not fire a bulk action when no row is selectable', () => {
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { name: 'No id' }, { name: 'Also none' } ],
+				options: { bulkActions: [ apiButton ] },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			component.masterToggle();
+
+			expect( component.selection.isEmpty() ).toBe( true );
+
+			component.bulkAction( new MouseEvent( 'click' ), apiButton );
+
+			expect( mockDataService.post ).not.toHaveBeenCalled();
 		} );
 
 		it( 'confirms destructive actions with the exact count and aborts on cancel', () => {

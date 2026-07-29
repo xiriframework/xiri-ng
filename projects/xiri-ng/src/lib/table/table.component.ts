@@ -752,24 +752,32 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			this.router.navigateByUrl( url );
 	}
 	
+	// A row is selectable unless the backend opted it out (select: false) or it has no id.
+	// Every selection payload carries ids only, so an id-less row could never be acted on —
+	// letting it into the selection would make bulkCount() and the confirmation prompt count
+	// rows the backend never receives.
+	isSelectable( row: XiriTableRow ): boolean {
+		return row.select !== false && row[ 'id' ] !== undefined && row[ 'id' ] !== null;
+	}
+
 	isAllSelected() {
 		let found = 0;
 		this._displayeddata.forEach( row => {
-			if ( row.select !== false ) {
+			if ( this.isSelectable( row ) ) {
 				if ( !this.selection.isSelected( row ) )
 					found++;
 			}
 		} );
 		return found === 0;
 	}
-	
+
 	masterToggle() {
 		this.bulkAllResults.set( false );
 		if ( this.isAllSelected() ) {
 			this.selection.clear();
 		} else {
 			this._displayeddata.forEach( row => {
-				if ( row.select !== false )
+				if ( this.isSelectable( row ) )
 					this.selection.select( row );
 			} );
 		}
@@ -778,6 +786,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// Toggles a single row and drops the "all results" mode: an individual change means the
 	// user is now working with an explicit per-row selection again, not the whole filter.
 	toggleRow( row: XiriTableRow ) {
+		if ( !this.isSelectable( row ) )
+			return;
 		this.bulkAllResults.set( false );
 		this.selection.toggle( row );
 	}

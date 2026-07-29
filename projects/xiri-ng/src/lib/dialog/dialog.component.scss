@@ -12,7 +12,8 @@ mat-spinner {
 	// .mat-mdc-dialog-surface overflow-y:auto setzt (womit overflow-x zu auto wird), scrollt die
 	// Surface horizontal. Das Padding hält ihn drinnen und rückt den Button auf dieselbe
 	// Einrückung wie den Titel (Material gibt [mat-dialog-title] padding: 0 24px).
-	padding-right:   var(--xiri-spacing-lg);
+	// inline-end statt right: der Button folgt der Schreibrichtung, das Padding muss mit.
+	padding-inline-end: var(--xiri-spacing-lg);
 
 	h1[mat-dialog-title] {
 		margin-bottom: 0;

@@ -11,10 +11,9 @@ mat-card.xiritablecard {
 
 	// Kein overflow-wrap: anywhere auf den Zellen — bewusst, nicht vergessen. anywhere wirkt auf
 	// die min-content-Breite und bricht deshalb auch normale Wörter, sobald eine Spalte nur knapp
-	// ist: aus 'Discontinued' wird 'Disconti|nued', aus '1.299,00' wird '1.299,|00'. Der Gewinn
-	// wären ~48px Breite, die das overflow: auto oben ohnehin abfängt. xiri-raw-table setzt die
-	// Regel, weil sie rohe Backend-Werte (Hashes, JSON, Seriennummern) ohne Bruchstelle zeigt —
-	// hier sind es formatierte Spalten. Wer den harten Umbruch braucht, nimmt .canbreak.
+	// ist: aus 'Discontinued' wird 'Disconti|nued', aus '1.299,00' wird '1.299,|00'. Gespart
+	// werden dabei nur die paar Dutzend Pixel, die das overflow: auto oben ohnehin abfängt.
+	// Gilt genauso für xiri-raw-table. Wer den harten Umbruch braucht, nimmt .canbreak.
 	&.canbreak {
 		word-break: break-all;
 	}

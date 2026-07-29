@@ -2,8 +2,9 @@
 @use '../../../styles/mixins';
 
 .table-out {
-	// Backstop: eine echt breite Tabelle (viele Spalten) scrollt in sich selbst, statt den
-	// Dialog-Content bzw. die Card mitzuziehen — analog .xiritable in table.component.scss.
+	// Eine zu breite Tabelle scrollt in sich selbst, statt den Dialog-Content bzw. die Card
+	// mitzuziehen — analog .xiritable in table.component.scss, das das schon immer hatte.
+	// Bewusst nur das und kein overflow-wrap auf den Zellen: siehe Kommentar bei .xiritable.
 	overflow-x: auto;
 
 	&.dense-1 {
@@ -85,10 +86,6 @@ table {
 	}
 
 	td.mat-mdc-cell {
-		// anywhere, nicht break-word: nur anywhere wirkt auf die min-content-Breite. Ohne das
-		// zwingt ein unbrechbarer Token (Seriennummer, Hash, URL) die Spalte auf seine volle
-		// Länge und schiebt die Tabelle über den Container hinaus.
-		overflow-wrap: anywhere;
 
 		mat-icon {
 			vertical-align: middle;
@@ -109,6 +106,7 @@ table {
 		&.right, &.align-right {
 			text-align:   right;
 			padding-left: 1rem;
+			word-wrap:    anywhere;
 		}
 
 		&.center, &.align-center {

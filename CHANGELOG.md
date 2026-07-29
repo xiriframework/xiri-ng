@@ -24,38 +24,40 @@ versioning follows [Semantic Versioning](https://semver.org/).
   title, which Material already inset by 24px via `[mat-dialog-title]` — the header was visually
   asymmetric before.
 
-- **`xiri-raw-table` cells wrap unbreakable tokens instead of widening the table.** A serial
-  number, hash, JSON blob or URL with no break opportunity forced its column to the token's full
-  width and pushed the table past its container — in a 600px table dialog that meant a horizontal
-  scrollbar on `mat-dialog-content`. `td.mat-mdc-cell` now sets `overflow-wrap: anywhere`
-  (`anywhere`, not `break-word`: only `anywhere` affects `min-content` sizing, which is what fixes
-  the width), and `.table-out` gets `overflow-x: auto` as a backstop so a genuinely wide table —
-  many columns rather than long tokens — scrolls inside itself instead of dragging the dialog
-  content or card along. Measured on a 420px viewport: a raw table of telemetry keys went from
-  822px wide (440px of overflow) to 382px, exactly its container.
+- **A too-wide `xiri-raw-table` scrolls in itself instead of dragging its container along.** A
+  serial number, hash, JSON blob or URL with no break opportunity forces its column to the token's
+  full width and pushed the table past its container — in a 600px table dialog that meant a
+  horizontal scrollbar on `mat-dialog-content`, and in a card it widened the card. `.table-out` now
+  sets `overflow-x: auto`, which is what `.xiritable` in the full table component has had all
+  along. Measured on a 420px viewport: an 822px raw table of telemetry keys overflows its 382px
+  container by 440px, and that overflow now stays inside `.table-out` — `mat-dialog-content` went
+  from 473px of scroll to 0.
 
-  The redundant `word-wrap: anywhere` on right-aligned raw-table cells is gone — `word-wrap` is the
-  legacy alias of `overflow-wrap`, which is now set unconditionally.
-
-  **`xiri-table` deliberately does not get this rule.** It looks like the same bug, but `anywhere`
-  also affects `min-content`, so it breaks *ordinary* words as soon as a column is merely tight,
-  not just genuinely unbreakable tokens. Applying it to the full table turned the inline-edit demo
-  into `1,299.|00`, `Comput|ers`, `Disconti|nued` — while saving only 48px of width that
-  `.xiritable { overflow: auto }` already absorbs by scrolling in place. Raw tables show untouched
-  backend values, where breaking mid-token beats scrolling; the full table shows formatted columns,
-  where it does not. Full tables keep the opt-in `.canbreak` class (`word-break: break-all`) for
-  cases that want it.
+  Cells deliberately do **not** get `overflow-wrap: anywhere`. It would keep the table inside its
+  container rather than scrolling, but `anywhere` also lowers `min-content`, so it breaks *ordinary*
+  words as soon as a column is merely tight — trying it on the full table turned the inline-edit
+  demo into `1,299.|00`, `Comput|ers`, `Disconti|nued`. Both table components now agree on this,
+  and both keep the opt-in `.canbreak` class (`word-break: break-all`) for cases that want the hard
+  break.
 
 - **Selected table row ids are no longer coerced to `number`.** `getSelectionIDs` applied a unary
   plus to each selected row's `id`, so a non-numeric id (`'abc'`) became `NaN` in the request body
   and an id above 2⁵³ would have been rounded. Ids now pass through verbatim as `string | number`
-  for bulk actions, selection dialogs, the API action and the CSV download. Rows without an `id`
-  are skipped instead of being sent as `NaN`.
+  for bulk actions, selection dialogs, the API action and the CSV download.
 
   Note this fixes the *frontend* side only. `xiri-go`'s selection endpoint accepts numbers and
   decimal numeric strings within ±(2⁵³−1); a genuinely non-numeric id is still skipped there. The
   change means the backend now receives what was selected instead of `NaN`, not that arbitrary
   string ids became supported end to end.
+
+- **Rows without an `id` can no longer be selected.** Every selection payload carries ids only, so
+  such a row could never be acted on — it used to be sent as `NaN`. Dropping it from the payload
+  alone would have been worse in a different way: `bulkCount()` and the destructive-action
+  confirmation still counted it, so „archive 2 entries?" could post a single id, and a selection
+  made up entirely of id-less rows would post an empty list while passing the `isEmpty()` guard.
+  The new `isSelectable(row)` gate (`select !== false` **and** an `id` that is neither `undefined`
+  nor `null`) governs `isAllSelected`, `masterToggle`, `toggleRow` and the row checkbox alike, so
+  count and ids can no longer disagree.
 
 ### Changed
 
