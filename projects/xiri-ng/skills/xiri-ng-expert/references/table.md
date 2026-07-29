@@ -138,7 +138,13 @@ liefert einen double. Die Go-Seite lehnt alles darüber beim Binden ab, statt ei
 treffen.
 
 Selection-Buttons (`options.selectButtons`) posten `{ data: (string | number)[] }`; Bulk-Actions
-posten `{ ids, mode, count }`. Zeilen ohne `id` werden aus der Payload gefiltert.
+posten `{ ids, mode, count }`.
+
+**Jede auswählbare Zeile braucht eine `id`.** Zeilen ohne `id` (bzw. mit `null`) sind nicht
+auswählbar — sie bekommen keine Checkbox und werden von „alle auswählen" übersprungen, genau wie
+Zeilen mit `select: false`. Grund: die Payload trägt ausschließlich IDs, eine ID-lose Zeile könnte
+also nie Ziel der Aktion sein, würde aber in `count` und in der Bestätigungsabfrage mitzählen.
+Wenn eine Tabelle Selection nutzt, muss das Backend also für jede Zeile ein `id`-Feld liefern.
 
 ### XiriTableField
 

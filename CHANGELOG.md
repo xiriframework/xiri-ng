@@ -7,6 +7,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.3.2] - 2026-07-29
+
 ### Fixed
 
 - **Dialogs no longer have a 6px horizontal scrollbar.** `.dialog-header` had no horizontal
