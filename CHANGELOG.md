@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.4.0] - 2026-07-31
+
+Minor bump rather than a patch: the `XiriDownloadService.download()` signature changed. Rendered
+buttons are unaffected — the change is additive in the JSON (`target: "_blank"`) and only reaches
+consumers who call the service directly.
+
 ### Added
 
 - **`target: "_blank"` on a download button displays the file in a new tab instead of saving it.**
