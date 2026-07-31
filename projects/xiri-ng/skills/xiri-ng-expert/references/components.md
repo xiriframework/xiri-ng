@@ -191,6 +191,8 @@ interface XiriButtonResult {
 
 **Custom-Payload (`button.data`):** Für `action: 'api'` und `action: 'download'` baut die Button-Komponente den POST-Body als `{ ...filterData, ...button.data }`. `data` ist `Record<string, any>`. Klassisches Beispiel: CSV-Download-Buttons des `xiri-go`-Tabellen-Builders setzen `data: { _csv: true }`, das Backend (`LoadFilterData`) erkennt das Flag und liefert CSV statt Web-JSON. Backend-Setter: `button.WithData(map[string]any{...})` (siehe xiri-go-expert).
 
+**Datei anzeigen statt herunterladen (`target: '_blank'` bei `action: 'download'`):** Normalerweise landet die Antwort im Download-Ordner. Mit `target: '_blank'` öffnet der Button beim Klick einen Tab und zeigt die Datei darin an — der Fall „generiertes PDF ansehen". Gilt für freistehende Buttons, Tabellen-Zellen-Buttons, Bulk-/Selection-Buttons und Dialog-Buttons. Ob inline gerendert wird, entscheidet allein der **Content-Type** der Antwort (`application/pdf`); `Content-Disposition` ist irrelevant, weil der Blob im Frontend entsteht. Ohne Benutzer-Interaktion (`autoLoad: true`) blockt der Browser den Tab — dann wird gespeichert. Backend-Setter: `button.WithTarget("_blank")`, für Tabellen-Buttons `TableButton.WithTarget("_blank")`, für Zellen-Buttons `FieldBuilder.WithButtonTarget(key, "_blank")` (siehe xiri-go-expert).
+
 **Selbst-pollender Button (`poll` / `pollUrl` / `text`):** Verarbeitet der Button eine Antwort (von `action:'api'` **oder** dem `afterClosed`-Ergebnis eines `action:'dialog'`), die `poll` (ms) enthält, beginnt er selbsttätig, im Intervall `pollUrl` per **GET** abzufragen — bis eine Antwort **ohne** `poll` kommt. Währenddessen ist der Button disabled und zeigt Spinner + Countdown bzw. den optionalen `text` (überschreibt den Countdown, pro Tick aktualisierbar → Fortschritt). Die **finale** Antwort (ohne `poll`) läuft normal durch den `responseHandler` (Snackbar/Refresh/Goto). `pollUrl` ist optional (Fallback: `button.url`); bei Dialog-Buttons Pflicht. Backend: `response.NewReturnPoll(pollUrl, ms).WithText("läuft… 50 %")` (siehe xiri-go-expert).
 
 **Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
@@ -256,7 +258,7 @@ interface XiriButton {
   autoLoad?: boolean;   // Aktion einmalig automatisch beim Laden auslösen (siehe unten)
 
   data?: any;
-  target?: string;
+  target?: string;      // 'href': Link-Target. 'download': '_blank' = im Tab anzeigen statt speichern
   loading?: boolean;
   filename?: string;
 

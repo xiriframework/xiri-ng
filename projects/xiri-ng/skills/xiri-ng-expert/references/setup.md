@@ -125,17 +125,36 @@ darkMode = computed(() => this.theme.isDark());
 ## XiriDownloadService
 
 ```typescript
-download(result: HttpResponse<Blob>, filename: string, openInNewTab: boolean): boolean
-  // Erstellt blob-URL, triggert Download oder öffnet Tab. True bei Erfolg.
+openTab(): Window | null
+  // Öffnet einen leeren Tab. MUSS synchron im Click-Handler laufen — nach dem
+  // HTTP-Roundtrip ist die User-Activation weg und der Browser blockt das Popup.
+  // null = blockiert; einfach durchgeben, download() speichert dann.
+
+download(result: HttpResponse<Blob>, filename: string, tab?: Window | null): boolean
+  // Baut File + blob-URL. Mit tab-Handle wird die Datei dort angezeigt, sonst gespeichert.
 ```
 
-Kombination mit `XiriDataService.postFileResponse`:
+Speichern (der Normalfall):
 
 ```typescript
 this.data.postFileResponse('/api/export', payload).subscribe(res => {
-  this.download.download(res, 'export.xlsx', false);
+  this.download.download(res, 'export.xlsx', null);
 });
 ```
+
+Im Tab anzeigen (z. B. PDF) — `openTab()` **vor** dem Request, Fehlerfall schließt den Tab:
+
+```typescript
+const tab = this.download.openTab();          // synchron im Click!
+this.data.postFileResponse('/api/report', payload).subscribe({
+  next:  res => this.download.download(res, 'report.pdf', tab),
+  error: ()  => tab?.close(),
+});
+```
+
+Ob der Browser inline rendert, entscheidet allein der **Content-Type** der Antwort
+(`application/pdf`); `Content-Disposition` ist irrelevant, weil der Blob im Frontend entsteht —
+der Header wird nur noch für den Dateinamen gelesen.
 
 ## XiriLocaleService
 

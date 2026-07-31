@@ -39,7 +39,7 @@ describe( 'XiriDialogComponent', () => {
 	let mockSnackbar: { error: ReturnType<typeof vi.fn> };
 	let mockRouter: { navigate: ReturnType<typeof vi.fn> };
 	let mockBreakpointObserver: { observe: ReturnType<typeof vi.fn>; isMatched: ReturnType<typeof vi.fn> };
-	let mockDownloadService: { download: ReturnType<typeof vi.fn> };
+	let mockDownloadService: { download: ReturnType<typeof vi.fn>; openTab: ReturnType<typeof vi.fn> };
 
 	function initMocks() {
 		mockDialogRef = {
@@ -60,7 +60,7 @@ describe( 'XiriDialogComponent', () => {
 			observe: vi.fn().mockReturnValue( of( { matches: false } ) ),
 			isMatched: vi.fn().mockReturnValue( false ),
 		};
-		mockDownloadService = { download: vi.fn().mockReturnValue( true ) };
+		mockDownloadService = { download: vi.fn().mockReturnValue( true ), openTab: vi.fn().mockReturnValue( null ) };
 	}
 
 	function createComponent( initData: Record<string, unknown> ) {
@@ -581,6 +581,42 @@ describe( 'XiriDialogComponent', () => {
 
 			expect( component.buttons()[ 0 ].action ).toBe( 'download' );
 			openSpy.mockRestore();
+		} );
+
+		it( 'should pass a tab handle for a download button with target _blank', () => {
+			createComponent( {
+				type:    'form',
+				url:     'report/pdf',
+				buttons: [ { text: 'PDF', action: 'download', type: 'raised', target: '_blank' } ],
+				fields:  [ { id: 'name', type: 'text', value: 'x' } ],
+			} );
+			fixture.detectChanges();
+			// formValues is null until the form emits; without it clickButton takes the
+			// external-link branch instead of the blob download.
+			( component as unknown as { formValues: Record<string, unknown> } ).formValues = { name: 'x' };
+			const tab = {} as Window;
+			mockDownloadService.openTab.mockReturnValue( tab );
+
+			component.clickButton( { text: 'PDF', action: 'download', type: 'raised', target: '_blank' } );
+
+			expect( mockDownloadService.openTab ).toHaveBeenCalled();
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'Report', tab );
+		} );
+
+		it( 'should not open a tab for a download button without target', () => {
+			createComponent( {
+				type:    'form',
+				url:     'report/pdf',
+				buttons: [ { text: 'CSV', action: 'download', type: 'raised' } ],
+				fields:  [ { id: 'name', type: 'text', value: 'x' } ],
+			} );
+			fixture.detectChanges();
+			( component as unknown as { formValues: Record<string, unknown> } ).formValues = { name: 'x' };
+
+			component.clickButton( { text: 'CSV', action: 'download', type: 'raised' } );
+
+			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'Report', null );
 		} );
 	} );
 } );

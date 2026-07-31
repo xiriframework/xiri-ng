@@ -39,6 +39,8 @@ export interface XiriButton {
 	autoLoad?: boolean
 
 	data?: Record<string, unknown>
+	// Link target for action "href". For action "download", "_blank" displays the file in a new
+	// tab instead of saving it — needs a Content-Type the browser can render (e.g. application/pdf).
 	target?: string
 	loading?: boolean
 	filename?: string
@@ -348,6 +350,10 @@ export class XiriButtonComponent implements OnDestroy {
 		const data = { ...this.filterData(), ...this.button().data };
 		this.loading.set( true );
 
+		// Must happen before the request: openTab() needs the click's user activation.
+		// Without one (e.g. autoLoad) it returns null and the file is saved instead.
+		const tab = this.button().target === '_blank' ? this.downloadService.openTab() : null;
+
 		this.dataService.postFileResponse( this._url() ?? '', data )
 			.pipe( takeUntilDestroyed( this.destroyRef ) )
 			.subscribe(
@@ -359,11 +365,13 @@ export class XiriButtonComponent implements OnDestroy {
 							if ( btn.filename != undefined )
 								filename = btn.filename;
 							else
-								filename =
-									( btn.text != undefined ? btn.text : 'Download' ) + '.csv'
-							
-							this.downloadService.download( result, filename, false );
-							
+								// ponytail: no extension guess when the file is displayed — the
+								// viewer would offer "Report.csv" for a PDF on save.
+								filename = ( btn.text != undefined ? btn.text : 'Download' )
+										+ ( tab ? '' : '.csv' )
+
+							this.downloadService.download( result, filename, tab );
+
 							this.result.emit( {
 								                  button: this.button(),
 								                  result: result,
@@ -374,6 +382,7 @@ export class XiriButtonComponent implements OnDestroy {
 						},
 						error: ( err: unknown ) => {
 							console.log( "xiri-button download error", err );
+							tab?.close();
 							this.result.emit( {
 								                  button: this.button(),
 								                  result: null,

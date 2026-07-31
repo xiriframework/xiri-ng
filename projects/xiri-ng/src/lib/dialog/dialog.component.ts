@@ -313,7 +313,7 @@ export class XiriDialogComponent implements OnDestroy {
 		}, this.refreshTime );
 	}
 	
-	public download( data: unknown ) {
+	public download( data: unknown, tab?: Window | null ) {
 
 		if ( data === null ) {
 			// TODO: fix, this is actually an external link
@@ -338,7 +338,7 @@ export class XiriDialogComponent implements OnDestroy {
 					{
 						next: ( result ) => {
 
-							const ret = this.downloadService.download( result, 'Report', false );
+							const ret = this.downloadService.download( result, 'Report', tab );
 							if ( !ret )
 								this.buttons.set( [ {
 									text: 'Download',
@@ -351,6 +351,7 @@ export class XiriDialogComponent implements OnDestroy {
 								this.dialogRef.close( this.extra );
 							
 						}, error: ( err: HttpErrorResponse ) => {
+							tab?.close();
 							this.snackbar.error( err.error?.error || 'Unknown Error' );
 						}
 					}
@@ -376,7 +377,10 @@ export class XiriDialogComponent implements OnDestroy {
 			this.url = button.url ? button.url : '';
 			this.startSend( button.data );
 		} else if ( button.action == 'download' ) {
-			this.download( this.type() == 'form' ? this.formValues : null );
+			const data = this.type() == 'form' ? this.formValues : null;
+			// Only the blob path needs a tab handle; data === null is an external link that
+			// opens its own tab. openTab() must run here, inside the click.
+			this.download( data, data !== null && button.target === '_blank' ? this.downloadService.openTab() : null );
 		} else if ( button.action == 'link' ) {
 			this.router.navigate( [ button.url ] ).then();
 		} else if ( button.action == 'href' ) {

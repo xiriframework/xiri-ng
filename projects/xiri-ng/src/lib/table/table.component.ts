@@ -877,12 +877,18 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 				} );
 				break;
 			}
-			case 'download':
+			case 'download': {
+				// Before the request — openTab() needs the click's user activation.
+				const tab = button.target === '_blank' ? this.downloadService.openTab() : null;
 				this.dataService.postFileResponse( button.url ?? '', payload ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-					next: ( result ) => this.downloadService.download( result, button.filename || 'download.csv', false ),
-					error: ( err: unknown ) => this.snackbar.error( errorMessage( err ) || 'Download Error' ),
+					next:  ( result ) => this.downloadService.download( result, button.filename || 'download.csv', tab ),
+					error: ( err: unknown ) => {
+						tab?.close();
+						this.snackbar.error( errorMessage( err ) || 'Download Error' );
+					},
 				} );
 				break;
+			}
 			default:
 				this.dataService.post( button.url ?? '', payload ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
 					next: ( result: unknown ) => {
@@ -1001,11 +1007,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			return;
 
 		const url = button.url ? button.url : '';
+		// Before the request — openTab() needs the click's user activation.
+		const tab = button.target === '_blank' ? this.downloadService.openTab() : null;
 		this.dataService.postFileResponse( url, this.getSelectionIDs() ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
 			next: ( result ) => {
-				this.downloadService.download( result, 'download.csv', false );
+				this.downloadService.download( result, 'download.csv', tab );
 			},
 			error: ( err: unknown ) => {
+				tab?.close();
 				this.snackbar.error( errorMessage( err ) || 'Download Error' );
 			}
 		} );

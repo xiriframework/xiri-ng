@@ -41,7 +41,7 @@ describe('XiriButtonComponent', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 	let host: TestHostComponent;
 	let mockDataService: { post: ReturnType<typeof vi.fn>; get: ReturnType<typeof vi.fn>; postFileResponse: ReturnType<typeof vi.fn> };
-	let mockDownloadService: { download: ReturnType<typeof vi.fn> };
+	let mockDownloadService: { download: ReturnType<typeof vi.fn>; openTab: ReturnType<typeof vi.fn> };
 	let mockDialog: { open: ReturnType<typeof vi.fn> };
 	let mockRouter: { navigate: ReturnType<typeof vi.fn>; url: string };
 	let mockLocation: { back: ReturnType<typeof vi.fn> };
@@ -52,7 +52,7 @@ describe('XiriButtonComponent', () => {
 			get: vi.fn().mockReturnValue(of({})),
 			postFileResponse: vi.fn().mockReturnValue(of({})),
 		};
-		mockDownloadService = { download: vi.fn() };
+		mockDownloadService = { download: vi.fn(), openTab: vi.fn().mockReturnValue(null) };
 		mockDialog = { open: vi.fn() };
 		mockRouter = { navigate: vi.fn().mockReturnValue(Promise.resolve(true)), url: '/current' };
 		mockLocation = { back: vi.fn() };
@@ -307,7 +307,51 @@ describe('XiriButtonComponent', () => {
 		const buttonEl = fixture.nativeElement.querySelector('xiri-buttonstyle');
 		buttonEl?.click();
 
-		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'custom.xlsx', false);
+		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'custom.xlsx', null);
+		expect(mockDownloadService.openTab).not.toHaveBeenCalled();
+	});
+
+	it('should open a tab and pass its handle for target _blank', () => {
+		const mockResponse = { headers: { get: () => null }, body: new Blob() };
+		mockDataService.postFileResponse.mockReturnValue(of(mockResponse));
+		const tab = {} as Window;
+		mockDownloadService.openTab.mockReturnValue(tab);
+
+		host.btn.set(makeButton({ action: 'download', url: '/dl', filename: 'r.pdf', target: '_blank' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockDownloadService.openTab).toHaveBeenCalled();
+		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'r.pdf', tab);
+	});
+
+	it('should not append .csv to the filename when displaying in a tab', () => {
+		const mockResponse = { headers: { get: () => null }, body: new Blob() };
+		mockDataService.postFileResponse.mockReturnValue(of(mockResponse));
+		mockDownloadService.openTab.mockReturnValue({} as Window);
+
+		host.btn.set(makeButton({ action: 'download', url: '/dl', text: 'Report', target: '_blank' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'Report', expect.anything());
+	});
+
+	it('should close the opened tab when the download fails', () => {
+		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
+		mockDataService.postFileResponse.mockReturnValue(throwError(() => new Error('dl fail')));
+		const tab = { close: vi.fn() };
+		mockDownloadService.openTab.mockReturnValue(tab as unknown as Window);
+
+		host.btn.set(makeButton({ action: 'download', url: '/dl', target: '_blank' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(tab.close).toHaveBeenCalled();
+		consoleSpy.mockRestore();
 	});
 
 	it('should handle download error gracefully', () => {

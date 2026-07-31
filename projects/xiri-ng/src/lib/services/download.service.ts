@@ -7,7 +7,22 @@ import { HttpResponse } from '@angular/common/http';
              } )
 export class XiriDownloadService {
 
-	public download( result: HttpResponse<Blob>, filename: string, open: boolean ): boolean {
+	/**
+	 * Opens an empty tab and returns its handle for a later download( …, tab ).
+	 *
+	 * MUST be called synchronously from the click handler: after an HTTP round trip the
+	 * transient user activation is gone and the browser blocks the popup. Returns null
+	 * when it was blocked anyway — pass that through, download() then saves the file.
+	 */
+	public openTab(): Window | null {
+		return window.open( 'about:blank', '_blank' );
+	}
+
+	/**
+	 * Turns the response body into a file. With a tab handle from openTab() the file is
+	 * displayed in that tab, otherwise it is saved via a download anchor.
+	 */
+	public download( result: HttpResponse<Blob>, filename: string, tab?: Window | null ): boolean {
 
 		const contentDisposition = result.headers.get( 'content-disposition' );
 		if ( contentDisposition ) {
@@ -19,9 +34,14 @@ export class XiriDownloadService {
 		const file = new File( [ result.body as BlobPart ], filename, { type: contentType } );
 		const fileData = URL.createObjectURL( file );
 
-		if ( open ) {
-			const ret = window.open( fileData, '_blank' )
-			return !( ret === null || typeof ( ret ) == 'undefined' );
+		if ( tab ) {
+			// ponytail: caps window.opener reach. A blob: document is same-origin anyway, so this is
+			// no licence to display untrusted HTML — only a correct Content-Type keeps it a viewer.
+			tab.opener = null;
+			tab.location.replace( fileData );
+			// ponytail: 60s is plenty to load; without it the blob lives until the page reloads.
+			setTimeout( () => URL.revokeObjectURL( fileData ), 60 * 1000 )
+			return true;
 		}
 
 		const a = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'a' ) as HTMLAnchorElement;

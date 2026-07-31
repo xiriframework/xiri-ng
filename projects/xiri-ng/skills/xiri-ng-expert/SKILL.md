@@ -60,8 +60,9 @@ snackbar.handleResponse(response): boolean   // parst response.message + respons
 // Backend-Response-Handler (navigation / page-refresh / table-refresh)
 responseHandler.handle(result, { onTableRefresh?, onTableUpdate? })
 
-// File-Download
-download.download(httpResponse, filename, openInNewTab): boolean
+// File-Download (tab = Handle aus openTab() → im Tab anzeigen, null → speichern)
+download.openTab(): Window | null            // synchron im Click, sonst blockt der Browser
+download.download(httpResponse, filename, tab?): boolean
 
 // Theme (Signal-basiert)
 theme.mode          // Signal<'light' | 'dark' | 'auto'>

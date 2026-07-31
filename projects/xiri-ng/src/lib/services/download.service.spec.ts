@@ -21,6 +21,25 @@ describe( 'XiriDownloadService', () => {
 		expect( service ).toBeTruthy();
 	} );
 
+	describe( 'openTab', () => {
+
+		it( 'should open an empty tab and return the handle', () => {
+			const mockWindow = {} as Window;
+			vi.spyOn( window, 'open' ).mockReturnValue( mockWindow );
+
+			const tab = service.openTab();
+
+			expect( window.open ).toHaveBeenCalledWith( 'about:blank', '_blank' );
+			expect( tab ).toBe( mockWindow );
+		} );
+
+		it( 'should return null when the popup is blocked', () => {
+			vi.spyOn( window, 'open' ).mockReturnValue( null );
+
+			expect( service.openTab() ).toBeNull();
+		} );
+	} );
+
 	describe( 'download', () => {
 		const createMockResult = ( contentType: string, contentDisposition?: string ) => {
 			const headers = new Map<string, string>();
@@ -43,7 +62,7 @@ describe( 'XiriDownloadService', () => {
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			service.download( result, 'original.csv', false );
+			service.download( result, 'original.csv', null );
 
 			expect( mockAnchor.download ).toBe( 'report.csv' );
 		} );
@@ -55,7 +74,7 @@ describe( 'XiriDownloadService', () => {
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			service.download( result, 'fallback.csv', false );
+			service.download( result, 'fallback.csv', null );
 
 			expect( mockAnchor.download ).toBe( 'quoted.csv' );
 		} );
@@ -67,51 +86,80 @@ describe( 'XiriDownloadService', () => {
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			service.download( result, 'myfile.pdf', false );
+			service.download( result, 'myfile.pdf', null );
 
 			expect( mockAnchor.download ).toBe( 'myfile.pdf' );
 		} );
 
-		it( 'should open in new window when open is true', () => {
+		// A tab handle as handed out by openTab() and passed back into download().
+		const createMockTab = () => ( {
+			opener: {} as unknown,
+			location: { replace: vi.fn() },
+			close: vi.fn(),
+		} );
+
+		it( 'should navigate the given tab to the blob url instead of downloading', () => {
 			const result = createMockResult( 'application/pdf' );
-			const mockWindow = {} as Window;
+			const tab = createMockTab();
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( window, 'open' ).mockReturnValue( mockWindow );
+			vi.spyOn( document, 'createElementNS' );
 
-			const ret = service.download( result, 'file.pdf', true );
+			const ret = service.download( result, 'file.pdf', tab as unknown as Window );
 
-			expect( window.open ).toHaveBeenCalledWith( 'blob:test', '_blank' );
+			expect( tab.location.replace ).toHaveBeenCalledWith( 'blob:test' );
+			expect( document.createElementNS ).not.toHaveBeenCalled();
 			expect( ret ).toBe( true );
 		} );
 
-		it( 'should return false when window.open returns null (popup blocked)', () => {
+		it( 'should detach the opener of the given tab', () => {
 			const result = createMockResult( 'application/pdf' );
+			const tab = createMockTab();
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( window, 'open' ).mockReturnValue( null );
 
-			const ret = service.download( result, 'file.pdf', true );
+			service.download( result, 'file.pdf', tab as unknown as Window );
 
-			expect( ret ).toBe( false );
+			expect( tab.opener ).toBeNull();
 		} );
 
-		it( 'should return false when window.open returns undefined (popup blocked)', () => {
+		it( 'should revoke the object URL of a tab download after 60s', () => {
+			vi.useFakeTimers();
 			const result = createMockResult( 'application/pdf' );
-			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
-			vi.spyOn( window, 'open' ).mockReturnValue( undefined as unknown as Window );
+			const tab = createMockTab();
+			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test-tab' );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			const ret = service.download( result, 'file.pdf', true );
+			service.download( result, 'file.pdf', tab as unknown as Window );
 
-			expect( ret ).toBe( false );
+			vi.advanceTimersByTime( 59_000 );
+			expect( URL.revokeObjectURL ).not.toHaveBeenCalled();
+
+			vi.advanceTimersByTime( 1_000 );
+			expect( URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:test-tab' );
+
+			vi.useRealTimers();
 		} );
 
-		it( 'should create anchor element for download when open is false', () => {
+		it( 'should fall back to the anchor download when no tab is given', () => {
+			const result = createMockResult( 'application/pdf' );
+			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
+			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
+
+			const ret = service.download( result, 'file.pdf', null );
+
+			expect( mockAnchor.href ).toBe( 'blob:test' );
+			expect( ret ).toBe( true );
+		} );
+
+		it( 'should create anchor element for download when no tab is given', () => {
 			const result = createMockResult( 'text/csv' );
 			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
 			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			const ret = service.download( result, 'data.csv', false );
+			const ret = service.download( result, 'data.csv', null );
 
 			expect( document.createElementNS ).toHaveBeenCalledWith( 'http://www.w3.org/1999/xhtml', 'a' );
 			expect( mockAnchor.rel ).toBe( 'noopener' );
@@ -127,7 +175,7 @@ describe( 'XiriDownloadService', () => {
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test-revoke' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			service.download( result, 'data.csv', false );
+			service.download( result, 'data.csv', null );
 
 			expect( URL.revokeObjectURL ).not.toHaveBeenCalled();
 
@@ -146,7 +194,7 @@ describe( 'XiriDownloadService', () => {
 			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
 			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
 
-			service.download( result, 'data.csv', false );
+			service.download( result, 'data.csv', null );
 
 			expect( mockAnchor.click ).not.toHaveBeenCalled();
 

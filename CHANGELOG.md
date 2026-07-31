@@ -7,7 +7,70 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Added
+
+- **`target: "_blank"` on a download button displays the file in a new tab instead of saving it.**
+  The "view the generated PDF" case: the button still POSTs and receives the bytes, but they are
+  shown in a tab rather than dropped into the download folder. Works on standalone buttons
+  (page, toolbar, buttonline, card, section, …), table cell buttons, table bulk/selection buttons
+  and dialog buttons.
+
+  Only the **Content-Type** decides whether the browser renders it (`application/pdf`) — the
+  server's `Content-Disposition` has no say, because the frontend builds its own `File` and
+  `blob:` URL from the response body and reads the header for the filename only.
+
+  Requires the matching `xiri-go` release for `WithTarget("_blank")`,
+  `TableButton.WithTarget()` and `FieldBuilder.WithButtonTarget()`.
+
+  Without a user gesture — an `autoLoad` download button — the browser blocks the tab and the
+  file is saved instead. Deliberate: a popup that opens by itself is worse than a download.
+
+### ⚠️ Breaking Changes
+
+- **`XiriDownloadService.download()` third parameter changed from `open: boolean` to
+  `tab?: Window | null`.** The old `open: true` could not work: it called `window.open()` from
+  inside the HTTP response callback, where the transient user activation is long gone, so
+  Firefox and Safari blocked the popup. A tab has to be opened *synchronously in the click* and
+  the handle carried through the request — which is what the new parameter is. The boolean was
+  never reachable from JSON, so no rendered button ever used it.
+
+### Migration
+
+Pass a tab handle from the new `openTab()` instead of `true`, and `null` instead of `false`:
+
+```diff
+- this.downloadService.download( result, filename, false );
++ this.downloadService.download( result, filename, null );
+```
+
+```diff
++ // synchronously in the click handler, BEFORE the request
++ const tab = this.downloadService.openTab();
+  this.dataService.postFileResponse( url, data ).subscribe( {
+-     next: result => this.downloadService.download( result, filename, true ),
++     next:  result => this.downloadService.download( result, filename, tab ),
++     error: err => { tab?.close(); /* … */ },
+  } );
+```
+
+`openTab()` returns `null` when the popup was blocked; passing that through makes `download()`
+save the file, so there is no dead end.
+
+### Fixed
+
+- **Blob URLs of files displayed in a tab are released again.** The old `open` path never called
+  `URL.revokeObjectURL()`, so every opened file leaked until the page reloaded. Now revoked 60s
+  after the tab was navigated — long enough to load, short enough not to accumulate. The download
+  path already revoked after 2s.
+- **No more `.csv` appended to the filename when a file is displayed in a tab.** A download button
+  without an explicit `filename` fell back to `<text>.csv`, so a PDF opened as `Report.csv` and
+  the viewer offered that name on save.
+
+### Documentation
+
+- **`xiri-ng-expert` skill**: `XiriDownloadService` in `setup.md` rewritten for `openTab()` plus
+  the new `download()` signature, with both the save and the display-in-tab example; `target` on
+  `action: 'download'` documented in `components.md` and the service line in `SKILL.md` updated.
 
 ## [0.3.2] - 2026-07-29
 

@@ -7,6 +7,7 @@ import { XiriTableComponent, XiriTableRow, XiriTableSettings } from './table.com
 import { XiriButton } from '../button/button.component';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
+import { XiriDownloadService } from '../services/download.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
@@ -59,7 +60,9 @@ describe( 'XiriTableComponent', () => {
 		get: ReturnType<typeof vi.fn>;
 		post: ReturnType<typeof vi.fn>;
 		postDownload: ReturnType<typeof vi.fn>;
+		postFileResponse: ReturnType<typeof vi.fn>;
 	};
+	let mockDownloadService: { download: ReturnType<typeof vi.fn>; openTab: ReturnType<typeof vi.fn> };
 	let mockSnackbar: { error: ReturnType<typeof vi.fn> };
 	let mockDialog: { open: ReturnType<typeof vi.fn> };
 	let mockSessionStorage: {
@@ -73,7 +76,9 @@ describe( 'XiriTableComponent', () => {
 			get: vi.fn().mockReturnValue( of( {} ) ),
 			post: vi.fn().mockReturnValue( of( { data: [] } ) ),
 			postDownload: vi.fn(),
+			postFileResponse: vi.fn().mockReturnValue( of( { headers: { get: () => null }, body: new Blob() } ) ),
 		};
+		mockDownloadService = { download: vi.fn(), openTab: vi.fn().mockReturnValue( null ) };
 		mockSnackbar = { error: vi.fn() };
 		mockDialog = { open: vi.fn() };
 		mockSessionStorage = {
@@ -91,6 +96,7 @@ describe( 'XiriTableComponent', () => {
 			providers: [
 				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: mockDataService },
+				{ provide: XiriDownloadService, useValue: mockDownloadService },
 				{ provide: XiriSnackbarService, useValue: mockSnackbar },
 				{ provide: MatDialog, useValue: mockDialog },
 				{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
@@ -531,6 +537,72 @@ describe( 'XiriTableComponent', () => {
 
 			expect( component.selection.isEmpty() ).toBe( true );
 			expect( component.bulkAllResults() ).toBe( false );
+		} );
+	} );
+
+	describe( 'download in a tab', () => {
+		const dlButton: XiriButton = { text: 'PDF', type: 'button', action: 'download', url: '/bulk/pdf' };
+
+		function dlFixture( button: XiriButton ) {
+			createFixture( {
+				fields:  [ { id: 'name', name: 'Name' } ],
+				data:    [ { id: 1, name: 'A' } ],
+				options: { bulkActions: [ button ] },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			component.masterToggle();
+		}
+
+		it( 'saves the file for a bulk download without target', () => {
+			dlFixture( dlButton );
+
+			component.bulkAction( new MouseEvent( 'click' ), dlButton );
+
+			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', null );
+		} );
+
+		it( 'passes the tab handle for a bulk download with target _blank', () => {
+			const button = { ...dlButton, target: '_blank', filename: 'r.pdf' };
+			dlFixture( button );
+			const tab = {} as Window;
+			mockDownloadService.openTab.mockReturnValue( tab );
+
+			component.bulkAction( new MouseEvent( 'click' ), button );
+
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'r.pdf', tab );
+		} );
+
+		it( 'closes the opened tab when a bulk download fails', () => {
+			const button = { ...dlButton, target: '_blank' };
+			dlFixture( button );
+			const tab = { close: vi.fn() };
+			mockDownloadService.openTab.mockReturnValue( tab as unknown as Window );
+			mockDataService.postFileResponse.mockReturnValue( throwError( () => new Error( 'boom' ) ) );
+
+			component.bulkAction( new MouseEvent( 'click' ), button );
+
+			expect( tab.close ).toHaveBeenCalled();
+		} );
+
+		it( 'passes the tab handle for downloadSelection with target _blank', () => {
+			const button = { ...dlButton, target: '_blank' };
+			dlFixture( button );
+			const tab = {} as Window;
+			mockDownloadService.openTab.mockReturnValue( tab );
+
+			component.downloadSelection( new MouseEvent( 'click' ), button );
+
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', tab );
+		} );
+
+		it( 'saves the file for downloadSelection without target', () => {
+			dlFixture( dlButton );
+
+			component.downloadSelection( new MouseEvent( 'click' ), dlButton );
+
+			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', null );
 		} );
 	} );
 
