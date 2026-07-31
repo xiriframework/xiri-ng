@@ -3,6 +3,22 @@ set -euo pipefail
 
 export GIT_SSH_COMMAND="ssh -F /workspace/xiri/.ssh/config -i /workspace/xiri/.ssh/github/id_ed25519 -o StrictHostKeyChecking=accept-new"
 
+# Version: explicit (./release.sh v0.4.0) or a bump keyword (./release.sh minor).
+# Without an argument it stays a patch bump, like before.
+BUMP="${1:-patch}"
+if [[ "$BUMP" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  BUMP="${BUMP#v}" # npm version wants it without the leading v
+  # Only reachable for an explicit version — with a keyword the number is known
+  # after the bump, and the tag is created before the push either way.
+  if git rev-parse "v$BUMP" >/dev/null 2>&1; then
+    echo "Error: Tag v$BUMP already exists."
+    exit 1
+  fi
+elif [[ ! "$BUMP" =~ ^(patch|minor|major)$ ]]; then
+  echo "Error: Version must match vX.Y.Z (e.g. v0.4.0), or be patch|minor|major."
+  exit 1
+fi
+
 # Check that the bundled Claude skill is present
 if [[ ! -f projects/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
   echo "Error: projects/xiri-ng/skills/xiri-ng-expert/SKILL.md missing — refuse to release."
@@ -16,7 +32,7 @@ npm test -- --watch=false
 npm run typecheck
 
 # Bump version
-npm run version
+( cd projects/xiri-ng && npm version "$BUMP" )
 VERSION="v$(node -p "require('./projects/xiri-ng/package.json').version")"
 
 echo "Releasing $VERSION..."
