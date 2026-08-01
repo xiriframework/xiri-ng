@@ -1,16 +1,17 @@
 <div class="main-container" [class.nav-is-mobile]="isSmall">
 	<mat-toolbar color="primary" class="nav-toolbar">
 		<mat-toolbar-row>
-			<button mat-icon-button (click)="snav.toggle()">
+			<button mat-icon-button (click)="snav.toggle()" aria-label="Navigation ein-/ausblenden">
 				<mat-icon>menu</mat-icon>
 			</button>
 			<span class="nav-logo">XIRI Demo</span>
 			<span class="nav-spacer"></span>
 
-			<button mat-icon-button class="nav-btn" (click)="themeService.toggle()" [matTooltip]="themeService.isDark() ? 'Light Mode' : 'Dark Mode'">
+			<button mat-icon-button class="nav-btn" (click)="themeService.toggle()" [matTooltip]="themeService.isDark() ? 'Light Mode' : 'Dark Mode'"
+			        [attr.aria-label]="themeService.isDark() ? 'Light Mode' : 'Dark Mode'">
 				<mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
 			</button>
-			<button mat-icon-button class="nav-btn" routerLink="/Logout" matTooltip="Logout">
+			<button mat-icon-button class="nav-btn" routerLink="/Logout" matTooltip="Logout" aria-label="Logout">
 				<mat-icon>exit_to_app</mat-icon>
 			</button>
 		</mat-toolbar-row>
