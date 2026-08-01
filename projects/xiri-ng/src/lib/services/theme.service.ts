@@ -1,5 +1,6 @@
 import { Service, signal, computed, effect, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { notifyThemeChanged } from '../echarts/color';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';
 
@@ -105,5 +106,9 @@ export class ThemeService {
 			root.classList.add('dark-theme');
 		}
 		// 'auto' mode: no class needed, CSS media query handles it
+
+		// Charts resolve theme colors to literals (a canvas cannot read CSS
+		// variables), so they have to be told to re-resolve.
+		notifyThemeChanged();
 	}
 }

@@ -28,6 +28,18 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `<html>` — so every dark override on `:root` / `.dark-theme` lost against it. Now declared on
   `:root`.
 
+- **Chart series coloured `primary`, `secondary`, `tertiary`, `accent`, `error` or `inherit` got no
+  colour at all.** `echarts/color.ts` mapped those tokens to the literal strings `var(--mat-sys-…)`
+  and `currentColor` and handed them straight to echarts. Two problems at once: the library never
+  writes `--mat-sys-*` (see above), and echarts draws on a **canvas**, where neither `var()` nor
+  `currentColor` is a valid colour — so even the right variable name would not have worked. The
+  tokens now point at the theme variables and are resolved to a concrete value before they reach
+  echarts.
+
+  Charts also follow a theme switch now: `resolveColor()` reads an epoch signal that
+  `XiriThemeService` bumps, so the `computed()` building a chart option re-evaluates and the chart
+  re-renders — without every chart component having to know about the theme.
+
 - **`XiriButton.hide` had no effect anywhere.** The field was part of the contract but never read:
   a backend sending `hide: true` still got its button rendered. Now honoured in all four render
   paths — `xiri-button` itself plus the three places the table renders `XiriButton` directly (bulk

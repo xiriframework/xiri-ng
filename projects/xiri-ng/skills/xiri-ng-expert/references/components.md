@@ -1004,4 +1004,6 @@ export class MyChart {
 }
 ```
 
-Helper-Funktionen aus `lib/echarts/`: `resolveColor(token, fallback)` — XiriColor → CSS-Wert; `escapeHtml(s)` — für Tooltip-Strings.
+Helper-Funktionen aus `lib/echarts/`: `resolveColor(token, fallback)` — XiriColor → **konkreter** CSS-Wert; `escapeHtml(s)` — für Tooltip-Strings.
+
+`resolveColor` löst Theme-Tokens (`primary`, `secondary`, `tertiary`, `accent`, `error`, `inherit`) zur Laufzeit gegen die CSS-Variablen des Documents auf. Das ist Pflicht, weil echarts auf ein **Canvas** zeichnet: dort sind weder `var(--x)` noch `currentColor` gültige Farben — eine Serie bekäme sonst gar keine. Beim Theme-Wechsel lösen die Charts automatisch neu auf; ihre `option`-`computed()` hängt über `resolveColor` an einem Signal, das `XiriThemeService` hochzählt.
