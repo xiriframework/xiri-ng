@@ -7,7 +7,73 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Fixed
+
+- **Dark mode: ten components fell back to hardcoded light colours.** 22 declarations across
+  `breadcrumb`, `timeline`, `table`, `treeselect`, `form-fields`, `echarts-host`, `sidepanel`,
+  `query`, `links` and `imagetext` read `--mat-sys-*` — variables the library never writes.
+  `theming()` uses `mat.define-theme()` + `all-component-themes()` without `use-system-variables`,
+  and that combination emits **no** `--mat-sys-*` at all, so those reads could never resolve and
+  the hardcoded light literals (`#555`, `rgba(0,0,0,.6)`, `#fff`) always won. Most visibly the
+  breadcrumb rendered dark text on a dark surface. The other 26 component stylesheets already read
+  the unprefixed variables that `theming()` does write — this was an inconsistency inside the
+  library, not a missing consumer contract.
+
+  The reads now go through a chain — `var(--on-surface-variant, var(--mat-sys-on-surface-variant,
+  rgba(0,0,0,.6)))` — so Xiri's own contract wins while a consumer on `mat.theme()` (which the
+  docs used to recommend, and which does emit `--mat-sys-*`) keeps working.
+
+- **`--sidenav-background` and `--xiri-shadow-*` stayed light in dark mode.** `material-vars.scss`
+  declared its variables on `body`, and a declaration on `body` beats a value merely inherited from
+  `<html>` — so every dark override on `:root` / `.dark-theme` lost against it. Now declared on
+  `:root`.
+
+- **`XiriButton.hide` had no effect anywhere.** The field was part of the contract but never read:
+  a backend sending `hide: true` still got its button rendered. Now honoured in all four render
+  paths — `xiri-button` itself plus the three places the table renders `XiriButton` directly (bulk
+  actions, cell buttons, selection buttons) — and an `autoLoad` button that is hidden no longer
+  fires its action.
+
+- **Eight icon-only buttons had no accessible name.** `matTooltip` contributes
+  `aria-describedby`, never a name, so screen readers announced unlabelled buttons and
+  `getByRole('button', { name })` could not find them. Affected: both menu triggers (the block
+  exists twice, in `button.component.html` and copy-pasted into `table.component.html`), the three
+  table selection buttons, the inline-edit confirm button, the list favourite toggle (which now
+  also exposes `aria-pressed`) and the chips remove button. Note for icon-type buttons built by
+  `xiri-go`: `hint` is the only possible label source, because `Print()` does not emit `text` for
+  those types — xiri-go warns when it is missing.
+
+### Added
+
+- **`theming-dark()` — dark mode now ships with the library.** Consumers had to maintain ~30
+  variables themselves, in two identical blocks (media query + `.dark-theme`); the demo shrank by
+  80 lines. The mixin derives surface, outline, background and container values from the passed
+  dark theme, so they follow any palette, and it sets `color-scheme: dark` (previously missing
+  entirely, which left native controls and scrollbars light). Values that are not part of M3
+  (`--primary-dark`, status colours, shadows, gray scale) are defaults and can be overridden after
+  the include. `theming()` keeps its signature — this is purely additive.
+
+  Because the values are derived rather than copied, five of them differ from the literals the demo
+  used to hand-maintain: `--surface`, `--background` and `--surface-dim` `#1A1C1E` → `#121416`,
+  `--surface-bright` `#393B3E` → `#37393C`, `--on-surface-variant` `#C2C7CF` → `#DEE3EB`. Dark mode
+  is therefore slightly darker with a lighter secondary text colour than before.
+
+- **`--secondary-container`, `--on-secondary-container` and `--surface-container` in `theming()`.**
+  The first two are needed by the table header, `--surface-container` was already read by table and
+  toolbar but never written by anything.
+
+- **`XiriNavigationField.hide`** — leaves a sidebar entry out entirely, on all three levels. It is
+  removed structurally, so no `routerLink` is left in the DOM, and a hidden child no longer
+  activates or expands its parent. Deliberately not called `access`: client-side filtering is not
+  authorization and the backend must gate the routes regardless.
+
+### Documentation
+
+- **`theming-i18n.md` contradicted the implementation in three places** and is rewritten: it
+  recommended `mat.theme()` (not the API `theming()` uses), named a `dark` class on `<body>` when
+  `XiriThemeService` sets `dark-theme` on `<html>`, and claimed "no hardcoded CSS" while 22
+  declarations carried hardcoded fallbacks. It now documents, for the first time, **which CSS
+  variables a consumer actually gets** — plus the `mat.theme()` compatibility path.
 
 ## [0.4.0] - 2026-07-31
 

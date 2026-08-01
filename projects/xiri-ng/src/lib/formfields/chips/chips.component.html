@@ -6,7 +6,7 @@
 		@for (chip of chips(); track chip) {
 			<mat-chip-row (removed)="remove(chip)" [class]="chipColor(chip)">
 				{{ displayLabel(chip) }}
-				<button matChipRemove>
+				<button matChipRemove [attr.aria-label]="'Entfernen: ' + displayLabel( chip )">
 					<mat-icon>cancel</mat-icon>
 				</button>
 			</mat-chip-row>

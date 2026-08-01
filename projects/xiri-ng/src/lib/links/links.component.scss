@@ -29,7 +29,7 @@ mat-card {
 		margin-bottom: var(--xiri-spacing-sm, 8px);
 
 		.header-title { font-size: var(--xiri-font-size-body); font-weight: 500; }
-		.header-sub   { font-size: var(--xiri-font-size-label); color: var(--mat-sys-on-surface-variant, #555); }
+		.header-sub   { font-size: var(--xiri-font-size-label); color: var(--on-surface-variant, var(--mat-sys-on-surface-variant, #555)); }
 	}
 
 	mat-nav-list .mat-mdc-list-item {

@@ -5,7 +5,10 @@
 // Material Component CSS Variable Overrides
 // Updated for Material 3 (--mat-* naming convention)
 // ============================================
-body {
+// :root, not body: a declaration on body beats a value merely inherited from
+// <html>, so anything set here would win against the dark-mode overrides on
+// :root / .dark-theme — --sidenav-background and --xiri-shadow-* stayed light.
+:root {
 	/* Spacing Scale */
 	--xiri-spacing-xs:   0.25rem;  /*  4px */
 	--xiri-spacing-sm:   0.5rem;   /*  8px */

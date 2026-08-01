@@ -1,56 +1,61 @@
-@switch (button().action) {
-	@case ('link') {
-		@let linkUrl = _url() | xiriUrl;
-		<a [routerLink]="linkUrl?.path" [queryParams]="linkUrl?.queryParams" [href]="_url()" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
-		</a>
-	}
-	@case ('href') {
-		<a [href]="_url()" [target]="button().target" (click)="clicked($event)">
-			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
-		</a>
-	}
-	@case ('menu') {
-		<button mat-icon-button [matMenuTriggerFor]="menuRef"
-		        [class]="displayButton().color || 'primary'"
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        (click)="$event.stopPropagation()">
-			<mat-icon>{{ displayButton().icon }}</mat-icon>
-		</button>
-		<mat-menu #menuRef="matMenu">
-			@for (item of button().menuItems; track item) {
-				@switch (item.action) {
-					@case ('link') {
-						@let menuUrl = item.url | xiriUrl;
-						<a mat-menu-item [routerLink]="menuUrl?.path" [queryParams]="menuUrl?.queryParams">
-							@if (item.icon) {
-								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
-							}
-							<span>{{ item.text }}</span>
-						</a>
-					}
-					@case ('href') {
-						<a mat-menu-item [href]="item.url" target="_blank">
-							@if (item.icon) {
-								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
-							}
-							<span>{{ item.text }}</span>
-						</a>
-					}
-					@case ('dialog') {
-						<button mat-menu-item (click)="openMenuDialog($event, item)">
-							@if (item.icon) {
-								<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
-							}
-							<span>{{ item.text }}</span>
-						</button>
+<!-- hide has always been part of the XiriButton contract; a hidden button must not
+     render and must not run its action (see the autoLoad effect). -->
+@if (!displayButton().hide) {
+	@switch (button().action) {
+		@case ('link') {
+			@let linkUrl = _url() | xiriUrl;
+			<a [routerLink]="linkUrl?.path" [queryParams]="linkUrl?.queryParams" [href]="_url()" (click)="clicked($event)">
+				<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
+			</a>
+		}
+		@case ('href') {
+			<a [href]="_url()" [target]="button().target" (click)="clicked($event)">
+				<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
+			</a>
+		}
+		@case ('menu') {
+			<button mat-icon-button [matMenuTriggerFor]="menuRef"
+			        [class]="displayButton().color || 'primary'"
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [attr.aria-label]="displayButton().hint || displayButton().text"
+			        (click)="$event.stopPropagation()">
+				<mat-icon>{{ displayButton().icon }}</mat-icon>
+			</button>
+			<mat-menu #menuRef="matMenu">
+				@for (item of button().menuItems; track item) {
+					@switch (item.action) {
+						@case ('link') {
+							@let menuUrl = item.url | xiriUrl;
+							<a mat-menu-item [routerLink]="menuUrl?.path" [queryParams]="menuUrl?.queryParams">
+								@if (item.icon) {
+									<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+								}
+								<span>{{ item.text }}</span>
+							</a>
+						}
+						@case ('href') {
+							<a mat-menu-item [href]="item.url" target="_blank">
+								@if (item.icon) {
+									<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+								}
+								<span>{{ item.text }}</span>
+							</a>
+						}
+						@case ('dialog') {
+							<button mat-menu-item (click)="openMenuDialog($event, item)">
+								@if (item.icon) {
+									<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+								}
+								<span>{{ item.text }}</span>
+							</button>
+						}
 					}
 				}
-			}
-		</mat-menu>
-	}
-	@default {
-		<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()" (click)="clicked($event)"></xiri-buttonstyle>
+			</mat-menu>
+		}
+		@default {
+			<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()" (click)="clicked($event)"></xiri-buttonstyle>
+		}
 	}
 }

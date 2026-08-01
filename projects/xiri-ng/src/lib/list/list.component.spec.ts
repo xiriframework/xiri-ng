@@ -104,6 +104,28 @@ describe('XiriListComponent', () => {
 		expect(fixture.nativeElement.textContent).toContain('Details here');
 	});
 
+	// The toggle is icon-only; its state must not be conveyed by the icon alone.
+	// A hint would go stale after the click (changeFavorite only flips isFavorite),
+	// so the name is stable and the state lives in aria-pressed.
+	it('should give the favorite toggle a stable name and expose its state', () => {
+		const item = makeItem({ name: 'Angebot 42', hasFavorite: true, isFavorite: false, favoriteUrl: '/api/fav/' });
+		host.settings.set({ sections: [makeSection({ data: [item] })] });
+		fixture.detectChanges();
+
+		const btn = fixture.nativeElement.querySelector('.list-fav button[mat-icon-button]');
+		expect(btn?.getAttribute('aria-label')).toBe('Favorit: Angebot 42');
+		expect(btn?.getAttribute('aria-pressed')).toBe('false');
+	});
+
+	it('should report aria-pressed true for an item already favorited', () => {
+		const item = makeItem({ name: 'Angebot 42', hasFavorite: true, isFavorite: true, favoriteUrl: '/api/fav/' });
+		host.settings.set({ sections: [makeSection({ data: [item] })] });
+		fixture.detectChanges();
+
+		const btn = fixture.nativeElement.querySelector('.list-fav button[mat-icon-button]');
+		expect(btn?.getAttribute('aria-pressed')).toBe('true');
+	});
+
 	it('should toggle favorite and call data service', () => {
 		const item = makeItem({
 			hasFavorite: true,

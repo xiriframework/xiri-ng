@@ -149,87 +149,10 @@ $dark-theme:  xirimat.create-theme($_primary, $_tertiary, dark, -1);
 // Apply M3 Light theme (default)
 @include xirimat.theming($light-theme, $primary, $secondary, $tertiary, $error);
 
-// Apply M3 Dark theme for dark mode
-@media (prefers-color-scheme: dark) {
-	:root:not(.light-theme) {
-		@include mat.all-component-colors($dark-theme);
+// Dark theme comes from the library now — it derives the surface/outline/gray
+// values from $dark-theme instead of repeating ~30 literals in two blocks.
+@include xirimat.theming-dark($dark-theme);
 
-		--primary-light:        #1A1C1E;
-		--primary-dark:         #C6C6C9;
-		--background:           #1A1C1E;
-		--on-background:        #E2E2E5;
-		--surface:              #1A1C1E;
-		--on-surface:           #E2E2E5;
-		--surface-variant:      #42474E;
-		--on-surface-variant:   #C2C7CF;
-		--surface-dim:          #1A1C1E;
-		--surface-bright:       #393B3E;
-		--surface-container:    #1E2022;
-		--outline:              #8C9198;
-		--outline-variant:      #42474E;
-		--ripple:               rgba(206, 229, 255, 0.12);
-		--sidenav-background:   #1A1C1E;
-		--color-success:        #66E093;
-		--color-info:           #56C8E0;
-
-		// Shadow / Elevation — higher opacity for dark surfaces
-		--xiri-shadow-xs:       0 1px 2px 0 rgba(0, 0, 0, 0.2);
-		--xiri-shadow-sm:       0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-		--xiri-shadow-md:       0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-		--xiri-shadow-lg:       0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-
-		// Inverted gray scale for dark mode
-		--color-gray-100:       #212529;
-		--color-gray-200:       #343A40;
-		--color-gray-300:       #495057;
-		--color-gray-400:       #6C757D;
-		--color-gray-500:       #ADB5BD;
-		--color-gray-600:       #CED4DA;
-		--color-gray-700:       #DEE2E6;
-		--color-gray-800:       #E9ECEF;
-		--color-gray-900:       #F8F9FA;
-	}
-}
-
-// Manual dark theme override
-.dark-theme {
-	@include mat.all-component-colors($dark-theme);
-
-	--primary-light:        #1A1C1E;
-	--primary-dark:         #C6C6C9;
-	--background:           #1A1C1E;
-	--on-background:        #E2E2E5;
-	--surface:              #1A1C1E;
-	--on-surface:           #E2E2E5;
-	--surface-variant:      #42474E;
-	--on-surface-variant:   #C2C7CF;
-	--surface-dim:          #1A1C1E;
-	--surface-bright:       #393B3E;
-	--surface-container:    #1E2022;
-	--outline:              #8C9198;
-	--outline-variant:      #42474E;
-	--ripple:               rgba(206, 229, 255, 0.12);
-	--sidenav-background:   #1A1C1E;
-	--color-success:        #66E093;
-	--color-info:           #56C8E0;
-
-	// Shadow / Elevation — higher opacity for dark surfaces
-	--xiri-shadow-xs:       0 1px 2px 0 rgba(0, 0, 0, 0.2);
-	--xiri-shadow-sm:       0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-	--xiri-shadow-md:       0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-	--xiri-shadow-lg:       0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-
-	// Inverted gray scale for dark mode
-	--color-gray-100:       #212529;
-	--color-gray-200:       #343A40;
-	--color-gray-300:       #495057;
-	--color-gray-400:       #6C757D;
-	--color-gray-500:       #ADB5BD;
-	--color-gray-600:       #CED4DA;
-	--color-gray-700:       #DEE2E6;
-	--color-gray-800:       #E9ECEF;
-	--color-gray-900:       #F8F9FA;
-}
 
 // Apply CSS custom properties for theming
 @include xirimat.apply-themes();

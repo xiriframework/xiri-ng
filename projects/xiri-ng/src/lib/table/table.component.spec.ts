@@ -540,6 +540,131 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	// The table renders several icon-only buttons itself instead of delegating to
+	// xiri-buttonstyle, so none of them inherit its aria-label. matTooltip only
+	// contributes aria-describedby, never a name.
+	describe( 'accessible names for icon-only buttons', () => {
+
+		it( 'names the cell menu trigger from hint', () => {
+			createFixture( {
+				fields: [ {
+					id:      'actions',
+					name:    '',
+					format:  'buttons',
+					buttons: [ {
+						text:      '',
+						type:      'icon',
+						action:    'menu',
+						icon:      'more_vert',
+						hint:      'Zeilenaktionen',
+						menuItems: [ { action: 'link', url: '/x', text: 'Öffnen' } ],
+					} ],
+				} ],
+				data: [ { id: 1, actions: [ '/row/1' ] } ],
+			} );
+
+			const trigger = fixture.nativeElement.querySelector( 'td button[mat-icon-button]' );
+			expect( trigger?.getAttribute( 'aria-label' ) ).toBe( 'Zeilenaktionen' );
+		} );
+
+		it( 'names the selection buttons from hint', () => {
+			createFixture( {
+				fields:  [ { id: 'name', name: 'Name' } ],
+				data:    [ { id: 1, name: 'A' } ],
+				options: {
+					select:        true,
+					selectButtons: [
+						{ text: '', type: 'icon', action: 'dialog', icon: 'edit', hint: 'Auswahl bearbeiten', url: '/d' },
+						{ text: '', type: 'icon', action: 'api', icon: 'send', hint: 'Auswahl senden', url: '/a' },
+						{ text: '', type: 'icon', action: 'download', icon: 'download', hint: 'Auswahl exportieren', url: '/e' },
+					],
+				},
+			} );
+
+			const labels = [ ...fixture.nativeElement.querySelectorAll( '.select-buttons button[mat-icon-button]' ) ]
+					.map( ( b: Element ) => b.getAttribute( 'aria-label' ) );
+			expect( labels ).toEqual( [ 'Auswahl bearbeiten', 'Auswahl senden', 'Auswahl exportieren' ] );
+		} );
+
+		it( 'names the inline-edit confirm button', () => {
+			createFixture( {
+				fields:  [ { id: 'name', name: 'Name', editable: true } ],
+				data:    [ { id: 1, name: 'A' } ],
+			} );
+			component.options.editUrl = '/edit';   // ohne editUrl startet der Edit nicht
+			component.startInlineEdit( component.dataSource.data[ 0 ], component.displayedColumns[ 0 ] );
+			internals( component )._changeDetectorRef.markForCheck();
+			fixture.detectChanges();
+
+			const confirm = fixture.nativeElement.querySelector( '.xiri-inline-edit-confirm' );
+			expect( confirm ).toBeTruthy();
+			expect( confirm?.getAttribute( 'aria-label' ) ).toBeTruthy();
+		} );
+	} );
+
+	// The table renders XiriButton directly in three places, so honouring hide only
+	// inside xiri-button would leave it dead here.
+	describe( 'hide on table buttons', () => {
+
+		it( 'does not render a hidden bulk action', () => {
+			createFixture( {
+				fields:  [ { id: 'name', name: 'Name' } ],
+				data:    [ { id: 1, name: 'A' } ],
+				options: {
+					bulkActions: [
+						{ text: 'Sichtbar', type: 'button', action: 'api', url: '/a' },
+						{ text: 'Versteckt', type: 'button', action: 'api', url: '/b', hide: true },
+					],
+				},
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			component.masterToggle();
+			internals( component )._changeDetectorRef.markForCheck();
+			fixture.detectChanges();
+
+			const bar = fixture.nativeElement.querySelector( '[data-testid="table-bulk-bar"]' );
+			expect( bar?.textContent ).toContain( 'Sichtbar' );
+			expect( bar?.textContent ).not.toContain( 'Versteckt' );
+		} );
+
+		it( 'does not render a hidden selection button', () => {
+			createFixture( {
+				fields:  [ { id: 'name', name: 'Name' } ],
+				data:    [ { id: 1, name: 'A' } ],
+				options: {
+					select:        true,
+					selectButtons: [
+						{ text: '', type: 'icon', action: 'api', icon: 'send', hint: 'Sichtbar', url: '/a' },
+						{ text: '', type: 'icon', action: 'api', icon: 'delete', hint: 'Versteckt', url: '/b', hide: true },
+					],
+				},
+			} );
+
+			const labels = [ ...fixture.nativeElement.querySelectorAll( '.select-buttons button[mat-icon-button]' ) ]
+					.map( ( b: Element ) => b.getAttribute( 'aria-label' ) );
+			expect( labels ).toEqual( [ 'Sichtbar' ] );
+		} );
+
+		it( 'does not render a hidden cell button', () => {
+			createFixture( {
+				fields: [ {
+					id:      'actions',
+					name:    '',
+					format:  'buttons',
+					buttons: [
+						{ text: '', type: 'icon', action: 'api', icon: 'edit', hint: 'Sichtbar' },
+						{ text: '', type: 'icon', action: 'api', icon: 'delete', hint: 'Versteckt', hide: true },
+					],
+				} ],
+				data: [ { id: 1, actions: [ '/a', '/b' ] } ],
+			} );
+
+			const cell = fixture.nativeElement.querySelector( 'td' );
+			expect( cell?.innerHTML ).toContain( 'edit' );
+			expect( cell?.innerHTML ).not.toContain( 'delete' );
+		} );
+	} );
+
 	describe( 'download in a tab', () => {
 		const dlButton: XiriButton = { text: 'PDF', type: 'button', action: 'download', url: '/bulk/pdf' };
 

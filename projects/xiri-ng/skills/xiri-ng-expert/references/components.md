@@ -244,7 +244,7 @@ interface XiriButton {
 
   default?: boolean;
   url?: string;
-  hide?: boolean;
+  hide?: boolean;        // Button wird nicht gerendert und feuert auch kein autoLoad
   color?: XiriColor;
   icon?: string;
   iconColor?: XiriColor;
@@ -505,6 +505,7 @@ interface XiriNavigationField {
   active?: boolean;
   path?: string;          // Regex-Quelle für Active-Match (jede Ebene)
   regex?: RegExp;         // intern aus path kompiliert
+  hide?: boolean;         // Eintrag wird gar nicht gerendert (kein routerLink im DOM)
   menu?: boolean;         // true → aufklappbarer Knoten mit sub
   showSubmenu?: boolean;  // Expand-Zustand, intern aus der Route abgeleitet
   sub?: XiriNavigationField[];

@@ -51,6 +51,11 @@
 		// Secondary colors - use tone 60
 		--secondary:            #{$secondary};
 		--on-secondary:         #{map.get($system, on-secondary)};
+		// Note: unlike --secondary (which comes from the explicit $secondary argument)
+		// these come from the secondary palette embedded in the theme — they are not
+		// necessarily of the same colour family.
+		--secondary-container:    #{map.get($system, secondary-container)};
+		--on-secondary-container: #{map.get($system, on-secondary-container)};
 
 		// Tertiary colors - use tone 60
 		--tertiary:             #{$tertiary};
@@ -69,6 +74,8 @@
 		--on-surface-variant:   #{map.get($system, on-surface-variant)};
 		--surface-dim:          #{map.get($system, surface-dim)};
 		--surface-bright:       #{map.get($system, surface-bright)};
+		// Read by table and toolbar but never written until now.
+		--surface-container:    #{map.get($system, surface-container)};
 
 		// Background colors
 		--background:           #{map.get($system, background)};
@@ -97,6 +104,79 @@
 		--color-gray-700:       #{$color-gray-700};
 		--color-gray-800:       #{$color-gray-800};
 		--color-gray-900:       #{$color-gray-900};
+	}
+}
+
+// The variable block of the dark theme. Private on purpose: theming-dark()
+// emits it twice (media query + explicit class) and that duplication must not
+// leak into consumer stylesheets.
+@mixin _dark-vars($theme) {
+	@include mat.all-component-colors($theme);
+
+	$system: m3-utils.get-system($theme);
+
+	// Tells the browser to render native controls, scrollbars and form widgets dark.
+	color-scheme: dark;
+
+	// Derived from the theme — a consumer no longer maintains these by hand.
+	--surface:                #{map.get($system, surface)};
+	--on-surface:             #{map.get($system, on-surface)};
+	--surface-variant:        #{map.get($system, surface-variant)};
+	--on-surface-variant:     #{map.get($system, on-surface-variant)};
+	--surface-dim:            #{map.get($system, surface-dim)};
+	--surface-bright:         #{map.get($system, surface-bright)};
+	--surface-container:      #{map.get($system, surface-container)};
+	--secondary-container:    #{map.get($system, secondary-container)};
+	--on-secondary-container: #{map.get($system, on-secondary-container)};
+	--outline:                #{map.get($system, outline)};
+	--outline-variant:        #{map.get($system, outline-variant)};
+	--background:             #{map.get($system, background)};
+	--on-background:          #{map.get($system, on-background)};
+	--primary-light:          #{map.get($system, surface-container-low)};
+	--sidenav-background:     var(--surface);
+
+	// Not part of M3 — defaults, override after the include if you need to.
+	--primary-dark:           #C6C6C9;
+	--ripple:                 rgba(206, 229, 255, 0.12);
+	--color-success:          #66E093;
+	--color-info:             #56C8E0;
+
+	// Elevation needs more opacity on dark surfaces than on light ones.
+	--xiri-shadow-xs:         0 1px 2px 0 rgba(0, 0, 0, 0.2);
+	--xiri-shadow-sm:         0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+	--xiri-shadow-md:         0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+	--xiri-shadow-lg:         0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+	// Gray scale inverted, so --color-gray-100 stays "closest to the background".
+	--color-gray-100:         #{$color-gray-900};
+	--color-gray-200:         #{$color-gray-800};
+	--color-gray-300:         #{$color-gray-700};
+	--color-gray-400:         #{$color-gray-600};
+	--color-gray-500:         #{$color-gray-500};
+	--color-gray-600:         #{$color-gray-400};
+	--color-gray-700:         #{$color-gray-300};
+	--color-gray-800:         #{$color-gray-200};
+	--color-gray-900:         #{$color-gray-100};
+}
+
+// Dark theme, matching what XiriThemeService puts on <html>:
+// 'dark' -> .dark-theme, 'light' -> .light-theme, 'auto' -> no class, so the
+// media query decides. Include AFTER theming(); both selectors have the same
+// specificity, source order breaks the tie.
+//
+// Example:
+//
+//	@include xirimat.theming($light-theme, $primary, $secondary);
+//	@include xirimat.theming-dark($dark-theme);
+@mixin theming-dark($theme) {
+	@media (prefers-color-scheme: dark) {
+		:root:not(.light-theme) {
+			@include _dark-vars($theme);
+		}
+	}
+
+	.dark-theme {
+		@include _dark-vars($theme);
 	}
 }
 

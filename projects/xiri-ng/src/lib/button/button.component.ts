@@ -154,7 +154,8 @@ export class XiriButtonComponent implements OnDestroy {
 		// re-trigger it — only the initial load is automatic.
 		effect( () => {
 			this.filterData(); // track filter changes so the effect re-evaluates
-			if ( this.button().autoLoad && !this._autoTriggered && !this._disabled() ) {
+			// A hidden button is not rendered, so it must not fire its action either.
+			if ( this.button().autoLoad && !this.displayButton().hide && !this._autoTriggered && !this._disabled() ) {
 				this._autoTriggered = true;
 				this.runAction();
 			}

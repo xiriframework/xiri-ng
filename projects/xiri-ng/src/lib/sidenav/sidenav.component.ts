@@ -23,6 +23,11 @@ export interface XiriNavigationField {
 	path?: string
 	regex?: RegExp
 	
+	// Leaves the entry out entirely — it never reaches the DOM, so no routerLink
+	// stays behind. Meant for a backend that omits routes a user cannot open;
+	// client-side filtering is not authorization, the routes must be gated anyway.
+	hide?: boolean
+
 	menu?: boolean
 	showSubmenu?: boolean
 	sub?: XiriNavigationField[]
@@ -113,6 +118,12 @@ export class XiriSidenavComponent {
 	}
 
 	private checkField( field: XiriNavigationField, url: string ): boolean {
+
+		// A hidden entry is not rendered, so it must not activate or expand its parent either.
+		if ( field.hide ) {
+			field.active = false;
+			return false;
+		}
 
 		const matchesSelf = ( field.link != null && field.link == url ) || ( field.regex != null && field.regex.test( url ) );
 

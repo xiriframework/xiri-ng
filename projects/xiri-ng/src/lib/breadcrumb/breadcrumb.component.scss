@@ -15,7 +15,7 @@
 		align-items: center;
 		gap:         var(--xiri-spacing-xs);
 		font-size:   var(--xiri-font-size-body, 0.875rem);
-		color:       var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+		color:       var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));
 
 		a {
 			display:         flex;
@@ -53,14 +53,14 @@
 
 		&.active {
 			font-weight: 500;
-			color:       var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+			color:       var(--on-surface, var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87)));
 		}
 
 		.separator {
 			font-size: 1.125rem;
 			width:     1.125rem;
 			height:    1.125rem;
-			color:     var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+			color:     var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));
 		}
 	}
 }

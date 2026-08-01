@@ -6,63 +6,71 @@
 
 @for (nav of fields; track nav) {
 
-	@if ( nav.link ) {
-		@let navUrl = nav.link | xiriUrl;
-		<a mat-list-item [routerLink]="navUrl?.path" [queryParams]="navUrl?.queryParams" [class.active]="nav.active">
-			@if (nav.iconSet) {
-				<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
-			} @else {
-				<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
-			}
-			<span matListItemTitle>{{ nav.name }}</span>
-		</a>
-	} @else if (nav.menu) {
-		<mat-list-item (click)="nav.showSubmenu = !nav.showSubmenu" (keydown.enter)="nav.showSubmenu = !nav.showSubmenu" (keydown.space)="nav.showSubmenu = !nav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="nav.showSubmenu" class="parent">
-			@if (nav.iconSet) {
-				<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
-			} @else {
-				<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
-			}
-			<span matListItemTitle>{{ nav.name }}</span>
-			<span matListItemMeta>
-				<mat-icon class="menu-button" [class.rotated]="nav.showSubmenu">expand_more</mat-icon>
-			</span>
-		</mat-list-item>
-		<div class="submenu" [class.expanded]="nav.showSubmenu">
-			@for (subnav of nav.sub; track subnav) {
-				@if (subnav.link) {
-					@let subnavUrl = subnav.link | xiriUrl;
-					<a mat-list-item [routerLink]="subnavUrl?.path" [queryParams]="subnavUrl?.queryParams" [class.active]="subnav.active">{{ subnav.name }}</a>
-				} @else if (subnav.menu) {
-					<mat-list-item (click)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.enter)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.space)="subnav.showSubmenu = !subnav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="subnav.showSubmenu" class="parent">
-						<span matListItemTitle>{{ subnav.name }}</span>
-						<span matListItemMeta>
-							<mat-icon class="menu-button" [class.rotated]="subnav.showSubmenu">expand_more</mat-icon>
-						</span>
-					</mat-list-item>
-					<div class="submenu submenu-nested" [class.expanded]="subnav.showSubmenu">
-						@for (subsubnav of subnav.sub; track subsubnav) {
-							@if (subsubnav.link) {
-								@let subsubnavUrl = subsubnav.link | xiriUrl;
-							<a mat-list-item [routerLink]="subsubnavUrl?.path" [queryParams]="subsubnavUrl?.queryParams" [class.active]="subsubnav.active">{{ subsubnav.name }}</a>
-							} @else if (subsubnav.extern) {
-								<a mat-list-item [href]="subsubnav.extern">{{ subsubnav.name }}</a>
-							}
-						}
-					</div>
-				} @else if (subnav.extern) {
-					<a mat-list-item [href]="subnav.extern">{{ subnav.name }}</a>
+	<!-- One guard per level, not per branch: a hidden entry can never slip through
+	     link/menu/extern. Structural, so no routerLink is left in the DOM. -->
+	@if (!nav.hide) {
+		@if ( nav.link ) {
+			@let navUrl = nav.link | xiriUrl;
+			<a mat-list-item [routerLink]="navUrl?.path" [queryParams]="navUrl?.queryParams" [class.active]="nav.active">
+				@if (nav.iconSet) {
+					<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+				} @else {
+					<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
 				}
-			}
-		</div>
-	} @else if (nav.extern) {
-		<a mat-list-item [href]="nav.extern">
-			@if (nav.iconSet) {
-				<mat-icon matListItemIcon [fontSet]="nav.iconSet" class="accent">{{ nav.icon }}</mat-icon>
-			} @else {
-				<mat-icon matListItemIcon class="accent">{{ nav.icon }}</mat-icon>
-			}
-			<span matListItemTitle>{{ nav.name }}</span>
-		</a>
+				<span matListItemTitle>{{ nav.name }}</span>
+			</a>
+		} @else if (nav.menu) {
+			<mat-list-item (click)="nav.showSubmenu = !nav.showSubmenu" (keydown.enter)="nav.showSubmenu = !nav.showSubmenu" (keydown.space)="nav.showSubmenu = !nav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="nav.showSubmenu" class="parent">
+				@if (nav.iconSet) {
+					<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+				} @else {
+					<mat-icon matListItemIcon [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
+				}
+				<span matListItemTitle>{{ nav.name }}</span>
+				<span matListItemMeta>
+					<mat-icon class="menu-button" [class.rotated]="nav.showSubmenu">expand_more</mat-icon>
+				</span>
+			</mat-list-item>
+			<div class="submenu" [class.expanded]="nav.showSubmenu">
+				@for (subnav of nav.sub; track subnav) {
+					@if (!subnav.hide) {
+						@if (subnav.link) {
+							@let subnavUrl = subnav.link | xiriUrl;
+							<a mat-list-item [routerLink]="subnavUrl?.path" [queryParams]="subnavUrl?.queryParams" [class.active]="subnav.active">{{ subnav.name }}</a>
+						} @else if (subnav.menu) {
+							<mat-list-item (click)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.enter)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.space)="subnav.showSubmenu = !subnav.showSubmenu; $event.preventDefault()" [attr.aria-expanded]="subnav.showSubmenu" class="parent">
+								<span matListItemTitle>{{ subnav.name }}</span>
+								<span matListItemMeta>
+									<mat-icon class="menu-button" [class.rotated]="subnav.showSubmenu">expand_more</mat-icon>
+								</span>
+							</mat-list-item>
+							<div class="submenu submenu-nested" [class.expanded]="subnav.showSubmenu">
+								@for (subsubnav of subnav.sub; track subsubnav) {
+									@if (!subsubnav.hide) {
+										@if (subsubnav.link) {
+											@let subsubnavUrl = subsubnav.link | xiriUrl;
+											<a mat-list-item [routerLink]="subsubnavUrl?.path" [queryParams]="subsubnavUrl?.queryParams" [class.active]="subsubnav.active">{{ subsubnav.name }}</a>
+										} @else if (subsubnav.extern) {
+											<a mat-list-item [href]="subsubnav.extern">{{ subsubnav.name }}</a>
+										}
+									}
+								}
+							</div>
+						} @else if (subnav.extern) {
+							<a mat-list-item [href]="subnav.extern">{{ subnav.name }}</a>
+						}
+					}
+				}
+			</div>
+		} @else if (nav.extern) {
+			<a mat-list-item [href]="nav.extern">
+				@if (nav.iconSet) {
+					<mat-icon matListItemIcon [fontSet]="nav.iconSet" class="accent">{{ nav.icon }}</mat-icon>
+				} @else {
+					<mat-icon matListItemIcon class="accent">{{ nav.icon }}</mat-icon>
+				}
+				<span matListItemTitle>{{ nav.name }}</span>
+			</a>
+		}
 	}
 }

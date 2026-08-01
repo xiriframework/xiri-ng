@@ -370,6 +370,73 @@ describe('XiriButtonComponent', () => {
 		consoleSpy.mockRestore();
 	});
 
+	// The menu branch renders its own mat-icon-button instead of going through
+	// xiri-buttonstyle, so it does not inherit the aria-label from there.
+	// matTooltip only contributes aria-describedby, never a name.
+	it('should give the menu trigger an accessible name from hint', () => {
+		host.btn.set(makeButton({
+			action: 'menu',
+			type: 'icon',
+			icon: 'more_vert',
+			hint: 'Aktionen',
+			menuItems: [{ action: 'link', url: '/x', text: 'Öffnen' }],
+		}));
+		fixture.detectChanges();
+
+		const trigger = fixture.nativeElement.querySelector('button[mat-icon-button]');
+		expect(trigger?.getAttribute('aria-label')).toBe('Aktionen');
+	});
+
+	it('should fall back to text for the menu trigger name when no hint', () => {
+		host.btn.set(makeButton({
+			action: 'menu',
+			type: 'icon',
+			icon: 'more_vert',
+			hint: undefined,
+			text: 'Mehr',
+			menuItems: [{ action: 'link', url: '/x', text: 'Öffnen' }],
+		}));
+		fixture.detectChanges();
+
+		const trigger = fixture.nativeElement.querySelector('button[mat-icon-button]');
+		expect(trigger?.getAttribute('aria-label')).toBe('Mehr');
+	});
+
+	// hide has been part of XiriButton since forever but was never read anywhere:
+	// a backend sending hide: true still got its button rendered.
+	describe('hide', () => {
+		it('does not render a hidden button', () => {
+			host.btn.set(makeButton({ hide: true }));
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('xiri-buttonstyle')).toBeNull();
+			expect(fixture.nativeElement.querySelector('a')).toBeNull();
+		});
+
+		it('renders the button when hide is absent or false', () => {
+			host.btn.set(makeButton({ hide: false, action: 'api', url: '/x' }));
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('xiri-buttonstyle')).toBeTruthy();
+		});
+
+		// A hidden button must not fire its action either — autoLoad runs from an
+		// effect that never looked at hide.
+		it('does not auto-load a hidden button', () => {
+			host.btn.set(makeButton({ action: 'api', url: '/auto', autoLoad: true, hide: true }));
+			fixture.detectChanges();
+
+			expect(mockDataService.post).not.toHaveBeenCalled();
+		});
+
+		it('still auto-loads a visible button', () => {
+			host.btn.set(makeButton({ action: 'api', url: '/auto', autoLoad: true }));
+			fixture.detectChanges();
+
+			expect(mockDataService.post).toHaveBeenCalled();
+		});
+	});
+
 	it('should log unknown action to console', () => {
 		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		host.btn.set(makeButton({ action: 'unknown-action' }));

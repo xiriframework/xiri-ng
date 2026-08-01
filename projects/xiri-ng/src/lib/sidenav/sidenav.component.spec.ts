@@ -265,6 +265,85 @@ describe('XiriSidenavComponent', () => {
 		expect(comp.loading).toBe(true);
 	});
 
+	// A server that gates routes by permission needs a way to leave an entry out.
+	// Structural removal, not [hidden]: a hidden entry would keep an intact
+	// routerLink in the DOM.
+	describe('hide', () => {
+		it('does not render a hidden top-level entry', () => {
+			host.settings.set({
+				prefix: '/app',
+				fields: [
+					{ name: 'Sichtbar', icon: 'home', link: '/a' },
+					{ name: 'Versteckt', icon: 'lock', link: '/b', hide: true },
+				],
+			});
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.textContent).toContain('Sichtbar');
+			expect(fixture.nativeElement.textContent).not.toContain('Versteckt');
+		});
+
+		it('does not render a hidden second-level entry', () => {
+			host.settings.set({
+				prefix: '/app',
+				fields: [{
+					name: 'Gruppe', icon: 'folder', menu: true,
+					sub: [
+						{ name: 'SubSichtbar', icon: 'a', link: '/a' },
+						{ name: 'SubVersteckt', icon: 'b', link: '/b', hide: true },
+					],
+				}],
+			});
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.textContent).toContain('SubSichtbar');
+			expect(fixture.nativeElement.textContent).not.toContain('SubVersteckt');
+		});
+
+		it('does not render a hidden third-level entry', () => {
+			host.settings.set({
+				prefix: '/app',
+				fields: [{
+					name: 'Gruppe', icon: 'folder', menu: true,
+					sub: [{
+						name: 'UnterGruppe', icon: 'folder', menu: true,
+						sub: [
+							{ name: 'TiefSichtbar', icon: 'a', link: '/a' },
+							{ name: 'TiefVersteckt', icon: 'b', link: '/b', hide: true },
+						],
+					}],
+				}],
+			});
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.textContent).toContain('TiefSichtbar');
+			expect(fixture.nativeElement.textContent).not.toContain('TiefVersteckt');
+		});
+
+		// Otherwise a hidden child would silently open and highlight its parent.
+		it('does not let a hidden child activate its parent', () => {
+			mockRouter.url = '/app/secret';
+			const fields: XiriNavigationField[] = [{
+				name: 'Gruppe', icon: 'folder', menu: true,
+				sub: [{ name: 'Geheim', icon: 'lock', link: '/secret', hide: true }],
+			}];
+			host.settings.set({ prefix: '/app', fields });
+			fixture.detectChanges();
+
+			expect(fields[0].active).toBeFalsy();
+		});
+
+		it('renders the entry when hide is absent or false', () => {
+			host.settings.set({
+				prefix: '/app',
+				fields: [{ name: 'Sichtbar', icon: 'home', link: '/a', hide: false }],
+			});
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.textContent).toContain('Sichtbar');
+		});
+	});
+
 	it('should update when settings change from undefined to valid', () => {
 		host.settings.set(undefined);
 		fixture.detectChanges();

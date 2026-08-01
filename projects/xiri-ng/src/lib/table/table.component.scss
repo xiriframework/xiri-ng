@@ -27,8 +27,8 @@ mat-card.xiritablecard {
 			align-items:      center;
 			gap:              var(--xiri-spacing-sm);
 			padding:          var(--xiri-spacing-xs) var(--xiri-spacing-sm);
-			background:       var(--mat-sys-secondary-container, #e0e0e0);
-			color:            var(--mat-sys-on-secondary-container, inherit);
+			background:       var(--secondary-container, var(--mat-sys-secondary-container, #e0e0e0));
+			color:            var(--on-secondary-container, var(--mat-sys-on-secondary-container, inherit));
 			border-radius:    var(--xiri-radius-sm, 4px);
 			margin-bottom:    var(--xiri-spacing-xs);
 
@@ -129,7 +129,7 @@ mat-card.xiritablecard {
 			gap:          4px;
 			padding:      2px 8px;
 			font-size:    var(--xiri-font-size-small, 0.8rem);
-			color:        var(--mat-sys-primary, var(--primary, #006398));
+			color:        var(--primary, var(--mat-sys-primary, #006398));
 
 			mat-icon {
 				font-size:   18px;
@@ -441,7 +441,7 @@ td.xiri-tree-td {
 		}
 
 		&:hover { background: rgba(0, 0, 0, 0.06); }
-		&:focus-visible { outline: 2px solid var(--mat-sys-primary, currentColor); outline-offset: -2px; }
+		&:focus-visible { outline: 2px solid var(--primary, var(--mat-sys-primary, currentColor)); outline-offset: -2px; }
 	}
 
 	.xiri-tree-spacer {

@@ -71,7 +71,7 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 	width:      2px;
 	flex:       1;
 	min-height: var(--xiri-spacing-lg);
-	background: var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+	background: var(--outline-variant, var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12)));
 }
 
 .timeline-content {
@@ -92,18 +92,18 @@ $all-colors: map.merge($theme-color-variants, $color-variants);
 .timeline-title {
 	font-weight: 500;
 	font-size:   var(--xiri-font-size-body, 0.875rem);
-	color:       var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87));
+	color:       var(--on-surface, var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87)));
 }
 
 .timeline-datetime {
 	font-size: var(--xiri-font-size-helper, 0.75rem);
-	color:     var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+	color:     var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));
 }
 
 .timeline-description {
 	margin-top:  0.25rem;
 	font-size:   var(--xiri-font-size-body, 0.875rem);
-	color:       var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+	color:       var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));
 	line-height: 1.5;
 }
 

@@ -19,7 +19,9 @@
 						<span matListItemLine>{{ item.info }}</span>
 						@if (item.hasFavorite) {
 							<div matListItemMeta class="list-fav">
-								<button mat-icon-button (click)="changeFavorite(item, $event)" [matTooltip]="item.favoriteHint">
+								<button mat-icon-button (click)="changeFavorite(item, $event)" [matTooltip]="item.favoriteHint"
+							        [attr.aria-label]="'Favorit: ' + item.name"
+							        [attr.aria-pressed]="!!item.isFavorite">
 									@if (item.isFavorite) {
 										<mat-icon class="accent">star</mat-icon>
 									}

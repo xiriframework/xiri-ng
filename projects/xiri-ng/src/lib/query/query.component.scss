@@ -25,7 +25,7 @@
 
 .query-result-count {
 	margin-top:  var(--xiri-spacing-sm);
-	color:       var(--mat-sys-on-surface-variant, inherit);
+	color:       var(--on-surface-variant, var(--mat-sys-on-surface-variant, inherit));
 	font-size:   0.9rem;
 }
 

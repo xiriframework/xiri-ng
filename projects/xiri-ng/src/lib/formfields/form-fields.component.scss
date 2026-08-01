@@ -145,13 +145,13 @@
 			content:    '';
 			flex:       1;
 			height:     1px;
-			background: var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+			background: var(--outline-variant, var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12)));
 		}
 
 		.divider-text {
 			padding:    0 1rem;
 			font-size:  var(--xiri-font-size-helper);
-			color:      var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+			color:      var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));
 			white-space: nowrap;
 		}
 	}

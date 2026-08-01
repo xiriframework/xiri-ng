@@ -1,7 +1,7 @@
 
 .main {
 	border:        1px solid var(--outline-variant, #C2C7CF);
-	border-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
+	border-radius: var(--mat-form-field-filled-container-shape, var(--xiri-radius-xs, var(--mat-sys-corner-extra-small)));
 	overflow:      hidden;
 }
 
@@ -17,8 +17,8 @@
 	background-color:        var(--surface-bright, #F9F9FC);
 	padding:                 0 0 0 1rem;
 	border-bottom:           1px solid var(--outline-variant, #C2C7CF);
-	border-top-left-radius:  var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
-	border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));
+	border-top-left-radius:  var(--mat-form-field-filled-container-shape, var(--xiri-radius-xs, var(--mat-sys-corner-extra-small)));
+	border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--xiri-radius-xs, var(--mat-sys-corner-extra-small)));
 
 	.header {
 		color:       var(--on-surface-variant, rgba(0, 0, 0, 0.54));
