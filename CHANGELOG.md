@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
+## [0.4.1] - 2026-08-01
+
+Two visible behaviour changes despite the patch bump: dark mode is slightly darker in five derived
+values (see below), and `hide: true` on a button now actually hides it — anyone who sent the field
+expecting it to be ignored will lose those buttons.
+
 ### Fixed
 
 - **Dark mode: ten components fell back to hardcoded light colours.** 22 declarations across
