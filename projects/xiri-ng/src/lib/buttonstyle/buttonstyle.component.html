@@ -9,104 +9,82 @@
 	}
 </ng-template>
 
-@switch (button().type) {
-	@case ('icon') {
-		<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [attr.aria-label]="button().hint || button().text"
-		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-			} @else {
-				<mat-icon>{{ button().icon }}</mat-icon>
-			}
-		</button>
-	}
-	@case ('icontext') {
-		<button mat-fab extended="true"
-		        class="icontext"
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'"
-		        [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-				@if (pollText() || countdown() > 0) {
-					<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
-				}
-			} @else {
-				<mat-icon>{{ button().icon }}</mat-icon>
-			}
-			{{ button().text }}
-		</button>
-	}
-	@case ('raised') {
-		<button mat-raised-button
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'"
-		        [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
-		</button>
-	}
-	@case ('basic') {
-		<button mat-button
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'"
-		        [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
-		</button>
-	}
-	@case ('stroked') {
-		<button mat-stroked-button
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'"
-		        [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
-		</button>
-	}
-	@case ('flat') {
-		<button mat-flat-button
-		        [matTooltip]="button().hint"
-		        [matTooltipDisabled]="!button().hint"
-		        [color]="button().color || 'primary'"
-		        [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			<ng-container [ngTemplateOutlet]="textContent"></ng-container>
-		</button>
-	}
-	@case ('minifab') {
-		<button mat-mini-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [attr.aria-label]="button().hint || button().text"
-		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="20"></mat-spinner>
-			} @else {
-				<mat-icon>{{ button().icon }}</mat-icon>
-			}
-		</button>
-	}
-	@case ('fab') {
-		<button mat-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
-		        [attr.aria-label]="button().hint || button().text"
-		        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
-		        [tabIndex]="button().tabIndex">
-			@if (loading()) {
-				<mat-spinner diameter="24"></mat-spinner>
-			} @else {
-				<mat-icon>{{ button().icon }}</mat-icon>
-			}
-		</button>
-	}
-	@default {
-		@if (button().icon) {
+<!-- Guard sitzt hier, nicht nur in xiri-button: form, dialog, alert und stepper
+     rendern XiriButton direkt ueber buttonstyle. -->
+@if (!button().hide) {
+	@switch (button().type) {
+		@case ('icon') {
 			<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+			        [attr.aria-label]="button().hint || button().text"
+			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()">
+				@if (loading()) {
+					<mat-spinner diameter="20"></mat-spinner>
+				} @else {
+					<mat-icon>{{ button().icon }}</mat-icon>
+				}
+			</button>
+		}
+		@case ('icontext') {
+			<button mat-fab extended="true"
+			        class="icontext"
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [color]="button().color || 'primary'"
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				@if (loading()) {
+					<mat-spinner diameter="20"></mat-spinner>
+					@if (pollText() || countdown() > 0) {
+						<span class="poll-countdown">{{ pollText() || countdown() + 's' }}</span>
+					}
+				} @else {
+					<mat-icon>{{ button().icon }}</mat-icon>
+				}
+				{{ button().text }}
+			</button>
+		}
+		@case ('raised') {
+			<button mat-raised-button
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [color]="button().color || 'primary'"
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+			</button>
+		}
+		@case ('basic') {
+			<button mat-button
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [color]="button().color || 'primary'"
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+			</button>
+		}
+		@case ('stroked') {
+			<button mat-stroked-button
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [color]="button().color || 'primary'"
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+			</button>
+		}
+		@case ('flat') {
+			<button mat-flat-button
+			        [matTooltip]="button().hint"
+			        [matTooltipDisabled]="!button().hint"
+			        [color]="button().color || 'primary'"
+			        [disabled]="disabled() || loading()"
+			        [tabIndex]="button().tabIndex">
+				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+			</button>
+		}
+		@case ('minifab') {
+			<button mat-mini-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 			        [attr.aria-label]="button().hint || button().text"
 			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 			        [tabIndex]="button().tabIndex">
@@ -117,15 +95,41 @@
 				}
 			</button>
 		}
-		@if (button().text) {
-			<button mat-raised-button
-			        [matTooltip]="button().hint"
-			        [matTooltipDisabled]="!button().hint"
-			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+		@case ('fab') {
+			<button mat-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+			        [attr.aria-label]="button().hint || button().text"
+			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
 			        [tabIndex]="button().tabIndex">
-				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+				@if (loading()) {
+					<mat-spinner diameter="24"></mat-spinner>
+				} @else {
+					<mat-icon>{{ button().icon }}</mat-icon>
+				}
 			</button>
+		}
+		@default {
+			@if (button().icon) {
+				<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
+				        [attr.aria-label]="button().hint || button().text"
+				        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
+				        [tabIndex]="button().tabIndex">
+					@if (loading()) {
+						<mat-spinner diameter="20"></mat-spinner>
+					} @else {
+						<mat-icon>{{ button().icon }}</mat-icon>
+					}
+				</button>
+			}
+			@if (button().text) {
+				<button mat-raised-button
+				        [matTooltip]="button().hint"
+				        [matTooltipDisabled]="!button().hint"
+				        [color]="button().color || 'primary'"
+				        [disabled]="disabled() || loading()"
+				        [tabIndex]="button().tabIndex">
+					<ng-container [ngTemplateOutlet]="textContent"></ng-container>
+				</button>
+			}
 		}
 	}
 }

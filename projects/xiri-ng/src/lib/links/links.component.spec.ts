@@ -72,6 +72,28 @@ describe('XiriLinksComponent', () => {
 		expect(text).toContain('Link B');
 	});
 
+	// links renders XiriButton itself (as list items), so it needs its own guard —
+	// the one in buttonstyle does not apply here.
+	it('does not render a hidden link', () => {
+		host.settings.set({
+			data: [makeLink({ text: 'Sichtbar' }), makeLink({ text: 'Versteckt', hide: true })],
+		});
+		fixture.detectChanges();
+
+		const text = fixture.nativeElement.textContent;
+		expect(text).toContain('Sichtbar');
+		expect(text).not.toContain('Versteckt');
+	});
+
+	it('does not render a hidden dialog link', () => {
+		host.settings.set({
+			data: [makeLink({ text: 'Versteckt', action: 'dialog', hide: true })],
+		});
+		fixture.detectChanges();
+
+		expect(fixture.nativeElement.textContent).not.toContain('Versteckt');
+	});
+
 	it('should display header when provided', () => {
 		host.settings.set({ data: [], header: 'Quick Links' });
 		fixture.detectChanges();

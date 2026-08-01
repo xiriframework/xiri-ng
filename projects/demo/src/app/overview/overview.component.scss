@@ -11,7 +11,7 @@
 }
 
 .filter-chip {
-	border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.2));
+	border: 1px solid var(--outline-variant, var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.2)));
 	background: transparent;
 	color: inherit;
 	border-radius: 999px;
@@ -21,12 +21,12 @@
 	transition: background 0.15s, border-color 0.15s;
 
 	&:hover {
-		background: var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.05));
+		background: var(--surface-container-high, var(--mat-sys-surface-container-high, rgba(0, 0, 0, 0.05)));
 	}
 
 	&.active {
-		background: var(--mat-sys-primary, #1565c0);
-		color: var(--mat-sys-on-primary, #fff);
+		background: var(--primary, var(--mat-sys-primary, #1565c0));
+		color: var(--on-primary, var(--mat-sys-on-primary, #fff));
 		border-color: transparent;
 	}
 }
@@ -49,8 +49,8 @@
 	gap: 8px;
 	padding: 14px 16px;
 	border-radius: 10px;
-	border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
-	background: var(--mat-sys-surface-container-low, rgba(0, 0, 0, 0.02));
+	border: 1px solid var(--outline-variant, var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12)));
+	background: var(--surface-container-low, var(--mat-sys-surface-container-low, rgba(0, 0, 0, 0.02)));
 	text-decoration: none;
 	color: inherit;
 	transition: box-shadow 0.15s, transform 0.15s;
@@ -94,13 +94,13 @@
 	font-weight: 600;
 	padding: 2px 8px;
 	border-radius: 6px;
-	background: var(--mat-sys-surface-container-highest, rgba(0, 0, 0, 0.08));
-	color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.5));
+	background: var(--surface-container-highest, var(--mat-sys-surface-container-highest, rgba(0, 0, 0, 0.08)));
+	color: var(--on-surface-variant, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.5)));
 	opacity: 0.5;
 
 	&.on {
-		background: var(--mat-sys-primary-container, #d3e3fd);
-		color: var(--mat-sys-on-primary-container, #0b4a8f);
+		background: var(--primary-container, var(--mat-sys-primary-container, #d3e3fd));
+		color: var(--on-primary-container, var(--mat-sys-on-primary-container, #0b4a8f));
 		opacity: 1;
 	}
 }

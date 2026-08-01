@@ -41,10 +41,11 @@ versioning follows [Semantic Versioning](https://semver.org/).
   re-renders — without every chart component having to know about the theme.
 
 - **`XiriButton.hide` had no effect anywhere.** The field was part of the contract but never read:
-  a backend sending `hide: true` still got its button rendered. Now honoured in all four render
-  paths — `xiri-button` itself plus the three places the table renders `XiriButton` directly (bulk
-  actions, cell buttons, selection buttons) — and an `autoLoad` button that is hidden no longer
-  fires its action.
+  a backend sending `hide: true` still got its button rendered. The guard sits in
+  `xiri-buttonstyle`, the leaf every button ends up in — that covers `xiri-button` as well as
+  form, dialog, alert and stepper, which render `XiriButton` through buttonstyle directly. The
+  table (bulk actions, cell buttons, selection buttons) and the links component build their own
+  markup and carry their own guard. An `autoLoad` button that is hidden no longer fires its action.
 
 - **Eight icon-only buttons had no accessible name.** `matTooltip` contributes
   `aria-describedby`, never a name, so screen readers announced unlabelled buttons and
@@ -70,9 +71,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `--surface-bright` `#393B3E` → `#37393C`, `--on-surface-variant` `#C2C7CF` → `#DEE3EB`. Dark mode
   is therefore slightly darker with a lighter secondary text colour than before.
 
-- **`--secondary-container`, `--on-secondary-container` and `--surface-container` in `theming()`.**
-  The first two are needed by the table header, `--surface-container` was already read by table and
-  toolbar but never written by anything.
+- **`--secondary-container`, `--on-secondary-container` and the `--surface-container*` family in
+  `theming()`** (`-container`, `-low`, `-high`, `-highest`). The first two are needed by the table
+  header, `--surface-container` was already read by table and toolbar but never written by
+  anything.
+
+- **`--mat-list-active-indicator-shape` is restored inside the dark block.** Angular's
+  `all-component-colors()` also emits a handful of non-colour tokens, and this is the one the
+  library sets itself — without restoring it, active nav items would have been pill-shaped in dark
+  mode and square in light mode after the `body` → `:root` change. It is the only such collision;
+  verified against the compiled CSS.
 
 - **`XiriNavigationField.hide`** — leaves a sidebar entry out entirely, on all three levels. It is
   removed structurally, so no `routerLink` is left in the DOM, and a hidden child no longer

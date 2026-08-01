@@ -43,7 +43,7 @@
 <ng-template #linkList>
 	<mat-nav-list>
 		@for (item of settings().data; track item) {
-			@if (!item.action || item.action === 'link') {
+			@if (!item.hide && (!item.action || item.action === 'link')) {
 				@let itemUrl = item.url | xiriUrl;
 				<a mat-list-item [routerLink]="itemUrl?.path" [queryParams]="itemUrl?.queryParams">
 					@if (item.icon) {
@@ -51,7 +51,7 @@
 					}
 					<span matListItemTitle>{{ item.text }}</span>
 				</a>
-			} @else if (item.action === 'dialog') {
+			} @else if (!item.hide && item.action === 'dialog') {
 				<mat-list-item (click)="openDialog( item ) && $event.stopPropagation()" (keydown.enter)="openDialog( item )" (keydown.space)="openDialog( item ); $event.preventDefault()">
 					@if (item.icon) {
 						<mat-icon matListItemIcon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>

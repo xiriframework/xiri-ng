@@ -191,4 +191,24 @@ describe('XiriButtonstyleComponent', () => {
 		const btn = fixture.nativeElement.querySelector('button[mat-icon-button]');
 		expect(btn?.getAttribute('aria-label')).toBe('Löschen');
 	});
+
+	// The guard lives here, not only in xiri-button: form, dialog, alert and
+	// stepper render XiriButton through buttonstyle directly, so a guard further
+	// up would leave hide dead in all of them.
+	describe('hide', () => {
+		it('renders nothing for a hidden button', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Weg', hide: true }));
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('button')).toBeNull();
+			expect(fixture.nativeElement.textContent).not.toContain('Weg');
+		});
+
+		it('renders the button when hide is absent', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Da' }));
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('button')).toBeTruthy();
+		});
+	});
 });

@@ -75,7 +75,10 @@
 		--surface-dim:          #{map.get($system, surface-dim)};
 		--surface-bright:       #{map.get($system, surface-bright)};
 		// Read by table and toolbar but never written until now.
-		--surface-container:    #{map.get($system, surface-container)};
+		--surface-container:         #{map.get($system, surface-container)};
+		--surface-container-low:     #{map.get($system, surface-container-low)};
+		--surface-container-high:    #{map.get($system, surface-container-high)};
+		--surface-container-highest: #{map.get($system, surface-container-highest)};
 
 		// Background colors
 		--background:           #{map.get($system, background)};
@@ -118,6 +121,11 @@
 	// Tells the browser to render native controls, scrollbars and form widgets dark.
 	color-scheme: dark;
 
+	// all-component-colors() above also emits a few non-colour tokens; this is the
+	// only one material-vars.scss sets itself. Without restoring it here, active
+	// nav items would be pill-shaped in dark mode and square in light mode.
+	--mat-list-active-indicator-shape: 0;
+
 	// Derived from the theme — a consumer no longer maintains these by hand.
 	--surface:                #{map.get($system, surface)};
 	--on-surface:             #{map.get($system, on-surface)};
@@ -126,6 +134,9 @@
 	--surface-dim:            #{map.get($system, surface-dim)};
 	--surface-bright:         #{map.get($system, surface-bright)};
 	--surface-container:      #{map.get($system, surface-container)};
+	--surface-container-low:     #{map.get($system, surface-container-low)};
+	--surface-container-high:    #{map.get($system, surface-container-high)};
+	--surface-container-highest: #{map.get($system, surface-container-highest)};
 	--secondary-container:    #{map.get($system, secondary-container)};
 	--on-secondary-container: #{map.get($system, on-secondary-container)};
 	--outline:                #{map.get($system, outline)};
