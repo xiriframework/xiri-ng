@@ -258,6 +258,12 @@ buttons: XiriButton[] = [
 
 `autoLoad?: boolean` — löst die Button-Aktion **einmalig automatisch beim Laden** aus, sobald der Button nicht mehr disabled ist (`filterData !== null` und nicht via `disabled` gesperrt). Für Filter mit „Suchen"-Button, dessen Ergebnis ohne initialen Klick erscheinen soll. Backend: `button.WithAutoLoad(true)`. Details: `references/components.md`.
 
+`hide?: boolean` — der Button wird **gar nicht** gerendert (nicht im DOM) und feuert auch kein `autoLoad`. Gilt in allen Renderpfaden: freistehend, Form, Dialog, Alert, Stepper, Tabelle (Bulk/Zelle/Selection) und Links. Backend: `button.WithHide(true)`. Kein Berechtigungs-Contract — der Endpoint muss ohnehin abgesichert sein.
+
+`target?: string` — bei `action: 'href'` das Link-Target; bei `action: 'download'` bedeutet `'_blank'`, dass die Datei **im Tab angezeigt** statt gespeichert wird. Backend: `button.WithTarget("_blank")`.
+
+**Icon-Buttons brauchen `hint`.** Bei `type: 'icon' | 'fab' | 'minifab'` liefert `xiri-go` kein `text`, der Accessible Name kommt also nur aus `hint`. Fehlt er, ist der Button für Screenreader namenlos — xiri-go warnt beim Rendern.
+
 ## xiri-stepper — Multi-Step Wizard
 
 ```typescript

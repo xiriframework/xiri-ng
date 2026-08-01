@@ -89,6 +89,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Documentation
 
+- **`SKILL.md` documents `hide`, `target` on downloads, and the `hint` requirement for icon
+  buttons** — the last one matters because `xiri-go` emits no `text` for icon types, so a missing
+  `hint` leaves the button nameless for screen readers.
+
 - **`theming-i18n.md` contradicted the implementation in three places** and is rewritten: it
   recommended `mat.theme()` (not the API `theming()` uses), named a `dark` class on `<body>` when
   `XiriThemeService` sets `dark-theme` on `<html>`, and claimed "no hardcoded CSS" while 22
