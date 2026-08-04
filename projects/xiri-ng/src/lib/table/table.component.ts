@@ -39,6 +39,7 @@ import { XiriResponseHandlerService } from '../services/response-handler.service
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
+import { XiriTagChip } from '../formfields/field.interface';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/buttonline.component";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
@@ -1175,6 +1176,11 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			const column = this.displayedColumns.find( col => col.id === sortHeaderId );
 			if ( column && column.format === 'number' )
 				return ( data[ sortHeaderId ] as XiriTableCellValue[] )[ 1 ] as number;
+
+			// ponytail: sort by the first chip's label — without this MatTable compares the raw object
+			// array, which coerces to "[object Object],..." and effectively sorts by chip count.
+			if ( column && column.format === 'chips' )
+				return ( data[ sortHeaderId ] as XiriTagChip[] | null | undefined )?.[ 0 ]?.label ?? '';
 
 			return data[ sortHeaderId ] as string | number;
 		};

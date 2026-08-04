@@ -7,7 +7,25 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Fixed
+
+- **Client-side sorting of `chips` columns sorted by chip count.** The cell value of a `chips` column
+  is an `Array<{label, color}>`; `sortingDataAccessor` only special-cased `format: 'number'` and
+  passed everything else to `MatTableDataSource` untouched. Its comparator coerces the array to
+  `"[object Object],[object Object]"`, so what actually got compared was the length of that chain —
+  silently, with no error. Chips columns now sort by the first chip's label (empty or missing cell →
+  `''`). Only affects columns with sorting enabled: xiri-go sends `sort: false` for `chips` by
+  default, columns defined directly in the frontend are sortable by default.
+
+### Documentation
+
+- **The shipped `xiri-ng-expert` skill documented the wrong server-side payload.** `references/table.md`
+  showed a nested `{pageIndex, pageSize, sortBy, sortDir, search, filter}` object; the table actually
+  posts the pagination params flat alongside the filter fields, `_`-prefixed (`_page`, `_pageSize`,
+  `_sort`, `_sortDir`, `_search`) — which is what xiri-go's `LoadPaginationParams()` reads. Anyone
+  implementing server-side against the old doc would have found none of the documented keys.
+- Chips columns now document their sorting behaviour (xiri-go default `sort: false`, client-side
+  sorting by the first chip's label).
 
 ## [0.4.1] - 2026-08-01
 

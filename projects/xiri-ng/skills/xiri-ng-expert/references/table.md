@@ -276,22 +276,26 @@ CSS-Klasse pro Chip: `.xiri-chip-display.<color>` (z. B. `.xiri-chip-display.red
 
 **Editierbar (Multi-Select-Chips):** zusätzlich `editable: true` + `editableOptions` (oder `editableOptionsUrl`) auf dem Field — der Inline-Editor öffnet einen Multi-Select. Der Cell-Wert beim Edit-Save ist das Array der ausgewählten Labels. Auch hier ist eine Suche möglich (`editableOptionsSearch` bzw. `editableSearchUrl`, siehe oben).
 
+**Sortierung:** xiri-go liefert für `ChipsField` per Default `sort: false` — der Header ist nicht klickbar, Opt-in per `.WithSort(true)`. Direkt im Frontend definierte Felder sind wie alle anderen per Default sortierbar. Client-seitig wird nach dem Label des **ersten** Chips sortiert (leere Zelle → `''`). Server-Side sortiert die Applikation selbst per SQL — für aggregierte Chips-Spalten existiert dort meist keine gleichnamige Spalte, dann `sort: false` lassen.
+
 **Backend-Pendant in xiri-go:** `b.ChipsField(id, name, accessor)` wo `accessor func(T) []table.Chip` (siehe `xiri-go-expert references/table-builder.md`).
 
 ## Server-Side-Pagination — Flow
 
-Wenn `options.serverSide: true`, postet die Tabelle bei jeder Änderung (Sort/Filter/Page) an `settings.url` mit Payload:
+Wenn `options.serverSide: true`, postet die Tabelle bei jeder Änderung (Sort/Filter/Page) an `settings.url`. Die Pagination-Parameter liegen **flach** neben den Filter-Feldern (nicht verschachtelt) und sind mit `_` geprefixt; `_sort`/`_sortDir` fehlen, solange keine Spalte aktiv sortiert ist, `_search` fehlt bei leerer Suche:
 
 ```json
 {
-  "pageIndex": 0,
-  "pageSize": 50,
-  "sortBy": "name",
-  "sortDir": "asc",
-  "search": "foo",
-  "filter": { ... filterData ... }
+  "_page": 0,
+  "_pageSize": 50,
+  "_sort": "name",
+  "_sortDir": "asc",
+  "_search": "foo",
+  "irgendeinFilterFeld": "wert"
 }
 ```
+
+xiri-go liest genau diese Keys per `table.LoadPaginationParams()` und entfernt sie aus den Filter-Daten.
 
 Erwartete Response:
 

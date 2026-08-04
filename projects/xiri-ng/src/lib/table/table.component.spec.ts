@@ -1094,6 +1094,24 @@ describe( 'XiriTableComponent', () => {
 			component.displayedColumns = [ { id: 'val', name: 'Val', format: 'number' } as XiriTableField ];
 			expect( accessor( { val: [ 'display', 42 ] }, 'val' ) ).toBe( 42 );
 		} );
+
+		it( 'should return the first chip label for chips format columns', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'tags', name: 'Tags', format: 'chips' } as XiriTableField ];
+			expect( accessor( { tags: [ { label: 'Beta' }, { label: 'Alpha' } ] }, 'tags' ) ).toBe( 'Beta' );
+		} );
+
+		it( 'should return empty string for an empty chips cell', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'tags', name: 'Tags', format: 'chips' } as XiriTableField ];
+			expect( accessor( { tags: [] }, 'tags' ) ).toBe( '' );
+		} );
+
+		it( 'should return empty string for a missing chips cell', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'tags', name: 'Tags', format: 'chips' } as XiriTableField ];
+			expect( accessor( { tags: null }, 'tags' ) ).toBe( '' );
+		} );
 	} );
 
 	describe( 'ngOnDestroy', () => {
