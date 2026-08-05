@@ -25,7 +25,11 @@ import {
 } from '@angular/forms';
 import { XiriFormField, XiriFormFieldCondition, XiriFormFieldSelectOption } from './field.interface';
 import { colsToClasses } from '../layout/cols.directive';
-import { Observable } from "rxjs";
+import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, merge, Observable, Subject, switchMap } from "rxjs";
+import { XiriDataService } from '../services/data.service';
+import { XiriSnackbarService } from '../services/snackbar.service';
+import { parseHttpError } from '../services/error.util';
+import { emptyValueForField } from './helper/empty-value';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriFileComponent } from './file/file.component';
 import { XiriTimelimitComponent } from './timelimit/timelimit.component';
@@ -100,13 +104,15 @@ export class XiriFormFieldsComponent implements OnInit {
 	private destroyRef = inject( DestroyRef );
 	private elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
 	private readonly localeService = inject( XiriLocaleService );
-	
+	private dataService = inject( XiriDataService );
+	private snackbar = inject( XiriSnackbarService );
+
 	form = input<XiriFormField[] | null>( null );
 	display = input<XiriFormFieldDisplay>( 'full' );
 	disabled = input<boolean>( false );
 	formChange = output<UntypedFormGroup>();
 	check = input<Observable<void> | null>( null );
-	
+
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;
 	private lastValue: string | null = null;
@@ -115,6 +121,16 @@ export class XiriFormFieldsComponent implements OnInit {
 	private _fieldsLoaded = false;
 	private _initialEmitDone = false;
 	private _autoFocusDone = false;
+
+	// IDs der zuletzt gepatchten Felder. Nur diese werden in displayFields() geklont, damit die
+	// Kind-Komponenten eine neue Input-Identität sehen - ein Klon aller Felder würde z.B. jeden
+	// Treeselect im Formular unnötig neu aufbauen lassen.
+	private patchedIds = signal<Set<string>>( new Set() );
+	// Startet den Reload einmalig nach dem Aufbau der Controls.
+	private reloadKick = new Subject<void>();
+	// Unterdrückt den formChange-Emit der valueChanges-Subscription, während ein Patch angewendet
+	// wird - nach dem Patch wird genau einmal emittiert.
+	private applyingPatch = false;
 
 	constructor() {
 
@@ -172,7 +188,29 @@ export class XiriFormFieldsComponent implements OnInit {
 				}
 			}
 		} );
+
+		// Ein Reload direkt nach dem Aufbau der Controls, immer. Der Server liefert seine Listen
+		// zum Startwert eines Triggers - der muss aber nicht der aktuelle sein: xiri-query stellt
+		// gespeicherte Filterwerte über formService.loadState() wieder her, bevor die Controls
+		// entstehen. Ein bedingtes "nur wenn abweichend" ist von hier aus nicht erkennbar.
+		effect( () => {
+			const formInput = this.form();
+			this.fields();
+			if ( formInput !== null && this._fieldsLoaded )
+				this.reloadKick.next();
+		} );
 	}
+
+	// Gepatchte Felder werden als Kopie gerendert, damit Kind-Komponenten mit eigenem State
+	// (treeselect, chips, die Select-Directive) ihre Inputs neu auswerten. Die Originale bleiben
+	// die Quelle der Wahrheit - sie tragen field.control und werden von xiri-query mitgelesen.
+	displayFields = computed( () => {
+		const fields = this.fields();
+		const patched = this.patchedIds();
+		if ( fields === null || patched.size === 0 )
+			return fields;
+		return fields.map( f => patched.has( f.id ) ? { ...f } : f );
+	} );
 	
 	ngOnInit(): void {
 		
@@ -181,7 +219,7 @@ export class XiriFormFieldsComponent implements OnInit {
 		} );
 		
 		this.formGroup.valueChanges.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
-			if ( this._fieldsLoaded ) {
+			if ( this._fieldsLoaded && !this.applyingPatch ) {
 				const currentValue = JSON.stringify( this.formGroup.value );
 				if ( currentValue === this.lastValue )
 					return;
@@ -189,6 +227,145 @@ export class XiriFormFieldsComponent implements OnInit {
 				this.formChange.emit( this.formGroup );
 			}
 		} );
+
+		// Ein Trigger-Wechsel lädt die abhängigen Felder nach. switchMap, damit bei schneller
+		// Folge nur die Antwort zum letzten Stand ankommt; distinctUntilChanged, damit eine
+		// Änderung an einem Feld, von dem niemand abhängt, keinen Request auslöst.
+		merge( this.reloadKick, this.formGroup.valueChanges ).pipe(
+			debounceTime( 200 ),
+			map( () => JSON.stringify( this.triggerValues() ) ),
+			distinctUntilChanged(),
+			switchMap( () => this.fetchPatches() ),
+			takeUntilDestroyed( this.destroyRef ),
+		).subscribe( patch => this.applyPatch( patch.url, patch.fields ) );
+	}
+
+	// Felder, die inhaltlich von anderen abhängen (beide Angaben nötig, siehe field.interface).
+	private dependentFields(): XiriFormField[] {
+		return ( this._fields ?? [] ).filter( f => !!f.reloadUrl && !!f.reloadOn?.length );
+	}
+
+	// Nur die Trigger-Werte gehen an den Server, nicht das ganze Formular: ein Options-Endpoint
+	// braucht keine Passwörter. Alles Weitere gehört in die reloadUrl.
+	private triggerValues(): Record<string, unknown> | null {
+		const dependent = this.dependentFields();
+		if ( dependent.length === 0 )
+			return null;
+
+		const raw = this.formGroup.getRawValue();
+		const values: Record<string, unknown> = {};
+		for ( const field of dependent )
+			for ( const trigger of field.reloadOn ?? [] )
+				if ( trigger in raw )
+					values[ trigger ] = raw[ trigger ];
+
+		return values;
+	}
+
+	private fetchPatches(): Observable<{ url: string, fields: Record<string, unknown> }> {
+
+		const payload = this.triggerValues();
+		if ( payload === null )
+			return EMPTY;
+
+		const urls = new Set( this.dependentFields().map( f => f.reloadUrl as string ) );
+
+		// Ein Request pro URL, jeder für sich: schlägt einer fehl, werden die Patches der
+		// anderen trotzdem angewendet.
+		return merge( ...Array.from( urls ).map( url =>
+			this.dataService.post( url, payload ).pipe(
+				map( res => ( { url, fields: ( res as { fields?: Record<string, unknown> } )?.fields ?? {} } ) ),
+				catchError( err => {
+					this.snackbar.error( parseHttpError( err ) );
+					return EMPTY;
+				} ),
+			) ) );
+	}
+
+	private applyPatch( url: string, patch: Record<string, unknown> ): void {
+
+		const fields = this._fields;
+		if ( fields === null || !patch )
+			return;
+
+		const patchedNow = new Set<string>();
+
+		this.applyingPatch = true;
+		try {
+			for ( const field of fields ) {
+
+				// Der Server ist eine Trust-Boundary: eine Antwort darf nur die abhängigen Felder
+				// genau dieser URL anfassen.
+				if ( !field.reloadOn?.length || field.reloadUrl !== url )
+					continue;
+
+				const entry = patch[ field.id ];
+				if ( entry === null || typeof entry !== 'object' )
+					continue;
+
+				const applied = applyPatchProperties( field, entry as Record<string, unknown> );
+				if ( applied.length === 0 )
+					continue;
+				patchedNow.add( field.id );
+
+				const control = field.control;
+				if ( !control )
+					continue;
+
+				if ( applied.includes( 'list' ) )
+					this.pruneValue( field, control );
+
+				if ( applied.includes( 'required' ) || applied.includes( 'min' ) || applied.includes( 'max' ) ) {
+					field.validations = undefined;
+					control.setValidators( this.bindValidations( field ) );
+					control.updateValueAndValidity( { emitEvent: false } );
+				}
+
+				// Mit dem globalen disabled kombinieren, sonst reaktiviert ein disabled:false im
+				// Patch ein Control, obwohl die ganze Form gerade deaktiviert ist.
+				if ( applied.includes( 'disabled' ) ) {
+					if ( field.disabled || this.disabled() )
+						control.disable( { emitEvent: false } );
+					else
+						control.enable( { emitEvent: false } );
+				}
+			}
+		} finally {
+			this.applyingPatch = false;
+		}
+
+		if ( patchedNow.size === 0 )
+			return;
+
+		this.patchedIds.set( patchedNow );
+		this.lastValue = JSON.stringify( this.formGroup.value );
+		this.formChange.emit( this.formGroup );
+	}
+
+	// Verwirft Werte, die die neue Liste nicht mehr anbietet. Das emittiert bewusst, damit ein
+	// Feld, das seinerseits von diesem abhängt, nachzieht. Die Kette terminiert, weil Pruning
+	// monoton ist: ein leeres Feld hat nichts mehr zu verwerfen.
+	private pruneValue( field: XiriFormField, control: AbstractControl ): void {
+
+		// Nur wenn die Liste autoritativ ist. Bei Server-Suche ist list nur der statische Sockel,
+		// bei chips sind es Vorschläge - dort würde Pruning gültige Eingaben löschen.
+		if ( field.url || field.type === 'chips' )
+			return;
+
+		const ids = collectOptionIds( field.list ?? [] );
+		const value = control.value;
+
+		if ( Array.isArray( value ) ) {
+			const kept = value.filter( v => ids.has( v as string | number ) );
+			if ( kept.length !== value.length )
+				control.setValue( kept );
+			return;
+		}
+
+		if ( value === null || value === undefined || value === '' )
+			return;
+		if ( !ids.has( value as string | number ) )
+			control.setValue( emptyValueForField( field ) );
 	}
 	
 	fields = computed( () => {
@@ -536,7 +713,9 @@ export class XiriFormFieldsComponent implements OnInit {
 		// Ein header startet seine eigene Section und ist nie Teil einer vorherigen
 		if ( field.type === 'header' ) return false;
 
-		const idx = fields.indexOf( field );
+		// Über die ID suchen, nicht über die Identität: gepatchte Felder werden als Kopie
+		// gerendert, damit die Kind-Komponenten eine neue Input-Identität sehen.
+		const idx = fields.findIndex( f => f.id === field.id );
 		if ( idx <= 0 ) return false;
 
 		// Walk backwards to find the nearest header or divider
@@ -580,6 +759,92 @@ export class XiriFormFieldsComponent implements OnInit {
 				return true;
 		}
 	}
+}
+
+// Was ein Reload-Patch am Feld ändern darf, jeweils mit Typprüfung. Der Server ist eine
+// Trust-Boundary: eine kaputte `list` oder ein `min: "3"` dürfen weder das Pruning noch den
+// Validator-Aufbau verfälschen.
+//
+// Bewusst nicht patchbar: `id`, `type`, `subtype` (createControl normalisiert die einmalig, ein
+// Roh-Wert vom Server würde das zerlegen), `value` (den Wert behält der Client, siehe pruneValue),
+// `control`, `showWhen` und `url` (`serverSideSearch` und der Suchfluss der Select-Directive
+// werden nur beim Aufbau abgeleitet, eine Änderung käme nie an).
+const PATCH_GUARDS: Record<string, ( value: unknown ) => boolean> = {
+	list:     isOptionList,
+	name:     isString,
+	hint:     isString,
+	class:    isString,
+	required: isBoolean,
+	disabled: isBoolean,
+	hide:     isBoolean,
+	search:   isBoolean,
+	min:      isNumber,
+	max:      isNumber,
+	params:   isPlainObject,
+};
+
+function isString( value: unknown ): boolean {
+	return typeof value === 'string';
+}
+
+function isBoolean( value: unknown ): boolean {
+	return typeof value === 'boolean';
+}
+
+function isNumber( value: unknown ): boolean {
+	return typeof value === 'number' && Number.isFinite( value );
+}
+
+function isPlainObject( value: unknown ): boolean {
+	return typeof value === 'object' && value !== null && !Array.isArray( value );
+}
+
+function isOptionList( value: unknown ): boolean {
+	return Array.isArray( value ) && value.every( o => isPlainObject( o ) && 'id' in ( o as object ) );
+}
+
+// Schreibt die erlaubten Properties ins Feld und meldet, welche davon wirklich etwas geändert
+// haben. Ein Reload liefert oft dasselbe zurück - z.B. weil ein anderer Trigger sich geändert
+// hat. Unveränderte Properties zu überspringen erspart den Klon (der einen Treeselect neu
+// aufbauen und bei gesetzter url erneut laden würde), den Validator-Neubau und den formChange.
+function applyPatchProperties( field: XiriFormField, entry: Record<string, unknown> ): string[] {
+
+	const applied: string[] = [];
+	const target = field as unknown as Record<string, unknown>;
+
+	for ( const key of Object.keys( PATCH_GUARDS ) ) {
+		if ( !( key in entry ) )
+			continue;
+		const value = entry[ key ];
+		if ( !PATCH_GUARDS[ key ]( value ) )
+			continue;
+		if ( sameValue( target[ key ], value ) )
+			continue;
+		target[ key ] = value;
+		applied.push( key );
+	}
+
+	return applied;
+}
+
+function sameValue( a: unknown, b: unknown ): boolean {
+	if ( a === b )
+		return true;
+	if ( typeof a !== 'object' || typeof b !== 'object' || a === null || b === null )
+		return false;
+	return JSON.stringify( a ) === JSON.stringify( b );
+}
+
+// Option-IDs inklusive verschachtelter children - eine flache Sammlung würde jede ausgewählte
+// Leaf-ID eines Treeselects verwerfen.
+function collectOptionIds( list: XiriFormFieldSelectOption[],
+                           into: Set<string | number> = new Set() ): Set<string | number> {
+	for ( const option of list ) {
+		into.add( option.id );
+		if ( option.children?.length )
+			collectOptionIds( option.children, into );
+	}
+	return into;
 }
 
 function fillListFromArray( field: XiriFormField ): void {

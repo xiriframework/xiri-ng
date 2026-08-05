@@ -108,6 +108,10 @@ export interface XiriFormField {
   // --- Conditional Display ---
   showWhen?: XiriFormFieldCondition | XiriFormFieldCondition[];
 
+  // --- Server-driven content ---
+  reloadOn?: string[];       // Feld-IDs, deren Änderung dieses Feld neu lädt
+  reloadUrl?: string;        // Endpoint für den Reload (beides oder keins)
+
   // --- Weitere ---
   rows?: number;             // textarea
   array?: any[];             // alt zu list
@@ -214,6 +218,69 @@ Array = **UND**-Verknüpfung:
     { field: 'note',     operator: 'notEmpty' },
   ]}
 ```
+
+### reloadOn — Inhalt vom Server nachladen
+
+`showWhen` blendet ein Feld ein und aus. `reloadOn` lädt seinen **Inhalt** neu, sobald sich ein
+anderes Feld ändert — für Optionslisten, die nur der Server kennen kann.
+
+```typescript
+{ id: 'tags', type: 'multiselect', name: 'Tags',
+  list: [ { id: 4, name: 'Alpha' } ],
+  reloadOn: [ 'status' ], reloadUrl: '/Thing/FormReload' }
+```
+
+Beide Angaben sind Pflicht — ohne `reloadUrl` ist die Abhängigkeit nicht auflösbar und wird
+ignoriert.
+
+**Ablauf**
+
+1. Ändert sich ein Wert, den irgendein Feld in seinem `reloadOn` nennt, postet die Komponente
+   **nur die Trigger-Werte** an `reloadUrl` — 200 ms entprellt, ein Request pro distinkter URL,
+   per `switchMap` gewinnt der neueste. Alles, was nicht im Formular steht, gehört in die URL.
+2. Antwort: `{ "fields": { "<id>": { …Properties… } } }`, optional mit `message`/`messageType`
+   für eine Snackbar.
+3. Der Patch wird ins Feld gemerged, danach feuert genau ein `formChange`.
+
+Ein Reload läuft **immer auch einmal direkt nach dem Aufbau der Controls**. Das ist nötig, weil
+`xiri-query` gespeicherte Filterwerte über `formService.loadState()` wiederherstellt, bevor die
+Controls entstehen — die vom Server mitgelieferte Liste passt dann nicht mehr zum Trigger-Wert.
+Die Listen im ersten Render sind damit optional; sie verhindern nur kurzzeitig leere Felder.
+
+**Werte**
+
+Nach einem `list`-Patch behält das Feld alle Werte, die die neue Liste noch anbietet
+(rekursiv über `children`), und verwirft die übrigen. Ein `value` im Patch wird ignoriert — der
+Wert gehört dem Client.
+
+Nicht geprunt wird, wo die Liste nicht autoritativ ist: bei `chips` (nur Vorschläge) und bei
+Selects mit `url` (dort ist `list` nur der statische Sockel der Server-Suche).
+
+**Patchbare Properties**
+
+`list`, `name`, `hint`, `class`, `required`, `disabled`, `hide`, `search`, `min`, `max`, `params` —
+jeweils nur mit passendem Typ. Alles andere wird verworfen, ebenso ein Patch für ein Feld ohne
+`reloadOn` oder mit einer anderen `reloadUrl`.
+
+Bewusst nicht patchbar: `value` (siehe oben), `id`/`type`/`subtype` (werden beim Aufbau der
+Controls einmalig normalisiert), `url` (ob ein Select Server-Suche macht, entscheidet sich beim
+Aufbau) und `showWhen` (wird ohnehin live aus den Werten ausgewertet).
+
+**Grenzen**
+
+- Ein abhängiges `treeselect`/`multiselect` darf kein `url` setzen — mit URL lädt es seinen Baum
+  selbst per GET und ignoriert die gepatchte `list`.
+- Ein bereits geöffnetes Chips-Autocomplete-Panel übernimmt neue Vorschläge erst beim nächsten
+  Tastendruck.
+- `disabled` im Patch wirkt auf das FormControl; `treeselect` und `chips` stellen sich deswegen
+  noch nicht sichtbar deaktiviert dar.
+- Kein Loading-State während des Reloads: ein `disable()` würde das Feld aus `formGroup.value`
+  entfernen und bei einem Submit in genau diesem Fenster Werte verlieren.
+- Keine Step-übergreifenden Abhängigkeiten — jeder Schritt eines `xiri-stepper` hat seine eigene
+  `xiri-form-fields`-Instanz.
+
+Ketten funktionieren: hängt C an B und wird Bs Wert durch einen Patch verworfen, lädt C nach. Das
+terminiert, weil Pruning nur entfernt.
 
 ### Select-Optionen
 

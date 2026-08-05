@@ -48,6 +48,15 @@ export class FormsComponent {
 		iconColor: 'accent',
 	};
 
+	sectionReload: XiriSectionSettings = {
+		title: 'Dependent Fields (reloadOn)',
+		subtitle: 'While showWhen only shows or hides a field, reloadOn reloads its content from the server. '
+		          + 'Change "Abteilung" — the team list is fetched for exactly that department, a selected team '
+		          + 'that no longer exists is dropped, and the note becomes mandatory for "Extern".',
+		icon: 'cloud_sync',
+		iconColor: 'accent',
+	};
+
 	public data: XiriFormSettings = {
 		load: false,
 		url: '',
@@ -282,6 +291,82 @@ export class FormsComponent {
 			action: 'debug'
 		} ]
 	};
+
+	public reloadData: XiriFormSettings = {
+		load: false,
+		url: '',
+		header: 'Dependent Fields (reloadOn)',
+		fields: [ {
+			type: 'select',
+			name: 'Abteilung',
+			value: 1,
+			class: 'xcol-md-6',
+			search: false,
+			required: false,
+			list: [ { id: 1, name: 'Technik' }, { id: 2, name: 'Finanzen' }, { id: 3, name: 'Extern' } ],
+			id: 'department',
+		}, {
+			type: 'multiselect',
+			name: 'Teams',
+			value: [],
+			class: 'xcol-md-6',
+			search: false,
+			required: false,
+			// Startliste passend zum Default oben. Sie ist optional — der Reload direkt nach dem
+			// Aufbau würde sie ohnehin holen, sie verhindert nur ein kurz leeres Feld.
+			list: [ { id: 11, name: 'Frontend' }, { id: 12, name: 'Backend' }, { id: 13, name: 'Plattform' } ],
+			id: 'team',
+			reloadOn: [ 'department' ],
+			reloadUrl: 'Test/Form/Reload',
+		}, {
+			type: 'text',
+			name: 'Begründung',
+			value: '',
+			class: 'xcol',
+			id: 'note',
+			hint: 'Pflicht, sobald die Abteilung "Extern" ist — der Server patcht required mit.',
+			reloadOn: [ 'department' ],
+			reloadUrl: 'Test/Form/Reload',
+		} ],
+		buttons: [ {
+			text: 'Debug',
+			type: 'raised',
+			default: true,
+			action: 'debug'
+		} ]
+	};
+
+	goReloadCode = `department := field.NewSelectField("department", "Abteilung", false,
+    []field.SelectOption{
+        {Value: 1, Label: "Technik"},
+        {Value: 2, Label: "Finanzen"},
+        {Value: 3, Label: "Extern"},
+    }).SetClass("xcol-md-6")
+
+reloadURL := xurl.NewUrlPrefix("/Test/Form/Reload", "/api")
+
+team := field.NewModelListField("team", "Teams", false, "Team", nil).
+    SetClass("xcol-md-6")
+team.BaseField.SetReloadOn(reloadURL, "department")
+
+note := field.NewTextField("note", "Begründung", false, "").
+    SetHint("Pflicht, sobald die Abteilung \\"Extern\\" ist")
+note.BaseField.SetReloadOn(reloadURL, "department")
+
+// Handler hinter reloadURL:
+func (ctrl *Controller) FormReload(c echo.Context) error {
+    department, team, note, fg := ctrl.buildForm(wc.UiContext())
+
+    // Nachsichtig binden: mitten im Ausfüllen ist ein leeres Pflichtfeld normal.
+    if err := builder.BindReload(c, fg); err != nil {
+        return wc.BadRequest(err.Error())
+    }
+
+    team.Options = ctrl.teamsForDepartment(department.Value)
+    note.Required = department.Value == 3
+
+    return c.JSON(http.StatusOK, response.NewReturnFields(fg.ExportPatch()))
+}`;
 
 	goFieldTypesCode = `fg := group.NewFormGroup([]field.FormField{
     field.NewTextField("text1", "Text", false, "Projekt Nordwind").

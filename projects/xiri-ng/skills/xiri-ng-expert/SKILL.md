@@ -1,6 +1,6 @@
 ---
 name: xiri-ng-expert
-description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen, oder Server-Side-Tables fragt.
+description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen oder reloadOn-Abhängigkeiten (Optionen vom Server nachladen), oder Server-Side-Tables fragt.
 ---
 
 # xiri-ng Expert
@@ -132,6 +132,25 @@ Verfügbare `type`-Werte: `text`, `email`, `password`, `textarea`, `number`, `bo
 `display` = `'full' | 'line' | 'small'` — Layout-Modus.
 
 **showWhen-Operators:** `equals`, `notEquals`, `contains`, `greaterThan`, `lessThan`, `in`, `notEmpty`.
+
+**reloadOn — Inhalt vom Server nachladen.** Während `showWhen` ein Feld nur ein- und ausblendet,
+lädt `reloadOn` seinen Inhalt neu, sobald sich ein anderes Feld ändert:
+
+```typescript
+{ id: 'team', type: 'multiselect', name: 'Teams',
+  reloadOn: [ 'department' ], reloadUrl: 'Thing/FormReload' }
+```
+
+Beides ist Pflicht. Die Komponente postet **nur die Trigger-Werte** (`{department: 1}`, 200 ms
+entprellt, ein Request pro URL, `switchMap`) und erwartet
+`{ "fields": { "team": { "list": [...], "required": true } } }`. Ein Reload läuft zusätzlich immer
+einmal direkt nach dem Aufbau der Controls. Werte, die die neue `list` noch anbietet, bleiben
+erhalten (rekursiv über `children`), der Rest wird verworfen — außer bei `chips` und Selects mit
+`url`, deren Liste nur ein Vorschlag bzw. der statische Sockel ist.
+
+Patchbar sind `list`, `name`, `hint`, `class`, `required`, `disabled`, `hide`, `search`, `min`,
+`max`, `params` — jeweils nur mit passendem Typ. `value`, `type`, `id` und `url` bewusst nicht.
+Details und Grenzen in `references/form-fields.md`.
 
 Zugriff auf die reactive Form:
 
@@ -402,7 +421,7 @@ edit(row: any) {
 | --------------------------- | ---------------------------------------------------------------- |
 | `references/setup.md`       | Alle Services im Detail (Methoden-Signaturen, Rückgabe-Typen)    |
 | `references/dyncomponent.md`| Vollständige XiriDynData-Type-Liste + Custom-Rendering           |
-| `references/form-fields.md` | Jeder Feldtyp im Detail, alle Validator-Keys, select-Directive   |
+| `references/form-fields.md` | Jeder Feldtyp im Detail, alle Validator-Keys, select-Directive, `reloadOn` |
 | `references/table.md`       | Table-Options-Felder, Inline-Edit, Selection, Footer-Aggregation |
 | `references/components.md`  | Kompakte Signatur-Liste aller 30+ Komponenten                    |
 | `references/theming-i18n.md`| ThemeService, Colors, Date/Number-Locale-Propagation             |
@@ -415,3 +434,6 @@ edit(row: any) {
 - Nicht `FormBuilder` direkt — `XiriFormFieldsComponent` baut die `UntypedFormGroup` selbst
 - Nicht API-Calls in Templates — in Component-Code via `XiriDataService`
 - Keine erfundenen Selectors / Inputs — wenn unsicher, `public-api.ts` lesen
+- Nicht `reloadOn` ohne `reloadUrl` (oder umgekehrt) — eine halbe Deklaration wird ignoriert
+- Nicht `url` **und** `reloadOn` auf demselben treeselect — mit `url` lädt es seinen Baum selbst
+  per GET und ignoriert die gepatchte `list`

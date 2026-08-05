@@ -5,6 +5,7 @@ import { delay, of, throwError } from 'rxjs';
 // the same body type is shared across the different mock endpoints.
 interface MockRequestBody {
 	search?: string;
+	department?: number | string;
 	field?: string;
 	value?: string;
 	email?: string;
@@ -47,6 +48,13 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	// Search Select API
 	if ( req.url.includes( 'Test/Search/Select' ) ) {
 		return of( new HttpResponse( { status: 200, body: getSearchSelectResponse( req.body as MockRequestBody ) } ) );
+	}
+
+	// Dependent fields (reloadOn): the form posts only the trigger values, the server answers with
+	// a field patch. Mirrors the backend flow of BindReload(...) -> fg.ExportPatch().
+	if ( req.url.includes( 'Test/Form/Reload' ) ) {
+		return of( new HttpResponse( { status: 200, body: getFieldReloadResponse( req.body as MockRequestBody ) } ) )
+			.pipe( delay( 400 ) );
 	}
 
 	// Wait API (simulates delay)
@@ -271,6 +279,28 @@ function getStepperResponse( body: MockRequestBody ): unknown {
 }
 
 // Search Select mock responses
+// Field patch for the reloadOn demo: which teams exist depends on the selected department, and
+// the note is only mandatory for the external department. The frontend keeps every selected team
+// that survives in the new list and drops the rest — no value is sent back from here.
+function getFieldReloadResponse( body: MockRequestBody ): unknown {
+
+	const teamsByDepartment: Record<string, { id: number, name: string }[]> = {
+		1: [ { id: 11, name: 'Frontend' }, { id: 12, name: 'Backend' }, { id: 13, name: 'Plattform' } ],
+		2: [ { id: 21, name: 'Buchhaltung' }, { id: 22, name: 'Controlling' } ],
+		3: [ { id: 31, name: 'Partneragentur' } ],
+	};
+
+	const department = String( body?.department ?? '' );
+	const teams = teamsByDepartment[ department ] ?? [];
+
+	return {
+		fields: {
+			team: { list: teams, hint: `${ teams.length } Team(s) für diese Abteilung` },
+			note: { required: department === '3' },
+		},
+	};
+}
+
 function getSearchSelectResponse( body: MockRequestBody ): unknown[] {
 
 	const search = body?.search ?? '';

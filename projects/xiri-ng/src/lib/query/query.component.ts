@@ -11,11 +11,12 @@ import {
 	TemplateRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, Subject } from "rxjs";
+import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { NgTemplateOutlet } from '@angular/common';
 import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
+import { emptyValueForField } from '../formfields/helper/empty-value';
 import { XiriDataService } from "../services/data.service";
 import { XiriFormService } from "../services/form.service";
 import { XiriButtonlineComponent } from "../buttonline/buttonline.component";
@@ -83,6 +84,7 @@ export class XiriQueryComponent implements OnInit {
 	filterChange = output<Record<string, unknown> | null>();
 
 	private waiter: Subject<XiriQueryFormChangeEvent> = new Subject<XiriQueryFormChangeEvent>();
+	private loader: Subject<void> = new Subject<void>();
 
 	public dynData: {
 		data: XiriDynData[] | null,
@@ -131,7 +133,9 @@ export class XiriQueryComponent implements OnInit {
 	} );
 
 	ngOnInit(): void {
-		
+
+		this.startLoader();
+
 		const settings = this.settings();
 		if ( settings.dyn !== undefined && settings.dyn !== null && settings.dyn.length != 0 )
 			this.dynData.data = settings.dyn;
@@ -226,51 +230,70 @@ export class XiriQueryComponent implements OnInit {
 		this.error.set( null );
 		this.loading.set( true );
 
-		const call = this.dataService.post( this.settings().url ?? '', this.dynData.filterData );
+		this.loader.next();
+	}
 
-		call.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
-			{
-				next: ( res: unknown ) => {
-					this.loading.set( false );
-					if ( !res ) {
-						this.data.set( null );
-						this.error.set( 'Unknown Error' );
-						this.cdr.markForCheck();
-						return;
-					}
+	// Alle Loads laufen über einen switchMap: ein noch offener Request wird abgebrochen, sobald
+	// ein neuer startet. Zwei Loads kurz hintereinander sind der Normalfall, sobald ein abhängiges
+	// Feld seine Optionen nachlädt und dabei einen ungültig gewordenen Filterwert verwirft — ohne
+	// switchMap könnte die späte Antwort des überholten Requests die neuere überschreiben.
+	private startLoader() {
 
-					const data = ( res as { data: XiriDynData[] | XiriDynData } ).data;
-					// check if res is an array
-					if ( Array.isArray( data ) )
-						this.data.set( data );
-					else
-						this.data.set( [ data ] );
+		this.loader.pipe(
+			switchMap( () => this.dataService.post( this.settings().url ?? '', this.dynData.filterData )
+				.pipe( catchError( ( err: HttpErrorResponse ) => of( { __error: err } ) ) ) ),
+			takeUntilDestroyed( this.destroyRef ),
+		).subscribe( ( res: unknown ) => {
+			const failed = ( res as { __error?: HttpErrorResponse } )?.__error;
+			if ( failed )
+				this.loadFailed( failed );
+			else
+				this.loadSucceeded( res );
+		} );
+	}
 
-					// Pick up an optional result count from the response (backend-driven counts).
-					const counted = res as { count?: number, total?: number };
-					if ( typeof counted.count === 'number' )
-						this.responseCount.set( { filtered: counted.count, total: counted.total } );
+	private loadSucceeded( res: unknown ) {
 
-					this.cdr.markForCheck();
-				},
-				error: ( err: HttpErrorResponse ) => {
-					this.loading.set( false );
-					this.data.set( null );
-					if ( err.status === 404 )
-						this.error.set( 'Page not found' );
-					else if ( err.status === 401 )
-						this.error.set( 'No permission to view page' );
-					else if ( err.status === 403 )
-						this.error.set( 'Access denied' );
-					else if ( err.status === 500 )
-						this.error.set( 'Internal Error' );
-					else
-						this.error.set( 'Unknown Error' );
+		this.loading.set( false );
+		if ( !res ) {
+			this.data.set( null );
+			this.error.set( 'Unknown Error' );
+			this.cdr.markForCheck();
+			return;
+		}
 
-					console.log( 'XiriQueryComponent error', err );
-					this.cdr.markForCheck();
-				}
-			} );
+		const data = ( res as { data: XiriDynData[] | XiriDynData } ).data;
+		// check if res is an array
+		if ( Array.isArray( data ) )
+			this.data.set( data );
+		else
+			this.data.set( [ data ] );
+
+		// Pick up an optional result count from the response (backend-driven counts).
+		const counted = res as { count?: number, total?: number };
+		if ( typeof counted.count === 'number' )
+			this.responseCount.set( { filtered: counted.count, total: counted.total } );
+
+		this.cdr.markForCheck();
+	}
+
+	private loadFailed( err: HttpErrorResponse ) {
+
+		this.loading.set( false );
+		this.data.set( null );
+		if ( err.status === 404 )
+			this.error.set( 'Page not found' );
+		else if ( err.status === 401 )
+			this.error.set( 'No permission to view page' );
+		else if ( err.status === 403 )
+			this.error.set( 'Access denied' );
+		else if ( err.status === 500 )
+			this.error.set( 'Internal Error' );
+		else
+			this.error.set( 'Unknown Error' );
+
+		console.log( 'XiriQueryComponent error', err );
+		this.cdr.markForCheck();
 	}
 }
 
@@ -303,14 +326,4 @@ function formatFilterValue( field: XiriFormField, value: unknown ): string {
 	if ( value === true )
 		return field.name ?? 'Ja';
 	return String( value );
-}
-
-// The "empty" value used to clear a control, matching the shape the control currently holds.
-function emptyValueForField( field: XiriFormField ): unknown {
-	const value = field.control?.value;
-	if ( Array.isArray( value ) )
-		return [];
-	if ( typeof value === 'string' )
-		return '';
-	return null;
 }

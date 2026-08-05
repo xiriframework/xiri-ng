@@ -7,7 +7,60 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Dependent fields: reload a field's content from the server (`reloadOn`/`reloadUrl`).** Until now
+  `showWhen` could only show or hide a field based on another value — its **content** was fixed once
+  the form had rendered. A field can now declare `reloadOn: ['status']` plus a `reloadUrl`: whenever
+  one of those values changes, the form posts the trigger values to that endpoint and merges the
+  returned `{fields: {id: {...}}}` patch. The case this exists for is a select set to "active" and a
+  multiselect that must then only offer the entries valid for "active" — a list only the server knows.
+
+  Only the trigger values are sent, not the whole form: an options endpoint has no business receiving
+  a password field. Requests are debounced by 200 ms, one per distinct URL, and run through
+  `switchMap` so only the newest answer is applied; a failing URL does not suppress the patches of
+  the others. Values survive the patch where the new list still offers them (recursively, so a
+  treeselect keeps its selected leaves) and are dropped otherwise — except for `chips` and
+  server-search selects, whose lists are suggestions rather than a constraint. The patch itself is
+  restricted to a typed whitelist, so a malformed response cannot corrupt validators or pruning.
+
+  One reload always runs right after the controls are built. This is required rather than cosmetic:
+  `xiri-query` restores saved filter values through `formService.loadState()` *before* the controls
+  exist, so the option list shipped with the first render can already be stale.
+
+  Requires a `xiri-go` version that emits `reloadOn`. Both directions stay backward compatible — an
+  older backend simply never sends the keys, and a form without `reloadOn` behaves exactly as before.
+  Filters inherit the behaviour, since `xiri-query` renders the same `xiri-form-fields` component.
+
 ### Fixed
+
+- **A treeselect kept its old selection when its options were replaced.** `ngAfterViewInit` re-applied
+  the current value by calling `treeItemSelectionToggle()` for each id, but never cleared the
+  `SelectionModel` first. Rebuilding the tree — which happens whenever the bound field object is
+  replaced — therefore left the *old* node objects selected alongside the new ones, so the value
+  getter returned every kept id twice; the re-toggling also wrote back to the `FormControl`, turning
+  a pure re-render into a value change. It now reuses the existing `applyInputSelection()`, which
+  clears the selection, resets the node state and suppresses the CVA emit.
+
+- **A stale query response could overwrite a newer one.** `XiriQueryComponent.load()` subscribed to
+  every request separately and never cancelled the previous one, so with two loads in flight the
+  slower-but-older answer won. Loads now run through a `switchMap`. This was always possible on
+  rapid filter changes; dependent fields make it routine, because discarding a filter value that is
+  no longer valid triggers a second load by design.
+
+- **A collapsed section did not hide a re-rendered field.** `isInCollapsedSection()` located the
+  field via `indexOf`, i.e. by object identity. A field rendered as a copy — which is how patched
+  fields reach child components — was not found and became visible. It now matches by `id`.
+
+- **Validation-error lists were tracked by identity.** The `@for` over `field.validations` used
+  `track vali`, so rebuilding a field's validators re-created every `mat-error` node and logged
+  NG0956. Harmless while validators were built exactly once, but a `required`/`min`/`max` patch
+  rebuilds them at runtime. Now tracked by `vali.id`, which is unique per field.
+
+- **`XiriDataServiceConfig` had no default provider.** It was only ever supplied through
+  `provideXiriServices()`, so an application that forgot the call crashed with a NullInjector error
+  instead of falling back to the documented `/api/` base. It is now `providedIn: 'root'`;
+  `provideXiriServices()` still overrides it.
 
 - **Client-side sorting of `chips` columns sorted by chip count.** The cell value of a `chips` column
   is an `Array<{label, color}>`; `sortingDataAccessor` only special-cased `format: 'number'` and

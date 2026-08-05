@@ -256,6 +256,35 @@ describe( 'XiriQueryComponent', () => {
 			expect( Array.isArray( component.data() ) ).toBe( true );
 		} );
 
+		// Zwei Loads kurz hintereinander sind normal, sobald ein abhängiges Feld seine Optionen
+		// nachlädt und dabei einen ungültig gewordenen Filterwert verwirft. Die späte Antwort des
+		// überholten Requests darf die neuere nicht überschreiben.
+		it( 'should ignore the response of a superseded request', () => {
+			vi.useFakeTimers();
+
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+
+			const first = new Subject<unknown>();
+			const second = new Subject<unknown>();
+			mockDataService.post.mockReset();
+			mockDataService.post.mockReturnValueOnce( first ).mockReturnValueOnce( second );
+
+			component.formChanged( { valid: true, value: { f: 'a' } } );
+			vi.advanceTimersByTime( 300 );
+			component.formChanged( { valid: true, value: { f: 'b' } } );
+			vi.advanceTimersByTime( 300 );
+
+			expect( mockDataService.post ).toHaveBeenCalledTimes( 2 );
+
+			second.next( { data: [ { type: 'card', data: { n: 2 } } ] } );
+			first.next( { data: [ { type: 'card', data: { n: 1 } } ] } );
+
+			expect( component.data() ).toEqual( [ { type: 'card', data: { n: 2 } } ] );
+		} );
+
 		it( 'should set error on null response', () => {
 			mockDataService.post.mockReturnValue( of( null ) );
 
@@ -423,6 +452,69 @@ describe( 'XiriQueryComponent', () => {
 			const callsBefore = mockDataService.post.mock.calls.length;
 			btn.click();
 			expect( mockDataService.post.mock.calls.length ).toBe( callsBefore + 1 );
+		} );
+	} );
+
+	// Filter rendern dieselbe xiri-form-fields-Komponente wie Formulare, erben also das
+	// Nachladen abhängiger Felder. Hier zählt das Zusammenspiel: Reload-Request und
+	// Filter-Request dürfen sich nicht in die Quere kommen.
+	describe( 'reloadOn in filters', () => {
+
+		const RELOAD_URL = '/Thing/FormReload';
+
+		function postsTo( url: string ) {
+			return mockDataService.post.mock.calls.filter( ( call: unknown[] ) => call[ 0 ] === url );
+		}
+
+		it( 'reloads the dependent filter field without disturbing the filter request', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockImplementation( ( url: string ) =>
+				of( url === RELOAD_URL
+				    ? { fields: { status: { list: [ { id: 2, name: 'Erledigt' } ] } } }
+				    : { data: [ { type: 'card', data: {} } ] } ) );
+
+			createFixture( {
+				fields: [
+					{ id: 'kind', type: 'text', name: 'Art', value: '' },
+					{
+						id: 'status', type: 'select', name: 'Status', value: 1, required: false, search: false,
+						list: [ { id: 1, name: 'Offen' }, { id: 2, name: 'Erledigt' } ],
+						reloadOn: [ 'kind' ], reloadUrl: RELOAD_URL,
+					},
+				],
+				url: 'search/results',
+			} );
+			vi.advanceTimersByTime( 400 );
+
+			expect( postsTo( RELOAD_URL ).length ).toBe( 1 );
+			expect( postsTo( RELOAD_URL )[ 0 ][ 1 ] ).toEqual( { kind: '' } );
+			expect( postsTo( 'search/results' ).length ).toBeGreaterThan( 0 );
+
+			// Wert 1 gibt es nicht mehr -> verworfen, und die Tabelle sieht den neuen Filter.
+			expect( component.filterData() ).toEqual( { kind: '', status: null } );
+		} );
+
+		it( 'refreshes an active-filter chip when the patch renames an option', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockImplementation( ( url: string ) =>
+				of( url === RELOAD_URL
+				    ? { fields: { status: { list: [ { id: 1, name: 'Offen (neu)' } ] } } }
+				    : { data: [] } ) );
+
+			createFixture( {
+				fields: [
+					{ id: 'kind', type: 'text', name: 'Art', value: '' },
+					{
+						id: 'status', type: 'select', name: 'Status', value: 1, required: false, search: false,
+						list: [ { id: 1, name: 'Offen' } ],
+						reloadOn: [ 'kind' ], reloadUrl: RELOAD_URL,
+					},
+				],
+				showActiveFilters: true,
+			} );
+			vi.advanceTimersByTime( 400 );
+
+			expect( component.activeFilters().find( f => f.id === 'status' )?.value ).toBe( 'Offen (neu)' );
 		} );
 	} );
 

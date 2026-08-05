@@ -102,15 +102,12 @@ export class XiriTreeselectComponent extends XiriFieldMain<XiriTreeselectId[] | 
 			
 			this.dataSource.data = data;
 			// this.tree().expandAll();
-			
-			this._input.forEach( x => {
-				this.dataSource.data.forEach( d => {
-					const node = this.findNodeById( x, d );
-					if ( node )
-						this.treeItemSelectionToggle( node );
-				} );
-			} );
-			
+
+			// Nicht direkt togglen: ein Options-Reload ersetzt das Feld-Objekt und baut den Baum
+			// neu auf, wobei die alten Node-Objekte im SelectionModel selektiert bleiben würden
+			// (doppelte IDs) und das Zurückschreiben ans FormControl emittieren würde.
+			this.applyInputSelection();
+
 			this.loading.set( false );
 		} ) );
 	}

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
 import { UntypedFormGroup } from '@angular/forms';
@@ -53,15 +53,22 @@ describe( 'XiriFormFieldsComponent', () => {
 	let host: TestHostComponent;
 	let component: XiriFormFieldsComponent;
 
+	let httpStub: { get: ReturnType<typeof vi.fn>; post: ReturnType<typeof vi.fn> };
+	let snackbarStub: { error: ReturnType<typeof vi.fn>; handleResponse: ReturnType<typeof vi.fn> };
+
 	beforeEach( () => {
 		stubLocalStorage();
+
+		httpStub = { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) };
+		// handleResponse gehört zum Vertrag: XiriDataService ruft es in einem tap auf jeder Antwort.
+		snackbarStub = { error: vi.fn(), handleResponse: vi.fn() };
 
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
 				{ provide: XiriDataServiceConfig, useValue: { api: '/api/' } },
-				{ provide: HttpClient, useValue: { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) } },
-				{ provide: XiriSnackbarService, useValue: { error: vi.fn() } },
+				{ provide: HttpClient, useValue: httpStub },
+				{ provide: XiriSnackbarService, useValue: snackbarStub },
 				{ provide: MAT_DATE_LOCALE, useValue: enUS },
 				...provideDateFnsAdapter(),
 			],
@@ -723,6 +730,23 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.isFieldVisible( field ) ).toBe( false );
 		} );
 
+		// Ein Options-Reload rendert gepatchte Felder als Kopie, damit die Kind-Komponenten eine
+		// neue Input-Identität sehen. Die Section-Zuordnung muss dafür über die ID laufen — eine
+		// Identitätssuche findet die Kopie nicht und zeigt das Feld fälschlich an.
+		it( 'should hide a copied field in a collapsed section', () => {
+			const header: XiriFormField = {
+				id: 'section',
+				type: 'header',
+				collapsible: true,
+			};
+			const field: XiriFormField = { id: 'name', type: 'text', value: '' };
+			host.fields.set( [ header, field ] );
+			fixture.detectChanges();
+
+			component.toggleSection( header );
+			expect( component.isFieldVisible( { ...field } ) ).toBe( false );
+		} );
+
 		it( 'should show fields after divider even if section is collapsed', () => {
 			const header: XiriFormField = {
 				id: 'section',
@@ -1094,6 +1118,286 @@ describe( 'XiriFormFieldsComponent', () => {
 
 			const input: HTMLInputElement = fixture.nativeElement.querySelector( 'input' );
 			expect( document.activeElement ).toBe( input );
+		} );
+	} );
+
+	// Ein Feld mit `reloadOn` hängt inhaltlich von anderen Feldern ab: ändert sich einer dieser
+	// Werte, postet die Komponente die Trigger-Werte an `reloadUrl` und merged den zurückgelieferten
+	// Feld-Patch. Nur die Trigger-Werte gehen raus — nicht das ganze Formular.
+	describe( 'reloadOn', () => {
+
+		const RELOAD_URL = '/Thing/FormReload';
+
+		function statusField( value: unknown = 1 ): XiriFormField {
+			return {
+				id: 'status', type: 'select', required: false, search: false, value,
+				list: [ { id: 1, name: 'aktiv' }, { id: 2, name: 'inaktiv' } ],
+			};
+		}
+
+		function tagsField( over: Partial<XiriFormField> = {} ): XiriFormField {
+			return {
+				id: 'tags', type: 'select', multiple: true, required: false, search: false, value: [ 10 ],
+				list: [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ],
+				reloadOn: [ 'status' ], reloadUrl: RELOAD_URL,
+				...over,
+			};
+		}
+
+		function setFields( fields: XiriFormField[] ) {
+			host.fields.set( fields );
+			fixture.detectChanges();
+			vi.advanceTimersByTime( 250 );
+		}
+
+		function respondWith( fields: Record<string, unknown> ) {
+			httpStub.post.mockReturnValue( of( { fields } ) );
+		}
+
+		beforeEach( () => {
+			vi.useFakeTimers();
+			httpStub.post.mockReturnValue( of( { fields: {} } ) );
+		} );
+
+		afterEach( () => {
+			vi.useRealTimers();
+		} );
+
+		it( 'posts only the trigger values to the reload url', () => {
+			setFields( [ statusField(), tagsField() ] );
+
+			expect( httpStub.post ).toHaveBeenCalledTimes( 1 );
+			expect( httpStub.post ).toHaveBeenCalledWith( '/api/' + RELOAD_URL, { status: 1 } );
+		} );
+
+		it( 'reloads again when a trigger value changes', () => {
+			setFields( [ statusField(), tagsField() ] );
+			httpStub.post.mockClear();
+
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			vi.advanceTimersByTime( 250 );
+
+			expect( httpStub.post ).toHaveBeenCalledTimes( 1 );
+			expect( httpStub.post ).toHaveBeenCalledWith( '/api/' + RELOAD_URL, { status: 2 } );
+		} );
+
+		it( 'does not reload when a field nobody depends on changes', () => {
+			setFields( [ statusField(), tagsField(), { id: 'note', type: 'text', value: '' } ] );
+			httpStub.post.mockClear();
+
+			component.formGroup.get( 'note' )!.setValue( 'hello' );
+			vi.advanceTimersByTime( 250 );
+
+			expect( httpStub.post ).not.toHaveBeenCalled();
+		} );
+
+		it( 'sends one request for two dependants sharing a url', () => {
+			setFields( [ statusField(), tagsField(), tagsField( { id: 'groups' } ) ] );
+
+			expect( httpStub.post ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'sends one request per distinct url', () => {
+			setFields( [ statusField(), tagsField(), tagsField( { id: 'groups', reloadUrl: '/Thing/OtherReload' } ) ] );
+
+			expect( httpStub.post ).toHaveBeenCalledTimes( 2 );
+		} );
+
+		it( 'applies the patched option list', () => {
+			respondWith( { tags: { list: [ { id: 10, name: 'Alpha neu' } ] } } );
+			setFields( [ statusField(), tagsField() ] );
+
+			const tags = component.formGroup.get( 'tags' )!;
+			expect( tags.value ).toEqual( [ 10 ] );
+			expect( host.fields()![ 1 ].list ).toEqual( [ { id: 10, name: 'Alpha neu' } ] );
+		} );
+
+		it( 'drops values the new list no longer offers and keeps the rest', () => {
+			respondWith( { tags: { list: [ { id: 11, name: 'Beta' } ] } } );
+			setFields( [ statusField(), tagsField( { value: [ 10, 11 ] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 11 ] );
+		} );
+
+		it( 'clears a single value that is gone', () => {
+			respondWith( { status: { list: [ { id: 2, name: 'inaktiv' } ] } } );
+			setFields( [
+				tagsField( { id: 'status', type: 'select', multiple: false, value: 1, reloadOn: [ 'kind' ] } ),
+				{ id: 'kind', type: 'text', value: '' },
+			] );
+
+			expect( component.formGroup.get( 'status' )!.value ).toBeNull();
+		} );
+
+		it( 'keeps recursive child ids when pruning a tree list', () => {
+			respondWith( {
+				tags: { list: [ { id: 10, name: 'Gruppe', children: [ { id: 11, name: 'Beta' } ] } ] },
+			} );
+			setFields( [ statusField(), tagsField( { value: [ 11, 99 ] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 11 ] );
+		} );
+
+		it( 'does not prune a chips field - its list is only a suggestion', () => {
+			respondWith( { tags: { list: [ { id: 11, name: 'Beta' } ] } } );
+			setFields( [ statusField(), tagsField( { type: 'chips', value: [ 'freitext' ] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 'freitext' ] );
+		} );
+
+		it( 'does not prune a server-search select - its list is only the static base', () => {
+			respondWith( { tags: { list: [ { id: 11, name: 'Beta' } ] } } );
+			setFields( [ statusField(), tagsField( { url: '/Thing/Search', value: [ 10 ] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10 ] );
+		} );
+
+		it( 'does not prune when the patch carries no list', () => {
+			respondWith( { tags: { hint: 'neuer Hinweis' } } );
+			setFields( [ statusField(), tagsField( { value: [ 10, 99 ] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10, 99 ] );
+			expect( host.fields()![ 1 ].hint ).toBe( 'neuer Hinweis' );
+		} );
+
+		it( 'rebuilds the validators when required is patched', () => {
+			respondWith( { tags: { required: true } } );
+			setFields( [ statusField(), tagsField( { value: [] } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.valid ).toBe( false );
+		} );
+
+		// Der zweite Patch prunt (Wert 10 fällt raus) und ändert required. Ohne die Unterdrückung
+		// des valueChanges-Emits während der Anwendung wären das zwei Emits statt einem: einer
+		// vom setValue des Prunings, einer vom Patch selbst.
+		it( 'emits formChange exactly once per patch', () => {
+			// Der initiale Reload lässt den Wert in Ruhe, damit erst der zweite prunt.
+			httpStub.post
+				.mockReturnValueOnce( of( { fields: { tags: { list: [ { id: 10, name: 'Alpha' } ] } } } ) )
+				.mockReturnValue( of( { fields: { tags: { list: [ { id: 11, name: 'Beta' } ], required: true } } } ) );
+
+			setFields( [ statusField(), tagsField( { value: [ 10 ] } ) ] );
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10 ] );
+
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			host.formChangeEvents = []; // der Emit zur Nutzereingabe selbst zählt nicht
+			vi.advanceTimersByTime( 250 );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [] ); // es wurde wirklich geprunt
+			expect( host.formChangeEvents.length ).toBe( 1 );
+		} );
+
+		it( 'does not re-enable a control while the whole form is disabled', () => {
+			respondWith( { tags: { disabled: false } } );
+			host.disabled.set( true );
+			setFields( [ statusField(), tagsField( { disabled: true } ) ] );
+
+			expect( component.formGroup.get( 'tags' )!.disabled ).toBe( true );
+		} );
+
+		// Ein Reload, der dasselbe zurückgibt, ist der Normalfall - z.B. weil sich ein anderer
+		// Trigger geändert hat. Er darf nichts anstoßen: kein Klon (der einen Treeselect neu
+		// aufbauen und bei gesetzter url erneut laden würde), kein Validator-Neubau, kein Emit.
+		it( 'does nothing when the patch repeats the current values', () => {
+			respondWith( { tags: { list: [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ], required: false } } );
+			setFields( [ statusField(), tagsField() ] );
+
+			expect( component.displayFields()![ 1 ] ).toBe( host.fields()![ 1 ] );
+
+			host.formChangeEvents = [];
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			const emitsFromTheEdit = 1;
+			vi.advanceTimersByTime( 250 );
+
+			expect( host.formChangeEvents.length ).toBe( emitsFromTheEdit );
+		} );
+
+		it( 'clones the field only when the patch really changes something', () => {
+			respondWith( { tags: { list: [ { id: 11, name: 'Beta' } ] } } );
+			setFields( [ statusField(), tagsField() ] );
+
+			expect( component.displayFields()![ 1 ] ).not.toBe( host.fields()![ 1 ] );
+		} );
+
+		// Der eigentliche Beweis für den Klon-Mechanismus: ein Treeselect liest seine Daten im
+		// @Input-Setter und würde eine reine Mutation des Feld-Objekts nie mitbekommen.
+		it( 'reaches a child component that snapshots its input', () => {
+			respondWith( { tags: { list: [ { id: 12, name: 'Gamma' } ] } } );
+			setFields( [
+				statusField(),
+				tagsField( { type: 'multiselect', value: [] } ),
+			] );
+			fixture.detectChanges();
+
+			const labels = Array.from(
+				fixture.nativeElement.querySelectorAll( 'xiri-treeselect mat-checkbox' ) as NodeListOf<HTMLElement>
+			).map( el => el.textContent!.trim() );
+
+			expect( labels ).toContain( 'Gamma' );
+			expect( labels ).not.toContain( 'Alpha' );
+		} );
+
+		// Der Server ist eine Trust-Boundary: eine Antwort darf nur die abhängigen Felder genau
+		// dieser URL anfassen, nur bekannte Properties setzen und nichts mit falschem Typ.
+		it( 'ignores patches for fields that did not declare a dependency', () => {
+			respondWith( { note: { hint: 'gekapert' } } );
+			setFields( [ statusField(), tagsField(), { id: 'note', type: 'text', value: '' } ] );
+
+			expect( host.fields()![ 2 ].hint ).toBeUndefined();
+		} );
+
+		it( 'ignores patches addressed to a different reload url', () => {
+			// Nur die FormReload-URL antwortet, und zwar mit einem Patch für ein Feld, das an
+			// der anderen URL hängt.
+			httpStub.post.mockImplementation( ( url: string ) =>
+				of( url.endsWith( '/Thing/FormReload' ) ? { fields: { groups: { hint: 'falsche url' } } } : { fields: {} } ) );
+
+			setFields( [ statusField(), tagsField(), tagsField( { id: 'groups', reloadUrl: '/Thing/OtherReload' } ) ] );
+
+			expect( host.fields()![ 2 ].hint ).toBeUndefined();
+		} );
+
+		it( 'ignores unknown fields, unknown properties and wrong types', () => {
+			respondWith( {
+				ghost: { list: [] },
+				tags: { list: null, min: '3', required: 'yes', type: 'text', id: 'hijacked', value: [ 999 ] },
+			} );
+			setFields( [ statusField(), tagsField( { value: [ 10 ] } ) ] );
+
+			const tags = host.fields()![ 1 ];
+			expect( tags.list ).toEqual( [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ] );
+			expect( tags.min ).toBeUndefined();
+			expect( tags.type ).toBe( 'select' );
+			expect( tags.id ).toBe( 'tags' );
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10 ] );
+		} );
+
+		it( 'keeps the other url patch when one request fails', () => {
+			httpStub.post.mockImplementation( ( url: string ) =>
+				url.endsWith( '/Thing/FormReload' )
+					? throwError( () => ( { status: 500 } ) )
+					: of( { fields: { groups: { hint: 'ok' } } } ) );
+
+			setFields( [ statusField(), tagsField(), tagsField( { id: 'groups', reloadUrl: '/Thing/OtherReload' } ) ] );
+
+			expect( host.fields()![ 2 ].hint ).toBe( 'ok' );
+			expect( snackbarStub.error ).toHaveBeenCalled();
+		} );
+
+		// Pruning entfernt nur Werte, ist also monoton: sobald nichts mehr zu entfernen ist,
+		// ändert sich der Trigger-Snapshot nicht mehr und die Kette läuft aus.
+		it( 'terminates a chain instead of reloading forever', () => {
+			respondWith( { tags: { list: [] }, groups: { list: [] } } );
+			setFields( [
+				statusField(),
+				tagsField( { value: [ 10 ] } ),
+				tagsField( { id: 'groups', value: [ 10 ], reloadOn: [ 'tags' ] } ),
+			] );
+
+			vi.advanceTimersByTime( 5000 );
+
+			expect( httpStub.post.mock.calls.length ).toBeLessThan( 6 );
+			expect( component.formGroup.get( 'groups' )!.value ).toEqual( [] );
 		} );
 	} );
 } );

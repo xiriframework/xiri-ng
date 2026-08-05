@@ -3,6 +3,10 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { XiriSnackbarService } from './snackbar.service';
 
+// providedIn 'root' so the class doubles as its own default: an app that never calls
+// provideXiriServices() gets the documented '/api/' base instead of a NullInjector error.
+// provideXiriServices() still overrides it with a useValue provider.
+@Injectable( { providedIn: 'root' } )
 export class XiriDataServiceConfig {
 	api = '/api/';
 }

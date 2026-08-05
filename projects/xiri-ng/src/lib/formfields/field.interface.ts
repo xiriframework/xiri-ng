@@ -80,6 +80,12 @@ export interface XiriFormField {
 
 	showWhen?: XiriFormFieldCondition | XiriFormFieldCondition[]
 
+	// Server-driven content: when one of the `reloadOn` field values changes, the form posts
+	// those trigger values to `reloadUrl` and merges the returned `{fields: {id: {...}}}` patch.
+	// Both are required — a dependency without a url cannot be resolved.
+	reloadOn?: string[]
+	reloadUrl?: string
+
 	control?: FormControl
 
 	// old
