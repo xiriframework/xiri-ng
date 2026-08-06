@@ -236,8 +236,12 @@ ignoriert.
 **Ablauf**
 
 1. Ändert sich ein Wert, den irgendein Feld in seinem `reloadOn` nennt, postet die Komponente
-   **nur die Trigger-Werte** an `reloadUrl` — 200 ms entprellt, ein Request pro distinkter URL,
-   per `switchMap` gewinnt der neueste. Alles, was nicht im Formular steht, gehört in die URL.
+   **nur die Trigger-Werte** an `reloadUrl` — und pro URL nur die, von denen deren eigene Felder
+   abhängen. 200 ms entprellt, ein Request pro distinkter URL. Ein noch laufender Request wird
+   abgebrochen, sobald sich der Stand ändert: eine Antwort zu einem überholten Stand darf nicht
+   mehr ankommen, sie würde sonst Werte verwerfen, die für den neuen Stand gültig sind. Bei
+   mehreren URLs wird trotzdem bei jeder Trigger-Änderung jede URL angefragt. Alles, was nicht im
+   Formular steht, gehört in die URL.
 2. Antwort: `{ "fields": { "<id>": { …Properties… } } }`, optional mit `message`/`messageType`
    für eine Snackbar.
 3. Der Patch wird ins Feld gemerged, danach feuert genau ein `formChange`.
@@ -259,8 +263,12 @@ Selects mit `url` (dort ist `list` nur der statische Sockel der Server-Suche).
 **Patchbare Properties**
 
 `list`, `name`, `hint`, `class`, `required`, `disabled`, `hide`, `search`, `min`, `max`, `params` —
-jeweils nur mit passendem Typ. Alles andere wird verworfen, ebenso ein Patch für ein Feld ohne
-`reloadOn` oder mit einer anderen `reloadUrl`.
+jeweils nur mit passendem Typ, `list` rekursiv inklusive `children`. Alles andere wird verworfen,
+ebenso ein Patch für ein Feld ohne `reloadOn` oder mit einer anderen `reloadUrl`.
+
+Ein Patch ist additiv: eine Property, die nicht im Patch steht, bleibt unverändert. `hint` lässt
+sich mit `null` abräumen (so exportiert xiri-go einen leeren Hinweis), für `min`/`max` gibt es
+keinen solchen Leerwert. `disabled` kommt aus xiri-go nicht — es steht nicht im Basis-Export.
 
 Bewusst nicht patchbar: `value` (siehe oben), `id`/`type`/`subtype` (werden beim Aufbau der
 Controls einmalig normalisiert), `url` (ob ein Select Server-Suche macht, entscheidet sich beim

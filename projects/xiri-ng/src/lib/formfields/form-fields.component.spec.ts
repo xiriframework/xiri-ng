@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
-import { of, Subject, throwError } from 'rxjs';
+import { delay, of, Subject, throwError } from 'rxjs';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
 import { UntypedFormGroup } from '@angular/forms';
@@ -1317,6 +1317,99 @@ describe( 'XiriFormFieldsComponent', () => {
 			setFields( [ statusField(), tagsField() ] );
 
 			expect( component.displayFields()![ 1 ] ).not.toBe( host.fields()![ 1 ] );
+		} );
+
+		// Der Trigger wechselt, während die Antwort zum vorherigen Stand noch unterwegs ist. Diese
+		// Antwort ist überholt und darf nicht mehr angewendet werden — sonst verwirft sie einen
+		// Wert, der für den neuen Stand gültig wäre, und der neue Patch stellt ihn nicht wieder her.
+		it( 'discards the answer of a request that a newer trigger superseded', () => {
+			setFields( [ statusField( 1 ), tagsField( { value: [ 10 ] } ) ] );
+
+			httpStub.post.mockImplementation( ( _url: string, payload: { status: number } ) =>
+				payload.status === 2
+					// Antwort zum überholten Stand: käme sie an, würde sie die 10 verwerfen.
+					? of( { fields: { tags: { list: [ { id: 11, name: 'Beta' } ] } } } ).pipe( delay( 100 ) )
+					: of( { fields: { tags: { list: [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ] } } } ) );
+
+			component.formGroup.get( 'status' )!.setValue( 2 );  // t=0, Request startet bei 200, Antwort bei 300
+			vi.advanceTimersByTime( 250 );
+			component.formGroup.get( 'status' )!.setValue( 3 );  // t=250 - der Stand von oben ist jetzt überholt
+			vi.advanceTimersByTime( 1000 );
+
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10 ] );
+		} );
+
+		// Der Treeselect haengt beim Aufbau parent-Referenzen an die Optionsknoten. Bei
+		// verschachtelten Listen wird die Liste dadurch zyklisch — ein Vergleich per
+		// JSON.stringify würde beim naechsten Patch werfen und die Pipeline killen.
+		it( 'survives a second patch of a nested treeselect list', () => {
+			respondWith( { tags: { list: [ { id: 10, name: 'Gruppe', children: [ { id: 11, name: 'Beta' } ] } ] } } );
+			setFields( [ statusField(), tagsField( { type: 'multiselect', value: [] } ) ] );
+
+			respondWith( { tags: { list: [ { id: 20, name: 'Andere', children: [ { id: 21, name: 'Gamma' } ] } ] } } );
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			vi.advanceTimersByTime( 250 );
+
+			expect( host.fields()![ 1 ].list?.map( o => o.id ) ).toEqual( [ 20 ] );
+		} );
+
+		// Ein neues Formular muss seinen Initial-Reload bekommen, auch wenn die Trigger zufaellig
+		// dieselben Werte tragen — Felder, Abhaengigkeiten und URL koennen komplett andere sein.
+		it( 'reloads a replaced form even when the trigger values are identical', () => {
+			setFields( [ statusField( 1 ), tagsField() ] );
+			httpStub.post.mockClear();
+
+			setFields( [ statusField( 1 ), tagsField( { id: 'other' } ) ] );
+
+			expect( httpStub.post ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		// Ein Patch an einem Feld darf die Render-Identitaet der anderen nicht anfassen, sonst
+		// laeuft deren Kind-Input-Setter erneut (Treeselect: kompletter Neuaufbau).
+		it( 'keeps the render identity of fields that this patch did not touch', () => {
+			httpStub.post.mockImplementation( ( _url: string, payload: { status: number } ) =>
+				of( payload.status === 1
+				    ? { fields: { tags: { hint: 'erster' } } }
+				    : { fields: { groups: { hint: 'zweiter' } } } ) );
+
+			setFields( [ statusField( 1 ), tagsField(), tagsField( { id: 'groups' } ) ] );
+			const tagsAfterFirstPatch = component.displayFields()![ 1 ];
+
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			vi.advanceTimersByTime( 250 );
+
+			expect( host.fields()![ 2 ].hint ).toBe( 'zweiter' );
+			expect( component.displayFields()![ 1 ] ).toBe( tagsAfterFirstPatch );
+		} );
+
+		it( 'sends each url only the trigger values its own fields depend on', () => {
+			setFields( [
+				statusField(),
+				{ id: 'secret', type: 'text', value: 'geheim' },
+				tagsField(),
+				tagsField( { id: 'groups', reloadUrl: '/Thing/OtherReload', reloadOn: [ 'secret' ] } ),
+			] );
+
+			const byUrl = Object.fromEntries(
+				httpStub.post.mock.calls.map( ( c: unknown[] ) => [ c[ 0 ] as string, c[ 1 ] ] ) );
+
+			expect( byUrl[ '/api/' + RELOAD_URL ] ).toEqual( { status: 1 } );
+			expect( byUrl[ '/api//Thing/OtherReload' ] ).toEqual( { secret: 'geheim' } );
+		} );
+
+		it( 'rejects an option list with malformed children', () => {
+			respondWith( { tags: { list: [ { id: 10, name: 'A', children: { length: 1 } } ] } } );
+			setFields( [ statusField(), tagsField( { value: [ 10 ] } ) ] );
+
+			expect( host.fields()![ 1 ].list ).toEqual( [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ] );
+			expect( component.formGroup.get( 'tags' )!.value ).toEqual( [ 10 ] );
+		} );
+
+		it( 'clears a hint when the server sends null', () => {
+			respondWith( { tags: { hint: null } } );
+			setFields( [ statusField(), tagsField( { hint: 'alt' } ) ] );
+
+			expect( host.fields()![ 1 ].hint ).toBeFalsy();
 		} );
 
 		// Der eigentliche Beweis für den Klon-Mechanismus: ein Treeselect liest seine Daten im

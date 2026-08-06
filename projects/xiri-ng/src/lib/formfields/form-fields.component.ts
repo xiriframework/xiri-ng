@@ -25,7 +25,7 @@ import {
 } from '@angular/forms';
 import { XiriFormField, XiriFormFieldCondition, XiriFormFieldSelectOption } from './field.interface';
 import { colsToClasses } from '../layout/cols.directive';
-import { catchError, debounceTime, distinctUntilChanged, EMPTY, map, merge, Observable, Subject, switchMap } from "rxjs";
+import { catchError, distinctUntilChanged, EMPTY, filter, map, merge, Observable, Subject, switchMap, timer } from "rxjs";
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { parseHttpError } from '../services/error.util';
@@ -122,10 +122,16 @@ export class XiriFormFieldsComponent implements OnInit {
 	private _initialEmitDone = false;
 	private _autoFocusDone = false;
 
-	// IDs der zuletzt gepatchten Felder. Nur diese werden in displayFields() geklont, damit die
-	// Kind-Komponenten eine neue Input-Identität sehen - ein Klon aller Felder würde z.B. jeden
-	// Treeselect im Formular unnötig neu aufbauen lassen.
-	private patchedIds = signal<Set<string>>( new Set() );
+	// Render-Kopien der gepatchten Felder, siehe displayFields(). Das Signal daneben stößt nur die
+	// Neuberechnung an; die Identitäten selbst leben in der Map, damit sie stabil bleiben.
+	private patchedClones = new Map<string, XiriFormField>();
+	private patchVersion = signal( 0 );
+	// Zuletzt angewendeter Patch pro Feld - Rohdaten vom Server, also frei von den Referenzen,
+	// die z.B. der Treeselect nachträglich in die Optionsliste hängt.
+	private lastPatch = new Map<string, Record<string, unknown>>();
+	// Zählt jeden Aufbau einer neuen Feldliste, damit der Initial-Reload auch dann feuert, wenn
+	// das neue Formular zufällig dieselben Trigger-Werte trägt wie das alte.
+	private formGeneration = 0;
 	// Startet den Reload einmalig nach dem Aufbau der Controls.
 	private reloadKick = new Subject<void>();
 	// Unterdrückt den formChange-Emit der valueChanges-Subscription, während ein Patch angewendet
@@ -204,12 +210,16 @@ export class XiriFormFieldsComponent implements OnInit {
 	// Gepatchte Felder werden als Kopie gerendert, damit Kind-Komponenten mit eigenem State
 	// (treeselect, chips, die Select-Directive) ihre Inputs neu auswerten. Die Originale bleiben
 	// die Quelle der Wahrheit - sie tragen field.control und werden von xiri-query mitgelesen.
+	//
+	// Die Kopie wird gecacht: die Identität eines Felds darf sich nur ändern, wenn genau dieses
+	// Feld erneut gepatcht wurde. Würde hier bei jedem Patch neu geklont, liefe der Input-Setter
+	// aller je gepatchten Felder erneut - beim Treeselect wäre das ein kompletter Neuaufbau.
 	displayFields = computed( () => {
 		const fields = this.fields();
-		const patched = this.patchedIds();
-		if ( fields === null || patched.size === 0 )
+		this.patchVersion();
+		if ( fields === null || this.patchedClones.size === 0 )
 			return fields;
-		return fields.map( f => patched.has( f.id ) ? { ...f } : f );
+		return fields.map( f => this.patchedClones.get( f.id ) ?? f );
 	} );
 	
 	ngOnInit(): void {
@@ -228,14 +238,20 @@ export class XiriFormFieldsComponent implements OnInit {
 			}
 		} );
 
-		// Ein Trigger-Wechsel lädt die abhängigen Felder nach. switchMap, damit bei schneller
-		// Folge nur die Antwort zum letzten Stand ankommt; distinctUntilChanged, damit eine
-		// Änderung an einem Feld, von dem niemand abhängt, keinen Request auslöst.
+		// Ein Trigger-Wechsel lädt die abhängigen Felder nach.
+		//
+		// Der Snapshot wird ungefiltert gebildet und erst danach entprellt: das äußere switchMap
+		// bricht damit einen noch laufenden Request sofort ab, sobald sich der Stand ändert. Läge
+		// debounceTime davor, bliebe die Anfrage zum überholten Stand noch 200 ms aktiv und könnte
+		// in diesem Fenster antworten - ihr Patch würde dann Werte verwerfen, die für den neuen
+		// Stand gültig sind, und kein späterer Patch stellt sie wieder her.
 		merge( this.reloadKick, this.formGroup.valueChanges ).pipe(
-			debounceTime( 200 ),
-			map( () => JSON.stringify( this.triggerValues() ) ),
+			// Während des Control-Aufbaus feuert valueChanges für jedes entfernte und neue Control;
+			// diese Zwischenstände sind kein Trigger-Wechsel. Der Kick danach übernimmt.
+			filter( () => this._fieldsLoaded ),
+			map( () => JSON.stringify( { g: this.formGeneration, v: this.triggerValues() } ) ),
 			distinctUntilChanged(),
-			switchMap( () => this.fetchPatches() ),
+			switchMap( () => timer( 200 ).pipe( switchMap( () => this.fetchPatches() ) ) ),
 			takeUntilDestroyed( this.destroyRef ),
 		).subscribe( patch => this.applyPatch( patch.url, patch.fields ) );
 	}
@@ -247,8 +263,11 @@ export class XiriFormFieldsComponent implements OnInit {
 
 	// Nur die Trigger-Werte gehen an den Server, nicht das ganze Formular: ein Options-Endpoint
 	// braucht keine Passwörter. Alles Weitere gehört in die reloadUrl.
-	private triggerValues(): Record<string, unknown> | null {
-		const dependent = this.dependentFields();
+	//
+	// Ohne URL sind es alle Trigger (für den Änderungsvergleich), mit URL nur die, von denen die
+	// Felder genau dieser URL abhängen - jeder Endpoint sieht also nur seine eigenen Werte.
+	private triggerValues( url?: string ): Record<string, unknown> | null {
+		const dependent = this.dependentFields().filter( f => url === undefined || f.reloadUrl === url );
 		if ( dependent.length === 0 )
 			return null;
 
@@ -264,16 +283,14 @@ export class XiriFormFieldsComponent implements OnInit {
 
 	private fetchPatches(): Observable<{ url: string, fields: Record<string, unknown> }> {
 
-		const payload = this.triggerValues();
-		if ( payload === null )
-			return EMPTY;
-
 		const urls = new Set( this.dependentFields().map( f => f.reloadUrl as string ) );
+		if ( urls.size === 0 )
+			return EMPTY;
 
 		// Ein Request pro URL, jeder für sich: schlägt einer fehl, werden die Patches der
 		// anderen trotzdem angewendet.
 		return merge( ...Array.from( urls ).map( url =>
-			this.dataService.post( url, payload ).pipe(
+			this.dataService.post( url, this.triggerValues( url ) ?? {} ).pipe(
 				map( res => ( { url, fields: ( res as { fields?: Record<string, unknown> } )?.fields ?? {} } ) ),
 				catchError( err => {
 					this.snackbar.error( parseHttpError( err ) );
@@ -303,10 +320,13 @@ export class XiriFormFieldsComponent implements OnInit {
 				if ( entry === null || typeof entry !== 'object' )
 					continue;
 
-				const applied = applyPatchProperties( field, entry as Record<string, unknown> );
+				const applied = applyPatchProperties( field, entry as Record<string, unknown>,
+				                                      this.lastPatch.get( field.id ) );
+				this.lastPatch.set( field.id, entry as Record<string, unknown> );
 				if ( applied.length === 0 )
 					continue;
 				patchedNow.add( field.id );
+				this.patchedClones.set( field.id, { ...field } );
 
 				const control = field.control;
 				if ( !control )
@@ -337,7 +357,9 @@ export class XiriFormFieldsComponent implements OnInit {
 		if ( patchedNow.size === 0 )
 			return;
 
-		this.patchedIds.set( patchedNow );
+		// Nur anstoßen: die Klon-Identitäten selbst liegen in patchedClones und bleiben für alle
+		// Felder stabil, die dieser Patch nicht angefasst hat.
+		this.patchVersion.update( v => v + 1 );
 		this.lastValue = JSON.stringify( this.formGroup.value );
 		this.formChange.emit( this.formGroup );
 	}
@@ -384,6 +406,11 @@ export class XiriFormFieldsComponent implements OnInit {
 		}
 		
 		this._fields = fields;
+
+		// Neue Feldliste: alte Render-Kopien und Patch-Stände gehören zum vorherigen Formular.
+		this.formGeneration++;
+		this.patchedClones.clear();
+		this.lastPatch.clear();
 
 		const initialCollapsed = new Set<string>();
 		for ( const f of fields ) {
@@ -772,7 +799,8 @@ export class XiriFormFieldsComponent implements OnInit {
 const PATCH_GUARDS: Record<string, ( value: unknown ) => boolean> = {
 	list:     isOptionList,
 	name:     isString,
-	hint:     isString,
+	// Go exportiert einen leeren Hint als null - sonst liesse er sich nie wieder abräumen.
+	hint:     isStringOrNull,
 	class:    isString,
 	required: isBoolean,
 	disabled: isBoolean,
@@ -787,6 +815,10 @@ function isString( value: unknown ): boolean {
 	return typeof value === 'string';
 }
 
+function isStringOrNull( value: unknown ): boolean {
+	return value === null || typeof value === 'string';
+}
+
 function isBoolean( value: unknown ): boolean {
 	return typeof value === 'boolean';
 }
@@ -799,15 +831,32 @@ function isPlainObject( value: unknown ): boolean {
 	return typeof value === 'object' && value !== null && !Array.isArray( value );
 }
 
+// Rekursiv, inklusive children: eine Option mit einem children-Feld, das kein Array ist, würde
+// sonst erst später beim Sammeln der IDs oder beim Aufbau des Baums knallen.
 function isOptionList( value: unknown ): boolean {
-	return Array.isArray( value ) && value.every( o => isPlainObject( o ) && 'id' in ( o as object ) );
+	return Array.isArray( value ) && value.every( isOption );
+}
+
+function isOption( value: unknown ): boolean {
+	if ( !isPlainObject( value ) )
+		return false;
+	const option = value as { id?: unknown, children?: unknown };
+	if ( typeof option.id !== 'string' && typeof option.id !== 'number' )
+		return false;
+	return option.children === undefined || option.children === null || isOptionList( option.children );
 }
 
 // Schreibt die erlaubten Properties ins Feld und meldet, welche davon wirklich etwas geändert
 // haben. Ein Reload liefert oft dasselbe zurück - z.B. weil ein anderer Trigger sich geändert
 // hat. Unveränderte Properties zu überspringen erspart den Klon (der einen Treeselect neu
 // aufbauen und bei gesetzter url erneut laden würde), den Validator-Neubau und den formChange.
-function applyPatchProperties( field: XiriFormField, entry: Record<string, unknown> ): string[] {
+//
+// Verglichen wird bevorzugt mit dem zuletzt angewendeten Patch, nicht mit dem Feld: der
+// Treeselect hängt beim Aufbau parent-Referenzen und state an die Optionsknoten, wodurch die
+// Liste am Feld verschachtelt zyklisch wird und ohnehin nie mehr gleich aussieht.
+function applyPatchProperties( field: XiriFormField,
+                               entry: Record<string, unknown>,
+                               previous: Record<string, unknown> | undefined ): string[] {
 
 	const applied: string[] = [];
 	const target = field as unknown as Record<string, unknown>;
@@ -818,9 +867,10 @@ function applyPatchProperties( field: XiriFormField, entry: Record<string, unkno
 		const value = entry[ key ];
 		if ( !PATCH_GUARDS[ key ]( value ) )
 			continue;
-		if ( sameValue( target[ key ], value ) )
+		const before = previous && key in previous ? previous[ key ] : target[ key ];
+		if ( sameValue( before, value ) )
 			continue;
-		target[ key ] = value;
+		target[ key ] = value === null ? undefined : value;
 		applied.push( key );
 	}
 
@@ -832,7 +882,12 @@ function sameValue( a: unknown, b: unknown ): boolean {
 		return true;
 	if ( typeof a !== 'object' || typeof b !== 'object' || a === null || b === null )
 		return false;
-	return JSON.stringify( a ) === JSON.stringify( b );
+	try {
+		return JSON.stringify( a ) === JSON.stringify( b );
+	} catch {
+		// Zyklisch (siehe oben) - dann lieber anwenden als fälschlich überspringen.
+		return false;
+	}
 }
 
 // Option-IDs inklusive verschachtelter children - eine flache Sammlung würde jede ausgewählte
