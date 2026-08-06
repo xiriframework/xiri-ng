@@ -25,6 +25,20 @@ if [[ ! -f projects/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
   exit 1
 fi
 
+# CHANGELOG-Prüfung vor dem Bump, aus demselben Grund wie die Tests: ein Abbruch soll keinen
+# Versions-Commit hinterlassen. Gedreht wird der Abschnitt erst weiter unten, wenn bei einem
+# Keyword-Bump die Nummer feststeht.
+if ! grep -q '^## \[Unreleased\]' CHANGELOG.md; then
+  echo "Error: '## [Unreleased]' not found in CHANGELOG.md — refuse to release."
+  exit 1
+fi
+
+# Leerer Abschnitt heisst: für dieses Release ist nichts dokumentiert.
+if [[ -z "$(awk '/^## \[Unreleased\]/{f=1;next} /^## \[/{f=0} f' CHANGELOG.md | tr -d '[:space:]')" ]]; then
+  echo "Error: '## [Unreleased]' in CHANGELOG.md is empty — nothing documented for this release."
+  exit 1
+fi
+
 # Tests vor dem Bump, damit ein Fehlschlag keinen Versions-Commit hinterlässt.
 # typecheck zusätzlich zu test: `ng test` läuft über esbuild und prüft keine Typen, ein
 # Spec, der einen Typvertrag festnagelt (z. B. string-IDs via writeValue), fällt sonst durch.
@@ -37,6 +51,14 @@ VERSION="v$(node -p "require('./projects/xiri-ng/package.json').version")"
 
 echo "Releasing $VERSION..."
 
+# [Unreleased] in einen Versionsabschnitt drehen und ein leeres [Unreleased] darüber stehen
+# lassen. Ohne das sammeln sich die Einträge mehrerer Releases dort an -- genau so gingen die
+# Abschnitte für 0.4.2 und 0.4.3 unter.
+awk -v ver="${VERSION#v}" -v date="$(date +%F)" '
+  /^## \[Unreleased\]$/ && !done { print; print ""; print "## [" ver "] - " date; done = 1; next }
+  { print }
+' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+
 # Build library
 npm run build
 
@@ -47,7 +69,7 @@ if [[ ! -f dist/xiri-ng/skills/xiri-ng-expert/SKILL.md ]]; then
 fi
 
 # Commit, tag, push
-git add projects/xiri-ng/package.json
+git add projects/xiri-ng/package.json CHANGELOG.md
 git commit -m "Bump version to $VERSION"
 git tag -a "$VERSION" -m "$VERSION"
 git push --follow-tags
