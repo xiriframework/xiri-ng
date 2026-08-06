@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-08-06
+
 ### Added
 
 - **Dependent fields show a progress bar while they reload.** Between a trigger change and the
@@ -21,36 +23,6 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `formGroup.value`, which is exactly what `xiri-query` and `xiri-form` read from the `formChange`
   event — a filter saved during the reload window would be missing that field. The bar is absolutely
   positioned, so showing and hiding it does not shift the fields.
-
-- **Query: the collapsed filter panel remembers what the user left open.** `collapsed` set the panel
-  state on every load, so a filter opened by hand snapped shut again on the next navigation. The panel
-  state is now stored per `saveStateId` (key `<saveStateId>:collapsed`, session storage, same 1 h
-  lifetime as the saved filter values) and wins over the value from the backend. Without a
-  `saveStateId` nothing is stored and `collapsed` behaves exactly as before; an absent `collapsed`
-  still means no panel at all.
-
-- **Dependent fields: reload a field's content from the server (`reloadOn`/`reloadUrl`).** Until now
-  `showWhen` could only show or hide a field based on another value — its **content** was fixed once
-  the form had rendered. A field can now declare `reloadOn: ['status']` plus a `reloadUrl`: whenever
-  one of those values changes, the form posts the trigger values to that endpoint and merges the
-  returned `{fields: {id: {...}}}` patch. The case this exists for is a select set to "active" and a
-  multiselect that must then only offer the entries valid for "active" — a list only the server knows.
-
-  Only the trigger values are sent, not the whole form: an options endpoint has no business receiving
-  a password field. Requests are debounced by 200 ms, one per distinct URL, and run through
-  `switchMap` so only the newest answer is applied; a failing URL does not suppress the patches of
-  the others. Values survive the patch where the new list still offers them (recursively, so a
-  treeselect keeps its selected leaves) and are dropped otherwise — except for `chips` and
-  server-search selects, whose lists are suggestions rather than a constraint. The patch itself is
-  restricted to a typed whitelist, so a malformed response cannot corrupt validators or pruning.
-
-  One reload always runs right after the controls are built. This is required rather than cosmetic:
-  `xiri-query` restores saved filter values through `formService.loadState()` *before* the controls
-  exist, so the option list shipped with the first render can already be stale.
-
-  Requires a `xiri-go` version that emits `reloadOn`. Both directions stay backward compatible — an
-  older backend simply never sends the keys, and a form without `reloadOn` behaves exactly as before.
-  Filters inherit the behaviour, since `xiri-query` renders the same `xiri-form-fields` component.
 
 ### Fixed
 
@@ -85,17 +57,72 @@ versioning follows [Semantic Versioning](https://semver.org/).
   selection lets a stale read write back. `volume` re-checks in its deferred callback: it schedules
   `onChange` through a timer, and the lock can land in between.
 
+  Unchanged on purpose: a `disabled: true` sent by the backend still does not disable the outer
+  control when the form is built, so such a field stays in `formGroup.value`; arriving later
+  through a reload patch, it does. And for text, number, textarea, select, multiselect and bool,
+  backend `disabled` still has no effect at all, because the form template does not evaluate
+  `field.disabled`.
+
 - **A chips field crashed when its form was rebuilt.** `writeValue()` writes a signal, and Angular
   calls it from `setUpControlValueAccessor` — i.e. during template evaluation, where a signal write
   throws NG0600. Rebuilding a form that contained a chips field with the same field id therefore
   aborted change detection. The write is now `untracked`, matching what Angular's own
   `FormControl.setValue` does at the same spot.
 
-  Unchanged on purpose: a `disabled: true` sent by the backend still does not disable the outer
-  control when the form is built, so such a field stays in `formGroup.value`; arriving later
-  through a reload patch, it does. And for text, number, textarea, select, multiselect and bool,
-  backend `disabled` still has no effect at all, because the form template does not evaluate
-  `field.disabled`.
+### Changed
+
+- **Dependencies bumped inside the existing ranges.** Angular 22.0.7 → 22.1.0, CLI and build →
+  22.1.3, Material 22.0.5 → 22.1.1, via `npm update` — `package.json` itself is untouched. That
+  clears four high findings in the build toolchain (`undici`, `fast-uri`, `ip-address`, and the
+  `esbuild` nesting under `vite`); `npm audit` drops from 11 to 3. The remainder is a single chain
+  (`@angular/cli` → `@modelcontextprotocol/sdk` → `@hono/node-server`) with no fix in 22.x. None of
+  the findings ever reached the published package — its only dependency is `tslib`, everything else
+  is a peer dependency.
+
+### Documentation
+
+- **The shipped `xiri-ng-expert` skill claimed two limitations that this release removes.**
+  `references/form-fields.md` stated that `treeselect` and `chips` cannot show themselves as
+  disabled, and that there is no loading state during a reload. Both now describe the actual
+  behaviour, including why the reload shows a bar rather than locking the fields. The same file now
+  documents what `field.disabled` actually does — it was listed in the interface without a word,
+  while it has no effect at all on `text`, `number`, `textarea`, `select`, `multiselect` and `bool`.
+
+## [0.4.3] - 2026-08-06
+
+### Added
+
+- **Query: the collapsed filter panel remembers what the user left open.** `collapsed` set the panel
+  state on every load, so a filter opened by hand snapped shut again on the next navigation. The panel
+  state is now stored per `saveStateId` (key `<saveStateId>:collapsed`, session storage, same 1 h
+  lifetime as the saved filter values) and wins over the value from the backend. Without a
+  `saveStateId` nothing is stored and `collapsed` behaves exactly as before; an absent `collapsed`
+  still means no panel at all.
+
+- **Dependent fields: reload a field's content from the server (`reloadOn`/`reloadUrl`).** Until now
+  `showWhen` could only show or hide a field based on another value — its **content** was fixed once
+  the form had rendered. A field can now declare `reloadOn: ['status']` plus a `reloadUrl`: whenever
+  one of those values changes, the form posts the trigger values to that endpoint and merges the
+  returned `{fields: {id: {...}}}` patch. The case this exists for is a select set to "active" and a
+  multiselect that must then only offer the entries valid for "active" — a list only the server knows.
+
+  Only the trigger values are sent, not the whole form: an options endpoint has no business receiving
+  a password field. Requests are debounced by 200 ms, one per distinct URL, and run through
+  `switchMap` so only the newest answer is applied; a failing URL does not suppress the patches of
+  the others. Values survive the patch where the new list still offers them (recursively, so a
+  treeselect keeps its selected leaves) and are dropped otherwise — except for `chips` and
+  server-search selects, whose lists are suggestions rather than a constraint. The patch itself is
+  restricted to a typed whitelist, so a malformed response cannot corrupt validators or pruning.
+
+  One reload always runs right after the controls are built. This is required rather than cosmetic:
+  `xiri-query` restores saved filter values through `formService.loadState()` *before* the controls
+  exist, so the option list shipped with the first render can already be stale.
+
+  Requires a `xiri-go` version that emits `reloadOn`. Both directions stay backward compatible — an
+  older backend simply never sends the keys, and a form without `reloadOn` behaves exactly as before.
+  Filters inherit the behaviour, since `xiri-query` renders the same `xiri-form-fields` component.
+
+### Fixed
 
 - **A treeselect kept its old selection when its options were replaced.** `ngAfterViewInit` re-applied
   the current value by calling `treeItemSelectionToggle()` for each id, but never cleared the
@@ -124,6 +151,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `provideXiriServices()`, so an application that forgot the call crashed with a NullInjector error
   instead of falling back to the documented `/api/` base. It is now `providedIn: 'root'`;
   `provideXiriServices()` still overrides it.
+
+## [0.4.2] - 2026-08-04
+
+### Fixed
 
 - **Client-side sorting of `chips` columns sorted by chip count.** The cell value of a `chips` column
   is an `Array<{label, color}>`; `sortingDataAccessor` only special-cased `format: 'number'` and
