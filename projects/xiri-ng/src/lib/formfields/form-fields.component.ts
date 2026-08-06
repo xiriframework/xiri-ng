@@ -893,7 +893,7 @@ function sameValue( a: unknown, b: unknown ): boolean {
 // Option-IDs inklusive verschachtelter children - eine flache Sammlung würde jede ausgewählte
 // Leaf-ID eines Treeselects verwerfen.
 function collectOptionIds( list: XiriFormFieldSelectOption[],
-                           into: Set<string | number> = new Set() ): Set<string | number> {
+                           into = new Set<string | number>() ): Set<string | number> {
 	for ( const option of list ) {
 		into.add( option.id );
 		if ( option.children?.length )
