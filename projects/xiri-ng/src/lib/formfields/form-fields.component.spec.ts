@@ -7,6 +7,7 @@ import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriDateComponent } from './date/date.component';
 import { XiriVolumeComponent } from './volume/volume.component';
 import { XiriChipsComponent } from './chips/chips.component';
+import { XiriFileComponent } from './file/file.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
 import { UntypedFormGroup } from '@angular/forms';
 import { XiriDataServiceConfig } from '../services/data.service';
@@ -939,7 +940,10 @@ describe( 'XiriFormFieldsComponent', () => {
 					component.formGroup.get( 'f' )!.enable();
 					fixture.detectChanges();
 
-					expect( elements( c.selector ).some( e => e.disabled ) ).toBe( false );
+					// length prüfen, sonst bestünde der Test auch bei leerer Treffermenge.
+					const after = elements( c.selector );
+					expect( after.length ).toBeGreaterThan( 0 );
+					expect( after.some( e => e.disabled ) ).toBe( false );
 				} );
 			}
 
@@ -954,7 +958,9 @@ describe( 'XiriFormFieldsComponent', () => {
 					] );
 					fixture.detectChanges();
 
-					expect( elements( c.selector ).every( e => e.disabled ) ).toBe( true );
+					const found = elements( c.selector );
+					expect( found.length ).toBeGreaterThan( 0 );
+					expect( found.every( e => e.disabled ) ).toBe( true );
 				} );
 
 				// doCheckLogic() schrieb bei einem Wechsel der äußeren Control-Instanz direkt auf
@@ -968,7 +974,9 @@ describe( 'XiriFormFieldsComponent', () => {
 					host.fields.set( [ field() ] );
 					fixture.detectChanges();
 
-					expect( elements( c.selector ).every( e => e.disabled ) ).toBe( true );
+					const found = elements( c.selector );
+					expect( found.length ).toBeGreaterThan( 0 );
+					expect( found.every( e => e.disabled ) ).toBe( true );
 				} );
 			}
 
@@ -1089,6 +1097,68 @@ describe( 'XiriFormFieldsComponent', () => {
 					formField.click();
 
 					expect( clicks ).toBe( 0 );
+				} );
+
+				// Ein bereits offener Dateidialog kann nach dem Sperren noch ein change liefern.
+				it( 'file.fileChange() übernimmt im gesperrten Zustand nichts', () => {
+					host.fields.set( [ { id: 'f', type: 'file' } as XiriFormField ] );
+					fixture.detectChanges();
+
+					const child = fixture.debugElement.query( By.directive( XiriFileComponent ) )
+					                     .componentInstance as XiriFileComponent;
+					component.formGroup.get( 'f' )!.disable();
+					fixture.detectChanges();
+
+					const file = new File( [ 'x' ], 'a.txt', { type: 'text/plain' } );
+					child.fileChange( {
+						currentTarget: { files: { length: 1, item: () => file } },
+					} as never );
+
+					expect( child.currentFiles ).toEqual( [] );
+					expect( child.parts.get( 'text' )!.value ).toBeNull();
+				} );
+
+				// Der Guard im volume-Timer darf _lastValue nicht mitziehen: sonst merkt sich das
+				// Feld einen Wert, den das äußere Control nie bekommen hat, und gleicht nach dem
+				// Freigeben nie wieder ab.
+				it( 'volume gleicht nach disable/enable wieder ab', () => {
+					vi.useFakeTimers();
+					try {
+						host.fields.set( [ { id: 'f', type: 'volume', value: null } as XiriFormField ] );
+						fixture.detectChanges();
+
+						const child = fixture.debugElement.query( By.directive( XiriVolumeComponent ) )
+						                     .componentInstance as XiriVolumeComponent;
+						const control = component.formGroup.get( 'f' )!;
+
+						child.parts.setValue( { voll: 1, volw: 2, volh: 3 } );
+						control.disable();
+						vi.advanceTimersByTime( 50 );
+
+						control.enable();
+						fixture.detectChanges();
+						vi.advanceTimersByTime( 50 );
+
+						expect( control.value ).toEqual( [ 1, 2, 3 ] );
+					} finally {
+						vi.useRealTimers();
+					}
+				} );
+
+				// [field] und [disabled] sind beide deklarativ, aber getrennte Quellen: Angular ruft
+				// den unveränderten zweiten Input nicht erneut auf, ein gemeinsames Flag würde also
+				// je nach Setter-Reihenfolge das andere aufheben.
+				it( 'hebt ein gesetztes [disabled] nicht auf, wenn field.disabled false wird', () => {
+					host.fields.set( [ { id: 'f', type: 'date', value: null, disabled: true } as XiriFormField ] );
+					fixture.detectChanges();
+
+					const child = fixture.debugElement.query( By.directive( XiriDateComponent ) )
+					                     .componentInstance as XiriDateComponent;
+					child.disabled = true;
+					host.fields.set( [ { id: 'f', type: 'date', value: null, disabled: false } as XiriFormField ] );
+					fixture.detectChanges();
+
+					expect( child.disabled ).toBe( true );
 				} );
 			} );
 		} );

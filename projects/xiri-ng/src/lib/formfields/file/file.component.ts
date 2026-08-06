@@ -84,7 +84,10 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	// Zwei Sperrquellen, getrennt gehalten und verodert: Angular ruft beim Control-Setup
 	// setDisabledState(false) -- callSetDisabledState ist per Default 'always' -- und zwar nach
 	// dem field-Input. Schlüge das direkt durch, höbe es ein Backend-disabled wieder auf.
+	// Getrennt, obwohl beide deklarativ sind: sind [field] und [disabled] gleichzeitig gebunden,
+	// ruft Angular den unveraenderten zweiten Input nicht erneut auf.
 	private fieldDisabled = false;
+	private inputDisabled = false;
 	private controlDisabled = false;
 
 	get disabled(): boolean {
@@ -94,7 +97,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	// Der oeffentliche Input ist dieselbe Quelle wie field.disabled: eine deklarative Sperre, die
 	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf.
 	set disabled( value: boolean ) {
-		this.fieldDisabled = value;
+		this.inputDisabled = value;
 		this.applyDisabled();
 	}
 
@@ -104,7 +107,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	private readGeneration = 0;
 
 	private applyDisabled(): void {
-		const value = this.fieldDisabled || this.controlDisabled;
+		const value = this.fieldDisabled || this.inputDisabled || this.controlDisabled;
 		this._disabled = value;
 		if ( value )
 			this.readGeneration++;
@@ -233,18 +236,22 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		if ( this.disabled )
 			return;
 
+		// Der FileReader antwortet asynchron. Wird das Feld waehrend des Lesens gesperrt oder eine
+		// neue Auswahl getroffen, darf der Callback nichts mehr schreiben -- und ein disable/enable
+		// dazwischen darf ihn auch nicht wieder gueltig machen. Deshalb eine Generation statt
+		// eines blossen Guards.
+		//
+		// Direkt hier hochzaehlen, vor jedem Abbruch: auch eine verworfene Auswahl (zu viele
+		// Dateien) muss eine noch laufende vorherige entwerten, sonst schreibt deren Reader in
+		// einen Stand, den der Nutzer gerade ersetzen wollte.
+		const generation = ++this.readGeneration;
+
 		const element = event.currentTarget as HTMLInputElement;
 		const fileList: FileList | null = element.files;
 
 		if ( fileList === null || fileList.length === 0 || fileList.length > 100 )
 			return;
 
-		// Der FileReader antwortet asynchron. Wird das Feld waehrend des Lesens gesperrt oder eine
-		// neue Datei gewaehlt, darf der Callback nichts mehr schreiben -- und ein disable/enable
-		// dazwischen darf ihn auch nicht wieder gueltig machen. Deshalb eine Generation statt
-		// eines blossen Guards.
-		const generation = ++this.readGeneration;
-		
 		const fieldFiles = this.parts.get( 'files' );
 		const fieldText = this.parts.get( 'text' );
 		const files = [];

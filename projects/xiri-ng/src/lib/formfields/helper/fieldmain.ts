@@ -181,7 +181,7 @@ export abstract class XiriFieldMain<T = unknown>
 	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf. Er schreibt deshalb
 	// fieldDisabled und nicht den effektiven Zustand.
 	set disabled( value: boolean ) {
-		this.fieldDisabled = value;
+		this.inputDisabled = value;
 		this.applyDisabled();
 	}
 
@@ -200,11 +200,15 @@ export abstract class XiriFieldMain<T = unknown>
 	// controlDisabled ist dabei nicht "die programmatische Quelle": XiriFormFieldsComponent
 	// schreibt Backend-Zustand über applyPatch() und den globalen disabled-Effect ebenfalls auf
 	// das äussere Control. Auf der Control-Seite gilt last writer wins, wie bisher auch.
+	// Getrennt, obwohl beide deklarativ sind: sind [field] und [disabled] gleichzeitig gebunden,
+	// ruft Angular den unveraenderten zweiten Input nicht erneut auf. Mit einem gemeinsamen Flag
+	// hoebe der zuletzt laufende Setter den anderen auf.
 	protected fieldDisabled = false;
+	private inputDisabled = false;
 	private controlDisabled = false;
 
 	protected applyDisabled(): void {
-		const value = this.fieldDisabled || this.controlDisabled;
+		const value = this.fieldDisabled || this.inputDisabled || this.controlDisabled;
 
 		// untracked, weil Angular setDisabledState() aus setUpControlValueAccessor heraus ruft --
 		// also waehrend der Template-Auswertung, wo ein Signal-Write sonst NG0600 wirft. Angulars

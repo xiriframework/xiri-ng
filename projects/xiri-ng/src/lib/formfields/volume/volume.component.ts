@@ -78,7 +78,10 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	// Zwei Sperrquellen, getrennt gehalten und verodert: Angular ruft beim Control-Setup
 	// setDisabledState(false) -- callSetDisabledState ist per Default 'always' -- und zwar nach
 	// dem field-Input. Schlüge das direkt durch, höbe es ein Backend-disabled wieder auf.
+	// Getrennt, obwohl beide deklarativ sind: sind [field] und [disabled] gleichzeitig gebunden,
+	// ruft Angular den unveraenderten zweiten Input nicht erneut auf.
 	private fieldDisabled = false;
+	private inputDisabled = false;
 	private controlDisabled = false;
 
 	get disabled(): boolean {
@@ -88,12 +91,12 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	// Der oeffentliche Input ist dieselbe Quelle wie field.disabled: eine deklarative Sperre, die
 	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf.
 	set disabled( value: boolean ) {
-		this.fieldDisabled = value;
+		this.inputDisabled = value;
 		this.applyDisabled();
 	}
 
 	private applyDisabled(): void {
-		const value = this.fieldDisabled || this.controlDisabled;
+		const value = this.fieldDisabled || this.inputDisabled || this.controlDisabled;
 		this._disabled = value;
 		if ( value )
 			this.parts.disable( { emitEvent: false } );
@@ -214,16 +217,21 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 
 	private changeValue( val: VolumeValue ) {
 
-		this._lastValue = val ?? null;
 		if ( this.changeTO )
 			clearTimeout( this.changeTO );
-		
+
 		this.changeTO = setTimeout( () => {
 			// Erneut pruefen: zwischen Planung und Callback kann control.disable() gelaufen sein.
 			// Ein gesperrtes Feld schreibt nichts nach aussen.
+			//
+			// _lastValue wird erst hier gesetzt, nicht schon beim Planen. Sonst merkte sich das
+			// Feld einen Wert, den das aeussere Control nie bekommen hat: nach einem spaeteren
+			// enable() ruft Angular nur setDisabledState(false) und kein writeValue(), runCheck()
+			// saehe value === _lastValue und gliche nie wieder ab.
 			if ( this.disabled )
 				return;
 
+			this._lastValue = val ?? null;
 			this.onChange( val );
 			this.stateChanges.next();
 			this.cdr.markForCheck();
