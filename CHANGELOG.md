@@ -7,8 +7,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.4.4] - 2026-08-06
-
+## [0.4.4]
 ### Added
 
 - **Dependent fields show a progress bar while they reload.** Between a trigger change and the
@@ -88,8 +87,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
   documents what `field.disabled` actually does — it was listed in the interface without a word,
   while it has no effect at all on `text`, `number`, `textarea`, `select`, `multiselect` and `bool`.
 
-## [0.4.3] - 2026-08-06
-
+## [0.4.3]
 ### Added
 
 - **Query: the collapsed filter panel remembers what the user left open.** `collapsed` set the panel
@@ -152,8 +150,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
   instead of falling back to the documented `/api/` base. It is now `providedIn: 'root'`;
   `provideXiriServices()` still overrides it.
 
-## [0.4.2] - 2026-08-04
-
+## [0.4.2]
 ### Fixed
 
 - **Client-side sorting of `chips` columns sorted by chip count.** The cell value of a `chips` column
@@ -174,8 +171,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - Chips columns now document their sorting behaviour (xiri-go default `sort: false`, client-side
   sorting by the first chip's label).
 
-## [0.4.1] - 2026-08-01
-
+## [0.4.1]
 Two visible behaviour changes despite the patch bump: dark mode is slightly darker in five derived
 values (see below), and `hide: true` on a button now actually hides it — anyone who sent the field
 expecting it to be ignored will lose those buttons.
@@ -272,8 +268,7 @@ expecting it to be ignored will lose those buttons.
   declarations carried hardcoded fallbacks. It now documents, for the first time, **which CSS
   variables a consumer actually gets** — plus the `mat.theme()` compatibility path.
 
-## [0.4.0] - 2026-07-31
-
+## [0.4.0]
 Minor bump rather than a patch: the `XiriDownloadService.download()` signature changed. Rendered
 buttons are unaffected — the change is additive in the JSON (`target: "_blank"`) and only reaches
 consumers who call the service directly.
@@ -343,8 +338,7 @@ save the file, so there is no dead end.
   the new `download()` signature, with both the save and the display-in-tab example; `target` on
   `action: 'download'` documented in `components.md` and the service line in `SKILL.md` updated.
 
-## [0.3.2] - 2026-07-29
-
+## [0.3.2]
 ### Fixed
 
 - **Dialogs no longer have a 6px horizontal scrollbar.** `.dialog-header` had no horizontal
@@ -426,8 +420,7 @@ save the file, so there is no dead end.
   through esbuild and strips types without checking them — a spec that pins a type contract rather
   than runtime behaviour would otherwise pass no matter what the types say.
 
-## [0.3.1] - 2026-07-22
-
+## [0.3.1]
 ### Fixed
 
 - **Form dialogs no longer show a horizontal scrollbar from grid blowout.** `.xrow` used
@@ -451,8 +444,7 @@ save the file, so there is no dead end.
 
 - **`xiri-ng-expert` skill: `container` takes `{ components: XiriDynData[] }`,** not a bare array.
 
-## [0.3.0] - 2026-07-18
-
+## [0.3.0]
 First release with **breaking changes** since the 0.2 series: the locale services are consolidated into `XiriLocaleService` and languages are now client-extensible. Also includes the additive enhancements previously collected under "Unreleased".
 
 ### ⚠️ Breaking Changes

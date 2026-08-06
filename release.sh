@@ -54,8 +54,8 @@ echo "Releasing $VERSION..."
 # [Unreleased] in einen Versionsabschnitt drehen und ein leeres [Unreleased] darüber stehen
 # lassen. Ohne das sammeln sich die Einträge mehrerer Releases dort an -- genau so gingen die
 # Abschnitte für 0.4.2 und 0.4.3 unter.
-awk -v ver="${VERSION#v}" -v date="$(date +%F)" '
-  /^## \[Unreleased\]$/ && !done { print; print ""; print "## [" ver "] - " date; done = 1; next }
+awk -v ver="${VERSION#v}" '
+  /^## \[Unreleased\]$/ && !done { print; print ""; print "## [" ver "]"; done = 1; next }
   { print }
 ' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 
