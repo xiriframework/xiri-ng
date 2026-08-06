@@ -1,10 +1,12 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import {
 	Component,
+	computed,
 	ElementRef,
 	forwardRef,
 	input,
 	signal,
+	untracked,
 	viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -48,6 +50,12 @@ export class XiriChipsComponent implements ControlValueAccessor {
 
 	chipInput = viewChild<ElementRef<HTMLInputElement>>( 'chipInput' );
 
+	// Zwei Sperrquellen, verodert. field ist hier ein input(), kein Setter -- die Ableitung
+	// gehoert deshalb in ein computed. Angular ruft beim Control-Setup setDisabledState(false),
+	// was ein Backend-disabled sonst wieder aufhoebe.
+	private controlDisabled = signal( false );
+	readonly disabled = computed( () => !!this.field().disabled || this.controlDisabled() );
+
 	private onChange: ( value: ( string | number )[] ) => void = () => { /* intentionally empty */ };
 	private onTouched: () => void = () => { /* intentionally empty */ };
 
@@ -63,7 +71,15 @@ export class XiriChipsComponent implements ControlValueAccessor {
 		this.onTouched = fn;
 	}
 
+	setDisabledState( isDisabled: boolean ): void {
+		// untracked: Angular ruft das aus setUpControlValueAccessor, also waehrend der
+		// Template-Auswertung -- ein Signal-Write wuerde dort NG0600 werfen.
+		untracked( () => this.controlDisabled.set( isDisabled ) );
+	}
+
 	add( event: MatChipInputEvent ): void {
+		if ( this.disabled() ) return;
+
 		const value = ( event.value || '' ).trim();
 		if ( !value ) return;
 
@@ -77,12 +93,19 @@ export class XiriChipsComponent implements ControlValueAccessor {
 	}
 
 	remove( chip: string | number ): void {
+		// Auch bei deaktiviertem Grid: hatte ein Chip beim Sperren den Fokus, leitet Material
+		// Delete/Backspace weiter und prueft dabei nur `removable`.
+		if ( this.disabled() ) return;
+
 		const current = this.chips().filter( c => c !== chip );
 		this.chips.set( current );
 		this.onChange( current );
 	}
 
 	selected( event: MatAutocompleteSelectedEvent ): void {
+		// Ein bereits offenes Autocomplete-Overlay kann nach dem Sperren noch liefern.
+		if ( this.disabled() ) return;
+
 		const option = event.option.value as XiriFormFieldSelectOption;
 		const current = [ ...this.chips() ];
 		if ( !current.includes( option.id ) ) {

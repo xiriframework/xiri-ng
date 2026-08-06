@@ -106,6 +106,10 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain<DateTimeRange | nu
 			                                               thour: new FormControl<number>( 0, { nonNullable: true } ),
 			                                               tminute: new FormControl<number>( 0, { nonNullable: true } ),
 		                                               } );
+
+		// Meldet die innere Gruppe an XiriFieldMain: control.disable() von aussen muss sie
+		// genauso treffen wie field.disabled.
+		this.inner = this.parts;
 	}
 	
 	ngOnInit() {
@@ -125,11 +129,8 @@ export class XiriDateTimeRangeComponent extends XiriFieldMain<DateTimeRange | nu
 			this.maxDate = this.dateService.unixToLocal( value.max );
 		
 		this.required = !!value.required;
-		this.disabled = !!value.disabled;
-		if ( this.disabled )
-			this.parts.disable();
-		else
-			this.parts.enable();
+		this.fieldDisabled = !!value.disabled;
+		this.applyDisabled();
 
 		this.stateChanges.next();
 	}

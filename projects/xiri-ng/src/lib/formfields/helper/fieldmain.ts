@@ -11,6 +11,7 @@ import {
 	OnInit,
 	output,
 	signal,
+	untracked,
 	input
 } from "@angular/core";
 import {
@@ -104,13 +105,12 @@ export abstract class XiriFieldMain<T = unknown>
 
 		if ( ngControl ) {
 			if ( this._previousControl !== ngControl.control ) {
-				if (
-					this._previousControl !== undefined &&
-					ngControl.disabled !== null &&
-					ngControl.disabled !== this.disabled
-				) {
-					this.disabled = ngControl.disabled;
-				}
+				// Über setDisabledState gehen, nicht direkt auf `disabled` schreiben: sonst
+				// überschreibt eine frisch angelegte, enabled Control-Instanz das fieldDisabled
+				// eines Backend-gesperrten Felds. Das passiert real, weil `track field.id` die
+				// Kindkomponente behält, während createControl() ein neues Control anlegt.
+				if ( this._previousControl !== undefined && ngControl.disabled !== null )
+					this.setDisabledState( ngControl.disabled );
 
 				this._previousControl = ngControl.control;
 			}
@@ -152,6 +152,13 @@ export abstract class XiriFieldMain<T = unknown>
 	protected abstract startChangeValue(): void;
 
 	protected runChangeValue( val: T ) {
+		// Ein gesperrtes Feld schreibt nichts nach aussen. Ohne den Guard laeuft nach jedem
+		// control.disable() noch ein _onChange durch -- der Renderlauf, den das Sperren ausloest,
+		// erreicht doCheckLogic() und von dort startChangeValue(). Das aeussere Control bekaeme
+		// also eine zweite setValue-Emission, ausgeloest allein durch einen Zustandswechsel.
+		if ( this.disabled )
+			return;
+
 		this._onTouched();
 		this._onChange( val );
 		this.valueChange.emit( val );
@@ -171,14 +178,44 @@ export abstract class XiriFieldMain<T = unknown>
 	}
 
 	set disabled( value: boolean ) {
-		this._disabled.set( value );
+		// untracked, weil Angular setDisabledState() aus setUpControlValueAccessor heraus ruft --
+		// also waehrend der Template-Auswertung, wo ein Signal-Write sonst NG0600 wirft. Angulars
+		// eigenes FormControl.setValue macht es an derselben Stelle genauso.
+		untracked( () => this._disabled.set( value ) );
+		if ( value )
+			this.inner?.disable( { emitEvent: false } );
+		else
+			this.inner?.enable( { emitEvent: false } );
 		this._changeDetectorRef.markForCheck();
 		this.stateChanges.next();
 	}
 
 	protected _disabled = signal<boolean>( false );
 
-	setDisabledState(): void { /* intentionally empty */ }
+	// Zusammengesetzte Feldtypen halten ihre Eingaben in einer eigenen inneren FormGroup, die per
+	// formControlName gebunden ist. Sie melden sie hier an, damit control.disable() von aussen
+	// dieselbe Gruppe trifft wie field.disabled. Ohne inneres Control bleibt es undefined.
+	protected inner?: AbstractControl;
+
+	// Zwei Quellen, getrennt gehalten und verodert. Angular ruft beim Control-Setup
+	// setDisabledState(false) -- callSetDisabledState ist per Default 'always' -- und zwar nach
+	// dem field-Input. Schlüge das direkt auf `disabled` durch, höbe es ein Backend-disabled
+	// wieder auf.
+	//
+	// controlDisabled ist dabei nicht "die programmatische Quelle": XiriFormFieldsComponent
+	// schreibt Backend-Zustand über applyPatch() und den globalen disabled-Effect ebenfalls auf
+	// das äussere Control. Auf der Control-Seite gilt last writer wins, wie bisher auch.
+	protected fieldDisabled = false;
+	private controlDisabled = false;
+
+	protected applyDisabled(): void {
+		this.disabled = this.fieldDisabled || this.controlDisabled;
+	}
+
+	setDisabledState( isDisabled: boolean ): void {
+		this.controlDisabled = isDisabled;
+		this.applyDisabled();
+	}
 
 
 	@Input( { transform: booleanAttribute } )

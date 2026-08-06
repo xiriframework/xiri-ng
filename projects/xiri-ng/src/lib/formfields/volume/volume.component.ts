@@ -75,7 +75,30 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	
 	readonly placeholder!: string;
 	public required = false;
-	public disabled = false;
+	// Zwei Sperrquellen, getrennt gehalten und verodert: Angular ruft beim Control-Setup
+	// setDisabledState(false) -- callSetDisabledState ist per Default 'always' -- und zwar nach
+	// dem field-Input. Schlüge das direkt durch, höbe es ein Backend-disabled wieder auf.
+	private fieldDisabled = false;
+	private controlDisabled = false;
+
+	get disabled(): boolean {
+		return this._disabled;
+	}
+
+	set disabled( value: boolean ) {
+		this._disabled = value;
+		if ( value )
+			this.parts.disable( { emitEvent: false } );
+		else
+			this.parts.enable( { emitEvent: false } );
+		this.stateChanges.next();
+	}
+
+	private applyDisabled(): void {
+		this.disabled = this.fieldDisabled || this.controlDisabled;
+	}
+
+	private _disabled = false;
 	shouldLabelFloat = true;
 	private _lastValue: [ number, number, number ] | null = null;
 	private _field!: XiriFormField;
@@ -124,11 +147,8 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 			this.max = value.max;
 		
 		this.required = coerceBooleanProperty( value.required );
-		this.disabled = coerceBooleanProperty( value.disabled );
-		if ( this.disabled )
-			this.parts.disable();
-		else
-			this.parts.enable();
+		this.fieldDisabled = !!value.disabled;
+		this.applyDisabled();
 
 		this.stateChanges.next();
 	}
@@ -226,7 +246,8 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 	}
 
 	setDisabledState( isDisabled: boolean ): void {
-		this.disabled = isDisabled;
+		this.controlDisabled = isDisabled;
+		this.applyDisabled();
 	}
 
 	setDescribedByIds( ids: string[] ) {

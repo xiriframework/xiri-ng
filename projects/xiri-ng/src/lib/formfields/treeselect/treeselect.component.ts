@@ -118,7 +118,8 @@ export class XiriTreeselectComponent extends XiriFieldMain<XiriTreeselectId[] | 
 		this._field = value;
 		
 		this.required = !!value.required;
-		this.disabled = !!value.disabled;
+		this.fieldDisabled = !!value.disabled;
+		this.applyDisabled();
 		
 		if ( value.url ) {
 			this.dataService.get( value.url ).subscribe(

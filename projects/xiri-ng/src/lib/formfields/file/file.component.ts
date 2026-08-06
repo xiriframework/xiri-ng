@@ -81,7 +81,36 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	
 	readonly placeholder!: string;
 	public required = false;
-	public disabled = false;
+	// Zwei Sperrquellen, getrennt gehalten und verodert: Angular ruft beim Control-Setup
+	// setDisabledState(false) -- callSetDisabledState ist per Default 'always' -- und zwar nach
+	// dem field-Input. Schlüge das direkt durch, höbe es ein Backend-disabled wieder auf.
+	private fieldDisabled = false;
+	private controlDisabled = false;
+
+	get disabled(): boolean {
+		return this._disabled;
+	}
+
+	set disabled( value: boolean ) {
+		this._disabled = value;
+		if ( value )
+			this.parts.disable( { emitEvent: false } );
+		else
+			this.parts.enable( { emitEvent: false } );
+		this.stateChanges.next();
+	}
+
+	// Zaehlt jedes Sperren hoch, damit ein laufender FileReader seine Antwort verwirft.
+	private readGeneration = 0;
+
+	private applyDisabled(): void {
+		const next = this.fieldDisabled || this.controlDisabled;
+		if ( next )
+			this.readGeneration++;
+		this.disabled = next;
+	}
+
+	private _disabled = false;
 	shouldLabelFloat = true;
 
 	private _field!: XiriFormField;
@@ -148,11 +177,8 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		this._field = value;
 
 		this.required = value.required ?? false;
-		this.disabled = value.disabled ?? false;
-		if ( this.disabled )
-			this.parts.disable();
-		else
-			this.parts.enable();
+		this.fieldDisabled = !!value.disabled;
+		this.applyDisabled();
 
 		this.stateChanges.next();
 	}
@@ -178,7 +204,8 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	}
 
 	setDisabledState( isDisabled: boolean ): void {
-		this.disabled = isDisabled;
+		this.controlDisabled = isDisabled;
+		this.applyDisabled();
 	}
 
 	setDescribedByIds( ids: string[] ) {
@@ -187,13 +214,30 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 
 	onContainerClick(): void { /* intentionally empty */ }
 	
+	// Ein deaktiviertes `parts` sperrt nur die Anzeige -- der Dateidialog haengt am
+	// mat-form-field, nicht am Input, und kann beim Sperren schon offen sein. Deshalb hier ein
+	// eigener Guard und nicht nur einer im Template.
+	protected openFileDialog( input: HTMLInputElement ): void {
+		if ( this.disabled )
+			return;
+		input.click();
+	}
+
 	fileChange( event: Event ) {
-		
+
+		if ( this.disabled )
+			return;
+
 		const element = event.currentTarget as HTMLInputElement;
 		const fileList: FileList | null = element.files;
-		
+
 		if ( fileList === null || fileList.length === 0 || fileList.length > 100 )
 			return;
+
+		// Der FileReader antwortet asynchron. Wird das Feld waehrend des Lesens gesperrt, darf
+		// der Callback nichts mehr schreiben -- und ein disable/enable dazwischen darf ihn auch
+		// nicht wieder gueltig machen. Deshalb eine Generation statt eines blossen Guards.
+		const generation = this.readGeneration;
 		
 		const fieldFiles = this.parts.get( 'files' );
 		const fieldText = this.parts.get( 'text' );
@@ -215,6 +259,9 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 			const reader = new FileReader();
 			
 			reader.addEventListener( "load", () => {
+				if ( generation !== this.readGeneration )
+					return;
+
 				this.currentFiles.push( {
 					                        file: file,
 					                        name: file.name,

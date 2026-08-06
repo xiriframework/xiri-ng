@@ -54,6 +54,40 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **`control.disable()` now reaches every field type.** Angular routes a disabled control to the
+  accessor's `setDisabledState()`, but the composite field types keep their inputs in an inner
+  `FormGroup` bound through `formControlName` — disabling the outer control never touched it.
+  `XiriFieldMain.setDisabledState()` was an empty body, `volume` and `file` only set a boolean
+  nobody read, `treeselect` never bound `disabled` in its template, and `chips` had no notion of
+  being disabled at all. All of them stayed fully operable while their control was disabled.
+  Fields with an inner group now register it with the base class; `treeselect` and `chips` bind it
+  in their templates. `timelimit` was already correct.
+
+  Two sources are now held apart and OR'ed — `field.disabled` and the state of the outer control.
+  That is required rather than tidy: Angular calls `setDisabledState(false)` during control setup
+  (`callSetDisabledState` defaults to `'always'`), *after* the `field` input, so a single flag
+  would let the setup wipe a backend-sent `disabled`. The same applied to `doCheckLogic()`, which
+  wrote the new control's state straight onto the field whenever the control instance was replaced
+  — which happens routinely, because `track field.id` keeps the child component while a rebuilt
+  form creates a fresh control.
+
+  A disabled field also no longer writes its value back out. The render pass triggered by
+  disabling reaches `doCheckLogic()` and from there `startChangeValue()`, so every
+  `control.disable()` produced one extra `setValue` emission caused by nothing but a state change.
+
+  `chips` additionally guards `add()`, `remove()` and `selected()`: `matChipInputAddOnBlur` would
+  otherwise commit pending text on focus loss, an open autocomplete panel could still deliver, and
+  Material forwards Delete/Backspace on a focused chip to `remove()` checking only `removable`.
+  `file` guards the dialog click (it hangs on the form field, not the input), the `change` handler,
+  and the async `FileReader` callback — the latter through a generation counter, so a
+  disable/enable in between cannot revalidate a read that started before the lock.
+
+  Unchanged on purpose: a `disabled: true` sent by the backend still does not disable the outer
+  control when the form is built, so such a field stays in `formGroup.value`; arriving later
+  through a reload patch, it does. And for text, number, textarea, select, multiselect and bool,
+  backend `disabled` still has no effect at all, because the form template does not evaluate
+  `field.disabled`.
+
 - **A treeselect kept its old selection when its options were replaced.** `ngAfterViewInit` re-applied
   the current value by calling `treeItemSelectionToggle()` for each id, but never cleared the
   `SelectionModel` first. Rebuilding the tree — which happens whenever the bound field object is

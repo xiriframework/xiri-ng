@@ -857,6 +857,115 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'readonly' )!.disabled ).toBe( true );
 			expect( component.formGroup.get( 'editable' )!.enabled ).toBe( true );
 		} );
+
+		// Die zusammengesetzten Feldtypen halten ihre Eingaben in einer eigenen inneren FormGroup.
+		// control.disable() erreicht die nur über setDisabledState() des CVA -- und das war bei den
+		// meisten ein leerer Rumpf, die Felder blieben trotz gesperrtem Control bedienbar.
+		describe( 'control.disable() erreicht jeden Feldtyp', () => {
+
+			// Die wertverändernden Elemente pro Feldtyp. Ein einzelnes Element zu prüfen reicht
+			// nicht: beim Treeselect hängen die Werte an den Checkboxen, bei den Chips am Input
+			// und am Remove-Button.
+			const CASES: { type: string, field: Partial<XiriFormField>, selector: string }[] = [
+				{ type: 'date', field: {}, selector: 'input' },
+				{ type: 'yearmonth', field: {}, selector: 'input' },
+				{ type: 'daterange', field: {}, selector: 'input' },
+				{ type: 'datetimerange', field: {}, selector: 'input' },
+				{ type: 'volume', field: {}, selector: 'input' },
+				{ type: 'file', field: {}, selector: 'input' },
+				{ type: 'timelimit', field: {}, selector: 'input[type=checkbox]' },
+				{
+					type: 'treeselect',
+					field: { list: [ { id: 1, name: 'Alpha' } ], search: false },
+					selector: 'mat-checkbox input',
+				},
+				{
+					type: 'chips',
+					field: { value: [ 'Alpha' ], list: [ { id: 'Alpha', name: 'Alpha' } ] },
+					selector: 'mat-form-field input',
+				},
+			];
+
+			function elements( selector: string ): HTMLInputElement[] {
+				return Array.from( fixture.nativeElement.querySelectorAll( selector ) );
+			}
+
+			for ( const c of CASES ) {
+				it( `sperrt ${ c.type } bei control.disable()`, () => {
+					host.fields.set( [ { id: 'f', type: c.type, ...c.field } as XiriFormField ] );
+					fixture.detectChanges();
+
+					const before = elements( c.selector );
+					expect( before.length ).toBeGreaterThan( 0 );
+					expect( before.every( e => e.disabled ) ).toBe( false );
+
+					component.formGroup.get( 'f' )!.disable();
+					fixture.detectChanges();
+
+					expect( elements( c.selector ).every( e => e.disabled ) ).toBe( true );
+				} );
+
+				it( `gibt ${ c.type } bei control.enable() wieder frei`, () => {
+					host.fields.set( [ { id: 'f', type: c.type, ...c.field } as XiriFormField ] );
+					fixture.detectChanges();
+
+					component.formGroup.get( 'f' )!.disable();
+					fixture.detectChanges();
+					component.formGroup.get( 'f' )!.enable();
+					fixture.detectChanges();
+
+					expect( elements( c.selector ).some( e => e.disabled ) ).toBe( false );
+				} );
+			}
+
+			// Der wichtigste Test des Umbaus: Angular ruft beim Control-Setup setDisabledState(false)
+			// (forms.mjs:1886, callSetDisabledState ist per Default 'always'), und zwar NACH dem
+			// field-Input. Ohne getrennt gehaltene Quellen hebt das ein Backend-disabled wieder auf.
+			it( 'lässt setDisabledState(false) beim Setup ein Backend-disabled nicht aufheben', () => {
+				host.fields.set( [
+					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
+				] );
+				fixture.detectChanges();
+
+				expect( elements( 'input' ).every( e => e.disabled ) ).toBe( true );
+			} );
+
+			// doCheckLogic() schreibt bei einem Wechsel der äußeren Control-Instanz direkt auf
+			// `disabled`. Mit `track field.id` bleibt die Kindkomponente erhalten, während
+			// createControl() ein frisches enabled Control anlegt -- das darf das Feld nicht öffnen.
+			it( 'hält Backend-disabled fest, wenn die Feldliste durch eine gleiche ID ersetzt wird', () => {
+				host.fields.set( [
+					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
+				] );
+				fixture.detectChanges();
+
+				host.fields.set( [
+					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
+				] );
+				fixture.detectChanges();
+
+				expect( elements( 'input' ).every( e => e.disabled ) ).toBe( true );
+			} );
+
+			// Ein reiner Zustandswechsel darf keinen Wert nach außen schreiben. Nicht über
+			// formChange prüfen: die Dedup über JSON.stringify(formGroup.value) verdeckt das,
+			// weil ein deaktiviertes Control dort ohnehin fehlt.
+			it( 'schreibt beim Sperren keinen Wert über den CVA zurück', () => {
+				host.fields.set( [ { id: 'f', type: 'date', value: null } as XiriFormField ] );
+				fixture.detectChanges();
+
+				const control = component.formGroup.get( 'f' )!;
+				const emissions: unknown[] = [];
+				control.valueChanges.subscribe( v => emissions.push( v ) );
+
+				control.disable();
+				fixture.detectChanges();
+
+				// Genau die eine Emission, die disable() selbst auslöst -- kein zusätzlicher
+				// Rückschreiber aus der Feldkomponente.
+				expect( emissions.length ).toBe( 1 );
+			} );
+		} );
 	} );
 
 	describe( 'check observable', () => {

@@ -85,6 +85,10 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 
 		if ( this.ngControl != null )
 			this.ngControl.valueAccessor = this;
+
+		// Meldet das innere Control an XiriFieldMain: control.disable() von aussen muss es
+		// genauso treffen wie field.disabled.
+		this.inner = this.dateControl;
 	}
 
 	ngOnInit() {
@@ -103,11 +107,8 @@ export class XiriYearMonthComponent extends XiriFieldMain<number | null | undefi
 			this.maxDate = this.dateService.unixToLocal( value.max );
 
 		this.required = !!value.required;
-		this.disabled = !!value.disabled;
-		if ( this.disabled )
-			this.dateControl.disable();
-		else
-			this.dateControl.enable();
+		this.fieldDisabled = !!value.disabled;
+		this.applyDisabled();
 
 		this.stateChanges.next();
 	}

@@ -4,6 +4,8 @@
 			<div class="xcol xcol-md-6 header"><span>{{ field.name }}</span></div>
 			<div class="xcol xcol-md-6 search">
 				@if (field.search !== false) {
+					<!-- ponytail: Suche und Aufklapp-Button bleiben auch gesperrt bedienbar. Beide
+					     ändern den Wert nicht, sperren würde nur das Nachschauen behindern. -->
 					<xiri-search (changed)="searchDo($event)"></xiri-search>
 				}
 			</div>
@@ -19,7 +21,7 @@
 				<button mat-icon-button disabled aria-hidden="true">
 					<mat-icon style="visibility: hidden">chevron_right</mat-icon>
 				</button>
-				<mat-checkbox class="checklist-leaf-node" [checked]="node.state === 1"
+				<mat-checkbox class="checklist-leaf-node" [checked]="node.state === 1" [disabled]="disabled"
 				              (change)="treeItemSelectionToggle(node)">{{ node.name }}
 				</mat-checkbox>
 			</mat-tree-node>
@@ -32,6 +34,7 @@
 				<mat-checkbox class="group"
 				              [checked]="node.state === 1"
 				              [indeterminate]="node.state === 2"
+				              [disabled]="disabled"
 				              (change)="treeItemSelectionToggle(node)">{{ node.name }}
 				</mat-checkbox>
 			</mat-tree-node>

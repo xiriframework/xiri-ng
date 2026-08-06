@@ -2,9 +2,9 @@
 	@if (field().name) {
 		<mat-label>{{ field().name }}</mat-label>
 	}
-	<mat-chip-grid #chipGrid>
+	<mat-chip-grid #chipGrid [disabled]="disabled()">
 		@for (chip of chips(); track chip) {
-			<mat-chip-row (removed)="remove(chip)" [class]="chipColor(chip)">
+			<mat-chip-row (removed)="remove(chip)" [class]="chipColor(chip)" [removable]="!disabled()">
 				{{ displayLabel(chip) }}
 				<button matChipRemove [attr.aria-label]="'Entfernen: ' + displayLabel( chip )">
 					<mat-icon>cancel</mat-icon>
@@ -20,6 +20,7 @@
 	       (input)="onInputChange($event)"
 	       (focus)="onFocus()"
 	       [matAutocomplete]="auto"
+	       [disabled]="disabled()"
 	       [placeholder]="field().hint || ''">
 	<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
 		@for (option of filteredOptions(); track option.id) {
