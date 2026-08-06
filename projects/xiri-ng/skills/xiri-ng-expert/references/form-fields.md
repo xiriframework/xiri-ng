@@ -80,7 +80,7 @@ export interface XiriFormField {
   // --- State ---
   hide?: boolean;
   required?: boolean;
-  disabled?: boolean;
+  disabled?: boolean;        // greift beim Aufbau nur bei den zusammengesetzten Feldtypen, s.u.
   collapsible?: boolean;     // header
   collapsed?: boolean;       // header initial
 
@@ -119,6 +119,17 @@ export interface XiriFormField {
   control?: FormControl;     // Internal
 }
 ```
+
+**`disabled` beim Aufbau.** Das Feld deaktiviert beim Formularaufbau **nicht** das äußere
+FormControl — `createControl()` legt es immer `enabled` an. Ausgewertet wird es nur von den
+zusammengesetzten Feldtypen (`date`, `daterange`, `datetimerange`, `yearmonth`, `treeselect`,
+`volume`, `file`), die es in ihrem eigenen `field`-Setter lesen. Bei `text`, `number`, `textarea`,
+`select`, `multiselect` und `bool` bleibt es beim Aufbau wirkungslos, weil das Template
+`field.disabled` nicht auswertet.
+
+Was zuverlässig wirkt: `formGroup.get(id).disable()` von außen (seit 0.4.4 auf allen Feldtypen),
+der `disabled`-Input der ganzen `xiri-form-fields`, und ein `disabled` aus einem `reloadOn`-Patch —
+letzterer geht über das FormControl, das Feld fällt dann also auch aus `formGroup.value`.
 
 ### Feld-Typen
 
@@ -280,12 +291,20 @@ Aufbau) und `showWhen` (wird ohnehin live aus den Werten ausgewertet).
   selbst per GET und ignoriert die gepatchte `list`.
 - Ein bereits geöffnetes Chips-Autocomplete-Panel übernimmt neue Vorschläge erst beim nächsten
   Tastendruck.
-- `disabled` im Patch wirkt auf das FormControl; `treeselect` und `chips` stellen sich deswegen
-  noch nicht sichtbar deaktiviert dar.
-- Kein Loading-State während des Reloads: ein `disable()` würde das Feld aus `formGroup.value`
-  entfernen und bei einem Submit in genau diesem Fenster Werte verlieren.
 - Keine Step-übergreifenden Abhängigkeiten — jeder Schritt eines `xiri-stepper` hat seine eigene
   `xiri-form-fields`-Instanz.
+
+**Ladeanzeige**
+
+Solange ein Reload läuft, liegt ein `mat-progress-bar` über dem Feldblock — absolut positioniert,
+das Ein- und Ausblenden verschiebt also nichts. Er wird beim Trigger-Wechsel gesetzt, nicht erst
+beim Request, deckt die 200 ms Entprellung also mit ab, und bleibt bei schnell aufeinander
+folgenden Änderungen durchgehend an. `xiri-query` rendert dieselbe Komponente, Filter bekommen ihn
+also mit.
+
+Bewusst eine Anzeige und keine Sperre: ein `disable()` würde das Feld aus `formGroup.value`
+entfernen, und genau das lesen `xiri-query` und `xiri-form` aus dem `formChange` — ein in diesem
+Fenster gespeicherter Filter verlöre das Feld.
 
 Ketten funktionieren: hängt C an B und wird Bs Wert durch einen Patch verworfen, lädt C nach. Das
 terminiert, weil Pruning nur entfernt.
