@@ -9,6 +9,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Query: the collapsed filter panel remembers what the user left open.** `collapsed` set the panel
+  state on every load, so a filter opened by hand snapped shut again on the next navigation. The panel
+  state is now stored per `saveStateId` (key `<saveStateId>:collapsed`, session storage, same 1 h
+  lifetime as the saved filter values) and wins over the value from the backend. Without a
+  `saveStateId` nothing is stored and `collapsed` behaves exactly as before; an absent `collapsed`
+  still means no panel at all.
+
 - **Dependent fields: reload a field's content from the server (`reloadOn`/`reloadUrl`).** Until now
   `showWhen` could only show or hide a field based on another value — its **content** was fixed once
   the form had rendered. A field can now declare `reloadOn: ['status']` plus a `reloadUrl`: whenever

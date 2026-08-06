@@ -6,6 +6,9 @@ import { XiriQueryComponent, XiriQueryResultCount, XiriQuerySettings } from './q
 import { XiriButton } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
+import { XiriSessionStorageService } from '../services/sessionStorage.service';
+import { MatExpansionPanel } from '@angular/material/expansion';
+import { By } from '@angular/platform-browser';
 
 function stubLocalStorage(): void {
 	const store: Record<string, string> = {};
@@ -50,8 +53,16 @@ describe( 'XiriQueryComponent', () => {
 		loadState: ReturnType<typeof vi.fn>;
 		saveState: ReturnType<typeof vi.fn>;
 	};
+	let mockStorage: {
+		set: ReturnType<typeof vi.fn>;
+		getTimeout: ReturnType<typeof vi.fn>;
+	};
 
 	function initMocks() {
+		mockStorage = {
+			set: vi.fn(),
+			getTimeout: vi.fn().mockReturnValue( null ),
+		};
 		mockDataService = {
 			get: vi.fn().mockReturnValue( of( {} ) ),
 			post: vi.fn().mockReturnValue( of( {} ) ),
@@ -70,6 +81,7 @@ describe( 'XiriQueryComponent', () => {
 			providers: [
 				{ provide: XiriDataService, useValue: mockDataService },
 				{ provide: XiriFormService, useValue: mockFormService },
+				{ provide: XiriSessionStorageService, useValue: mockStorage },
 			],
 		} );
 
@@ -633,6 +645,60 @@ describe( 'XiriQueryComponent', () => {
 			fixture.detectChanges();
 
 			expect( fixture.nativeElement.querySelector( '[data-testid="query-result-count"]' ) ).toBeNull();
+		} );
+	} );
+
+	describe( 'collapsed panel', () => {
+		const fields = [ { id: 'search', type: 'text', value: '' } ];
+
+		function panel(): MatExpansionPanel | null {
+			const de = fixture.debugElement.query( By.directive( MatExpansionPanel ) );
+			return de ? de.componentInstance as MatExpansionPanel : null;
+		}
+
+		it( 'should render no panel when collapsed is absent', () => {
+			createFixture( { fields } );
+
+			expect( panel() ).toBeNull();
+		} );
+
+		it( 'should start collapsed when the backend says so', () => {
+			createFixture( { fields, collapsed: true } );
+
+			expect( panel()?.expanded ).toBe( false );
+		} );
+
+		it( 'should restore the stored panel state over the backend default', () => {
+			mockStorage.getTimeout.mockReturnValue( false );
+			createFixture( { fields, collapsed: true, saveStateId: 'devices' } );
+
+			expect( mockStorage.getTimeout ).toHaveBeenCalledWith( 'devices:collapsed', 3600 );
+			expect( panel()?.expanded ).toBe( true );
+		} );
+
+		it( 'should persist the panel state when the user toggles it', () => {
+			createFixture( { fields, collapsed: true, saveStateId: 'devices' } );
+
+			panel()!.open();
+			fixture.detectChanges();
+
+			expect( mockStorage.set ).toHaveBeenCalledWith( 'devices:collapsed', false );
+		} );
+
+		it( 'should not persist without a saveStateId', () => {
+			createFixture( { fields, collapsed: true } );
+
+			panel()!.open();
+			fixture.detectChanges();
+
+			expect( mockStorage.set ).not.toHaveBeenCalled();
+		} );
+
+		// Only real toggles are written — the initial render must not refresh a stored state.
+		it( 'should not persist on the initial render', () => {
+			createFixture( { fields, collapsed: false, saveStateId: 'devices' } );
+
+			expect( mockStorage.set ).not.toHaveBeenCalled();
 		} );
 	} );
 

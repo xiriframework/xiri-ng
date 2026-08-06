@@ -19,6 +19,7 @@ import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { emptyValueForField } from '../formfields/helper/empty-value';
 import { XiriDataService } from "../services/data.service";
 import { XiriFormService } from "../services/form.service";
+import { XiriSessionStorageService } from "../services/sessionStorage.service";
 import { XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriButtonResult } from "../button/button.component";
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
@@ -74,6 +75,7 @@ export class XiriQueryComponent implements OnInit {
 
 	private dataService: XiriDataService = inject( XiriDataService );
 	private formService = inject( XiriFormService );
+	private storageService: XiriSessionStorageService = inject( XiriSessionStorageService );
 	private cdr = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 
@@ -99,7 +101,14 @@ export class XiriQueryComponent implements OnInit {
 	private get effectiveSaveKey(): string | null {
 		return this.saveStateId ? this.saveStateId + ':filter' : null;
 	}
-	
+
+	private get collapsedSaveKey(): string | null {
+		return this.saveStateId ? this.saveStateId + ':collapsed' : null;
+	}
+
+	// Expansion-panel state; undefined = no panel at all, the filter is always open.
+	public collapsed = signal<boolean | undefined>( undefined );
+
 	public data = signal<XiriDynData[] | null>( null );
 	public error = signal<string | null>( null );
 	public formFields = signal<XiriFormField[] | null>( null );
@@ -142,6 +151,7 @@ export class XiriQueryComponent implements OnInit {
 		
 		this.saveState = settings.saveState === undefined ? false : settings.saveState;
 		this.saveStateId = settings.saveStateId === undefined ? null : settings.saveStateId;
+		this.initCollapsed( settings.collapsed );
 		this.formFields.set( this.formService.loadState( this.effectiveSaveKey, settings.fields ?? [] ) );
 		this.extra = settings.extra || null;
 		
@@ -162,6 +172,32 @@ export class XiriQueryComponent implements OnInit {
 			}
 			this.cdr.markForCheck();
 		} );
+	}
+
+	// The panel only exists when the backend sent `collapsed`. A previously stored state — kept under
+	// the same saveStateId as the filter values — wins over the backend default, so a reload restores
+	// the panel the way the user left it.
+	private initCollapsed( fromSettings: boolean | undefined ) {
+
+		if ( fromSettings === undefined )
+			return;
+
+		const key = this.collapsedSaveKey;
+		const stored = key ? this.storageService.getTimeout( key, 3600 ) : null;
+		this.collapsed.set( typeof stored === 'boolean' ? stored : fromSettings );
+	}
+
+	// Material owns the panel; mirror its state back so the next load can restore it. The equality
+	// guard keeps the initial expandedChange emission from rewriting the state nobody touched.
+	public panelToggled( expanded: boolean ) {
+
+		if ( this.collapsed() === !expanded )
+			return;
+
+		this.collapsed.set( !expanded );
+		const key = this.collapsedSaveKey;
+		if ( key )
+			this.storageService.set( key, !expanded );
 	}
 
 	public formChanged( event: XiriQueryFormChangeEvent ) {

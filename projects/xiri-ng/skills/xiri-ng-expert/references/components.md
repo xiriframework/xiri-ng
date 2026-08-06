@@ -58,11 +58,23 @@ interface XiriQuerySettings {
   extra?: any;
   saveState?: boolean;
   saveStateId?: string;
-  collapsed?: boolean;
+  collapsed?: boolean;          // undefined = kein Panel; true/false = Panel zu/auf
+  showActiveFilters?: boolean;  // entfernbare Chips der aktiven Filter
+  showResultCount?: boolean;
 }
 
 @output change: EventEmitter<any>;  // debounced 300ms
 ```
+
+**`collapsed` — drei Zustände.** Fehlt das Feld, wird gar kein Expansion-Panel gerendert und der
+Filter ist immer offen (Default). `false` rendert das Panel aufgeklappt, `true` eingeklappt.
+
+Klappt der User das Panel selbst um, merkt sich die Komponente das unter
+`<saveStateId>:collapsed` im Session-Storage (1 h, dieselbe Frist wie die gespeicherten
+Filterwerte) — beim nächsten Laden gewinnt der gemerkte Zustand über den Wert aus den Settings.
+Ohne `saveStateId` wird nichts gespeichert. `collapsed` wird deshalb **einmal in `ngOnInit`**
+gelesen, nicht laufend aus `settings()`: ein neues Settings-Objekt darf den User-Toggle nicht
+wieder wegräumen.
 
 ### xiri-alert (via MatDialog)
 

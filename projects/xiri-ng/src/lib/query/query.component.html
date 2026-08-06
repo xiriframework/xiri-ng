@@ -1,7 +1,7 @@
 <div class="xrow">
 	<div class="xcol">
-		@if (settings().collapsed !== undefined) {
-			<mat-expansion-panel [expanded]="!settings().collapsed" class="query-expansion">
+		@if (collapsed() !== undefined) {
+			<mat-expansion-panel [expanded]="!collapsed()" (expandedChange)="panelToggled($event)" class="query-expansion">
 				<mat-expansion-panel-header>
 					<mat-panel-title>
 						<mat-icon>filter_list</mat-icon> Filter

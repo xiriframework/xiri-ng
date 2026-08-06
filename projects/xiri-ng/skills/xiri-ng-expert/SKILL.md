@@ -228,6 +228,11 @@ Keine Pagination, kein Sort, keine API — nur Daten rendern.
 
 Debounce 300ms, ergebnis unter dem Filter als `XiriDynData[]`.
 
+**Filter einklappen:** `collapsed` weglassen = kein Panel (Filter immer offen), `false` = Panel auf,
+`true` = Panel zu. Mit `saveStateId` merkt sich die Query den vom User geklappten Zustand
+(Session-Storage, 1 h) und stellt ihn beim nächsten Laden wieder her — er gewinnt über den Wert
+aus den Settings.
+
 **Auto-Load beim Öffnen:** Mit gesetzter `url` lädt die Query automatisch beim ersten gültigen Filter-Zustand. Nutzt der Filter stattdessen einen `buttonline`-Button zum Nachladen, setze `autoLoad: true` an diesem Button (`action:'api'`) → er feuert einmalig automatisch beim Laden, sobald der Filter gültig ist (siehe xiri-button unten).
 
 ## xiri-dialog — Modal-Dialog
