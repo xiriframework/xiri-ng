@@ -1492,5 +1492,79 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( httpStub.post.mock.calls.length ).toBeLessThan( 6 );
 			expect( component.formGroup.get( 'groups' )!.value ).toEqual( [] );
 		} );
+
+		// Solange der Reload läuft, zeigt das Feld noch die alte Liste. Ein Balken über dem
+		// Feldblock ist die einzige Rückmeldung, die ohne Eingriff in die Formular-Semantik
+		// auskommt: control.disable() würde den Wert aus formGroup.value nehmen, und genau den
+		// lesen xiri-query und xiri-form.
+		describe( 'Ladeanzeige', () => {
+
+			function bar(): Element | null {
+				fixture.detectChanges();
+				return fixture.nativeElement.querySelector( 'mat-progress-bar' );
+			}
+
+			// Hängender Request: das Subject antwortet erst, wenn der Test es will.
+			function pending(): Subject<unknown> {
+				const answer = new Subject<unknown>();
+				httpStub.post.mockReturnValue( answer );
+				return answer;
+			}
+
+			it( 'zeigt den Balken, solange der Request läuft', () => {
+				pending();
+				setFields( [ statusField(), tagsField() ] );
+
+				expect( bar() ).not.toBeNull();
+			} );
+
+			it( 'blendet den Balken nach der Antwort wieder aus', () => {
+				const answer = pending();
+				setFields( [ statusField(), tagsField() ] );
+
+				answer.next( { fields: {} } );
+				answer.complete();
+
+				expect( bar() ).toBeNull();
+			} );
+
+			// Der Balken hängt am Trigger-Wechsel, nicht am Request: würde er erst in
+			// fetchPatches() gesetzt, bliebe die erste Fünftelsekunde ohne Rückmeldung.
+			it( 'zeigt den Balken schon während der 200ms Entprellung', () => {
+				pending();
+				setFields( [ statusField(), tagsField() ] );
+				component.formGroup.get( 'status' )!.setValue( 2 );
+
+				vi.advanceTimersByTime( 100 );
+
+				expect( bar() ).not.toBeNull();
+			} );
+
+			// switchMap räumt den alten Inner-Stream ab, bevor die Projektion des neuen läuft.
+			// Liefe es andersherum, würde das finalize des abgebrochenen Requests den gerade
+			// gesetzten Balken wieder löschen.
+			it( 'lässt den Balken an, wenn ein zweiter Trigger-Wechsel den Request abbricht', () => {
+				pending();
+				setFields( [ statusField(), tagsField() ] );
+
+				component.formGroup.get( 'status' )!.setValue( 2 );
+				vi.advanceTimersByTime( 250 );
+
+				expect( bar() ).not.toBeNull();
+			} );
+
+			it( 'blendet den Balken auch bei einem Fehler aus', () => {
+				httpStub.post.mockReturnValue( throwError( () => new Error( 'kaputt' ) ) );
+				setFields( [ statusField(), tagsField() ] );
+
+				expect( bar() ).toBeNull();
+			} );
+
+			it( 'zeigt ohne reloadOn nie einen Balken', () => {
+				setFields( [ statusField(), { id: 'note', type: 'text', value: '' } ] );
+
+				expect( bar() ).toBeNull();
+			} );
+		} );
 	} );
 } );

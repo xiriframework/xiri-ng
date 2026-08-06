@@ -1,3 +1,6 @@
+@if (reloading()) {
+	<mat-progress-bar class="reloadbar" mode="indeterminate"></mat-progress-bar>
+}
 <form class="xrow dynamic-form" [formGroup]="formGroup" [class]="display()">
 	@for (field of displayFields(); track field.id) {
 		@if (isFieldVisible(field)) {

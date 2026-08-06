@@ -1,3 +1,17 @@
+// Der Reload-Balken liegt über der oberen Kante statt im Fluss: sonst würde jedes Ein- und
+// Ausblenden den ganzen Feldblock um seine Höhe verschieben.
+:host {
+	position: relative;
+}
+
+.reloadbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+}
+
 .dynamic-form {
 	grid-row-gap: 7px;
 

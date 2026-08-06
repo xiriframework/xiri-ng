@@ -25,12 +25,25 @@ import {
 } from '@angular/forms';
 import { XiriFormField, XiriFormFieldCondition, XiriFormFieldSelectOption } from './field.interface';
 import { colsToClasses } from '../layout/cols.directive';
-import { catchError, distinctUntilChanged, EMPTY, filter, map, merge, Observable, Subject, switchMap, timer } from "rxjs";
+import {
+	catchError,
+	distinctUntilChanged,
+	EMPTY,
+	filter,
+	finalize,
+	map,
+	merge,
+	Observable,
+	Subject,
+	switchMap,
+	timer
+} from "rxjs";
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { parseHttpError } from '../services/error.util';
 import { emptyValueForField } from './helper/empty-value';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { XiriFileComponent } from './file/file.component';
 import { XiriTimelimitComponent } from './timelimit/timelimit.component';
 import { XiriVolumeComponent } from './volume/volume.component';
@@ -93,6 +106,7 @@ function formatValidationDate( localeString: string, unixSeconds: number ): stri
 		            XiriTimelimitComponent,
 		            XiriFileComponent,
 		            MatProgressSpinner,
+		            MatProgressBar,
 		            AsyncPipe,
 		            SafehtmlPipe,
 		            XiriChipsComponent,
@@ -137,6 +151,10 @@ export class XiriFormFieldsComponent implements OnInit {
 	// Unterdrückt den formChange-Emit der valueChanges-Subscription, während ein Patch angewendet
 	// wird - nach dem Patch wird genau einmal emittiert.
 	private applyingPatch = false;
+	// Läuft gerade ein Reload? Trägt den Fortschrittsbalken über dem Feldblock. Bewusst nur eine
+	// Anzeige und kein control.disable(): ein deaktiviertes Control fällt aus formGroup.value, und
+	// genau das lesen xiri-query und xiri-form aus dem formChange.
+	protected reloading = signal( false );
 
 	constructor() {
 
@@ -251,7 +269,19 @@ export class XiriFormFieldsComponent implements OnInit {
 			filter( () => this._fieldsLoaded ),
 			map( () => JSON.stringify( { g: this.formGeneration, v: this.triggerValues() } ) ),
 			distinctUntilChanged(),
-			switchMap( () => timer( 200 ).pipe( switchMap( () => this.fetchPatches() ) ) ),
+			// Der Balken hängt am Trigger-Wechsel, nicht am Request: gesetzt wird vor dem Timer,
+			// sonst bliebe die Entprellzeit ohne Rückmeldung. Bei einem zweiten Wechsel bleibt er
+			// durchgehend an, weil switchMap den alten Inner-Stream abräumt (finalize -> false),
+			// bevor diese Projektion für den neuen läuft (-> true).
+			switchMap( () => {
+				if ( this.dependentFields().length === 0 )
+					return EMPTY;
+				this.reloading.set( true );
+				return timer( 200 ).pipe(
+					switchMap( () => this.fetchPatches() ),
+					finalize( () => this.reloading.set( false ) ),
+				);
+			} ),
 			takeUntilDestroyed( this.destroyRef ),
 		).subscribe( patch => this.applyPatch( patch.url, patch.fields ) );
 	}

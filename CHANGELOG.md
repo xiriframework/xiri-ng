@@ -9,6 +9,19 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Dependent fields show a progress bar while they reload.** Between a trigger change and the
+  patch lie 200 ms of debounce plus the roundtrip, and until now nothing said so — the field kept
+  showing its old list and stayed operable, so an option picked in that window could be dropped
+  again by the pruning that follows. An indeterminate `mat-progress-bar` now sits above the field
+  block for the duration. It is set on the trigger change rather than on the request, so the
+  debounce window is covered too, and it survives a second trigger change cancelling the first
+  request. Filters inherit it, since `xiri-query` renders the same `xiri-form-fields` component.
+
+  Deliberately an indicator and not a lock: `control.disable()` would take the value out of
+  `formGroup.value`, which is exactly what `xiri-query` and `xiri-form` read from the `formChange`
+  event — a filter saved during the reload window would be missing that field. The bar is absolutely
+  positioned, so showing and hiding it does not shift the fields.
+
 - **Query: the collapsed filter panel remembers what the user left open.** `collapsed` set the panel
   state on every load, so a filter opened by hand snapped shut again on the next navigation. The panel
   state is now stored per `saveStateId` (key `<saveStateId>:collapsed`, session storage, same 1 h
