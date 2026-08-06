@@ -60,7 +60,10 @@ export class XiriChipsComponent implements ControlValueAccessor {
 	private onTouched: () => void = () => { /* intentionally empty */ };
 
 	writeValue( value: ( string | number )[] ): void {
-		this.chips.set( value || [] );
+		// untracked wie bei setDisabledState: Angular ruft writeValue aus
+		// setUpControlValueAccessor, also waehrend der Template-Auswertung. Ohne das wirft ein
+		// Neuaufbau des Formulars mit gleicher Feld-ID NG0600.
+		untracked( () => this.chips.set( value || [] ) );
 	}
 
 	registerOnChange( fn: ( value: ( string | number )[] ) => void ): void {

@@ -63,13 +63,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Fields with an inner group now register it with the base class; `treeselect` and `chips` bind it
   in their templates. `timelimit` was already correct.
 
-  Two sources are now held apart and OR'ed — `field.disabled` and the state of the outer control.
-  That is required rather than tidy: Angular calls `setDisabledState(false)` during control setup
-  (`callSetDisabledState` defaults to `'always'`), *after* the `field` input, so a single flag
-  would let the setup wipe a backend-sent `disabled`. The same applied to `doCheckLogic()`, which
-  wrote the new control's state straight onto the field whenever the control instance was replaced
-  — which happens routinely, because `track field.id` keeps the child component while a rebuilt
-  form creates a fresh control.
+  Two sources are now held apart and OR'ed — the declarative one (`field.disabled`, or the
+  `disabled` input where a field type has no `field`) and the state of the outer control. That is
+  required rather than tidy: Angular calls `setDisabledState(false)` during control setup
+  (`callSetDisabledState` defaults to `'always'`), *after* the inputs, so a single flag would let
+  the setup wipe a declarative `disabled`. The same applied to `doCheckLogic()`, which wrote the
+  new control's state straight onto the field whenever the control instance was replaced — which
+  happens routinely, because `track field.id` keeps the child component while a rebuilt form
+  creates a fresh control.
 
   A disabled field also no longer writes its value back out. The render pass triggered by
   disabling reaches `doCheckLogic()` and from there `startChangeValue()`, so every
@@ -79,8 +80,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
   otherwise commit pending text on focus loss, an open autocomplete panel could still deliver, and
   Material forwards Delete/Backspace on a focused chip to `remove()` checking only `removable`.
   `file` guards the dialog click (it hangs on the form field, not the input), the `change` handler,
-  and the async `FileReader` callback — the latter through a generation counter, so a
-  disable/enable in between cannot revalidate a read that started before the lock.
+  and the async `FileReader` callback — the latter through a generation counter bumped both on
+  locking and on every new selection, so neither a disable/enable in between nor a second, faster
+  selection lets a stale read write back. `volume` re-checks in its deferred callback: it schedules
+  `onChange` through a timer, and the lock can land in between.
+
+- **A chips field crashed when its form was rebuilt.** `writeValue()` writes a signal, and Angular
+  calls it from `setUpControlValueAccessor` — i.e. during template evaluation, where a signal write
+  throws NG0600. Rebuilding a form that contained a chips field with the same field id therefore
+  aborted change detection. The write is now `untracked`, matching what Angular's own
+  `FormControl.setValue` does at the same spot.
 
   Unchanged on purpose: a `disabled: true` sent by the backend still does not disable the outer
   control when the form is built, so such a field stays in `formGroup.value`; arriving later

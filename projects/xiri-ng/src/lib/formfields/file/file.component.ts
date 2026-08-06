@@ -91,23 +91,28 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		return this._disabled;
 	}
 
+	// Der oeffentliche Input ist dieselbe Quelle wie field.disabled: eine deklarative Sperre, die
+	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf.
 	set disabled( value: boolean ) {
+		this.fieldDisabled = value;
+		this.applyDisabled();
+	}
+
+	// Wird bei jedem Sperren UND bei jeder neuen Auswahl hochgezaehlt. Nur beim Sperren zu zaehlen
+	// wuerde zwei schnell aufeinander folgende Auswahlen nicht trennen: der langsamere Reader der
+	// ersten Auswahl traegt dann dieselbe Generation und darf trotzdem schreiben.
+	private readGeneration = 0;
+
+	private applyDisabled(): void {
+		const value = this.fieldDisabled || this.controlDisabled;
 		this._disabled = value;
+		if ( value )
+			this.readGeneration++;
 		if ( value )
 			this.parts.disable( { emitEvent: false } );
 		else
 			this.parts.enable( { emitEvent: false } );
 		this.stateChanges.next();
-	}
-
-	// Zaehlt jedes Sperren hoch, damit ein laufender FileReader seine Antwort verwirft.
-	private readGeneration = 0;
-
-	private applyDisabled(): void {
-		const next = this.fieldDisabled || this.controlDisabled;
-		if ( next )
-			this.readGeneration++;
-		this.disabled = next;
 	}
 
 	private _disabled = false;
@@ -234,10 +239,11 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		if ( fileList === null || fileList.length === 0 || fileList.length > 100 )
 			return;
 
-		// Der FileReader antwortet asynchron. Wird das Feld waehrend des Lesens gesperrt, darf
-		// der Callback nichts mehr schreiben -- und ein disable/enable dazwischen darf ihn auch
-		// nicht wieder gueltig machen. Deshalb eine Generation statt eines blossen Guards.
-		const generation = this.readGeneration;
+		// Der FileReader antwortet asynchron. Wird das Feld waehrend des Lesens gesperrt oder eine
+		// neue Datei gewaehlt, darf der Callback nichts mehr schreiben -- und ein disable/enable
+		// dazwischen darf ihn auch nicht wieder gueltig machen. Deshalb eine Generation statt
+		// eines blossen Guards.
+		const generation = ++this.readGeneration;
 		
 		const fieldFiles = this.parts.get( 'files' );
 		const fieldText = this.parts.get( 'text' );

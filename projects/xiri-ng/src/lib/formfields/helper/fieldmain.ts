@@ -177,17 +177,12 @@ export abstract class XiriFieldMain<T = unknown>
 		return this._disabled();
 	}
 
+	// Der oeffentliche Input ist dieselbe Quelle wie field.disabled: eine deklarative Sperre, die
+	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf. Er schreibt deshalb
+	// fieldDisabled und nicht den effektiven Zustand.
 	set disabled( value: boolean ) {
-		// untracked, weil Angular setDisabledState() aus setUpControlValueAccessor heraus ruft --
-		// also waehrend der Template-Auswertung, wo ein Signal-Write sonst NG0600 wirft. Angulars
-		// eigenes FormControl.setValue macht es an derselben Stelle genauso.
-		untracked( () => this._disabled.set( value ) );
-		if ( value )
-			this.inner?.disable( { emitEvent: false } );
-		else
-			this.inner?.enable( { emitEvent: false } );
-		this._changeDetectorRef.markForCheck();
-		this.stateChanges.next();
+		this.fieldDisabled = value;
+		this.applyDisabled();
 	}
 
 	protected _disabled = signal<boolean>( false );
@@ -209,7 +204,20 @@ export abstract class XiriFieldMain<T = unknown>
 	private controlDisabled = false;
 
 	protected applyDisabled(): void {
-		this.disabled = this.fieldDisabled || this.controlDisabled;
+		const value = this.fieldDisabled || this.controlDisabled;
+
+		// untracked, weil Angular setDisabledState() aus setUpControlValueAccessor heraus ruft --
+		// also waehrend der Template-Auswertung, wo ein Signal-Write sonst NG0600 wirft. Angulars
+		// eigenes FormControl.setValue macht es an derselben Stelle genauso.
+		untracked( () => this._disabled.set( value ) );
+
+		if ( value )
+			this.inner?.disable( { emitEvent: false } );
+		else
+			this.inner?.enable( { emitEvent: false } );
+
+		this._changeDetectorRef.markForCheck();
+		this.stateChanges.next();
 	}
 
 	setDisabledState( isDisabled: boolean ): void {

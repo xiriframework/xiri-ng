@@ -85,17 +85,21 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 		return this._disabled;
 	}
 
+	// Der oeffentliche Input ist dieselbe Quelle wie field.disabled: eine deklarative Sperre, die
+	// ein setDisabledState(false) beim Control-Setup nicht aufheben darf.
 	set disabled( value: boolean ) {
+		this.fieldDisabled = value;
+		this.applyDisabled();
+	}
+
+	private applyDisabled(): void {
+		const value = this.fieldDisabled || this.controlDisabled;
 		this._disabled = value;
 		if ( value )
 			this.parts.disable( { emitEvent: false } );
 		else
 			this.parts.enable( { emitEvent: false } );
 		this.stateChanges.next();
-	}
-
-	private applyDisabled(): void {
-		this.disabled = this.fieldDisabled || this.controlDisabled;
 	}
 
 	private _disabled = false;
@@ -215,6 +219,11 @@ export class XiriVolumeComponent implements ControlValueAccessor, MatFormFieldCo
 			clearTimeout( this.changeTO );
 		
 		this.changeTO = setTimeout( () => {
+			// Erneut pruefen: zwischen Planung und Callback kann control.disable() gelaufen sein.
+			// Ein gesperrtes Feld schreibt nichts nach aussen.
+			if ( this.disabled )
+				return;
+
 			this.onChange( val );
 			this.stateChanges.next();
 			this.cdr.markForCheck();

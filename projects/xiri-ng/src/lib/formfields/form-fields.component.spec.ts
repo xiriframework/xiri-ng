@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { delay, of, Subject, throwError } from 'rxjs';
+import { By } from '@angular/platform-browser';
 import { XiriFormFieldsComponent } from './form-fields.component';
+import { XiriDateComponent } from './date/date.component';
+import { XiriVolumeComponent } from './volume/volume.component';
+import { XiriChipsComponent } from './chips/chips.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
 import { UntypedFormGroup } from '@angular/forms';
 import { XiriDataServiceConfig } from '../services/data.service';
@@ -864,30 +868,51 @@ describe( 'XiriFormFieldsComponent', () => {
 		describe( 'control.disable() erreicht jeden Feldtyp', () => {
 
 			// Die wertverändernden Elemente pro Feldtyp. Ein einzelnes Element zu prüfen reicht
-			// nicht: beim Treeselect hängen die Werte an den Checkboxen, bei den Chips am Input
-			// und am Remove-Button.
-			const CASES: { type: string, field: Partial<XiriFormField>, selector: string }[] = [
+			// nicht: der Treeselect hat Blatt- und Gruppen-Checkboxen, die Zeitbereiche zusätzlich
+			// mat-selects für Stunde und Minute.
+			//
+			// Der Treeselect bekommt bewusst einen Gruppenknoten mit Kind, sonst rendert nur der
+			// eine der beiden mat-tree-node-Zweige.
+			// backendDisabled: false, wo field.disabled die Komponente gar nicht erreicht.
+			const CASES: {
+				type: string, field: Partial<XiriFormField>, selector: string, backendDisabled?: boolean
+			}[] = [
 				{ type: 'date', field: {}, selector: 'input' },
 				{ type: 'yearmonth', field: {}, selector: 'input' },
 				{ type: 'daterange', field: {}, selector: 'input' },
-				{ type: 'datetimerange', field: {}, selector: 'input' },
+				{ type: 'datetimerange', field: {}, selector: 'input, mat-select' },
 				{ type: 'volume', field: {}, selector: 'input' },
 				{ type: 'file', field: {}, selector: 'input' },
-				{ type: 'timelimit', field: {}, selector: 'input[type=checkbox]' },
+				// timelimit bekommt in form-fields.component.html kein [field]; seine deklarative
+				// Sperre laeuft ausschliesslich ueber den @Input() disabled.
+				{ type: 'timelimit', field: {}, selector: 'input[type=checkbox], mat-select', backendDisabled: false },
 				{
 					type: 'treeselect',
-					field: { list: [ { id: 1, name: 'Alpha' } ], search: false },
+					field: {
+						list: [ { id: 1, name: 'Gruppe', isGroup: true, children: [ { id: 2, name: 'Alpha' } ] } ],
+						search: false,
+						tree: true,
+					},
 					selector: 'mat-checkbox input',
 				},
 				{
 					type: 'chips',
 					field: { value: [ 'Alpha' ], list: [ { id: 'Alpha', name: 'Alpha' } ] },
-					selector: 'mat-form-field input',
+					selector: 'mat-form-field input, mat-chip-row button',
 				},
 			];
 
-			function elements( selector: string ): HTMLInputElement[] {
-				return Array.from( fixture.nativeElement.querySelectorAll( selector ) );
+			// mat-select ist kein natives Element; Material spiegelt den Zustand in aria-disabled.
+			function elements( selector: string ): { disabled: boolean }[] {
+				return Array.from( fixture.nativeElement.querySelectorAll( selector ) )
+				            .map( ( e ) => {
+					            const el = e as HTMLElement & { disabled?: boolean };
+					            return {
+						            disabled: el.disabled === true
+						                      || el.getAttribute( 'aria-disabled' ) === 'true'
+						                      || el.hasAttribute( 'disabled' ),
+					            };
+				            } );
 			}
 
 			for ( const c of CASES ) {
@@ -921,30 +946,49 @@ describe( 'XiriFormFieldsComponent', () => {
 			// Der wichtigste Test des Umbaus: Angular ruft beim Control-Setup setDisabledState(false)
 			// (forms.mjs:1886, callSetDisabledState ist per Default 'always'), und zwar NACH dem
 			// field-Input. Ohne getrennt gehaltene Quellen hebt das ein Backend-disabled wieder auf.
-			it( 'lässt setDisabledState(false) beim Setup ein Backend-disabled nicht aufheben', () => {
-				host.fields.set( [
-					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
-				] );
+			// Über alle Feldtypen, weil jeder seine eigene Quellentrennung mitbringt.
+			for ( const c of CASES.filter( x => x.backendDisabled !== false ) ) {
+				it( `lässt setDisabledState(false) beim Setup Backend-disabled von ${ c.type } nicht aufheben`, () => {
+					host.fields.set( [
+						{ id: 'f', type: c.type, disabled: true, ...c.field } as XiriFormField,
+					] );
+					fixture.detectChanges();
+
+					expect( elements( c.selector ).every( e => e.disabled ) ).toBe( true );
+				} );
+
+				// doCheckLogic() schrieb bei einem Wechsel der äußeren Control-Instanz direkt auf
+				// `disabled`. Mit `track field.id` bleibt die Kindkomponente erhalten, während
+				// createControl() ein frisches enabled Control anlegt -- das darf nicht öffnen.
+				it( `hält Backend-disabled von ${ c.type } beim Ersetzen der Feldliste fest`, () => {
+					const field = () => ( { id: 'f', type: c.type, disabled: true, ...c.field } as XiriFormField );
+
+					host.fields.set( [ field() ] );
+					fixture.detectChanges();
+					host.fields.set( [ field() ] );
+					fixture.detectChanges();
+
+					expect( elements( c.selector ).every( e => e.disabled ) ).toBe( true );
+				} );
+			}
+
+			// `timelimit` bekommt kein [field], seine deklarative Sperre läuft über den
+			// @Input() disabled. Der ist dieselbe Quelle und darf vom Setup ebenso wenig
+			// überschrieben werden.
+			it( 'lässt setDisabledState(false) einen gesetzten [disabled]-Input nicht aufheben', () => {
+				host.fields.set( [ { id: 'f', type: 'date', value: null } as XiriFormField ] );
 				fixture.detectChanges();
 
-				expect( elements( 'input' ).every( e => e.disabled ) ).toBe( true );
-			} );
-
-			// doCheckLogic() schreibt bei einem Wechsel der äußeren Control-Instanz direkt auf
-			// `disabled`. Mit `track field.id` bleibt die Kindkomponente erhalten, während
-			// createControl() ein frisches enabled Control anlegt -- das darf das Feld nicht öffnen.
-			it( 'hält Backend-disabled fest, wenn die Feldliste durch eine gleiche ID ersetzt wird', () => {
-				host.fields.set( [
-					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
-				] );
+				const child = fixture.debugElement.query( By.directive( XiriDateComponent ) )
+				                     .componentInstance as XiriDateComponent;
+				child.disabled = true;
 				fixture.detectChanges();
 
-				host.fields.set( [
-					{ id: 'f', type: 'date', value: null, disabled: true } as XiriFormField,
-				] );
+				// Simuliert, was Angular beim Setup eines enabled Controls tut.
+				child.setDisabledState( false );
 				fixture.detectChanges();
 
-				expect( elements( 'input' ).every( e => e.disabled ) ).toBe( true );
+				expect( child.disabled ).toBe( true );
 			} );
 
 			// Ein reiner Zustandswechsel darf keinen Wert nach außen schreiben. Nicht über
@@ -964,6 +1008,88 @@ describe( 'XiriFormFieldsComponent', () => {
 				// Genau die eine Emission, die disable() selbst auslöst -- kein zusätzlicher
 				// Rückschreiber aus der Feldkomponente.
 				expect( emissions.length ).toBe( 1 );
+			} );
+
+			// volume erbt nicht von XiriFieldMain, der Guard in runChangeValue greift dort nicht.
+			// Es plant sein onChange über setTimeout -- zwischen Planung und Callback kann gesperrt
+			// worden sein.
+			it( 'verwirft einen bereits geplanten volume-Rückschreiber, wenn zwischendurch gesperrt wird', () => {
+				vi.useFakeTimers();
+				try {
+					host.fields.set( [ { id: 'f', type: 'volume', value: null } as XiriFormField ] );
+					fixture.detectChanges();
+
+					const child = fixture.debugElement.query( By.directive( XiriVolumeComponent ) )
+					                     .componentInstance as XiriVolumeComponent;
+					const control = component.formGroup.get( 'f' )!;
+					const emissions: unknown[] = [];
+
+					child.parts.get( 'voll' )!.setValue( 5 );
+					control.valueChanges.subscribe( v => emissions.push( v ) );
+					control.disable();
+					vi.advanceTimersByTime( 50 );
+
+					expect( emissions.length ).toBe( 1 );
+				} finally {
+					vi.useRealTimers();
+				}
+			} );
+
+			describe( 'Guards gegen Wege, die am gesperrten Control vorbeigehen', () => {
+
+				function chips(): XiriChipsComponent {
+					host.fields.set( [ {
+						id: 'f', type: 'chips', value: [ 'Alpha' ],
+						list: [ { id: 'Beta', name: 'Beta' } ],
+					} as XiriFormField ] );
+					fixture.detectChanges();
+					component.formGroup.get( 'f' )!.disable();
+					fixture.detectChanges();
+					return fixture.debugElement.query( By.directive( XiriChipsComponent ) )
+					              .componentInstance as XiriChipsComponent;
+				}
+
+				// matChipInputAddOnBlur übernimmt ausstehenden Text beim Fokusverlust.
+				it( 'chips.add() fügt im gesperrten Zustand nichts hinzu', () => {
+					const c = chips();
+					c.add( { value: 'Neu', chipInput: { clear: () => { /* noop */ } } } as never );
+
+					expect( component.formGroup.get( 'f' )!.value ).toEqual( [ 'Alpha' ] );
+				} );
+
+				// Material leitet Delete/Backspace am fokussierten Chip weiter und prüft nur
+				// `removable`, nicht den Disabled-Zustand.
+				it( 'chips.remove() entfernt im gesperrten Zustand nichts', () => {
+					const c = chips();
+					c.remove( 'Alpha' );
+
+					expect( component.formGroup.get( 'f' )!.value ).toEqual( [ 'Alpha' ] );
+				} );
+
+				// Ein bereits offenes Autocomplete-Overlay kann nach dem Sperren noch liefern.
+				it( 'chips.selected() übernimmt im gesperrten Zustand keine Option', () => {
+					const c = chips();
+					c.selected( { option: { value: { id: 'Beta', name: 'Beta' } } } as never );
+
+					expect( component.formGroup.get( 'f' )!.value ).toEqual( [ 'Alpha' ] );
+				} );
+
+				// Der Dateidialog hängt am mat-form-field, nicht am Input -- ein gesperrtes `parts`
+				// blockiert ihn nicht.
+				it( 'file öffnet im gesperrten Zustand keinen Dateidialog', () => {
+					host.fields.set( [ { id: 'f', type: 'file' } as XiriFormField ] );
+					fixture.detectChanges();
+					component.formGroup.get( 'f' )!.disable();
+					fixture.detectChanges();
+
+					let clicks = 0;
+					const formField = fixture.nativeElement.querySelector( 'mat-form-field.fileselect' );
+					fixture.nativeElement.querySelector( 'input[type=file]' )
+					       .addEventListener( 'click', () => clicks++ );
+					formField.click();
+
+					expect( clicks ).toBe( 0 );
+				} );
 			} );
 		} );
 	} );
