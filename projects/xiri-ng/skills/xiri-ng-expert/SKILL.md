@@ -250,7 +250,7 @@ open() {
 }
 ```
 
-`type`: `'form' | 'data' | 'question' | 'waiting' | 'table' | 'component'`. Bei `'component'` rendert der Dialog eine beliebige Komponente (z. B. `expansion`) aus dem Backend-`content` via `xiri-dyncomponent` (Backend: `dialog.NewDialogComponent`). Details + Hinweis zum zirkulären Import → `references/components.md`.
+`type`: `'form' | 'data' | 'question' | 'waiting' | 'table' | 'component'`. Bei `'component'` rendert der Dialog eine beliebige Komponente (z. B. `expansion`) aus dem Backend-`content` via `xiri-dyncomponent` (Backend: `dialog.NewDialogComponent`). Bei `'waiting'` pollt der Dialog eine lang laufende Aufgabe (Intervall aus `checkTime`) und öffnet das Ergebnis am Ende in einem eigenen Tab. Details + Hinweis zum zirkulären Import → `references/components.md`.
 
 ## xiri-button / xiri-buttonline
 
