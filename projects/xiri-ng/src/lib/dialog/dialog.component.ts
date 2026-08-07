@@ -52,6 +52,8 @@ export interface XiriDialogResponse {
 	model?: Record<string, unknown>
 	extra?: Record<string, unknown>
 	time?: number
+	// Poll interval of a waiting dialog, in ms — this is what xiri-go sends.
+	checkTime?: number
 	done?: boolean
 	error?: string
 	goto?: string
@@ -256,7 +258,8 @@ export class XiriDialogComponent implements OnDestroy {
 
 			if ( this.type() == 'waiting' ) {
 				this.dialogRef.disableClose = true;
-				this.refreshTime = res.time || 2000;
+				// xiri-go sends the poll interval as checkTime; res.time stays as a fallback.
+				this.refreshTime = res.checkTime ?? res.time ?? 2000;
 				// formData.done = false;
 				// this.formFields.set( formData );
 				this.refresh();
@@ -318,7 +321,9 @@ export class XiriDialogComponent implements OnDestroy {
 		if ( data === null ) {
 			// TODO: fix, this is actually an external link
 			
-			const file = window.open( this.dataService.getConfigApi() + this.url, 'Report' );
+			// '_blank' and not a fixed window name: a name would make every report replace
+			// the previously opened one instead of getting its own tab.
+			const file = window.open( this.dataService.getConfigApi() + this.url, '_blank' );
 			if ( file === null || typeof ( file ) == 'undefined' ) {
 				this.buttons.set( [ {
 					text: 'Download',

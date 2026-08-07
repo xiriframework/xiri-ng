@@ -89,6 +89,7 @@ describe( 'XiriDialogComponent', () => {
 
 	afterEach( () => {
 		vi.unstubAllGlobals();
+		vi.useRealTimers();
 	} );
 
 	describe( 'creation and init', () => {
@@ -567,7 +568,7 @@ describe( 'XiriDialogComponent', () => {
 			const openSpy = vi.spyOn( window, 'open' ).mockReturnValue( {} as Window );
 			component.download( null );
 
-			expect( openSpy ).toHaveBeenCalled();
+			expect( openSpy ).toHaveBeenCalledWith( '/api/report/download', '_blank' );
 			openSpy.mockRestore();
 		} );
 
@@ -617,6 +618,46 @@ describe( 'XiriDialogComponent', () => {
 
 			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
 			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'Report', null );
+		} );
+	} );
+
+	describe( 'waiting dialog polling', () => {
+		const waitingResponse = ( extra: Record<string, unknown> ) => ( {
+			buttons: [ { text: 'Back', action: 'close', type: 'stroked' } ],
+			header:  'Waiting',
+			type:    'waiting',
+			content: { text: 'Building report' },
+			...extra,
+		} );
+
+		it( 'should open each finished report in its own tab', () => {
+			vi.useFakeTimers();
+			mockDataService.get
+				.mockReturnValueOnce( of( waitingResponse( { checkTime: 2000 } ) ) )
+				.mockReturnValueOnce( of( { done: true, url: 'report/42' } ) );
+			const openSpy = vi.spyOn( window, 'open' ).mockReturnValue( {} as Window );
+
+			createComponent( { type: 'load', url: 'test' } );
+			fixture.detectChanges();
+			vi.advanceTimersByTime( 2000 );
+
+			// A fixed window name would make the next report replace this one's tab.
+			expect( openSpy ).toHaveBeenCalledWith( '/api/report/42', '_blank' );
+			openSpy.mockRestore();
+		} );
+
+		it( 'should poll with the backend checkTime instead of the 2000ms default', () => {
+			vi.useFakeTimers();
+			mockDataService.get.mockReturnValue( of( waitingResponse( { checkTime: 5000 } ) ) );
+
+			createComponent( { type: 'load', url: 'test' } );
+			fixture.detectChanges();
+
+			expect( mockDataService.get ).toHaveBeenCalledTimes( 1 );
+			vi.advanceTimersByTime( 2000 );
+			expect( mockDataService.get ).toHaveBeenCalledTimes( 1 );
+			vi.advanceTimersByTime( 3000 );
+			expect( mockDataService.get ).toHaveBeenCalledTimes( 2 );
 		} );
 	} );
 } );

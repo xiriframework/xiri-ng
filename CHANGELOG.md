@@ -6,6 +6,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+
+- **Automatisch geöffnete Berichte überschreiben sich nicht mehr gegenseitig.** Wenn ein
+  Waiting-Dialog fertig war, öffnete er das Ergebnis mit `window.open( url, 'Report' )` — ein
+  fester Fenstername, und der navigiert laut Spec ein bereits existierendes Fenster desselben
+  Namens neu, statt ein weiteres aufzumachen. Zwei Berichte hintereinander bedeuteten also
+  einen Tab, in dem der zweite den ersten ersetzte. Der Auto-Open benutzt jetzt `_blank`, jeder
+  Bericht bekommt seinen eigenen Tab. Der Popup-Blocker-Fallback (Button „Download", wenn
+  `window.open` `null` liefert) bleibt unverändert.
+- **Der Poll-Intervall eines Waiting-Dialogs greift wieder.** `xiri-go` sendet ihn als
+  `checkTime`, gelesen wurde aber `time` — der konfigurierte Wert kam nie an und es blieb bei
+  den 2000 ms des Defaults. Gelesen wird nun `checkTime`, mit `time` als Fallback für
+  bestehende Backends.
 
 ## [0.4.4]
 ### Added
