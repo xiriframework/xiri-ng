@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.6]
 ### Changed
 
 - **Collapsible Cards klappen per Klick auf den gesamten Header auf und zu.** Bisher reagierte nur
