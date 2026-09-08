@@ -32,6 +32,11 @@
 		align-items: center;
 		min-height:  32px;
 
+		&.collapsible {
+			cursor:      pointer;
+			user-select: none;
+		}
+
 		.header-image {
 			margin-bottom: 0;
 			width:         var(--xiri-icon-size-lg);

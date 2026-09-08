@@ -1,5 +1,5 @@
 <mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
-	<mat-card-header>
+	<mat-card-header (click)="onHeaderClick($event)" [class.collapsible]="settings().collapsible">
 		@if (settings().headerIcon) {
 			<div mat-card-avatar class="header-image">
 				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>

@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+
+- **Collapsible Cards klappen per Klick auf den gesamten Header auf und zu.** Bisher reagierte nur
+  der kleine Pfeil-Button rechts; jetzt toggelt jeder Klick auf Icon, Titel, Untertitel oder
+  Leerraum im Header. Buttons im Header (Collapse, Reload, `buttonsTop`) behalten ihre eigene
+  Aktion und lösen kein zusätzliches Toggle aus. Der Header zeigt bei `collapsible` einen
+  Pointer-Cursor; nicht-collapsible Cards bleiben unverändert.
 
 ## [0.4.5]
 ### Fixed

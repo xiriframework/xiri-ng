@@ -220,6 +220,55 @@ describe('XiriCardComponent', () => {
 		expect(collapseBtn).toBeTruthy();
 	});
 
+	describe('header click', () => {
+		const click = (el: Element) => {
+			el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			fixture.detectChanges();
+		};
+		const comp = () => fixture.debugElement.children[0].componentInstance as XiriCardComponent;
+
+		it('toggles collapsed when clicking anywhere in the header', () => {
+			host.settings.set({ header: 'Test', collapsible: true, data: { a: 'b' } });
+			fixture.detectChanges();
+
+			click(fixture.nativeElement.querySelector('mat-card-title'));
+			expect(comp().isCollapsed()).toBe(true);
+
+			click(fixture.nativeElement.querySelector('mat-card-header'));
+			expect(comp().isCollapsed()).toBe(false);
+		});
+
+		it('toggles exactly once when clicking the collapse button', () => {
+			host.settings.set({ header: 'Test', collapsible: true, data: { a: 'b' } });
+			fixture.detectChanges();
+
+			click(fixture.nativeElement.querySelector('.collapse-btn mat-icon'));
+			expect(comp().isCollapsed()).toBe(true);
+		});
+
+		it('does not toggle when clicking a buttonsTop button', () => {
+			host.settings.set({
+				header: 'Test', collapsible: true, data: { a: 'b' },
+				buttonsTop: { buttons: [{ text: 'Edit', type: 'icon', action: 'none', icon: 'edit' }], class: '' },
+			});
+			fixture.detectChanges();
+
+			const btn = fixture.nativeElement.querySelector('xiri-buttonline button');
+			expect(btn).toBeTruthy();
+			click(btn);
+			expect(comp().isCollapsed()).toBe(false);
+		});
+
+		it('does not toggle when card is not collapsible', () => {
+			host.settings.set({ header: 'Test', data: { a: 'b' } });
+			fixture.detectChanges();
+
+			click(fixture.nativeElement.querySelector('mat-card-title'));
+			expect(comp().isCollapsed()).toBe(false);
+			expect(fixture.nativeElement.querySelector('mat-card-header').classList).not.toContain('collapsible');
+		});
+	});
+
 	it('should show error message in DOM on load failure', () => {
 		mockDataService.post.mockReturnValue(throwError(() => ({ error: { error: 'Server error' } })));
 		host.settings.set({ url: 'fail' });

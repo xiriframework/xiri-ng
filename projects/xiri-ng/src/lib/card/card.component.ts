@@ -182,6 +182,13 @@ export class XiriCardComponent {
 		this.isCollapsed.update( v => !v );
 	}
 
+	/** Klick irgendwo im Header toggelt; Buttons/Links (Collapse, Reload, buttonsTop) behalten ihre eigene Aktion. */
+	onHeaderClick( event: MouseEvent ): void {
+		if ( !this.settings().collapsible ) return;
+		if ( ( event.target as HTMLElement ).closest( 'button, a' ) ) return;
+		this.toggleCollapse();
+	}
+
 	reload() {
 		if ( this.loading() ) return;
 		this.cardResource.reload();
