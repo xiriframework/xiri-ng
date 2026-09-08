@@ -8,7 +8,7 @@
 	(selectedIndexChange)="onTabChange($event)">
 
 	@for (tab of settings().tabs; track tab.label; let i = $index) {
-		<mat-tab [disabled]="tab.disabled ?? false">
+		<mat-tab [disabled]="tab.disabled ?? false" [bodyClass]="tab.noPadding ? 'xiri-tab-no-padding' : ''">
 			<ng-template mat-tab-label>
 				@if (tab.icon) {
 					<mat-icon>{{ tab.icon }}</mat-icon>

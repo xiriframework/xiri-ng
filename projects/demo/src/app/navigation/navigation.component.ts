@@ -5,6 +5,7 @@ import { XiriHeaderComponent, XiriHeaderSettings } from 'projects/xiri-ng/src/li
 import { XiriButtonlineComponent, XiriButtonlineSettings } from 'projects/xiri-ng/src/lib/buttonline/buttonline.component';
 import { XiriSearchComponent } from 'projects/xiri-ng/src/lib/search/search.component';
 import { XiriTabsComponent, XiriTabsSettings } from 'projects/xiri-ng/src/lib/tabs/tabs.component';
+import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriExpansionComponent, XiriExpansionSettings } from 'projects/xiri-ng/src/lib/expansion/expansion.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
@@ -127,28 +128,59 @@ export class NavigationComponent {
 	}
 
 	// --- Tabs ---
+	// Gleicher Inhalt in „Cards" und „Cards (randlos)": zeigt direkt, dass Cards ohne Padding
+	// an der Kante kleben und der Tab-Body ihre Schatten abschneidet.
+	private readonly tabCards: XiriDynData[] = [
+		{
+			type: 'card',
+			data: {
+				header: 'Card 1',
+				headerIcon: 'home',
+				headerSub: 'First card example',
+				data: { 'Name': 'Example Item', 'Status': 'Active', 'Created': '2024-01-15' }
+			} as XiriCardSettings
+		},
+		{
+			type: 'card',
+			data: {
+				header: 'Card 2',
+				headerIcon: 'person',
+				data: { 'User': 'John Doe', 'Role': 'Administrator' }
+			} as XiriCardSettings
+		}
+	];
+
 	tabsSettings: XiriTabsSettings = {
 		tabs: [
 			{
 				label: 'Cards',
 				icon: 'dashboard',
+				data: this.tabCards
+			},
+			{
+				label: 'Cards (randlos)',
+				icon: 'dashboard',
+				noPadding: true,
+				data: this.tabCards
+			},
+			{
+				// noPadding: Tabelle sitzt bündig im Tab-Body. Nur für randlose Inhalte —
+				// Cards brauchen das Padding, sonst schneidet der Tab-Body ihre Schatten ab.
+				label: 'Table (randlos)',
+				icon: 'table_chart',
+				noPadding: true,
 				data: [
 					{
-						type: 'card',
+						type: 'table',
 						data: {
-							header: 'Card 1',
-							headerIcon: 'home',
-							headerSub: 'First card example',
-							data: { 'Name': 'Example Item', 'Status': 'Active', 'Created': '2024-01-15' }
-						} as XiriCardSettings
-					},
-					{
-						type: 'card',
-						data: {
-							header: 'Card 2',
-							headerIcon: 'person',
-							data: { 'User': 'John Doe', 'Role': 'Administrator' }
-						} as XiriCardSettings
+							url: 'Test/Test/Table1Data',
+							fields: [
+								{ id: 'id', name: 'ID' },
+								{ id: 'name', name: 'Name' },
+								{ id: 'status', name: 'Status' }
+							],
+							options: { title: 'Table 1', pagination: true, search: true, sort: true }
+						} as XiriTableSettings
 					}
 				] as XiriDynData[]
 			},

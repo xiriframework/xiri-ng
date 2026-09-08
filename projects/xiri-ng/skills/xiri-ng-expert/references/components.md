@@ -573,7 +573,24 @@ interface XiriTabSettings {
   data: XiriDynData[];
   lazy?: boolean;
   unload?: boolean;
+  noPadding?: boolean;               // Default false; entfernt nur das Padding des eigenen Tab-Bodys,
+                                     // nicht das umgebender Cards oder verschachtelter Tabs. Für bündige
+                                     // Inhalte (Tabellen); Cards brauchen das Padding, sonst schneidet
+                                     // der Tab-Body ihre Schatten ab.
 }
+```
+
+Beispiel — Tabelle bündig im Tab, Formular mit Standard-Padding:
+
+```typescript
+tabsSettings: XiriTabsSettings = {
+  tabs: [
+    { label: 'Positionen', icon: 'table_chart', noPadding: true,
+      data: [ { type: 'table', data: { url: 'Orders/Positions', fields: [...] } } ] },
+    { label: 'Bearbeiten', icon: 'edit', lazy: true,
+      data: [ { type: 'form', data: { fields: [...], buttons: [...] } } ] },
+  ]
+};
 ```
 
 ### xiri-expansion

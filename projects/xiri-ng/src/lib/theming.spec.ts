@@ -62,4 +62,9 @@ describe( 'theming mixins', () => {
 		expect( shapes[ shapes.length - 1 ] ).toContain( '0' );
 		expect( shapes[ shapes.length - 1 ] ).not.toContain( '9999px' );
 	} );
+	// Der DOM-Test der Tabs beweist nur die Klasse; hier die ausgelieferte Regel samt Kind-Kombinator,
+	// damit verschachtelte Tabs ihr Padding behalten.
+	it( 'ships the no-padding rule for tab bodies with a child combinator', () => {
+		expect( css ).toMatch( /\.mat-mdc-tab-body\.xiri-tab-no-padding > \.mat-mdc-tab-body-content \{\s*padding: 0;/ );
+	} );
 } );

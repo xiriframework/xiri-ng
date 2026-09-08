@@ -6,6 +6,25 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **Tabs können pro Tab ohne Innenabstand gerendert werden.** Jeder Tab-Body bekommt bisher fest
+  16px Padding; für randlose Inhalte wie Tabellen, oder wenn die Tabs in einer Card liegen und sich
+  die Abstände stapeln, war das nicht abschaltbar. Neu ist das optionale Feld `noPadding` in
+  `XiriTabSettings`: es entfernt nur das Padding des eigenen Tab-Bodys, verschachtelte Tabs und
+  umgebende Cards bleiben unverändert. Gedacht für bündige Inhalte wie Tabellen; Cards mit Elevation
+  brauchen das Padding, weil der Tab-Body ihre Schatten sonst abschneidet. Der Go-Builder erzeugt das
+  Feld ab `xiri-go >= v0.3.7` per `Tab.WithNoPadding(true)`.
+
+  Demo: die Navigation-Seite zeigt „Cards (randlos)" (Schatten-Clipping sichtbar) und „Table (randlos)"
+  neben den Standard-Tabs.
+
+### Changed
+
+- **Demo-Dev-Server erlaubt den Host `xiridemo.dev.michi.one` über `angular.json`.** Die CLI-Option
+  `--allowed-hosts` nimmt in dieser Angular-Version nur den Boolean (alle Hosts); die Host-Liste liegt
+  deshalb unter `demo` → `serve.options.allowedHosts`, und `npm start` reicht.
+
 
 ## [0.4.6]
 ### Changed

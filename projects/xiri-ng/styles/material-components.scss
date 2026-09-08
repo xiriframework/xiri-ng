@@ -196,6 +196,12 @@ td.align-right .xiri-chips-display {
 	padding: var(--xiri-spacing-md);
 }
 
+// Pro Tab per XiriTabSettings.noPadding abschaltbar (MatTab.bodyClass). Kind-Kombinator,
+// damit verschachtelte Tabs ihr Padding behalten.
+.mat-mdc-tab-body.xiri-tab-no-padding > .mat-mdc-tab-body-content {
+	padding: 0;
+}
+
 // ============================================
 // Dialog sizing (panel classes added by XiriDialogComponent)
 // xiri-dialog-sized: applied to all xiri dialogs so updateSize() is not

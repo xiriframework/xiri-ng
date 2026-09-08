@@ -59,6 +59,17 @@
         {"name": "correct_provider_import", "type": "code_check", "description": "provideXiriServices importiert aus '@xiriframework/xiri-ng'"}
       ],
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Baue XiriTabsSettings mit zwei Tabs: 'Positionen' zeigt eine xiri-table bündig ohne Innenabstand, 'Bearbeiten' ein Formular mit Standard-Padding und Lazy-Loading.",
+      "expected_output": "XiriTabsSettings with two XiriTabSettings; first tab has noPadding: true and a { type: 'table' } XiriDynData entry, second tab has lazy: true and a { type: 'form' } entry without noPadding.",
+      "assertions": [
+        {"name": "uses_no_padding_flag", "type": "code_check", "description": "Erster Tab setzt noPadding: true auf XiriTabSettings (pro Tab, nicht auf XiriTabsSettings)"},
+        {"name": "table_in_no_padding_tab", "type": "code_check", "description": "Der noPadding-Tab enthält ein XiriDynData mit type: 'table'"},
+        {"name": "form_tab_keeps_padding", "type": "code_check", "description": "Der Formular-Tab setzt kein noPadding und nutzt lazy: true"},
+        {"name": "no_invented_api", "type": "code_check", "description": "Kein erfundenes Feld wie padding: 0, dense oder flat — nur noPadding aus XiriTabSettings"}
+      ]
     }
   ]
 }

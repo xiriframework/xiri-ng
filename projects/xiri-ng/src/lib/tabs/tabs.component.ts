@@ -11,6 +11,7 @@ export interface XiriTabSettings {
 	data: XiriDynData[]
 	lazy?: boolean
 	unload?: boolean
+	noPadding?: boolean
 }
 
 export interface XiriTabsSettings {

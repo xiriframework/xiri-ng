@@ -193,4 +193,23 @@ describe('XiriTabsComponent', () => {
 		expect(text).toContain('First Tab');
 		expect(text).toContain('Second Tab');
 	});
+	it('applies the no-padding body class only to tabs with noPadding and follows settings changes', () => {
+		const tabs = [makeTab(), makeTab({ noPadding: true })];
+		host.settings.set({ tabs });
+		fixture.detectChanges();
+
+		const bodies = fixture.nativeElement.querySelectorAll('.mat-mdc-tab-body');
+		expect(bodies.length).toBe(2);
+		expect(bodies[0].classList.contains('xiri-tab-no-padding')).toBe(false);
+		expect(bodies[1].classList.contains('xiri-tab-no-padding')).toBe(true);
+
+		// Gleiche Labels beibehalten: `track tab.label` würde sonst neue Bodies erzeugen und den Test falsch-grün machen.
+		const body = bodies[1];
+		host.settings.set({ tabs: tabs.map(t => ({ ...t, noPadding: false })) });
+		fixture.detectChanges();
+
+		const after = fixture.nativeElement.querySelectorAll('.mat-mdc-tab-body');
+		expect(after[1]).toBe(body);
+		expect(after[1].classList.contains('xiri-tab-no-padding')).toBe(false);
+	});
 });
