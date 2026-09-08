@@ -112,8 +112,10 @@ interface XiriCardSettings {
   showHeader?: boolean;            // Default false. Bei true zeigt die eingebettete
                                    // xiri-raw-table die <thead>-Zeile mit Spalten-Headern.
                                    // Backend setzt es via card.*Card.WithTableHeader().
-  collapsible?: boolean;
-  collapsed?: boolean;
+  collapsible?: boolean;           // Klick irgendwo im Header (Icon, Titel, Leerraum) klappt
+                                   // auf/zu, nicht nur der Pfeil-Button. Buttons im Header
+                                   // (buttonsTop, Reload) behalten ihre eigene Aktion.
+  collapsed?: boolean;             // Startzustand; Änderung von außen setzt den Zustand neu.
   maxHeight?: string;
   padding?: string;                // 'xs'|'sm'|'md'|'lg'|'xl' Token oder CSS-Wert.
                                    // Wirkt nur im Multi-Component-Modus.
