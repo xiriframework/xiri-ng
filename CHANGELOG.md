@@ -13,6 +13,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Leerraum im Header. Buttons im Header (Collapse, Reload, `buttonsTop`) behalten ihre eigene
   Aktion und lösen kein zusätzliches Toggle aus. Der Header zeigt bei `collapsible` einen
   Pointer-Cursor; nicht-collapsible Cards bleiben unverändert.
+- **Abhängigkeiten aktualisiert.** Angular 22.1.5, CLI/Build 22.1.7, angular-eslint 22.5.0,
+  typescript-eslint 8.70.0, eslint 10.10.0, jsdom 30, material-symbols 0.47.1. TypeScript 7 und
+  Vitest 5 bleiben ausgespart, Angular 22.1 erlaubt per Peer-Dependency nur TypeScript 6.0 und
+  Vitest 4.
 
 ## [0.4.5]
 ### Fixed
