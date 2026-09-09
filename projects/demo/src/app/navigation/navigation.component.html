@@ -85,40 +85,6 @@
 		</div>
 	</div>
 
-	<!-- XiriExpansionComponent -->
-	<div class="xrow">
-		<div class="xcol">
-			<xiri-section [settings]="sectionExpansion">
-				<div class="xrow">
-					<div class="xcol-md-6">
-						<p>Multi + Flat + Lazy:</p>
-						<xiri-expansion [settings]="expansionSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
-					</div>
-					<div class="xcol-md-6">
-						<p>Single + Unload:</p>
-						<xiri-expansion [settings]="expansionSettings2" [dyncomponent]="dynTemplate"></xiri-expansion>
-					</div>
-				</div>
-				<div class="xrow">
-					<div class="xcol-md-6">
-						<p>Toggle Before + Hide Toggle:</p>
-						<xiri-expansion [settings]="expansionSettings3" [dyncomponent]="dynTemplate"></xiri-expansion>
-					</div>
-				</div>
-				<div class="xrow">
-					<div class="xcol-md-6">
-						<p>Header-Buttons (<code>panel.buttons</code>) + Card mit <code>flat: true</code> als Inhalt.
-							Klick, Enter und Space auf einem Button klappen das Panel nicht um. Zum Vergleich unten der alte Weg:</p>
-						<xiri-expansion [settings]="expansionButtonsSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
-					</div>
-					<div class="xcol-md-6">
-						<app-go-code [code]="goExpansionButtonsCode" title="Go: expansion.Panel.Buttons + card.WithFlat"></app-go-code>
-					</div>
-				</div>
-			</xiri-section>
-		</div>
-	</div>
-
 </div>
 
 <ng-template #dynTemplate let-obj>

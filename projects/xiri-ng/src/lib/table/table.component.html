@@ -1,4 +1,4 @@
-<mat-card class="xiritablecard mat-mdc-elevation-specific mat-elevation-z3">
+<mat-card class="xiritablecard mat-mdc-elevation-specific" [class.mat-elevation-z3]="!options.flat" [class.flat]="options.flat">
 	<div class="xiritable" [class]="options.class">
 		<div class="table-full">
 			@if (bulkBarActive) {
@@ -36,54 +36,56 @@
 					}
 				</div>
 			}
-			<div class="header" [hidden]="bulkBarActive">
-				@if (options.reload) {
-					<div class="buttons">
-						<button mat-icon-button (click)="reload()" color="primary" aria-label="Tabelle neu laden">
-							<mat-icon>autorenew</mat-icon>
-						</button>
-					</div>
-				}
-				@if (autoRefresh()) {
-					<div class="autorefresh-indicator" role="status" aria-live="polite"
-					     matTooltip="Tabelle aktualisiert sich automatisch">
-						<mat-icon class="spin">sync</mat-icon>
-						<span>Auto-Refresh aktiv · nächste in {{ countdown() }}s</span>
-					</div>
-				}
-				@if (lastUpdated(); as updated) {
-					<div class="lastupdated-indicator" data-testid="table-last-updated" role="status" aria-live="polite">
-						Stand {{ updated | date:'HH:mm' }}
-					</div>
-				}
-				@if (treeEnabled) {
-					<div class="buttons xiri-tree-actions">
-						<button mat-icon-button (click)="expandAllNodes()" color="primary"
-						        matTooltip="Alle ausklappen" aria-label="Alle ausklappen">
-							<mat-icon>unfold_more</mat-icon>
-						</button>
-						<button mat-icon-button (click)="collapseAllNodes()" color="primary"
-						        matTooltip="Alle einklappen" aria-label="Alle einklappen">
-							<mat-icon>unfold_less</mat-icon>
-						</button>
-					</div>
-				}
-				<div class="middle" [class.hasButtons]="options.buttons">{{ options.title }}</div>
-				@if (options.buttons) {
-					<xiri-buttonline [settings]="options.buttons" (result)="buttonReturn($event)"
-					                 [filterData]="_filterData()"></xiri-buttonline>
-				}
-				@if (options.search) {
-					<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchTextInit"></xiri-search>
-				}
-				@if (options.saveInput) {
-					<div class="buttons saveInput">
-						<button mat-raised-button (click)="saveInputData()" color="primary">
-							{{ options.saveInput }}
-						</button>
-					</div>
-				}
-			</div>
+			@if (hasHeader) {
+				<div class="header" [hidden]="bulkBarActive">
+					@if (options.reload) {
+						<div class="buttons">
+							<button mat-icon-button (click)="reload()" color="primary" aria-label="Tabelle neu laden">
+								<mat-icon>autorenew</mat-icon>
+							</button>
+						</div>
+					}
+					@if (autoRefresh()) {
+						<div class="autorefresh-indicator" role="status" aria-live="polite"
+						     matTooltip="Tabelle aktualisiert sich automatisch">
+							<mat-icon class="spin">sync</mat-icon>
+							<span>Auto-Refresh aktiv · nächste in {{ countdown() }}s</span>
+						</div>
+					}
+					@if (lastUpdated(); as updated) {
+						<div class="lastupdated-indicator" data-testid="table-last-updated" role="status" aria-live="polite">
+							Stand {{ updated | date:'HH:mm' }}
+						</div>
+					}
+					@if (treeEnabled) {
+						<div class="buttons xiri-tree-actions">
+							<button mat-icon-button (click)="expandAllNodes()" color="primary"
+							        matTooltip="Alle ausklappen" aria-label="Alle ausklappen">
+								<mat-icon>unfold_more</mat-icon>
+							</button>
+							<button mat-icon-button (click)="collapseAllNodes()" color="primary"
+							        matTooltip="Alle einklappen" aria-label="Alle einklappen">
+								<mat-icon>unfold_less</mat-icon>
+							</button>
+						</div>
+					}
+					<div class="middle" [class.hasButtons]="options.buttons">{{ options.title }}</div>
+					@if (options.buttons) {
+						<xiri-buttonline [settings]="options.buttons" (result)="buttonReturn($event)"
+						                 [filterData]="_filterData()"></xiri-buttonline>
+					}
+					@if (options.search) {
+						<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchTextInit"></xiri-search>
+					}
+					@if (options.saveInput) {
+						<div class="buttons saveInput">
+							<button mat-raised-button (click)="saveInputData()" color="primary">
+								{{ options.saveInput }}
+							</button>
+						</div>
+					}
+				</div>
+			}
 			<div class="tableout-wrap">
 			<div class="tableout" [class.is-loading]="loading()" [style.max-height]="options.scrollHeight || null">
 				<table mat-table [dataSource]="dataSource" matSort [style.min-width]="options.minWidth ?? '100%'"

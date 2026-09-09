@@ -50,7 +50,7 @@ export const COMPONENT_CATALOG: CatalogEntry[] = [
 	{ type: 'header', name: 'Header', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Navigation', keywords: [ 'header', 'kopf', 'title' ] },
 	{ type: 'buttonline', name: 'Button Line', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Navigation', keywords: [ 'buttonline', 'button', 'actions', 'aktionen' ] },
 	{ type: 'tabs', name: 'Tabs', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Navigation', keywords: [ 'tabs', 'reiter', 'tab' ] },
-	{ type: 'expansion', name: 'Expansion', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Navigation', keywords: [ 'expansion', 'accordion', 'panel', 'ausklappen' ] },
+	{ type: 'expansion', name: 'Expansion', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Expansion', keywords: [ 'expansion', 'accordion', 'panel', 'ausklappen' ] },
 	{ type: 'toolbar', name: 'Toolbar', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Layout', keywords: [ 'toolbar', 'leiste', 'actions' ] },
 	{ type: 'section', name: 'Section', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Layout', keywords: [ 'section', 'abschnitt', 'gruppe' ] },
 	{ type: 'page-header', name: 'Page Header', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Layout', keywords: [ 'page-header', 'header', 'seitenkopf', 'title' ] },

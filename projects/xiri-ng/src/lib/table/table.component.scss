@@ -5,6 +5,15 @@ mat-card.xiritablecard {
 	margin-bottom: var(--xiri-spacing-xl);
 }
 
+// Eingebettet (Expansion-Panel, Card): der Container liefert Rahmen und Abstand, die Tabelle
+// bringt nur noch den Inhalt mit. Analog zu xiri-card.flat.
+mat-card.xiritablecard.flat {
+	box-shadow:    none;
+	background:    transparent;
+	border-radius: 0;
+	margin-bottom: 0;
+}
+
 // Als direkte Sub-Component einer xiri-card ist das Außen-Margin redundant: Abstände im Card-Grid
 // liefert der row-gap, den Abschluss das Card-Padding. Bewusst eng auf die direkte Verschachtelung
 // begrenzt — Tabs/Sections/Container in Cards behalten ihre eigenen Regeln. Das Wrapper-div hat

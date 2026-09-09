@@ -6,6 +6,7 @@
 
 	@for (panel of settings().panels; track panel.title; let i = $index) {
 		<mat-expansion-panel
+			[class.flat-content]="hasFlatContent(panel)"
 			[disabled]="panel.disabled ?? false"
 			[expanded]="panel.expanded ?? false"
 			(opened)="onPanelOpened(i)"

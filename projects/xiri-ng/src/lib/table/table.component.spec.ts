@@ -3,7 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { of, Subject, throwError } from 'rxjs';
-import { XiriTableComponent, XiriTableRow, XiriTableSettings } from './table.component';
+import { XiriTableComponent, XiriTableOptions, XiriTableRow, XiriTableSettings } from './table.component';
 import { XiriButton } from '../button/button.component';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
@@ -1293,6 +1293,55 @@ describe( 'XiriTableComponent', () => {
 			const calls = mockDataService.post.mock.calls.length;
 			vi.advanceTimersByTime( 5000 );
 			expect( mockDataService.post.mock.calls.length ).toBe( calls );
+		} );
+	} );
+
+	// Der Header-Streifen ist 51px hoch, grau und hat eine Trennlinie: ohne Inhalt bliebe darüber
+	// eine leere graue Leiste stehen (sichtbar z. B. bei einer eingebetteten Tabelle ohne Suche).
+	describe( 'header bar', () => {
+		const header = () => fixture.nativeElement.querySelector( '.table-full > .header' );
+		const fields = [ { id: 'name', name: 'Name' } ];
+
+		it( 'is omitted when there is nothing to put in it', () => {
+			createFixture( { fields, data: [ { id: 1, name: 'Alice' } ], options: { search: false } } );
+
+			expect( header() ).toBeNull();
+		} );
+
+		it.each( [
+			[ 'a title', { search: false, title: 'Geräte' } ],
+			[ 'search', { search: true } ],
+			[ 'buttons', { search: false, buttons: { class: '', buttons: [ { text: 'Neu', type: 'raised', action: 'none' } ] } } ],
+			[ 'a save button', { search: false, saveInput: 'Speichern' } ],
+		] as [ string, XiriTableOptions ][] )( 'is rendered with %s', ( _name, options ) => {
+			createFixture( { fields, data: [ { id: 1, name: 'Alice' } ], options } );
+
+			expect( header() ).toBeTruthy();
+		} );
+
+		// Eine URL-Tabelle zeigt nach dem Laden immer die "Stand HH:mm"-Anzeige, hat also Inhalt.
+		it( 'is rendered for a url table because of the last-updated indicator', () => {
+			createFixture( { url: 'test/rows', fields, options: { search: false } } );
+
+			expect( header() ).toBeTruthy();
+		} );
+	} );
+
+	describe( 'flat', () => {
+		const card = () => fixture.nativeElement.querySelector( 'mat-card.xiritablecard' ) as HTMLElement;
+
+		it( 'renders without elevation and with class flat', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [], options: { flat: true } } );
+
+			expect( card().classList ).toContain( 'flat' );
+			expect( card().classList ).not.toContain( 'mat-elevation-z3' );
+		} );
+
+		it( 'keeps the elevation when flat is not set', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [] } );
+
+			expect( card().classList ).toContain( 'mat-elevation-z3' );
+			expect( card().classList ).not.toContain( 'flat' );
 		} );
 	} );
 } );

@@ -6,7 +6,6 @@ import { XiriButtonlineComponent, XiriButtonlineSettings } from 'projects/xiri-n
 import { XiriSearchComponent } from 'projects/xiri-ng/src/lib/search/search.component';
 import { XiriTabsComponent, XiriTabsSettings } from 'projects/xiri-ng/src/lib/tabs/tabs.component';
 import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
-import { XiriExpansionComponent, XiriExpansionSettings } from 'projects/xiri-ng/src/lib/expansion/expansion.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
@@ -27,7 +26,6 @@ import { XiriButtonResult } from 'projects/xiri-ng/src/lib/button/button.compone
 		            XiriButtonlineComponent,
 		            XiriSearchComponent,
 		            XiriTabsComponent,
-		            XiriExpansionComponent,
 		            XiriDynComponentComponent,
 		            GoCodePanelComponent,
 		            XiriBreadcrumbComponent
@@ -43,7 +41,7 @@ export class NavigationComponent {
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Navigation & Layout',
-		subtitle: 'Header, Buttons, Suche, Tabs und Expansion',
+		subtitle: 'Header, Buttons, Suche und Tabs',
 		icon: 'navigation',
 		iconColor: 'primary',
 	};
@@ -73,13 +71,6 @@ export class NavigationComponent {
 		subtitle: 'Tab navigation with lazy loading, dynamicHeight, and alignTabs. Each tab contains DynData content.',
 		icon: 'tab',
 		iconColor: 'primary',
-	};
-
-	sectionExpansion: XiriSectionSettings = {
-		title: 'XiriExpansionComponent',
-		subtitle: 'Collapsible panels. Variants: multi+flat+lazy, single+unload, togglePosition+hideToggle, buttons im Panel-Header + flat Card.',
-		icon: 'expand_more',
-		iconColor: 'accent',
 	};
 
 	// --- Headers ---
@@ -232,174 +223,6 @@ export class NavigationComponent {
 		dynamicHeight: true,
 		alignTabs: 'start'
 	};
-
-	// --- Expansion ---
-	expansionSettings: XiriExpansionSettings = {
-		multi: true,
-		displayMode: 'flat',
-		lazy: true,
-		panels: [
-			{
-				title: 'Users',
-				description: 'User management',
-				icon: 'person',
-				expanded: true,
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'User Info',
-						headerIcon: 'person',
-						headerSub: 'Lazy loaded',
-						data: { 'Name': 'John Doe', 'Role': 'Administrator', 'Status': 'Active' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			},
-			{
-				title: 'Settings',
-				description: 'System configuration',
-				icon: 'settings',
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'System',
-						headerIcon: 'settings',
-						data: { 'Theme': 'Dark', 'Language': 'English', 'Version': '1.0.0' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			},
-			{
-				title: 'Reports',
-				description: 'Read-only',
-				icon: 'assessment',
-				disabled: true,
-				data: []
-			}
-		]
-	};
-
-	gpsData = { 'IMEI': '862272080384789', 'Eingebaut': 'seit 15.04.2026', 'Box-Status': 'Ja (Status 1)', 'Letzte Meldung': '09.09.2026 16:15' };
-
-	expansionButtonsSettings: XiriExpansionSettings = {
-		multi: true,
-		panels: [
-			{
-				title: 'GPS-Einbau',
-				description: 'buttons + flat Card',
-				icon: 'gps_fixed',
-				expanded: true,
-				buttons: {
-					class: 'small',
-					buttons: [
-						{ text: 'Map', type: 'icon', action: 'debug', icon: 'map', hint: 'Auf Karte zeigen' },
-						{ text: 'Edit', type: 'icon', action: 'debug', icon: 'edit', hint: 'Bearbeiten' },
-					]
-				},
-				data: [ { type: 'card', cols: 12, data: { flat: true, data: this.gpsData } as XiriCardSettings } ] as XiriDynData[]
-			},
-			{
-				title: 'GPS-Korrektur',
-				description: 'Text-Button im Header',
-				icon: 'my_location',
-				buttons: {
-					class: 'small',
-					buttons: [ { text: 'Korrigieren', type: 'stroked', action: 'debug', icon: 'tune' } ]
-				},
-				data: [ { type: 'card', cols: 12, data: { flat: true, data: { 'Offset': '+2,4 m', 'Zuletzt': '08.09.2026' } } as XiriCardSettings } ] as XiriDynData[]
-			},
-			{
-				title: 'Vorher: Card mit buttonsTop im Panel',
-				description: 'doppelter Titel, Schatten',
-				icon: 'history',
-				expanded: true,
-				data: [ {
-					type: 'card',
-					cols: 12,
-					data: {
-						header: 'GPS-Einbau',
-						buttonsTop: { class: 'small', buttons: [ { text: 'Map', type: 'icon', action: 'debug', icon: 'map' } ] },
-						data: this.gpsData
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			},
-		]
-	};
-
-	expansionSettings2: XiriExpansionSettings = {
-		multi: false,
-		displayMode: 'default',
-		unload: true,
-		panels: [
-			{
-				title: 'Panel A',
-				description: 'Unloaded when closed',
-				icon: 'folder',
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'Panel A Content',
-						headerIcon: 'folder',
-						data: { 'Info': 'This content is unloaded when the panel is closed' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			},
-			{
-				title: 'Panel B',
-				icon: 'inventory',
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'Panel B Content',
-						headerIcon: 'inventory',
-						data: { 'Info': 'Only one panel open at a time (multi: false)' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			}
-		]
-	};
-
-	expansionSettings3: XiriExpansionSettings = {
-		multi: true,
-		displayMode: 'default',
-		togglePosition: 'before',
-		hideToggle: true,
-		panels: [
-			{
-				title: 'Toggle Before Title',
-				description: 'togglePosition: before, hideToggle: true',
-				icon: 'swap_horiz',
-				expanded: true,
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'Content',
-						headerIcon: 'swap_horiz',
-						data: { 'Info': 'Toggle icon is hidden, toggle position is before the title' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			},
-			{
-				title: 'Second Panel',
-				icon: 'visibility_off',
-				data: [ {
-					type: 'card',
-					data: {
-						header: 'Hidden Toggle',
-						headerIcon: 'visibility_off',
-						data: { 'Info': 'No visible expand arrow' }
-					} as XiriCardSettings
-				} ] as XiriDynData[]
-			}
-		]
-	};
-
-	goExpansionButtonsCode = `p := expansion.NewPanel("GPS-Einbau").
-    WithIcon("gps_fixed").
-    WithExpanded(true).
-    Buttons(button.NewButtonLine("small", nil).
-        Add(button.NewSimpleDialogButton("Map", url.NewUrl("/gps/map"), core.ColorPrimary))).
-    AddContent(card.NewCardList("", content).WithFlat(true).WithDisplay("xcol xcol-md-12"))
-
-e := expansion.NewExpansion().WithMulti(true).AddPanel(p)`;
 
 	goHeaderCode = `h1 := layout.NewHeader("Default", "primary", "", "")
 h2 := layout.NewHeader("Size x1", "primary", "x1", "")

@@ -6,6 +6,7 @@ import { SpecialFieldsComponent } from "./special-fields/special-fields.componen
 import { TablesComponent } from "./tables/tables.component";
 import { CardsComponent } from "./cards/cards.component";
 import { NavigationComponent } from "./navigation/navigation.component";
+import { ExpansionComponent } from "./expansion/expansion.component";
 import { FeedbackComponent } from "./feedback/feedback.component";
 import { SnackbarComponent } from "./snackbar/snackbar.component";
 import { SkeletonComponent } from "./skeleton/skeleton.component";
@@ -45,6 +46,7 @@ export const AppRoutes: Routes = [
 	{ path: 'EntitySummary', component: EntitySummaryComponent },
 	{ path: 'Cards', component: CardsComponent },
 	{ path: 'Navigation', component: NavigationComponent },
+	{ path: 'Expansion', component: ExpansionComponent },
 	{ path: 'Feedback', component: FeedbackComponent },
 	{ path: 'Snackbar', component: SnackbarComponent },
 	{ path: 'Skeleton', component: SkeletonComponent },

@@ -148,6 +148,8 @@ export interface XiriTableOptions {
 	saveInputUrl?: string
 	borders?: boolean
 	bordersHeader?: boolean
+	// Eingebettet (z. B. im Expansion-Panel): ohne Elevation, Hintergrund und Außen-Margin.
+	flat?: boolean
 	footer?: boolean
 	serverSide?: boolean
 	scrollHeight?: string
@@ -286,6 +288,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		saveStateId: undefined,
 		borders: false,
 		bordersHeader: false,
+		flat: false,
 		footer: false,
 		serverSide: false,
 	};
@@ -706,6 +709,13 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// ============================================================================
 
 	get treeEnabled(): boolean { return this.tree.enabled; }
+
+	// Der Header-Streifen ist 51px hoch, grau und hat eine Trennlinie — ohne Inhalt bliebe darüber
+	// nur eine leere graue Leiste stehen. Reaktiv, weil autoRefresh/lastUpdated erst beim Laden kommen.
+	get hasHeader(): boolean {
+		return !!( this.options.reload || this.options.title || this.options.buttons || this.options.search
+			|| this.options.saveInput || this.treeEnabled || this.autoRefresh() || this.lastUpdated() );
+	}
 	get treeColumnId(): string { return this.tree.treeColumn; }
 	get treeShowCounts(): boolean { return this.tree.showCounts; }
 	get treeHasAddSub(): boolean { return this.tree.hasAddSub; }

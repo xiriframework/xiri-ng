@@ -230,6 +230,42 @@ describe('XiriExpansionComponent', () => {
 		expect(fixture.nativeElement.textContent).toContain('Description text');
 	});
 
+	// Eine flache Card/Table bringt Rahmen und Innenabstand selbst mit; das Panel halbiert dann
+	// seinen Seitenabstand (siehe .flat-content im SCSS).
+	describe('flat content', () => {
+		const panelEl = () => fixture.nativeElement.querySelector('mat-expansion-panel') as HTMLElement;
+
+		it('marks the panel when it holds a flat card', () => {
+			host.settings.set({ panels: [makePanel({ data: [{ type: 'card', data: { flat: true, data: {} } }] })] });
+			fixture.detectChanges();
+
+			expect(panelEl().classList).toContain('flat-content');
+		});
+
+		it('marks the panel when it holds a flat table', () => {
+			host.settings.set({ panels: [makePanel({ data: [{ type: 'table', data: { options: { flat: true } } }] })] });
+			fixture.detectChanges();
+
+			expect(panelEl().classList).toContain('flat-content');
+		});
+
+		it('leaves a non-flat card or table alone', () => {
+			host.settings.set({
+				panels: [makePanel({ data: [{ type: 'card', data: { data: {} } }, { type: 'table', data: { options: {} } }] })],
+			});
+			fixture.detectChanges();
+
+			expect(panelEl().classList).not.toContain('flat-content');
+		});
+
+		it('leaves an empty panel alone', () => {
+			host.settings.set({ panels: [makePanel()] });
+			fixture.detectChanges();
+
+			expect(panelEl().classList).not.toContain('flat-content');
+		});
+	});
+
 	describe('header buttons', () => {
 		const buttons = { class: 'right', buttons: [{ text: 'Map', type: 'icon', action: 'none', icon: 'map' }] };
 		const comp = () => fixture.debugElement.children[0].componentInstance as XiriExpansionComponent;

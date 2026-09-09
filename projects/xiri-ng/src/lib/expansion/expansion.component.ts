@@ -70,6 +70,14 @@ export class XiriExpansionComponent {
 		} );
 	}
 
+	// Eine flache Card/Table bringt Rahmen und Innenabstand selbst mit; das Panel halbiert dann
+	// seinen Seitenabstand links/rechts (siehe .flat-content im SCSS).
+	hasFlatContent( panel: XiriExpansionPanelSettings ): boolean {
+		return panel.data?.some( d => d.type === 'card'
+			? !!( d.data as { flat?: boolean } | undefined )?.flat
+			: d.type === 'table' && !!( d.data as { options?: { flat?: boolean } } | undefined )?.options?.flat ) ?? false;
+	}
+
 	shouldRenderContent( index: number, panel: XiriExpansionPanelSettings ): boolean {
 		const globalUnload = this.settings().unload ?? false;
 		const panelUnload = panel.unload ?? globalUnload;

@@ -635,6 +635,10 @@ interface XiriExpansionPanelSettings {
 }
 ```
 
+Enthält ein Panel eine flache Card (`card.flat`) oder eine flache Tabelle (`table.options.flat`),
+bekommt das Panel die Klasse `flat-content` und halbiert seinen Seitenabstand (24px → 12px) — die
+flache Komponente bringt Rahmen und Innenabstand selbst mit.
+
 **Panel mit Header-Buttons + rahmenloser Card** (statt Card mit `buttonsTop` im Panel, die doppelten
 Titel und Schatten erzeugt):
 

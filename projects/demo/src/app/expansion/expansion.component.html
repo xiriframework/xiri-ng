@@ -1,0 +1,133 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
+		</div>
+	</div>
+
+	<!-- displayMode vs multi -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionFlatMulti">
+				<div class="xrow">
+					<div class="xcol-12">
+						<p><code>displayMode</code> und <code>multi</code> sind zwei unabhängige Schalter:
+							<code>displayMode: 'flat'</code> nimmt den Abstand und den Schatten zwischen den Panels weg (rein optisch),
+							<code>multi: true</code> erlaubt mehrere gleichzeitig offene Panels (rein Verhalten).
+							Alle vier Accordions zeigen dieselben Panels — probiere Panel 2 und 3 gleichzeitig zu öffnen:</p>
+					</div>
+					<div class="xcol-md-6">
+						<p><code>default</code> + <code>single</code>:</p>
+						<xiri-expansion [settings]="expansionDefaultSingle" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<p><code>flat</code> + <code>single</code>:</p>
+						<xiri-expansion [settings]="expansionFlatSingle" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<p><code>default</code> + <code>multi</code>:</p>
+						<xiri-expansion [settings]="expansionDefaultMulti" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<p><code>flat</code> + <code>multi</code>:</p>
+						<xiri-expansion [settings]="expansionFlatMulti" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Tabellen im Panel -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionTables">
+				<div class="xrow">
+					<div class="xcol-12">
+						<p>Eine Tabelle bringt normalerweise ihre eigene Card mit — im Panel ergibt das einen Rahmen im Rahmen.
+							<code>options.flat: true</code> nimmt der Tabelle Elevation, Hintergrund und Außen-Margin ab:</p>
+						<xiri-expansion [settings]="expansionTableFlat" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Ein Panel pro Gruppe, Tabelle als Inhalt — <code>multi: false</code> hält genau einen Standort offen,
+							<code>unload: true</code> nimmt die geschlossene Tabelle wieder aus dem DOM:</p>
+						<xiri-expansion [settings]="expansionTableGroups" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goTableInPanelCode" title="Go: table.SetFlat + expansion.Panel"></app-go-code>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol-12">
+						<p>Tabellen mit <code>url</code> laden ihre Daten selbst. Mit <code>lazy: true</code> passiert das erst beim
+							ersten Öffnen und bleibt danach im DOM, mit <code>unload: true</code> verschwindet die Tabelle beim
+							Schließen und lädt beim nächsten Öffnen neu:</p>
+						<xiri-expansion [settings]="expansionTableLazy" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Lazy & Unload -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionLazy">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<p>Multi + Flat + Lazy:</p>
+						<xiri-expansion [settings]="expansionSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<p>Single + Unload:</p>
+						<xiri-expansion [settings]="expansionSettings2" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Toggle -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionToggle">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-expansion [settings]="expansionSettings3" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+	<!-- Header-Buttons -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionButtons">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-expansion [settings]="expansionButtonsSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goExpansionButtonsCode" title="Go: expansion.Panel.Buttons + card.WithFlat"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
+</div>
+
+<ng-template #dynTemplate let-obj>
+	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>
+</ng-template>

@@ -6,6 +6,25 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **`XiriTableOptions.flat` rendert eine Tabelle rahmenlos.** Kein Schatten, kein Hintergrund, kein
+  Radius und kein unteres Außen-Margin — für Tabellen, die als Inhalt in einem Expansion-Panel oder
+  in einer Card liegen und bisher als Rahmen im Rahmen erschienen. Pendant zu `XiriCardSettings.flat`.
+  Go-Seite: `TableBuilder.SetFlat(true)` ab `xiri-go >= 0.3.9`.
+- **Expansion-Panels halbieren ihren Seitenabstand bei flachem Inhalt.** Enthält ein Panel eine Card
+  mit `flat: true` oder eine Tabelle mit `options.flat: true`, bekommt das Panel die Klasse
+  `flat-content` und links/rechts 12px statt der 24px von Material — die flache Komponente bringt
+  Rahmen und Innenabstand schon selbst mit.
+
+### Fixed
+
+- **Kein leerer grauer Streifen mehr über einer Tabelle ohne Header-Inhalt.** Die Header-Leiste
+  (51px, `surface-container`, Trennlinie) wurde unbedingt gerendert und stand als leerer Balken da,
+  sobald `search: false` gesetzt war und es weder Titel, Buttons, Reload-Button, Tree-Aktionen noch
+  eine „Stand HH:mm"-Anzeige gab — also bei jeder Tabelle mit Inline-`data` ohne Suche. Die Leiste
+  wird jetzt nur gerendert, wenn sie Inhalt hat.
+
 
 ## [0.4.8]
 ### Added

@@ -117,6 +117,8 @@ export interface XiriTableOptions {
 
   borders?: boolean;
   bordersHeader?: boolean;
+  flat?: boolean = false;              // ohne Elevation/Hintergrund/Außen-Margin — für Tabellen,
+                                       // die in einem Container (Expansion-Panel, Card) sitzen
   footer?: boolean;                    // Footer-Row mit count/sum/static
 
   serverSide?: boolean;                // Paging/Sort/Search serverseitig
