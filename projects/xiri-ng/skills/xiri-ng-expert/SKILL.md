@@ -204,6 +204,8 @@ tableSettings = {
 
 Öffentliche Methoden: `reload()`, `searchDo(text)`, `startInlineEdit(row, column)`, `cancelInlineEdit()`, `saveInlineEdit(row, column)`, `selection` (SelectionModel), `isAllSelected()`, `masterToggle()`.
 
+**Header-Leiste:** Der graue Streifen über der Kopfzeile trägt `title`, `buttons`, Suche, Reload-Button, Tree-Aktionen und die „Stand HH:mm"-Anzeige — ohne all das wird er nicht gerendert. `search` ist default **true**, für eine nackte Tabelle also `search: false` setzen. Rahmenlos im Panel/in einer Card: `options.flat: true` (Details: `references/table.md`).
+
 **Auto-Refresh:** Liefert die Daten-Response ein `poll` (ms), lädt sich die Tabelle selbsttätig neu + zeigt Header-Indikator mit Countdown; ohne `poll` stoppt es (Backend-gesteuert, `tbl.SetPoll`). Details: `references/table.md`.
 
 ## xiri-raw-table — minimale Tabelle
@@ -312,6 +314,8 @@ stepperSettings = {
 <xiri-divider [settings]="{ text: 'Weitere Optionen', spacing: 'normal' }"/>
 <xiri-tabs [settings]="{ tabs: [{ label: 'Liste', noPadding: true, data: [...] }], lazy: true }"/>  <!-- noPadding: randloser Tab-Body (Tabellen) -->
 <xiri-expansion [settings]="{ panels: [{ title: 'GPS', buttons: {...}, data: [{ type: 'card', cols: 12, data: { flat: true, data: {...} } }] }] }"/>  <!-- buttons: Header-Buttons; flat: Card ohne Schatten -->
+<!-- Tabelle im Panel: options.flat statt Rahmen im Rahmen, kein cols nötig. Panel halbiert dann automatisch seinen Seitenabstand. -->
+<xiri-expansion [settings]="{ multi: false, unload: true, panels: [{ title: 'Standort Wien', icon: 'place', data: [{ type: 'table', data: { data: rows, fields, options: { flat: true, pagination: false, search: false } } }] }] }"/>
 <xiri-sidenav [settings]="{ prefix: '/app/', fields: navItems }"/>
 <xiri-breadcrumb [settings]="breadcrumbItems"/>
 <xiri-skeleton type="table-row" [lines]="5" [columns]="4"/>

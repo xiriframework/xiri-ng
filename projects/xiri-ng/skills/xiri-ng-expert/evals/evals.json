@@ -83,6 +83,20 @@
         {"name": "no_invented_api", "type": "code_check", "description": "Kein erfundenes Feld wie headerButtons, actions, shadow: false oder compact auf der Card"}
       ],
       "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Baue mit xiri-ng ein Accordion, das pro Standort ein Panel zeigt (Titel = Standortname, Icon 'place', Beschreibung = Anzahl Geräte). Panel-Inhalt ist eine Tabelle mit Name, IMEI und Status — ohne Pagination, ohne Suche, kompakte Zeilen. Es soll nur ein Standort gleichzeitig offen sein, die Tabelle beim Schließen aus dem DOM verschwinden, und die Tabelle soll keinen eigenen Rahmen im Panel haben.",
+      "expected_output": "XiriExpansionSettings with multi: false and unload: true; one panel per location with title/icon/description and data: [{ type: 'table', data: { data: rows, fields, options: { flat: true, density: 'compact', pagination: false, search: false } } }]. No cols on the table entry, no card wrapped around it.",
+      "assertions": [
+        {"name": "uses_options_flat", "type": "contains_pattern", "description": "Die Tabelle setzt options.flat: true — kein Schatten/Hintergrund/Radius im Panel"},
+        {"name": "search_off", "type": "code_check", "description": "options.search: false ist explizit gesetzt, weil search default true ist (sonst bleibt die Header-Leiste sichtbar)"},
+        {"name": "multi_false_and_unload", "type": "code_check", "description": "multi: false (genau ein Panel offen) und unload: true (Inhalt bei Close aus dem DOM)"},
+        {"name": "table_directly_in_panel_data", "type": "code_check", "description": "Der Tabellen-XiriDynData-Eintrag liegt direkt in panel.data — nicht in eine Card gewrappt"},
+        {"name": "no_cols_on_table", "type": "code_check", "description": "Kein cols: 12 an der Tabelle — xiri-dyncomponent gibt Tabellen schon per Default xcol (volle Breite)"},
+        {"name": "no_invented_api", "type": "code_check", "description": "Kein erfundenes Feld wie elevation: 0, noCard, shadow: false oder noPadding auf der Tabelle — nur options.flat"}
+      ],
+      "files": []
     }
   ]
 }

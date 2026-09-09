@@ -117,13 +117,54 @@ export interface XiriTableOptions {
 
   borders?: boolean;
   bordersHeader?: boolean;
-  flat?: boolean = false;              // ohne Elevation/Hintergrund/Außen-Margin — für Tabellen,
-                                       // die in einem Container (Expansion-Panel, Card) sitzen
+  flat?: boolean = false;              // rahmenlos — s. u. „Rahmenlose Tabelle"
   footer?: boolean;                    // Footer-Row mit count/sum/static
 
   serverSide?: boolean;                // Paging/Sort/Search serverseitig
 }
 ```
+
+### Rahmenlose Tabelle (`flat`) — Tabelle als Panel- oder Card-Inhalt
+
+Die Tabelle rendert sich in eine eigene `mat-card` mit `mat-elevation-z3` und `margin-bottom:
+var(--xiri-spacing-xl)`. Liegt sie in einem Expansion-Panel oder als Sub-Component in einer Card, ist
+das ein Rahmen im Rahmen. `options.flat: true` lässt Schatten, Hintergrund, Radius und das Margin weg.
+Pendant zu `XiriCardSettings.flat`; Go-Seite `TableBuilder.SetFlat(true)` ab `xiri-go >= 0.3.9`.
+
+Ein Expansion-Panel, das eine flache Card oder eine flache Tabelle enthält, bekommt zusätzlich die
+Klasse `flat-content` und halbiert seinen Seitenabstand (24px → 12px) — das passiert automatisch, dafür
+ist nichts zu setzen.
+
+```ts
+const devices: XiriDynData = {
+	type: 'table',
+	data: {
+		data: rows,
+		fields: [ { id: 'name', name: 'Gerät' }, { id: 'imei', name: 'IMEI' } ],
+		// search ist default true — für eine nackte Tabelle explizit abschalten
+		options: { flat: true, density: 'compact', pagination: false, search: false, sort: true },
+	} as XiriTableSettings,
+};
+
+const acc: XiriExpansionSettings = {
+	multi: false, unload: true,
+	panels: [ { title: 'Standort Wien', icon: 'place', description: '3 Geräte', data: [ devices ] } ],
+};
+```
+
+Anders als bei einer Card braucht die Tabelle **kein** `cols: 12` — `xiri-dyncomponent` gibt Tabellen
+schon per Default `xcol` (volle Breite), Cards dagegen `xcol xcol-md-6 xcol-xl-4`.
+
+### Die Header-Leiste erscheint nur mit Inhalt
+
+Der graue Streifen über der Kopfzeile (51px, `--surface-container`, Trennlinie) trägt `title`,
+`buttons`, die Suche, den Reload-Button, die Tree-Aktionen (alle aus-/einklappen) und die
+„Stand HH:mm"-Anzeige. Ist nichts davon da, wird er gar nicht gerendert.
+
+Praktisch heißt das: eine Tabelle mit Inline-`data` und `search: false` hat keine Header-Leiste (vorher
+stand dort ein leerer grauer Balken). Eine Tabelle mit `url` hat nach der ersten Antwort immer eine,
+weil `lastUpdated` dann gesetzt ist. `reload: true` bringt bei Inline-`data` nichts — `loadData()`
+setzt es dort hart auf `false`, weil es nichts nachzuladen gibt.
 
 ### Row-IDs — nicht konvertieren
 

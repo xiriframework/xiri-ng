@@ -656,6 +656,28 @@ const gps: XiriExpansionSettings = {
 };
 ```
 
+**Tabelle als Panel-Inhalt** (`options.flat`, ein Panel pro Gruppe). `cols` braucht es hier nicht,
+Tabellen sind im Dyncomponent ohnehin volle Breite; `search: false` hält auch die Header-Leiste der
+Tabelle weg (siehe `table.md`):
+
+```ts
+const groups: XiriExpansionSettings = {
+  multi: false, displayMode: 'flat', unload: true,   // ein Panel offen, Tabelle bei Close aus dem DOM
+  panels: [
+    { title: 'Standort Wien', icon: 'place', description: '3 Geräte', expanded: true, data: [ table(wien) ] },
+    { title: 'Standort Graz', icon: 'place', description: '2 Geräte', data: [ table(graz) ] },
+  ],
+};
+
+function table( rows: XiriTableRow[] ): XiriDynData {
+  return { type: 'table', data: {
+    data: rows,
+    fields: [ { id: 'name', name: 'Gerät' }, { id: 'imei', name: 'IMEI' } ],
+    options: { flat: true, density: 'compact', pagination: false, search: false, sort: true },
+  } as XiriTableSettings };
+}
+```
+
 ## Skeleton & Empty-State
 
 ### xiri-skeleton
