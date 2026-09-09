@@ -5,6 +5,14 @@ mat-card.xiritablecard {
 	margin-bottom: var(--xiri-spacing-xl);
 }
 
+// Als direkte Sub-Component einer xiri-card ist das Außen-Margin redundant: Abstände im Card-Grid
+// liefert der row-gap, den Abschluss das Card-Padding. Bewusst eng auf die direkte Verschachtelung
+// begrenzt — Tabs/Sections/Container in Cards behalten ihre eigenen Regeln. Das Wrapper-div hat
+// nicht immer die Klasse xcol (display wird frei durchgereicht), deshalb `div`.
+.mat-mdc-card-content.hasComponents > xiri-dyncomponent > div > xiri-table > mat-card.xiritablecard {
+	margin-bottom: 0;
+}
+
 .xiritable {
 	width:    100%;
 	overflow: auto; // breite Tabelle scrollt in sich, statt die Card zu sprengen
@@ -386,6 +394,13 @@ mat-card.xiritablecard {
 
 xiri-dyncomponent {
 	margin-bottom: var(--xiri-spacing-xl);
+}
+
+// Im Body eines Expansion-Panels oder Tabs liefert das Body-Padding den Abschluss; das Außen-Margin
+// würde sich nur draufstapeln. Eng auf das direkte Kind begrenzt, tiefere Verschachtelung unverändert.
+.mat-expansion-panel-body > xiri-dyncomponent,
+.mat-mdc-tab-body-content > xiri-dyncomponent {
+	margin-bottom: 0;
 }
 
 [hidden] {
