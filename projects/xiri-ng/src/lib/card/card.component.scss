@@ -25,6 +25,17 @@
 .card {
 	overflow: hidden;
 
+	// Eingebettet (z. B. im Expansion-Panel): kein Rahmen, kein Schatten – auch nicht am Header.
+	&.flat {
+		box-shadow:    none;
+		background:    transparent;
+		border-radius: 0;
+
+		mat-card-header {
+			box-shadow: none;
+		}
+	}
+
 	mat-card-header {
 		margin:      0 0 2px 0;
 		box-shadow:  var(--xiri-shadow-xs);

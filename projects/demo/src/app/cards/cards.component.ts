@@ -51,6 +51,12 @@ export class CardsComponent {
 		icon: 'smart_button',
 	};
 
+	sectionFlatCard: XiriSectionSettings = {
+		title: 'Flat Card',
+		subtitle: 'flat: true — ohne Schatten, Hintergrund und Radius, z. B. eingebettet in ein Expansion-Panel. Header bleibt nur, wenn er Inhalt hat.',
+		icon: 'layers_clear',
+	};
+
 	sectionDenseCard: XiriSectionSettings = {
 		title: 'Dense Card',
 		subtitle: 'dense: 2 — Compact display with reduced padding.',
@@ -240,6 +246,22 @@ export class CardsComponent {
 		]
 	} as XiriCardSettings;
 
+	public cardFlat: XiriCardSettings = {
+		flat: true,
+		header: 'Flat Card',
+		headerSub: 'flat: true, Header mit Buttons',
+		buttonsTop: {
+			class: 'small',
+			buttons: [ { text: 'Map', type: 'icon', action: 'debug', icon: 'map', hint: 'Karte' } ]
+		},
+		data: { 'IMEI': '862272080384789', 'Eingebaut': 'seit 15.04.2026', 'Box-Status': 'Ja (Status 1)' }
+	};
+
+	public cardFlatNoHeader: XiriCardSettings = {
+		flat: true,
+		data: { 'IMEI': '862272080384789', 'Eingebaut': 'seit 15.04.2026', 'Box-Status': 'Ja (Status 1)' }
+	};
+
 	public card2 = {
 		header: 'Card with Buttons',
 		headerSub: 'buttonsTop + buttonsBottom',
@@ -366,6 +388,13 @@ c := card.NewCardList(
     },
     card.NewCardListContentFields(fields, data),
 )`;
+
+	goCardFlatCode = `c := card.NewCardList("Flat Card", content).
+    WithFlat(true).
+    ButtonTop(button.NewSimpleDialogButton("Map", url.NewUrl("/gps/map"), core.ColorPrimary))
+
+// Ohne Header: einfach keinen Header setzen, dann wird er nicht gerendert.
+c2 := card.NewCardList("", content).WithFlat(true)`;
 
 	goCardButtonsCode = `c := card.NewCardList(
     card.Header{

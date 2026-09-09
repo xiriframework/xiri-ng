@@ -70,6 +70,19 @@
         {"name": "form_tab_keeps_padding", "type": "code_check", "description": "Der Formular-Tab setzt kein noPadding und nutzt lazy: true"},
         {"name": "no_invented_api", "type": "code_check", "description": "Kein erfundenes Feld wie padding: 0, dense oder flat — nur noPadding aus XiriTabSettings"}
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Schreibe XiriExpansionSettings mit einem Panel 'GPS-Einbau', das rechts im Panel-Header einen Icon-Button 'Karte' (action dialog, url /gps/map) hat. Inhalt ist eine Card mit data { IMEI, Eingebaut } als Key/Value-Tabelle über die volle Panel-Breite, ohne doppelten Titel und ohne Card-Schatten.",
+      "expected_output": "XiriExpansionPanelSettings with buttons: XiriButtonlineSettings holding the icon button; data contains { type: 'card', cols: 12, data: { flat: true, data: {...} } } without header.",
+      "assertions": [
+        {"name": "uses_panel_buttons", "type": "code_check", "description": "Der Button steht in panel.buttons (XiriButtonlineSettings), nicht als buttonline-Eintrag in panel.data"},
+        {"name": "uses_flat_card", "type": "code_check", "description": "Die Card in panel.data setzt flat: true und keinen header"},
+        {"name": "full_width_card", "type": "code_check", "description": "Der Card-XiriDynData-Eintrag setzt cols: 12 (oder display mit xcol-md-12)"},
+        {"name": "icon_button_has_hint", "type": "code_check", "description": "Der Icon-Button hat einen hint (Accessible Name)"},
+        {"name": "no_invented_api", "type": "code_check", "description": "Kein erfundenes Feld wie headerButtons, actions, shadow: false oder compact auf der Card"}
+      ],
+      "files": []
     }
   ]
 }

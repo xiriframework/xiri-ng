@@ -3,6 +3,7 @@ import { MatAccordion, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionP
 import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { XiriDynData } from '../dyncomponent/dyndata.interface';
+import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
 
 export interface XiriExpansionPanelSettings {
 	title: string
@@ -11,6 +12,7 @@ export interface XiriExpansionPanelSettings {
 	disabled?: boolean
 	expanded?: boolean
 	data: XiriDynData[]
+	buttons?: XiriButtonlineSettings
 	lazy?: boolean
 	unload?: boolean
 }
@@ -36,8 +38,7 @@ export interface XiriExpansionSettings {
 		            MatExpansionPanelTitle,
 		            MatExpansionPanelDescription,
 		            MatIcon,
-		            NgTemplateOutlet
-	            ]
+		            NgTemplateOutlet, XiriButtonlineComponent ]
             } )
 export class XiriExpansionComponent {
 

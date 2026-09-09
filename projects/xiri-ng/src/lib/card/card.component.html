@@ -1,4 +1,5 @@
-<mat-card class="card mat-mdc-elevation-specific mat-elevation-z2">
+<mat-card class="card mat-mdc-elevation-specific" [class.mat-elevation-z2]="!settings().flat" [class.flat]="settings().flat">
+	@if (showHeader()) {
 	<mat-card-header (click)="onHeaderClick($event)" [class.collapsible]="settings().collapsible">
 		@if (settings().headerIcon) {
 			<div mat-card-avatar class="header-image">
@@ -25,6 +26,7 @@
 			</button>
 		}
 	</mat-card-header>
+	}
 	<div class="collapse-wrapper" [class.collapsed]="isCollapsed()">
 		<div class="collapse-inner">
 			@if (loading() && !cardData()) {

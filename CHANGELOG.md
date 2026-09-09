@@ -6,6 +6,41 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **Expansion-Panels können Buttons im Header tragen.** `XiriExpansionPanelSettings.buttons`
+  (eine `XiriButtonlineSettings`, wie bei Section und PageHeader) rendert rechtsbündig eine
+  Buttonline im `mat-expansion-panel-header`. Klick, Enter und Space auf einem Button führen nur die
+  Button-Aktion aus und klappen das Panel nicht um; `filterData` wird durchgereicht. Bisher brauchte
+  man dafür eine eigene Card mit `buttonsTop` im Panel, mit doppeltem Titel und Card-Schatten.
+  `disabled` am Panel sperrt weiterhin nur den Toggle, nicht die Buttons.
+  Go-Seite: `Panel.Buttons(...)` ab `xiri-go >= 0.3.8`.
+- **`XiriCardSettings.flat` rendert eine Card rahmenlos.** Kein Schatten (auch nicht am Header), kein
+  Hintergrund, kein Radius; der Header wird nur gerendert, wenn er Inhalt hat (Titel, Untertitel, Icon,
+  `buttonsTop`, Collapse oder Reload). Damit lässt sich eine bestehende Card mit `fields`/`data` als
+  reiner Inhalt in ein Expansion-Panel legen. Go-Seite: `Card.WithFlat(true)` ab `xiri-go >= 0.3.8`.
+
+### Fixed
+
+- **Kein doppelter Abstand unter Inhalten in Expansion-Panels und Tabs.** `xiri-dyncomponent` trug als
+  direktes Kind eines Panel- oder Tab-Bodys sein globales Außen-Margin zusätzlich zum Body-Padding.
+  Ebenso verliert eine `xiri-table` als direkte Sub-Component einer Card ihr Außen-Margin, dort liefern
+  Grid-Gap und Card-Padding den Abstand. Tiefere Verschachtelungen bleiben unverändert.
+
+### Fixed
+
+- **Tabelle als direkte Sub-Component einer Card hatte 32px zusätzlichen Leerraum am Card-Boden.**
+  Das globale Außen-Margin von `xiri-table` (gedacht als Abstand zwischen gestapelten Tabellen auf
+  Seitenebene) stapelte sich in `XiriCardSettings.components` auf das Card-Padding. Innerhalb des
+  Card-Grids entfällt es jetzt; Abstände liefert dort der Grid-Gap, den Abschluss das Card-Padding.
+  Gilt nur für die direkte Verschachtelung Card → Table. Top-Level-Tabellen sowie Tabellen in Tabs,
+  Sections oder Containern innerhalb einer Card sind unverändert. Zwei gestapelte Tabellen in einer
+  Card haben nun den normalen Grid-Abstand statt zusätzlich 32px.
+- **Expansion-Panel- und Tab-Inhalte hatten 32px zusätzlichen Leerraum am unteren Rand.** Das
+  globale Außen-Margin des `xiri-dyncomponent`, der den Inhalt rendert, stapelte sich auf das
+  Body-Padding, und zwar nur auf Seiten, auf denen irgendwo eine `xiri-table` gerendert war. Direkt im
+  Panel- bzw. Tab-Body entfällt es jetzt. Tiefere Verschachtelungen und Top-Level bleiben unverändert.
+
 
 ## [0.4.7]
 ### Added

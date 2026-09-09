@@ -1,7 +1,13 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriExpansionComponent, XiriExpansionSettings, XiriExpansionPanelSettings } from './expansion.component';
+import { XiriDataService } from '../services/data.service';
+import { XiriDownloadService } from '../services/download.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
 
 let panelCounter = 0;
 function makePanel(overrides: Partial<XiriExpansionPanelSettings> = {}): XiriExpansionPanelSettings {
@@ -14,11 +20,12 @@ function makePanel(overrides: Partial<XiriExpansionPanelSettings> = {}): XiriExp
 
 @Component({
 	selector: 'test-host',
-	template: `<xiri-expansion [settings]="settings()" />`,
+	template: `<xiri-expansion [settings]="settings()" [filterData]="filterData()" />`,
 	imports: [XiriExpansionComponent],
 })
 class TestHostComponent {
 	settings = signal<XiriExpansionSettings>({ panels: [] });
+	filterData = signal<Record<string, unknown> | null | undefined>(undefined);
 }
 
 describe('XiriExpansionComponent', () => {
@@ -29,6 +36,14 @@ describe('XiriExpansionComponent', () => {
 		panelCounter = 0;
 		await TestBed.configureTestingModule({
 			imports: [TestHostComponent],
+			providers: [
+				{ provide: XiriDataService, useValue: { post: vi.fn().mockReturnValue(of({})) } },
+				{ provide: XiriDownloadService, useValue: { download: vi.fn() } },
+				{ provide: MatDialog, useValue: { open: vi.fn() } },
+				{ provide: Location, useValue: { back: vi.fn() } },
+				{ provide: Router, useValue: { navigate: vi.fn(), url: '/' } },
+				{ provide: ActivatedRoute, useValue: {} },
+			],
 		}).compileComponents();
 		fixture = TestBed.createComponent(TestHostComponent);
 		host = fixture.componentInstance;
@@ -213,5 +228,53 @@ describe('XiriExpansionComponent', () => {
 		fixture.detectChanges();
 
 		expect(fixture.nativeElement.textContent).toContain('Description text');
+	});
+
+	describe('header buttons', () => {
+		const buttons = { class: 'right', buttons: [{ text: 'Map', type: 'icon', action: 'none', icon: 'map' }] };
+		const comp = () => fixture.debugElement.children[0].componentInstance as XiriExpansionComponent;
+		const isExpanded = () => !!fixture.nativeElement.querySelector('mat-expansion-panel-header.mat-expanded');
+
+		beforeEach(() => {
+			host.settings.set({ panels: [makePanel({ title: 'GPS', buttons })] });
+			fixture.detectChanges();
+		});
+
+		it('renders a buttonline inside the panel header', () => {
+			expect(fixture.nativeElement.querySelector('mat-expansion-panel-header xiri-buttonline button')).toBeTruthy();
+		});
+
+		it.each([['Enter', 13], ['Space', 32]])('does not toggle the panel on %s pressed on a header button', (_name, keyCode) => {
+			const btn = fixture.nativeElement.querySelector('xiri-buttonline button') as HTMLButtonElement;
+			const ev = new KeyboardEvent('keydown', { keyCode, bubbles: true, cancelable: true } as KeyboardEventInit);
+			btn.dispatchEvent(ev);
+			fixture.detectChanges();
+
+			expect(ev.defaultPrevented).toBe(false);
+			expect(isExpanded()).toBe(false);
+			expect(comp().openedPanels().size).toBe(0);
+		});
+
+		it('does not toggle the panel when clicking between the header buttons', () => {
+			fixture.nativeElement.querySelector('xiri-buttonline').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			fixture.detectChanges();
+
+			expect(isExpanded()).toBe(false);
+		});
+
+		it('still toggles the panel when clicking the title', () => {
+			fixture.nativeElement.querySelector('mat-panel-title').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+			fixture.detectChanges();
+
+			expect(isExpanded()).toBe(true);
+		});
+
+		it('passes filterData through, so filterData null disables the buttons', () => {
+			host.filterData.set(null);
+			fixture.detectChanges();
+
+			const btn = fixture.nativeElement.querySelector('xiri-buttonline button') as HTMLButtonElement;
+			expect(btn.disabled).toBe(true);
+		});
 	});
 });

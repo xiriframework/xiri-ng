@@ -120,8 +120,17 @@ interface XiriCardSettings {
   padding?: string;                // 'xs'|'sm'|'md'|'lg'|'xl' Token oder CSS-Wert.
                                    // Wirkt nur im Multi-Component-Modus.
                                    // Default 'md'. Auf xs-Viewport (<576px) immer 8px.
+  flat?: boolean;                  // Rahmenlos: kein Schatten (auch nicht am Header), kein Hintergrund,
+                                   // kein Radius. mat-card-header wird nur gerendert, wenn er Inhalt hat
+                                   // (header, headerSub, headerIcon, buttonsTop, collapsible, reload+url).
+                                   // Für Cards als Inhalt eines Expansion-Panels/Tabs. Backend: Card.WithFlat(true).
 }
 ```
+
+**Card als Panel-Inhalt (`flat`):** Card ohne `header` mit `flat: true` in `panel.data` legen; Titel und
+Buttons gehören dann in den Panel-Header (`XiriExpansionPanelSettings.buttons`, siehe xiri-expansion).
+`cols: 12` auf dem `XiriDynData`-Eintrag nicht vergessen — `xiri-dyncomponent` rendert Cards sonst nur
+`xcol-md-6 xcol-xl-4` breit.
 
 **Render-Reihenfolge im Card-Body:**
 
@@ -614,12 +623,33 @@ interface XiriExpansionPanelSettings {
   title: string;
   description?: string;
   icon?: string;
-  disabled?: boolean;
+  disabled?: boolean;                // sperrt nur den Toggle, nicht die Header-Buttons
   expanded?: boolean;
   data: XiriDynData[];
   lazy?: boolean;
   unload?: boolean;
+  buttons?: XiriButtonlineSettings;  // Aktions-Buttons rechts im Panel-Header (wie section.buttons).
+                                     // Klick/Enter/Space auf einem Button toggelt das Panel nicht;
+                                     // filterData wird durchgereicht. Sichtbar auch bei geschlossenem
+                                     // Panel (autoLoad feuert sofort). Backend: Panel.Buttons(...).
 }
+```
+
+**Panel mit Header-Buttons + rahmenloser Card** (statt Card mit `buttonsTop` im Panel, die doppelten
+Titel und Schatten erzeugt):
+
+```ts
+const gps: XiriExpansionSettings = {
+  multi: true,
+  panels: [{
+    title: 'GPS-Einbau', icon: 'gps_fixed', expanded: true,
+    buttons: { class: 'small', buttons: [
+      { text: 'Karte', type: 'icon', icon: 'map', hint: 'Karte', action: 'dialog', url: '/gps/map' },
+    ] },
+    // cols ist XiriDynData.cols (siehe dyncomponent.md): ohne 12 wäre die Card nur xcol-md-6 xcol-xl-4 breit
+    data: [{ type: 'card', cols: 12, data: { flat: true, data: { IMEI: '862272080384789', Eingebaut: 'seit 15.04.2026' } } }],
+  }],
+};
 ```
 
 ## Skeleton & Empty-State

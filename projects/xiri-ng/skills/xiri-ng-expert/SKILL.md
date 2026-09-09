@@ -311,7 +311,7 @@ stepperSettings = {
 <xiri-section [settings]="{ title: 'Details', collapsible: true, components: [...] }"/>
 <xiri-divider [settings]="{ text: 'Weitere Optionen', spacing: 'normal' }"/>
 <xiri-tabs [settings]="{ tabs: [{ label: 'Liste', noPadding: true, data: [...] }], lazy: true }"/>  <!-- noPadding: randloser Tab-Body (Tabellen) -->
-<xiri-expansion [settings]="{ panels: [...], multi: false, lazy: true }"/>
+<xiri-expansion [settings]="{ panels: [{ title: 'GPS', buttons: {...}, data: [{ type: 'card', cols: 12, data: { flat: true, data: {...} } }] }] }"/>  <!-- buttons: Header-Buttons; flat: Card ohne Schatten -->
 <xiri-sidenav [settings]="{ prefix: '/app/', fields: navItems }"/>
 <xiri-breadcrumb [settings]="breadcrumbItems"/>
 <xiri-skeleton type="table-row" [lines]="5" [columns]="4"/>

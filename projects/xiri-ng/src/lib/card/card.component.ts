@@ -38,6 +38,7 @@ export interface XiriCardSettings {
 	collapsible?: boolean
 	collapsed?: boolean
 	maxHeight?: string
+	flat?: boolean    // Ohne Schatten/Hintergrund/Radius; Header nur wenn er Inhalt hat.
 	padding?: string  // Token 'xs'|'sm'|'md'|'lg'|'xl' oder freier CSS-Wert ('16px', '1rem', 'var(--…)').
 	                  // Wirkt nur im Multi-Component-Modus (settings.components).
 	                  // Auf xs-Viewport (<576px) immer 8px.
@@ -66,6 +67,13 @@ export class XiriCardComponent {
 	private dataService = inject( XiriDataService );
 
 	settings = input.required<XiriCardSettings>();
+
+	// Bei flat nur rendern, wenn der Header Inhalt hat; sonst bliebe eine leere 32px-Leiste.
+	showHeader = computed( () => {
+		const s = this.settings();
+		return !s.flat || !!( s.header || s.headerSub || s.headerIcon || s.buttonsTop?.buttons?.length
+			|| s.collapsible || ( s.reload && s.url ) );
+	} );
 
 	isCollapsed = linkedSignal<boolean | undefined, boolean>( {
 		source: () => this.settings().collapsed,

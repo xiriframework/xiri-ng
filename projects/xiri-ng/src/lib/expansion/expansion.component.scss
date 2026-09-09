@@ -2,6 +2,39 @@
 	display: block;
 }
 
+// Das Panel-Icon wird von Material hinter Titel/Description projiziert; ohne align-self klebt es oben im Header.
 mat-icon {
 	margin-right: 8px;
+	align-self:   center;
+}
+
+// Header-Buttons rechtsbündig, vertikal zentriert, 16px Abstand zum Toggle-Chevron (wie Titel/Description).
+// Icon-Buttons auf 32px, Text-Buttons auf 32px Höhe, damit sie in den 44/48px-Header passen.
+.panel-buttons {
+	display:         flex;
+	align-items:     center;
+	justify-content: flex-end;
+	margin-left:     auto;
+	margin-right:    16px;
+
+	::ng-deep .buttonline {
+		display:     flex;
+		align-items: center;
+	}
+
+	::ng-deep button.mat-mdc-icon-button {
+		width:   32px;
+		height:  32px;
+		padding: 4px;
+
+		mat-icon {
+			font-size: var(--xiri-icon-size-md);
+			width:     var(--xiri-icon-size-md);
+			height:    var(--xiri-icon-size-md);
+		}
+	}
+
+	::ng-deep button.mat-mdc-button-base:not(.mat-mdc-icon-button) {
+		height: 32px;
+	}
 }

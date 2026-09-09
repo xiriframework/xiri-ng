@@ -55,6 +55,25 @@
 		</div>
 	</div>
 
+	<!-- Flat Card -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionFlatCard">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardFlat"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardFlatNoHeader"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<app-go-code [code]="goCardFlatCode" title="Go: card.WithFlat"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 	<!-- Dense Card -->
 	<div class="xrow">
 		<div class="xcol">

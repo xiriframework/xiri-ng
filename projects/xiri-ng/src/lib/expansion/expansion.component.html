@@ -19,6 +19,10 @@
 				@if (panel.description) {
 					<mat-panel-description>{{ panel.description }}</mat-panel-description>
 				}
+				@if (panel.buttons) {
+					<xiri-buttonline class="panel-buttons" [settings]="panel.buttons" [filterData]="filterData()"
+						(click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()"></xiri-buttonline>
+				}
 			</mat-expansion-panel-header>
 
 			@if (shouldRenderContent(i, panel)) {
