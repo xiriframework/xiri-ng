@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.9]
 ### Added
 
 - **`XiriTableOptions.flat` rendert eine Tabelle rahmenlos.** Kein Schatten, kein Hintergrund, kein
