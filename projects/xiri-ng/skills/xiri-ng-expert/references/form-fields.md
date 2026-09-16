@@ -91,6 +91,7 @@ export interface XiriFormField {
 
   // --- Select / Model / Treeselect ---
   multiple?: boolean;
+  selectAll?: boolean;       // select + multiple: „Alle / Keine“-Toggle über der Optionsliste
   url?: string;              // load options von Backend
   search?: boolean;
   serverSideSearch?: boolean;
@@ -141,8 +142,8 @@ letzterer geht über das FormControl, das Feld fällt dann also auch aus `formGr
 | `textarea`      | Mat-Textarea                                      | `rows`                             |
 | `number`        | Mat-Input type=number                             | `min`, `max`, `textSuffix`         |
 | `bool`          | Mat-Checkbox / Slide-Toggle                       | `placeholder` für Begleittext      |
-| `select`        | Mat-Select mit `list`                             | `multiple`, `search`               |
-| `multiselect`   | Mat-Select mit `multiple: true`                   | `list` oder `url`                  |
+| `select`        | Mat-Select mit `list`                             | `multiple`, `search`, `selectAll`  |
+| `multiselect`   | Checkbox-Liste (flacher Treeselect)               | `list` oder `url`, `min`, `max`    |
 | `model`         | Mat-Select mit Backend-Load                       | `url`, `serverSideSearch`          |
 | `object`        | Komplexes Objekt-Select (JSON-Value)              | `url`, `list`                      |
 | `treeselect`    | Tree-Picker                                       | `url`, `tree: true`                |
@@ -337,6 +338,16 @@ Inline (statisch):
     { id: 2, name: 'Inaktiv',  color: 'warn' },
     { id: 3, name: 'Gesperrt', color: 'error', disabled: true },
   ]}
+```
+
+Mehrfachauswahl mit „Alle / Keine“-Toggle (`selectAll` — Checkbox von `ngx-mat-select-search` über der Liste; wirkt auf die
+aktuell sichtbaren, also bei aktiver Suche nur die gefilterten Optionen, lässt `disabled`-Optionen unangetastet und wird
+ausgeblendet, wenn kein Treffer wählbar ist. Mit `selectAll` wird immer der Such-Zweig gerendert, auch bei `search: false`.
+Go-Seite: `SelectField.SetMultiple(true).SetSelectAll(true)`):
+
+```typescript
+{ id: 'tags', type: 'select', name: 'Tags', multiple: true, selectAll: true, value: [],
+  list: [ { id: 1, name: 'Produktion' }, { id: 2, name: 'Logistik' }, { id: 3, name: 'Archiv', disabled: true } ] }
 ```
 
 Hierarchisch (`treeselect` — Optionen über `children` verschachteln; auswählbar sind die Blattknoten, `isGroup` markiert Elternknoten):
