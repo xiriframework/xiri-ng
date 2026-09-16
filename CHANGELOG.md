@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.10]
 ### Fixed
 
 - **Inline-Edit verwirft bei einer Backend-Ablehnung die Eingabe nicht mehr.** Lehnt der Server den
