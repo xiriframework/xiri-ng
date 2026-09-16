@@ -57,8 +57,9 @@ snackbar.info(msg, duration?, action?)
 snackbar.warning(msg, duration?, action?)
 snackbar.handleResponse(response): boolean   // parst response.message + response.messageType
 
-// Backend-Response-Handler (navigation / page-refresh / table-refresh)
-responseHandler.handle(result, { onTableRefresh?, onTableUpdate? })
+// Backend-Response-Handler (navigation / page-refresh / table-refresh / panel-refresh)
+responseHandler.handle(result, { onTableRefresh?, onTableUpdate?, onPanelRefresh? })
+// refresh:"panel" lädt die nächstgelegene xiri-card mit url neu (DI-Token XIRI_PANEL_HOST, s. setup.md)
 
 // File-Download (tab = Handle aus openTab() → im Tab anzeigen, null → speichern)
 download.openTab(): Window | null            // synchron im Click, sonst blockt der Browser

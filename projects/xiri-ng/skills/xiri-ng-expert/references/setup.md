@@ -65,20 +65,42 @@ Wird von `XiriDataService` intern aufgerufen — du musst `handleResponse` nur s
 
 ## XiriResponseHandlerService
 
-Zentrale Logik für Backend-Responses aus `xiri-go` (`ReturnGoto`, `ReturnRefreshPage`, `ReturnRefreshTable`, `ReturnUpdateTableField`).
+Zentrale Logik für Backend-Responses aus `xiri-go` (`ReturnGoto`, `ReturnRefreshPage`, `ReturnRefreshTable`,
+`ReturnRefreshPanel`, Table-Update).
 
 ```typescript
-handle(result: any, callbacks?: {
+handle(result: unknown, callbacks?: {
   onTableRefresh?: () => void;
-  onTableUpdate?: (id: any, field: string, content: any) => void;
+  onTableUpdate?: (id: unknown, field: string, content: unknown) => void;
+  onPanelRefresh?: () => void;
 }): void
 ```
 
-Verhalten je nach `result.refreshType` / `result.gotoUrl`:
-- Navigation → `Router.navigateByUrl`
-- Page-Refresh → `window.location.reload()`
-- Table-Refresh → ruft `onTableRefresh()` wenn gesetzt
-- Table-Update → ruft `onTableUpdate(id, field, content)` wenn gesetzt
+Verhalten je nach Response:
+- `goto: url` → `router.navigate([url])`
+- `refresh: "page"` → `router.navigate([router.url])` — braucht `onSameUrlNavigation: 'reload'` (siehe dyncomponent.md)
+- `refresh: "table"` → `onTableRefresh()` wenn gesetzt, sonst wie `refresh: "page"`
+- `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback)
+- `update: "table"` → `onTableUpdate(id, field, content)` wenn gesetzt
+
+### Nachladbare Panels: `XIRI_PANEL_HOST`
+
+`refresh: "panel"` lädt genau eine `xiri-card` mit `url` neu (Titel, Buttons, Inhalt), die restliche Seite bleibt
+stehen. Die Verdrahtung läuft über DI, nicht über Outputs:
+
+```typescript
+export interface XiriPanelHost { reloadPanel(): void; }
+export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
+```
+
+- `xiri-card` stellt sich selbst als `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
+- `xiri-button` und `xiri-table` injizieren den Token optional und rufen bei `refresh: "panel"` `reloadPanel()` der
+  nächstgelegenen Card — egal ob der Button im Card-Header, unten oder in einer verschachtelten Komponente liegt.
+  Ohne umschließende Card: `console.warn`.
+- Eine Card ohne `url` reicht per `skipSelf` an die nächste äußere Card weiter; ohne solche → `refresh: "page"`.
+- Eigene Komponenten, die als Panel gelten sollen, implementieren `XiriPanelHost` und providen den Token genauso.
+
+Antwortformat des Card-Endpoints siehe `components.md` → xiri-card. Ab xiri-ng 0.4.10 / xiri-go 0.3.10.
 
 ## XiriFormService
 

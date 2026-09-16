@@ -96,7 +96,7 @@ dialog.open(XiriAlertComponent, {
 @input.required settings: XiriCardSettings;
 
 interface XiriCardSettings {
-  url?: string;                    // POST mit null → Load
+  url?: string;                    // POST mit null → Load; Antwort {card: …} oder {data: rows}, s. u.
   reload?: boolean;
   data?: any;
   fields?: XiriTableField[];       // Card als Mini-Table
@@ -126,6 +126,21 @@ interface XiriCardSettings {
                                    // Für Cards als Inhalt eines Expansion-Panels/Tabs. Backend: Card.WithFlat(true).
 }
 ```
+
+**Antwort des `url`-Endpoints** (POST, Body `null`), Modus wird an der rohen Antwort entschieden:
+
+- `{ card: { type, header, headerSub, headerIcon, buttonsTop, buttonsBottom, fields, data, components, … } }` —
+  komplette Card (so liefert es `Card.DataResponse(ctx)` in xiri-go ab 0.3.10). Header-Felder überlagern
+  `settings`; die Inhaltsfelder `fields`, `data`, `dense`, `components`, `showHeader`, `forceMinWidth` kommen
+  ausschließlich aus der Antwort. Bei einem Reload bleibt der bisherige Inhalt stehen (kein Skeleton); schlägt der
+  Reload fehl, bleiben Titel und Buttons der letzten Antwort, nur der Inhalt zeigt die Fehlermeldung.
+- `{ data: rows }` oder `rows` direkt — nur Inhaltszeilen, Header bleibt aus `settings` (Legacy-Form). Was
+  innerhalb von `data` steht, wird nie als Card gedeutet.
+
+**Nachladbares Panel (`refresh: "panel"`):** Gibt ein Button oder eine Tabellenaktion in der Card
+`{ done: true, refresh: 'panel' }` zurück, lädt die Card ihre `url` erneut. Die Card ist dafür `XIRI_PANEL_HOST`
+(siehe setup.md → XiriResponseHandlerService). Typischer Einsatz: Detailseiten mit mehreren Panels
+(Versicherung, Leasing, Preise), deren Bearbeiten-Dialog nur das eigene Panel aktualisieren soll.
 
 **Card als Panel-Inhalt (`flat`):** Card ohne `header` mit `flat: true` in `panel.data` legen; Titel und
 Buttons gehören dann in den Panel-Header (`XiriExpansionPanelSettings.buttons`, siehe xiri-expansion).
