@@ -434,6 +434,17 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			};
 		}
 		
+		// Gespeicherten Suchtext VOR dem ersten Load wiederherstellen: server-side muss er im ersten
+		// Request stehen, client-side (flach) muss der filter auf der dataSource gesetzt sein.
+		// Sort/Paginator werden erst in setData() restauriert, weil sie die geladene Datenmenge brauchen.
+		const savedFilter = this.savedState()?.filter;
+		if ( savedFilter ) {
+			this.searchText = savedFilter;
+			this.searchTextInit = savedFilter;
+			if ( !this.options.serverSide && !this.tree.enabled )
+				this.dataSource.filter = savedFilter;
+		}
+
 		if ( this.options.buttons )
 			this.options.buttons.class = 'small';
 		
@@ -617,24 +628,24 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this._firstData ) {
 			this._firstData = false;
 
-			const stateKey = this.tableStateKey();
-			if ( this.options.saveState && stateKey ) {
-				const saved = this.sessionStorageService.getTimeout( stateKey, 3600 ) as XiriTableSavedState | null;
-				if ( !saved )
-					return;
+			const saved = this.savedState();
+			if ( !saved )
+				return;
 
-				if ( saved.filter !== undefined ) {
-					this.searchText = saved.filter;
-					this.searchTextInit = saved.filter;
-				}
-				if ( saved.sort !== undefined && saved.sortDirection !== undefined )
-					this.sort().sort( ( { id: saved.sort, start: saved.sortDirection } ) as MatSortable );
-				if ( saved.pageSize !== undefined && saved.pageIndex !== undefined ) {
-					this.paginator().pageIndex = saved.pageIndex;
-					this.paginator()._changePageSize( saved.pageSize );
-				}
+			if ( saved.sort !== undefined && saved.sortDirection !== undefined )
+				this.sort().sort( ( { id: saved.sort, start: saved.sortDirection } ) as MatSortable );
+			if ( saved.pageSize !== undefined && saved.pageIndex !== undefined ) {
+				this.paginator().pageIndex = saved.pageIndex;
+				this.paginator()._changePageSize( saved.pageSize );
 			}
 		}
+	}
+
+	private savedState(): XiriTableSavedState | null {
+		const stateKey = this.tableStateKey();
+		if ( !this.options.saveState || !stateKey )
+			return null;
+		return this.sessionStorageService.getTimeout( stateKey, 3600 ) as XiriTableSavedState | null;
 	}
 
 	private setFooter( footer: Record<string, XiriTableCellValue> ): void {

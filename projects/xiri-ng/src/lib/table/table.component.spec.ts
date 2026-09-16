@@ -324,6 +324,36 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	describe( 'saveState: gespeicherte Suche wiederherstellen', () => {
+		const fields = [ { id: 'name', name: 'Name' } ];
+
+		it( 'filtert client-side flache Zeilen sofort nach dem gespeicherten Suchtext', () => {
+			mockSessionStorage.getTimeout.mockReturnValue( { filter: 'alice' } );
+			createFixture( {
+				fields,
+				data: [ { id: 1, name: 'Alice' }, { id: 2, name: 'Bob' } ],
+				options: { search: true, saveState: true, saveStateId: 'kaufliste' },
+			} );
+
+			expect( component.searchTextInit ).toBe( 'alice' );
+			expect( component.dataSource.filter ).toBe( 'alice' );
+			expect( component.dataSource.filteredData.map( r => r[ 'name' ] ) ).toEqual( [ 'Alice' ] );
+		} );
+
+		it( 'schickt den gespeicherten Suchtext server-side bereits mit dem ersten Request', () => {
+			mockSessionStorage.getTimeout.mockReturnValue( { filter: 'alice' } );
+			mockDataService.post.mockReturnValue( of( { data: [ { id: 1, name: 'Alice' } ], totalCount: 1 } ) );
+			createFixture( {
+				fields,
+				url: 'test/data',
+				options: { search: true, serverSide: true, pagination: true, saveState: true, saveStateId: 'kaufliste' },
+			} );
+
+			expect( mockDataService.post ).toHaveBeenCalledTimes( 1 );
+			expect( mockDataService.post.mock.calls[ 0 ][ 1 ] ).toMatchObject( { _search: 'alice' } );
+		} );
+	} );
+
 	describe( 'selection', () => {
 		it( 'should start with empty selection', () => {
 			expect( component.selection.isEmpty() ).toBe( true );
