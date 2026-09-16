@@ -42,7 +42,7 @@ describe( 'tree pure functions', () => {
 
 	describe( 'buildTree', () => {
 		it( 'builds multi-root tree with correct depth', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			// Roots sorted alphabetically: Graz, Orphan, Wien
 			expect( roots.map( r => r.row.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
 
@@ -58,7 +58,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'treats nodes with missing parents as roots', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			expect( roots.some( r => r.row.name === 'Orphan' ) ).toBe( true );
 		} );
 
@@ -68,16 +68,29 @@ describe( 'tree pure functions', () => {
 				{ id: 1, parentId: 2, name: 'A' },
 				{ id: 2, parentId: 1, name: 'B' },
 			];
-			const roots = buildTree( rows, 'id', 'parentId', 'name' );
+			const roots = buildTree( rows, 'id', 'parentId', row => row.name as string );
 			expect( roots.length ).toBe( 2 );
 			expect( warn ).toHaveBeenCalled();
 			warn.mockRestore();
+		} );
+
+		it( 'sorts siblings numerically when the key resolver yields numbers (month boundary)', () => {
+			const rows = [
+				{ id: 1, parentId: 0, d: { d: '01.02.2024', v: 1706745600 } },
+				{ id: 2, parentId: 0, d: { d: '15.01.2024', v: 1705276800 } },
+				{ id: 3, parentId: 0, d: { d: '31.01.2024', v: 1706659200 } },
+				{ id: 4, parentId: 3, d: { d: '02.02.2024', v: 1706832000 } },
+				{ id: 5, parentId: 3, d: { d: '30.01.2024', v: 1706572800 } },
+			];
+			const roots = buildTree( rows, 'id', 'parentId', row => ( row.d as { v: number } ).v );
+			expect( roots.map( r => r.id ) ).toEqual( [ 2, 3, 1 ] );                 // display order would be 1, 2, 3
+			expect( roots[ 1 ].children.map( c => c.id ) ).toEqual( [ 5, 4 ] );
 		} );
 	} );
 
 	describe( 'collectExpandableIds', () => {
 		it( 'returns only ids of nodes that have children', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const ids = collectExpandableIds( roots );
 			expect( ids.has( 1 ) ).toBe( true ); // Wien
 			expect( ids.has( 2 ) ).toBe( true ); // Favoriten
@@ -88,7 +101,7 @@ describe( 'tree pure functions', () => {
 
 	describe( 'flatten', () => {
 		it( 'shows only roots when nothing is expanded', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const rows = flatten( roots, new Set() );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Graz', 'Orphan', 'Wien' ] );
 			expect( rows.find( r => r.name === 'Wien' )!._tree!.hasChildren ).toBe( true );
@@ -97,7 +110,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'reveals children of expanded nodes in tree order', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const rows = flatten( roots, new Set( [ 1, 2 ] ) ); // Wien + Favoriten expanded
 			expect( rows.map( r => r.name ) ).toEqual(
 				[ 'Graz', 'Orphan', 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
@@ -107,7 +120,7 @@ describe( 'tree pure functions', () => {
 
 	describe( 'searchProjection', () => {
 		it( 'shows matches plus their ancestor path, dimming ancestors', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const rows = searchProjection( roots, byName( 'Inzersdorf' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
 			expect( rows.find( r => r.name === 'Wien' )!._tree!.dimmed ).toBe( true );
@@ -116,7 +129,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'shows the full subtree of a match (descendants included, not dimmed)', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const rows = searchProjection( roots, byName( 'Wien' ), collectExpandableIds( roots ) );
 			// Wien matches (root) → it and all descendants are shown, in tree order.
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Döbling', 'Favoriten', 'Inzersdorf' ] );
@@ -125,7 +138,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'shows dimmed ancestors AND full descendants for a mid-level match', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			const rows = searchProjection( roots, byName( 'Favoriten' ), collectExpandableIds( roots ) );
 			expect( rows.map( r => r.name ) ).toEqual( [ 'Wien', 'Favoriten', 'Inzersdorf' ] );
 			expect( rows.find( r => r.name === 'Wien' )!._tree!.dimmed ).toBe( true );  // ancestor → context
@@ -134,7 +147,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'collapses a branch within the search result when its node is not in expandedIds', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			// Search "Wien" with everything expanded EXCEPT Favoriten (id 2) → Inzersdorf hidden.
 			const expanded = collectExpandableIds( roots );
 			expanded.delete( 2 );
@@ -145,7 +158,7 @@ describe( 'tree pure functions', () => {
 		} );
 
 		it( 'returns empty when nothing matches', () => {
-			const roots = buildTree( sampleRows(), 'id', 'parentId', 'name' );
+			const roots = buildTree( sampleRows(), 'id', 'parentId', row => row.name as string );
 			expect( searchProjection( roots, byName( 'nope' ), collectExpandableIds( roots ) ) ).toEqual( [] );
 		} );
 	} );

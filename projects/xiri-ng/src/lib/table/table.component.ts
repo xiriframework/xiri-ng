@@ -370,7 +370,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			if ( all === null ) {
 				this.dataSource.data = [];
 			} else if ( this.tree.enabled ) {
-				this.tree.build( all );
+				const treeField = this.displayedColumns.find( col => col.id === this.tree.treeColumn );
+				this.tree.build( all, row => sortValue( row, this.tree.treeColumn, treeField ) );
 				this.refreshTree();
 			} else {
 				this.dataSource.data = all;
@@ -1189,6 +1190,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					break;
 
 				const col = this.displayedColumns[ curCol ];
+				// Only input cells take pasted text: other formats carry structured cells (number tuples,
+				// cell objects, chips), and a pasted string would break their display and sorting.
+				if ( col.format !== 'input' )
+					continue;
 				result[ col.id ] = clipRowsArray[ i ][ j ];
 			}
 		}

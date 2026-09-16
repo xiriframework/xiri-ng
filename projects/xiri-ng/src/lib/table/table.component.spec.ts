@@ -1489,6 +1489,22 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	describe( 'tree sorting', () => {
+		it( 'orders siblings of a cellObject tree column chronologically', () => {
+			createFixture( {
+				fields: [ { id: 'd', name: 'D', cellObject: 'string' } ],
+				tree: { idField: 'id', parentIdField: 'parentId', treeColumn: 'd' },
+				data: [
+					{ id: 1, parentId: 0, d: { d: '01.02.2024', v: '2024-02-01' } },
+					{ id: 2, parentId: 0, d: { d: '15.01.2024', v: '2024-01-15' } },
+					{ id: 3, parentId: 0, d: { d: '31.01.2024', v: '2024-01-31' } },
+				],
+			} );
+			fixture.detectChanges();
+			expect( component.dataSource.data.map( r => r.id ) ).toEqual( [ 2, 3, 1 ] );
+		} );
+	} );
+
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();
@@ -1503,6 +1519,21 @@ describe( 'XiriTableComponent', () => {
 			const column = { id: 'name', name: 'Name', inputPaste: false } as XiriTableField;
 			const event = { clipboardData: { getData: vi.fn().mockReturnValue( '' ) } } as unknown as ClipboardEvent;
 			expect( component.pasteInput( event, {}, column ) ).toBe( false );
+		} );
+
+		it( 'should paste only into input columns and leave structured cells alone', () => {
+			component.displayedColumns = [
+				{ id: 'a', name: 'A', format: 'input', inputPaste: true },
+				{ id: 'd', name: 'D', cellObject: 'string' },
+				{ id: 'b', name: 'B', format: 'input' },
+			] as XiriTableField[];
+			const row: XiriTableRow = { id: 1, a: '', d: { d: '24.02.2024', v: '2024-02-24' }, b: '' };
+			component.dataSource.data = [ row ];
+			const event = { clipboardData: { getData: vi.fn().mockReturnValue( 'x\ty\tz' ) } } as unknown as ClipboardEvent;
+			component.pasteInput( event, row, component.displayedColumns[ 0 ] );
+			expect( row.a ).toBe( 'x' );
+			expect( row.d ).toEqual( { d: '24.02.2024', v: '2024-02-24' } );
+			expect( row.b ).toBe( 'z' );
 		} );
 	} );
 
