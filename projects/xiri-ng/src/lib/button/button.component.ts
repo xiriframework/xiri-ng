@@ -8,7 +8,7 @@ import { RouterLink } from "@angular/router";
 import { Location } from "@angular/common";
 import { XiriButtonstyleComponent } from "../buttonstyle/buttonstyle.component";
 import { XiriDownloadService } from "../services/download.service";
-import { XiriResponseHandlerService } from "../services/response-handler.service";
+import { XiriResponseHandlerService, XIRI_PANEL_HOST } from "../services/response-handler.service";
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatIcon } from "@angular/material/icon";
 import { MatIconButton } from "@angular/material/button";
@@ -129,6 +129,8 @@ export class XiriButtonComponent implements OnDestroy {
 	private dialog = inject( MatDialog );
 	private downloadService = inject( XiriDownloadService );
 	private responseHandler = inject( XiriResponseHandlerService );
+	// Nächstgelegene Card; null außerhalb einer Card. Ziel für refresh:'panel'.
+	private panelHost = inject( XIRI_PANEL_HOST, { optional: true } );
 	
 	_disabled = computed( () => {
 		
@@ -289,13 +291,20 @@ export class XiriButtonComponent implements OnDestroy {
 			return;
 		}
 		this.stopPolling();
-		this.responseHandler.handle( result );
+		this.responseHandler.handle( result, { onPanelRefresh: () => this.refreshPanel() } );
 		this.result.emit( {
 			                  button: this.button(),
 			                  result: result,
 			                  done: true,
 			                  loading: false,
 		                  } );
+	}
+
+	private refreshPanel() {
+		if ( this.panelHost )
+			this.panelHost.reloadPanel();
+		else
+			console.warn( 'xiri-button: refresh:panel ohne umschließende Card', this.button().url );
 	}
 
 	private startPolling( url: string, intervalMs: number, text?: string ) {

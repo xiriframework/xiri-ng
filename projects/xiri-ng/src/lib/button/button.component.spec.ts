@@ -4,6 +4,7 @@ import { Component, signal } from '@angular/core';
 import { XiriButtonComponent, XiriButton, XiriButtonResult, XiriButtonResponse } from './button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
+import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
@@ -659,5 +660,93 @@ describe('XiriButtonComponent', () => {
 			expect(mockDataService.post).toHaveBeenCalledTimes(1);
 			expect(mockDataService.post).toHaveBeenCalledWith('/auto', { x: 1 });
 		});
+	});
+
+	it('warnt bei refresh:panel ohne umschließende Card statt zu navigieren', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		mockDataService.post.mockReturnValue(of({ done: true, refresh: 'panel' }));
+		host.btn.set(makeButton({ action: 'api', url: '/lonely/save' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('refresh:panel'), '/lonely/save');
+		expect(mockRouter.navigate).not.toHaveBeenCalled();
+		warn.mockRestore();
+	});
+});
+
+describe('XiriButtonComponent im Panel', () => {
+	let fixture: ComponentFixture<TestHostComponent>;
+	let host: TestHostComponent;
+	let mockDataService: { post: ReturnType<typeof vi.fn>; get: ReturnType<typeof vi.fn>; postFileResponse: ReturnType<typeof vi.fn> };
+	let mockDialog: { open: ReturnType<typeof vi.fn> };
+	let mockRouter: { navigate: ReturnType<typeof vi.fn>; url: string };
+	let panelHost: { reloadPanel: ReturnType<typeof vi.fn> };
+
+	beforeEach(async () => {
+		mockDataService = { post: vi.fn(), get: vi.fn(), postFileResponse: vi.fn() };
+		mockDialog = { open: vi.fn() };
+		mockRouter = { navigate: vi.fn().mockReturnValue(Promise.resolve(true)), url: '/current' };
+		panelHost = { reloadPanel: vi.fn() };
+		await TestBed.configureTestingModule({
+			imports: [TestHostComponent],
+			providers: [
+				{ provide: XiriDataService, useValue: mockDataService },
+				{ provide: XiriDownloadService, useValue: { download: vi.fn(), openTab: vi.fn() } },
+				{ provide: MatDialog, useValue: mockDialog },
+				{ provide: Router, useValue: mockRouter },
+				{ provide: Location, useValue: { back: vi.fn() } },
+				{ provide: ActivatedRoute, useValue: {} },
+				{ provide: XIRI_PANEL_HOST, useValue: panelHost },
+			],
+		}).compileComponents();
+		fixture = TestBed.createComponent(TestHostComponent);
+		host = fixture.componentInstance;
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('ruft reloadPanel des Hosts bei refresh:panel aus einer Api-Aktion', () => {
+		mockDataService.post.mockReturnValue(of({ done: true, refresh: 'panel' }));
+		host.btn.set(makeButton({ action: 'api', url: '/panel/save' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(panelHost.reloadPanel).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).not.toHaveBeenCalled();
+	});
+
+	it('ruft reloadPanel, wenn ein Dialog mit refresh:panel schließt', () => {
+		const afterClosed: AfterClosedSubject = new Subject();
+		mockDialog.open.mockReturnValue({ afterClosed: () => afterClosed.asObservable(), close: vi.fn() });
+		host.btn.set(makeButton({ action: 'dialog', url: '/panel/edit' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+		expect(panelHost.reloadPanel).not.toHaveBeenCalled();
+
+		afterClosed.next({ done: true, refresh: 'panel' });
+		afterClosed.complete();
+
+		expect(panelHost.reloadPanel).toHaveBeenCalledTimes(1);
+	});
+
+	it('ruft reloadPanel erst mit dem letzten Poll-Tick', () => {
+		vi.useFakeTimers();
+		mockDataService.post.mockReturnValue(of({ done: true, poll: 100, pollUrl: '/panel/status' }));
+		mockDataService.get.mockReturnValue(of({ done: true, refresh: 'panel' }));
+		host.btn.set(makeButton({ action: 'api', url: '/panel/start' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+		expect(panelHost.reloadPanel).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(150);
+		expect(mockDataService.get).toHaveBeenCalledWith('/panel/status');
+		expect(panelHost.reloadPanel).toHaveBeenCalledTimes(1);
 	});
 });
