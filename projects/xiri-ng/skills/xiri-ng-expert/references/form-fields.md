@@ -112,6 +112,7 @@ export interface XiriFormField {
   // --- Server-driven content ---
   reloadOn?: string[];       // Feld-IDs, deren Änderung dieses Feld neu lädt
   reloadUrl?: string;        // Endpoint für den Reload (beides oder keins)
+  addUrl?: string;           // „+“-Button: Dialog (GET) legt eine neue Option an, POST → {done, created:{id,name}}
 
   // --- Weitere ---
   rows?: number;             // textarea
@@ -309,6 +310,46 @@ Fenster gespeicherter Filter verlöre das Feld.
 
 Ketten funktionieren: hängt C an B und wird Bs Wert durch einen Patch verworfen, lädt C nach. Das
 terminiert, weil Pruning nur entfernt.
+
+### addUrl — neue Option per Dialog anlegen
+
+Für `select` (single und `multiple`), `multiselect`/`treeselect`, `object`/`model` und `chips`.
+Mit `addUrl` rendert die Komponente neben dem Control einen `mat-icon-button` „+“ (`button.add-option`,
+`aria-label="Neu anlegen"`); Control und Button liegen in einem Flex-Wrapper `.add-wrap`, der
+`field.class` und `[hidden]` trägt.
+
+```typescript
+{ id: 'tags', type: 'select', multiple: true, name: 'Tags', search: false,
+  list: [ { id: 1, name: 'Produktion' } ], addUrl: 'Tag/AddDialog' }
+```
+
+Ablauf:
+
+1. Klick öffnet `XiriDialogComponent` mit `{ type: 'load', url: addUrl }` — also ein GET, das einen
+   normalen Form-Dialog liefert (`header`, `type: 'form'`, `url`, `fields`, `buttons`).
+2. Der Dialog postet das Formular an seine `url`. Antwortet der Server mit
+   `{ done: true, created: { id, name } }` (Go: `response.NewReturnDone().WithCreated(id, name)`),
+   zeigt der Dialog kurz die Erfolgsanzeige und schließt mit der Antwort. Während dieser Anzeige sind
+   Escape, Backdrop und das Kreuz gesperrt, damit das Ergebnis nicht verloren geht.
+3. Die Komponente hängt `{ id, name }` an `field.list` (falls noch nicht enthalten) und setzt den Wert:
+   Einzelwert → `id`; Mehrfachwert (`multiple`, `treeselect`, `chips`) → bestehende Werte plus `id`,
+   ohne Duplikat. Das Feld wird wie bei einem `reloadOn`-Patch als Kopie neu gerendert.
+
+Verworfen wird das Ergebnis, wenn der Dialog ohne `created` schließt (Abbrechen), das Formular
+inzwischen gewechselt hat (die Control-Identität entscheidet, nicht die Feld-ID), das Control
+deaktiviert ist oder `created` ungültig ist (`id` muss String oder endliche Zahl sein, `name` ein
+String; `0` ist gültig). Der Button ist deaktiviert, solange die Form oder das Control deaktiviert ist.
+
+Grenzen:
+
+- `id` muss den JSON-Typ der vorhandenen Options-IDs haben; der Vergleich ist strikt. `chips` löst
+  Labels nur für numerische IDs auf (Strings sind dort Freitext).
+- Ein `treeselect` mit `url` ignoriert `list` und lädt seinen Baum nach dem Anlegen selbst neu — der
+  Server muss die neue Entität dann sofort liefern.
+- Ein späterer `reloadOn`-Patch ersetzt die Liste; liefert der Server die neue Option nicht mit, wird
+  der Wert verworfen. Serverseitig validieren `SelectField` und Chips beim Submit gegen ihre
+  Optionsliste — die neue Entität muss dort enthalten sein; `ModelField`/`ModelListField` prüfen nur
+  Typ und Anzahl.
 
 ### Select-Optionen
 

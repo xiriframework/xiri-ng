@@ -1,6 +1,6 @@
 ---
 name: xiri-ng-expert
-description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen oder reloadOn-Abhängigkeiten (Optionen vom Server nachladen), oder Server-Side-Tables fragt.
+description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen oder reloadOn-Abhängigkeiten (Optionen vom Server nachladen), addUrl („+“-Button legt neue Option per Dialog an), oder Server-Side-Tables fragt.
 ---
 
 # xiri-ng Expert
@@ -152,6 +152,19 @@ erhalten (rekursiv über `children`), der Rest wird verworfen — außer bei `ch
 Patchbar sind `list`, `name`, `hint`, `class`, `required`, `disabled`, `hide`, `search`, `min`,
 `max`, `params` — jeweils nur mit passendem Typ. `value`, `type`, `id` und `url` bewusst nicht.
 Details und Grenzen in `references/form-fields.md`.
+
+**addUrl — neue Option per Dialog anlegen.** `select`, `multiselect`/`treeselect`, `object`/`model`
+und `chips` bekommen mit `addUrl` einen „+“-Button neben dem Feld:
+
+```typescript
+{ id: 'tags', type: 'select', multiple: true, name: 'Tags', list: [...], addUrl: 'Tag/AddDialog' }
+```
+
+Klick lädt `xiri-dialog` per GET auf `addUrl` (ein normaler Form-Dialog vom Backend). Antwortet
+dessen POST mit `{ done: true, created: { id, name } }`, hängt das Feld die Option an seine `list`
+und selektiert sie — bei Mehrfachwerten zusätzlich, ohne Duplikat. `id` muss den Typ der
+vorhandenen Options-IDs haben (chips: Zahl). Go: `f.BaseField.SetAddURL(u)` +
+`response.NewReturnDone().WithCreated(id, name)`.
 
 Zugriff auf die reactive Form:
 
@@ -449,3 +462,5 @@ edit(row: any) {
 - Nicht `reloadOn` ohne `reloadUrl` (oder umgekehrt) — eine halbe Deklaration wird ignoriert
 - Nicht `url` **und** `reloadOn` auf demselben treeselect — mit `url` lädt es seinen Baum selbst
   per GET und ignoriert die gepatchte `list`
+- Keinen eigenen „Neu anlegen“-Button neben ein Select bauen — `addUrl` am Feld, der Dialog-POST
+  antwortet mit `created: { id, name }`
