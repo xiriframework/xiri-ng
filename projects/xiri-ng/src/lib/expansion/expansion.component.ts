@@ -4,6 +4,8 @@ import { MatIcon } from '@angular/material/icon';
 import { NgTemplateOutlet } from '@angular/common';
 import { XiriDynData } from '../dyncomponent/dyndata.interface';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from '../buttonline/buttonline.component';
+import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
+import { XiriExpansionPanelDirective } from './expansion-panel.directive';
 
 export interface XiriExpansionPanelSettings {
 	title: string
@@ -11,7 +13,8 @@ export interface XiriExpansionPanelSettings {
 	icon?: string
 	disabled?: boolean
 	expanded?: boolean
-	data: XiriDynData[]
+	url?: string                  // Panel lädt sich von hier (POST null → {panel: …}); Shell hat dann data: []
+	data?: XiriDynData[]
 	buttons?: XiriButtonlineSettings
 	lazy?: boolean
 	unload?: boolean
@@ -38,7 +41,7 @@ export interface XiriExpansionSettings {
 		            MatExpansionPanelTitle,
 		            MatExpansionPanelDescription,
 		            MatIcon,
-		            NgTemplateOutlet, XiriButtonlineComponent ]
+		            NgTemplateOutlet, XiriButtonlineComponent, XiriSkeletonComponent, XiriExpansionPanelDirective ]
             } )
 export class XiriExpansionComponent {
 

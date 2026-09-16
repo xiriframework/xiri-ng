@@ -43,6 +43,7 @@ export * from './lib/search/search.component';
 export * from './lib/sidenav/sidenav.component';
 export * from './lib/tabs/tabs.component';
 export * from './lib/expansion/expansion.component';
+export * from './lib/expansion/expansion-panel.directive';
 
 export * from './lib/breadcrumb/breadcrumb.component';
 export * from './lib/skeleton/skeleton.component';

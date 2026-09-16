@@ -7,7 +7,12 @@ import { XiriDownloadService } from '../services/download.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { XiriDynComponentComponent } from '../dyncomponent/dyncomponent.component';
+import { XiriCardComponent, XiriCardSettings } from '../card/card.component';
+import { XiriSnackbarService } from '../services/snackbar.service';
+import { XiriSessionStorageService } from '../services/sessionStorage.service';
+import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 
 let panelCounter = 0;
 function makePanel(overrides: Partial<XiriExpansionPanelSettings> = {}): XiriExpansionPanelSettings {
@@ -312,5 +317,242 @@ describe('XiriExpansionComponent', () => {
 			const btn = fixture.nativeElement.querySelector('xiri-buttonline button') as HTMLButtonElement;
 			expect(btn.disabled).toBe(true);
 		});
+	});
+});
+
+// Host mit gebundenem Content-Template, damit Panel-Inhalte tatsächlich gerendert werden (wie im Dyncomponent).
+@Component({
+	selector: 'test-host-content',
+	template: `<xiri-expansion [settings]="settings()" [dyncomponent]="tpl" />
+		<ng-template #tpl let-obj><xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" class="xrow" /></ng-template>`,
+	imports: [XiriExpansionComponent, XiriDynComponentComponent],
+})
+class ContentHostComponent {
+	settings = signal<XiriExpansionSettings>({ panels: [] });
+}
+
+// Akkordeon als Sub-Komponente einer Card mit eigener url (echter Dyncomponent-Pfad): beweist, dass Buttons im
+// Panel-Inhalt das Panel und nicht die deklarierende Card treffen (DI über ngTemplateOutlet).
+@Component({
+	selector: 'test-host-in-card',
+	template: `<xiri-card [settings]="card()" />`,
+	imports: [XiriCardComponent],
+})
+class InCardHostComponent {
+	card = signal<XiriCardSettings>({ url: 'outer' });
+}
+
+/** Card-Antwort, deren einzige Sub-Komponente ein Akkordeon mit den gegebenen Panels ist. */
+function cardWithExpansion(panels: XiriExpansionPanelSettings[]) {
+	return { card: { type: 'table', header: 'Außen', components: [{ type: 'expansion', data: { panels } }] } };
+}
+
+describe('XiriExpansionComponent nachladbares Panel', () => {
+	let fixture: ComponentFixture<ContentHostComponent>;
+	let host: ContentHostComponent;
+	let post: ReturnType<typeof vi.fn>;
+	let router: { navigate: ReturnType<typeof vi.fn>; url: string };
+
+	function panel(n: number, over: Record<string, unknown> = {}) {
+		return { panel: { title: 'Versicherung', description: `Stand ${n}`, icon: 'shield',
+			buttons: { class: 'small', buttons: [{ text: 'Bearbeiten', type: 'icon', action: 'api', url: 'panel/save', icon: 'edit' }] },
+			data: [{ type: 'html', data: { html: `<b>Inhalt ${n}</b>` } }], ...over } };
+	}
+
+	/** post-Mock: Panel-URL zählt Ladungen hoch, alles andere antwortet mit refresh:panel. */
+	function mockPanel(panelUrl: string, over: Record<string, unknown> = {}) {
+		let loads = 0;
+		post.mockImplementation((url: string) => url === panelUrl ? of(panel(++loads, over)) : of({ done: true, refresh: 'panel' }));
+		return () => post.mock.calls.filter(c => c[0] === panelUrl).length;
+	}
+
+	async function settle(f: ComponentFixture<unknown> = fixture) {
+		await f.whenStable();
+		f.detectChanges();
+	}
+
+	const q = (sel: string) => fixture.nativeElement.querySelector(sel);
+
+	beforeEach(async () => {
+		post = vi.fn().mockReturnValue(of({}));
+		router = { navigate: vi.fn().mockResolvedValue(true), url: '/current' };
+		await TestBed.configureTestingModule({
+			imports: [ContentHostComponent, InCardHostComponent],
+			providers: [
+				{ provide: XiriDataService, useValue: { post } },
+				{ provide: XiriDownloadService, useValue: { download: vi.fn() } },
+				{ provide: XiriSnackbarService, useValue: { error: vi.fn(), success: vi.fn() } },
+				{ provide: XiriSessionStorageService, useValue: { get: vi.fn(), set: vi.fn(), getTimeout: vi.fn() } },
+				{ provide: MatDialog, useValue: { open: vi.fn() } },
+				{ provide: Location, useValue: { back: vi.fn() } },
+				{ provide: Router, useValue: router },
+				{ provide: ActivatedRoute, useValue: {} },
+			],
+		}).compileComponents();
+		fixture = TestBed.createComponent(ContentHostComponent);
+		host = fixture.componentInstance;
+	});
+
+	it('lädt ein Panel mit url beim Init und übernimmt Titel, Beschreibung, Buttons und Inhalt aus {panel: …}', async () => {
+		mockPanel('panel/1');
+		host.settings.set({ panels: [{ title: 'Lade …', url: 'panel/1', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		await settle();
+
+		expect(post).toHaveBeenCalledWith('panel/1', null);
+		expect(q('mat-panel-title').textContent).toContain('Versicherung');
+		expect(q('mat-panel-description').textContent).toContain('Stand 1');
+		expect(q('mat-expansion-panel-header xiri-buttonline')).toBeTruthy();
+		expect(q('mat-expansion-panel b').textContent).toContain('Inhalt 1');
+	});
+
+	it('lädt nur dieses Panel neu, wenn ein Header-Button refresh:panel zurückgibt', async () => {
+		let a = 0, b = 0;
+		post.mockImplementation((url: string) => {
+			if (url === 'panel/a') return of(panel(++a));
+			if (url === 'panel/b') return of(panel(++b));
+			return of({ done: true, refresh: 'panel' });
+		});
+		host.settings.set({ multi: true, panels: [
+			{ title: 'A', url: 'panel/a', expanded: true, data: [] },
+			{ title: 'B', url: 'panel/b', expanded: true, data: [] },
+		] });
+		fixture.detectChanges();
+		await settle();
+		expect(a).toBe(1);
+
+		fixture.nativeElement.querySelectorAll('mat-expansion-panel')[0].querySelector('mat-expansion-panel-header xiri-buttonstyle').click();
+		await settle();
+
+		expect(post).toHaveBeenCalledWith('panel/save', {});
+		expect(a).toBe(2);
+		expect(b).toBe(1);
+		expect(fixture.nativeElement.querySelectorAll('mat-panel-description')[0].textContent).toContain('Stand 2');
+		expect(router.navigate).not.toHaveBeenCalled();
+	});
+
+	it('bleibt aufgeklappt, wenn die Reload-Antwort kein expanded enthält', async () => {
+		mockPanel('panel/1');
+		host.settings.set({ panels: [{ title: 'X', url: 'panel/1', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		await settle();
+		expect(q('mat-expansion-panel-header.mat-expanded')).toBeTruthy();
+
+		q('mat-expansion-panel-header xiri-buttonstyle').click();
+		await settle();
+
+		expect(q('mat-panel-description').textContent).toContain('Stand 2');
+		expect(q('mat-expansion-panel-header.mat-expanded')).toBeTruthy();
+	});
+
+	it('findet das Panel auch aus einem Button im Inhalt und nicht die umschließende Card (DI über ngTemplateOutlet)', async () => {
+		let panelLoads = 0, cardLoads = 0;
+		post.mockImplementation((url: string) => {
+			if (url === 'outer') { cardLoads++; return of(cardWithExpansion([{ title: 'X', url: 'panel/1', expanded: true, data: [] }])); }
+			if (url === 'panel/1') return of(panel(++panelLoads, { buttons: undefined,
+				data: [{ type: 'buttonline', data: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/save' }] } }] }));
+			return of({ done: true, refresh: 'panel' });
+		});
+		const inCard = TestBed.createComponent(InCardHostComponent);
+		inCard.detectChanges();
+		await settle(inCard);
+		expect(panelLoads).toBe(1);
+		expect(cardLoads).toBe(1);
+
+		inCard.nativeElement.querySelector('mat-expansion-panel .mat-expansion-panel-body xiri-buttonstyle').click();
+		await settle(inCard);
+
+		expect(panelLoads).toBe(2);
+		expect(cardLoads).toBe(1);
+	});
+
+	it('reicht refresh:panel einer flachen Card ohne url im Inhalt an das Panel weiter (Muster 7b)', async () => {
+		mockPanel('panel/1', { buttons: undefined, data: [{ type: 'card', cols: 12, data: { flat: true, header: 'Innen',
+			buttonsTop: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/save' }] }, data: { a: '1' } } }] });
+		const loads = mockPanel('panel/1', { buttons: undefined, data: [{ type: 'card', cols: 12, data: { flat: true, header: 'Innen',
+			buttonsTop: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/save' }] }, data: { a: '1' } } }] });
+		host.settings.set({ panels: [{ title: 'X', url: 'panel/1', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		await settle();
+		expect(loads()).toBe(1);
+
+		q('mat-expansion-panel xiri-card mat-card-header xiri-buttonstyle').click();
+		await settle();
+
+		expect(loads()).toBe(2);
+		expect(router.navigate).not.toHaveBeenCalled();
+	});
+
+	it('zeigt bei Fehler beim ersten Laden Shell-Titel und Fehlermeldung, ohne zu werfen', async () => {
+		post.mockReturnValue(throwError(() => ({ error: { error: 'Nicht gefunden' } })));
+		host.settings.set({ panels: [{ title: 'Shell', url: 'panel/x', expanded: true, data: [] }] });
+		expect(() => fixture.detectChanges()).not.toThrow();
+		await settle();
+
+		expect(q('mat-panel-title').textContent).toContain('Shell');
+		expect(q('.load-error').textContent).toContain('Nicht gefunden');
+	});
+
+	it('behält bei Reload-Fehler den geladenen Header und ersetzt nur den Inhalt durch die Fehlermeldung', async () => {
+		let calls = 0;
+		post.mockImplementation((url: string) => {
+			if (url !== 'panel/1') return of({ done: true, refresh: 'panel' });
+			return ++calls === 1 ? of(panel(1)) : throwError(() => ({ error: { error: 'Server weg' } }));
+		});
+		host.settings.set({ panels: [{ title: 'Shell', url: 'panel/1', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		await settle();
+
+		q('mat-expansion-panel-header xiri-buttonstyle').click();
+		await settle();
+
+		expect(q('mat-panel-title').textContent).toContain('Versicherung');
+		expect(q('mat-expansion-panel-header xiri-buttonline')).toBeTruthy();
+		expect(q('.load-error').textContent).toContain('Server weg');
+		expect(q('mat-expansion-panel b')).toBeNull();
+	});
+
+	it('holt einen Reload nach, der während des ersten Ladens angefordert wurde, und zeigt kein Skeleton beim Reload', async () => {
+		const first = new Subject<unknown>();
+		let calls = 0;
+		post.mockImplementation((url: string) =>
+			url === 'panel/1' ? (++calls === 1 ? first : of(panel(calls))) : of({ done: true, refresh: 'panel' }));
+		host.settings.set({ panels: [{ title: 'X', url: 'panel/1', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		expect(q('xiri-skeleton')).toBeTruthy();
+
+		const comp = fixture.debugElement.query(d => d.name === 'mat-expansion-panel');
+		(comp.injector.get(XIRI_PANEL_HOST) as { reloadPanel(): void }).reloadPanel();
+		expect(calls).toBe(1);
+
+		first.next(panel(1));
+		first.complete();
+		await settle();
+		await settle();
+
+		expect(calls).toBe(2);
+		expect(q('mat-panel-description').textContent).toContain('Stand 2');
+		expect(q('xiri-skeleton')).toBeNull();
+	});
+
+	it('Panel ohne url: reloadPanel lädt die Seite neu; in einer url-Card lädt die Card neu', async () => {
+		host.settings.set({ panels: [{ title: 'Statisch', expanded: true, data: [] }] });
+		fixture.detectChanges();
+		const panelHost = fixture.debugElement.query(d => d.name === 'mat-expansion-panel')
+			.injector.get(XIRI_PANEL_HOST) as { reloadPanel(): void };
+		panelHost.reloadPanel();
+		expect(router.navigate).toHaveBeenCalledWith(['/current']);
+		expect(post).not.toHaveBeenCalled();
+
+		let cardLoads = 0;
+		post.mockImplementation(() => { cardLoads++; return of(cardWithExpansion([{ title: 'Statisch', expanded: true, data: [] }])); });
+		const inCard = TestBed.createComponent(InCardHostComponent);
+		inCard.detectChanges();
+		await settle(inCard);
+		expect(cardLoads).toBe(1);
+
+		(inCard.debugElement.query(d => d.name === 'mat-expansion-panel').injector.get(XIRI_PANEL_HOST) as { reloadPanel(): void }).reloadPanel();
+		await settle(inCard);
+		expect(cardLoads).toBe(2);
 	});
 });

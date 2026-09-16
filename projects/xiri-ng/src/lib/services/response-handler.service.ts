@@ -14,8 +14,9 @@ interface XiriHandlerResponse {
 }
 
 /**
- * Nächstgelegener Panel-Container eines Auslösers (eine xiri-card). Die Card stellt sich per Provider
- * bereit; Button und Tabelle injizieren den Token optional und rufen bei refresh:'panel' reloadPanel().
+ * Nächstgelegener Panel-Container eines Auslösers: eine xiri-card oder ein mat-expansion-panel (Directive
+ * xiriExpansionPanel). Beide stellen sich per Provider bereit; Button und Tabelle injizieren den Token optional
+ * und rufen bei refresh:'panel' reloadPanel().
  */
 export interface XiriPanelHost {
 	reloadPanel(): void;

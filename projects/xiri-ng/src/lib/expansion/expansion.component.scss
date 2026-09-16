@@ -39,6 +39,11 @@ mat-icon {
 	}
 }
 
+.load-error {
+	padding: 16px;
+	color:   var(--error, #B3261E);
+}
+
 // Flache Card/Table liefert Rahmen und Innenabstand selbst — dann reicht im Panel der halbe
 // Seitenabstand (Material setzt .mat-expansion-panel-body hart auf 0 24px 16px).
 mat-expansion-panel.flat-content ::ng-deep .mat-expansion-panel-body {

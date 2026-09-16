@@ -4,30 +4,38 @@
 	[hideToggle]="settings().hideToggle ?? false"
 	[togglePosition]="settings().togglePosition ?? 'after'">
 
-	@for (panel of settings().panels; track panel.title; let i = $index) {
+	@for (panel of settings().panels; track $index; let i = $index) {
 		<mat-expansion-panel
-			[class.flat-content]="hasFlatContent(panel)"
+			[xiriExpansionPanel]="panel" #p="xiriExpansionPanel"
+			[class.flat-content]="hasFlatContent(p.panel())"
 			[disabled]="panel.disabled ?? false"
 			[expanded]="panel.expanded ?? false"
 			(opened)="onPanelOpened(i)"
 			(closed)="onPanelClosed(i)">
 
 			<mat-expansion-panel-header>
-				@if (panel.icon) {
-					<mat-icon>{{ panel.icon }}</mat-icon>
+				@if (p.panel().icon) {
+					<mat-icon>{{ p.panel().icon }}</mat-icon>
 				}
-				<mat-panel-title>{{ panel.title }}</mat-panel-title>
-				@if (panel.description) {
-					<mat-panel-description>{{ panel.description }}</mat-panel-description>
+				<mat-panel-title>{{ p.panel().title }}</mat-panel-title>
+				@if (p.panel().description) {
+					<mat-panel-description>{{ p.panel().description }}</mat-panel-description>
 				}
-				@if (panel.buttons) {
-					<xiri-buttonline class="panel-buttons" [settings]="panel.buttons" [filterData]="filterData()"
+				@if (p.panel().buttons) {
+					<xiri-buttonline class="panel-buttons" [settings]="p.panel().buttons!" [filterData]="filterData()"
 						(click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()"></xiri-buttonline>
 				}
 			</mat-expansion-panel-header>
 
-			@if (shouldRenderContent(i, panel)) {
-				<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: { data: panel.data, filterData: filterData() } }"></ng-container>
+			@if (p.showSkeleton()) {
+				<xiri-skeleton type="text" [lines]="3"></xiri-skeleton>
+			} @else if (p.errorMsg()) {
+				<div class="load-error">{{ p.errorMsg() }}</div>
+			} @else if (shouldRenderContent(i, panel)) {
+				<!-- injector: Element-Injector des Panels, sonst fände ein Button im Inhalt (eingebettete View) das Panel nicht. -->
+				<ng-container *ngTemplateOutlet="dyncomponent();
+					context: { $implicit: { data: p.panel().data ?? [], filterData: filterData() } };
+					injector: p.injector"></ng-container>
 			}
 		</mat-expansion-panel>
 	}
