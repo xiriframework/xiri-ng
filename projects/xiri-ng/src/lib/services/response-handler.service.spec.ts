@@ -61,4 +61,16 @@ describe( 'XiriResponseHandlerService', () => {
 		expect( onTableUpdate ).toHaveBeenCalledWith( 7, 'name', 'X' );
 		expect( router.navigate ).not.toHaveBeenCalled();
 	} );
+
+	it( 'ruft onPanelRefresh bei refresh:panel und navigiert nicht', () => {
+		const onPanelRefresh = vi.fn();
+		service.handle( { done: true, refresh: 'panel' }, { onPanelRefresh } );
+		expect( onPanelRefresh ).toHaveBeenCalledTimes( 1 );
+		expect( router.navigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'navigiert bei refresh:panel ohne Callback nicht (Regressionsschutz)', () => {
+		service.handle( { done: true, refresh: 'panel' } );
+		expect( router.navigate ).not.toHaveBeenCalled();
+	} );
 } );
