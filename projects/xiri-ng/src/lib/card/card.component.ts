@@ -112,10 +112,18 @@ export class XiriCardComponent implements XiriPanelHost {
 		return c && typeof c === 'object' && !Array.isArray( c ) ? c as XiriCardSettings : null;
 	} );
 
-	/** Zuletzt erfolgreich geladene komplette Card; bleibt bei Reload-Fehler stehen, wird bei url-Wechsel geleert. */
-	private loadedCard = linkedSignal<{ url: string | undefined; card: XiriCardSettings | null }, XiriCardSettings | null>( {
-		source: () => ( { url: this.settings().url, card: this.responseCard() } ),
-		computation: ( s, prev ) => s.card ?? ( prev && prev.source.url === s.url ? prev.value : null ),
+	/**
+	 * Zuletzt erfolgreich geladene komplette Card. Bleibt bei Reload-Fehler stehen (keine Antwort vorhanden),
+	 * wird bei url-Wechsel und bei einer erfolgreichen Zeilen-Antwort ({data: rows}) geleert.
+	 */
+	private loadedCard = linkedSignal<{ url: string | undefined; card: XiriCardSettings | null; hasValue: boolean },
+		XiriCardSettings | null>( {
+		source: () => ( { url: this.settings().url, card: this.responseCard(), hasValue: this._raw() != null } ),
+		computation: ( s, prev ) => {
+			if ( s.card ) return s.card;
+			if ( s.hasValue ) return null;
+			return prev && prev.source.url === s.url ? prev.value : null;
+		},
 	} );
 
 	/** Inhaltszeilen aus einer Nicht-Card-Antwort: {data: rows} → rows, sonst die Antwort selbst. */
@@ -137,9 +145,9 @@ export class XiriCardComponent implements XiriPanelHost {
 
 	cardData = computed( () => this.loadedCard() ? this.loadedCard()!.data : ( this._loaded() ?? this.settings().data ) );
 
-	/** Skeleton nur, solange noch nie etwas geladen wurde und kein statischer Inhalt da ist. */
-	showSkeleton = computed( () => this.loading() && this._raw() == null && this.settings().data == null
-		&& !( this.settings().components?.length ) );
+	/** Skeleton nur, solange noch nie etwas geladen wurde (auch nicht gepuffert) und kein statischer Inhalt da ist. */
+	showSkeleton = computed( () => this.loading() && this._raw() == null && !this.loadedCard()
+		&& this.settings().data == null && !( this.settings().components?.length ) );
 
 	hasComponents = computed( () => ( this.card().components?.length ?? 0 ) > 0 );
 

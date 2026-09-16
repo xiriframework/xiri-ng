@@ -421,7 +421,8 @@ describe('XiriCardComponent', () => {
 			let loads = 0;
 			const second = new Subject<unknown>();
 			const nested = (n: number) => ({ card: { type: 'table', header: 'Panel', headerSub: `Stand ${n}`, buttonsTop: null, buttonsBottom: null,
-				components: [{ type: 'buttonline', data: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/2/save' }] } }] } });
+				components: [{ type: 'buttonline',
+					data: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/2/save' }] } }] } });
 			mockDataService.post.mockImplementation((url: string) => {
 				if (url !== 'panel/2') return of({ done: true, refresh: 'panel' });
 				return ++loads === 1 ? of(nested(1)) : second;
@@ -528,7 +529,8 @@ describe('XiriCardComponent', () => {
 
 		it('behält bei Reload-Fehler den geladenen Header und ersetzt nur den Inhalt durch die Fehlermeldung', async () => {
 			let calls = 0;
-			mockDataService.post.mockImplementation(() => ++calls === 1 ? of(panel(1)) : throwError(() => ({ error: { error: 'Server weg' } })));
+			mockDataService.post.mockImplementation(() =>
+				++calls === 1 ? of(panel(1)) : throwError(() => ({ error: { error: 'Server weg' } })));
 			host.settings.set({ url: 'panel/1', header: 'Shell' });
 			fixture.detectChanges();
 			await settle();
@@ -542,6 +544,52 @@ describe('XiriCardComponent', () => {
 			expect(fixture.nativeElement.querySelector('.load-error').textContent).toContain('Server weg');
 			expect(fixture.nativeElement.querySelector('xiri-raw-table')).toBeNull();
 			expect(fixture.nativeElement.querySelector('xiri-skeleton')).toBeNull();
+		});
+
+		it('zeigt beim Retry nach einem Reload-Fehler kein Skeleton, sondern den gepufferten Header', async () => {
+			let calls = 0;
+			const retry = new Subject<unknown>();
+			mockDataService.post.mockImplementation(() => {
+				calls++;
+				if (calls === 1) return of(panel(1));
+				if (calls === 2) return throwError(() => ({ error: { error: 'Server weg' } }));
+				return retry;
+			});
+			host.settings.set({ url: 'panel/1', header: 'Shell' });
+			fixture.detectChanges();
+			await settle();
+			comp().reloadPanel();
+			await settle();
+			expect(fixture.nativeElement.querySelector('.load-error')).toBeTruthy();
+
+			comp().reloadPanel();
+			await new Promise(r => setTimeout(r));
+			fixture.detectChanges();
+
+			expect(calls).toBe(3);
+			expect(fixture.nativeElement.querySelector('xiri-skeleton')).toBeNull();
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+
+			retry.next(panel(2));
+			retry.complete();
+			await settle();
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 2');
+		});
+
+		it('leert den Card-Puffer, wenn dieselbe url später Zeilen liefert', async () => {
+			let calls = 0;
+			mockDataService.post.mockImplementation(() => ++calls === 1 ? of(panel(1)) : of({ data: { Hersteller: 'VW' } }));
+			host.settings.set({ url: 'panel/1', header: 'Shell' });
+			fixture.detectChanges();
+			await settle();
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+
+			comp().reloadPanel();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Shell');
+			expect(fixture.nativeElement.querySelector('mat-card-header xiri-buttonline')).toBeNull();
+			expect(comp().cardData()).toEqual({ Hersteller: 'VW' });
 		});
 
 		it('leert den Header-Puffer bei url-Wechsel', async () => {

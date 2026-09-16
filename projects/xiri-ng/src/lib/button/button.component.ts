@@ -8,7 +8,7 @@ import { RouterLink } from "@angular/router";
 import { Location } from "@angular/common";
 import { XiriButtonstyleComponent } from "../buttonstyle/buttonstyle.component";
 import { XiriDownloadService } from "../services/download.service";
-import { XiriResponseHandlerService, XIRI_PANEL_HOST } from "../services/response-handler.service";
+import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatIcon } from "@angular/material/icon";
 import { MatIconButton } from "@angular/material/button";

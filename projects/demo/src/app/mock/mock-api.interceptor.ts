@@ -184,7 +184,8 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 			headerSub: `Stand: ${ panelLoads }. Ladung`,
 			headerIcon: 'shield',
 			buttonsTop: { class: 'small', buttons: [
-				{ text: 'Bearbeiten', type: 'icon', action: 'api', icon: 'edit', hint: 'Speichert und lädt nur dieses Panel neu', url: 'Test/Panel/Insurance/Save' },
+				{ text: 'Bearbeiten', type: 'icon', action: 'api', icon: 'edit', hint: 'Speichert und lädt nur dieses Panel neu',
+					url: 'Test/Panel/Insurance/Save' },
 			] },
 			data: { 'Versicherer': 'Allianz', 'Prämie': `${ 480 + panelLoads * 10 },00 € / Jahr`, 'Laufzeit bis': '31.12.2026' },
 		} } } ) ).pipe( delay( 300 ) );

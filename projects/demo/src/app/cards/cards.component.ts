@@ -59,7 +59,8 @@ export class CardsComponent {
 
 	sectionPanel: XiriSectionSettings = {
 		title: 'Nachladbares Panel',
-		subtitle: 'url + refresh: "panel" — der Button speichert, danach lädt nur diese Card Titel, Buttons und Inhalt neu. Die Nachbar-Card bleibt stehen.',
+		subtitle: 'url + refresh: "panel" — der Button speichert, danach lädt nur diese Card Titel, Buttons und Inhalt neu. '
+			+ 'Die Nachbar-Card bleibt stehen.',
 		icon: 'sync',
 	};
 
