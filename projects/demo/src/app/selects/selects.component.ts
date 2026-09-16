@@ -30,7 +30,7 @@ export class SelectsComponent {
 
 	sectionSelectFields: XiriSectionSettings = {
 		title: 'Select Field Types',
-		subtitle: 'multiselect (mit Chips und max. Limit), treeselect (hierarchische Baumauswahl mit Gruppen)',
+		subtitle: 'select multiple mit „Alle / Keine“-Toggle, multiselect (mit Chips und max. Limit), treeselect (hierarchische Baumauswahl mit Gruppen)',
 		icon: 'checklist',
 	};
 	
@@ -38,9 +38,44 @@ export class SelectsComponent {
 		load: false,
 		url: '',
 		fields: [ {
+			type: 'select',
+			name: 'Multi-Select mit „Alle / Keine“',
+			class: 'xcol-start xcol-md-6 xcol-xl-4',
+			id: 'tags_all',
+			multiple: true,
+			selectAll: true,
+			search: false,
+			hint: '„Archiv“ ist deaktiviert und bleibt außen vor',
+			value: [],
+			list: [
+				{ id: 1, name: 'Produktion' },
+				{ id: 2, name: 'Logistik' },
+				{ id: 3, name: 'Vertrieb' },
+				{ id: 4, name: 'Einkauf' },
+				{ id: 5, name: 'Werkstatt' },
+				{ id: 6, name: 'Verwaltung' },
+				{ id: 7, name: 'IT' },
+				{ id: 8, name: 'Archiv', disabled: true },
+			],
+		}, {
+			type: 'select',
+			name: 'Multi-Select mit Suche + „Alle / Keine“',
+			class: 'xcol-md-6 xcol-xl-4',
+			id: 'tags_search',
+			multiple: true,
+			selectAll: true,
+			search: true,
+			hint: '„Alle“ wirkt nur auf die gefilterten Einträge',
+			value: [],
+			list: [
+				'Amsterdam', 'Athen', 'Berlin', 'Bern', 'Bratislava', 'Brüssel', 'Budapest', 'Dublin', 'Helsinki', 'Kopenhagen',
+				'Lissabon', 'Ljubljana', 'London', 'Luxemburg', 'Madrid', 'Oslo', 'Paris', 'Prag', 'Reykjavik', 'Riga',
+				'Rom', 'Stockholm', 'Tallinn', 'Warschau', 'Wien', 'Zagreb',
+			].map( ( name, i ) => ( { id: i + 1, name } ) ),
+		}, {
 			type: 'multiselect',
 			name: 'multiselect',
-			class: 'xcol-start xcol-md-6 xcol-xl-4',
+			class: 'xcol-md-6 xcol-xl-4',
 			id: 'multiselect',
 			hint: 'Höchstens 3 Einträge wählbar',
 			max: 3,
@@ -8258,20 +8293,26 @@ export class SelectsComponent {
 		} ]
 	};
 
-	goSelectFieldsCode = `multi := field.NewSelectField("multiselect",
-    "multiselect", false,
+	goSelectFieldsCode = `// Multi-Select mit "Alle / Keine"-Toggle (wirkt auf die sichtbaren Optionen)
+tags := field.NewSelectField("tags_all", "Multi-Select", false,
     []field.SelectOption{
-        {Value: 1, Label: "SYSTEM"},
-        {Value: 2, Label: "Michi"},
-        {Value: 3, Label: "MTest"},
+        {Value: 1, Label: "Produktion"},
+        {Value: 2, Label: "Logistik"},
+        {Value: 3, Label: "Vertrieb"},
     }).
-    SetSubtype("multiselect").
-    SetMax(3).
-    SetClass("xcol-md-6 xcol-xl-4")
+    SetMultiple(true).
+    SetSelectAll(true).
+    SetClass("xcol-start xcol-md-6 xcol-xl-4")
 
-tree := field.NewSelectField("treeselect",
-    "treeselect", false, treeOptions).
-    SetSubtype("treeselect").
+// Checkbox-Liste (type "multiselect") mit Limit
+multi := field.NewModelListField("multiselect", "multiselect", true, "user", []int32{3})
+maxItems := 3
+multi.MaxItems = &maxItems
+multi.SetClass("xcol-md-6 xcol-xl-4")
+
+// Hierarchische Baumauswahl
+tree := field.NewModelListField("treeselect", "treeselect", false, "group", nil).
+    SetTree(true).
     SetClass("xcol-md-6 xcol-xl-4")`;
 
 }
