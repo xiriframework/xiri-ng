@@ -391,6 +391,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			onSaved: ( row, fieldId ) => this.inlineEdit.flashSaved( row, fieldId, this.dataSource ),
 			onDataUpdate: () => this.dataSource._updateChangeSubscription(),
 			onCallReturn: ( result ) => this.callReturn( result ),
+			isRowLive: ( row ) => this.dataSource.data.includes( row ),
 		} );
 
 		if ( this.options.pagination )

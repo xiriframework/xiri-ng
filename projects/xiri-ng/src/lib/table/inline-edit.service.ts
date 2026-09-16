@@ -44,6 +44,8 @@ export class XiriTableInlineEditService {
 	displayedOptions = signal<EditableOption[]>( [] );
 
 	private editingOriginalValue: XiriTableCellValue = null;
+	// Hochgezählt bei jedem start()/cancel(): ein verspäteter Save-Fehler öffnet die Zelle nur wieder, wenn seitdem nichts passiert ist.
+	private editSeq = 0;
 	private editableOptionsSub: Subscription | null = null;
 	private optionCache = new Map<string, EditableOption>();
 	private searchSub: Subscription | null = null;
@@ -55,6 +57,7 @@ export class XiriTableInlineEditService {
 	private onSaved!: ( row: XiriTableRow, fieldId: string ) => void;
 	private onDataUpdate!: () => void;
 	private onCallReturn!: ( result: unknown ) => void;
+	private isRowLive!: ( row: XiriTableRow ) => boolean;
 
 	private get editUrl(): string { return this.getEditUrl?.(); }
 	private get displayedColumns(): XiriTableField[] { return this.getDisplayedColumns?.() ?? []; }
@@ -66,6 +69,7 @@ export class XiriTableInlineEditService {
 		onSaved: ( row: XiriTableRow, fieldId: string ) => void;
 		onDataUpdate: () => void;
 		onCallReturn: ( result: unknown ) => void;
+		isRowLive: ( row: XiriTableRow ) => boolean;
 	} ): void {
 		this.getEditUrl = config.getEditUrl;
 		this.getDisplayedColumns = config.getDisplayedColumns;
@@ -73,11 +77,13 @@ export class XiriTableInlineEditService {
 		this.onSaved = config.onSaved;
 		this.onDataUpdate = config.onDataUpdate;
 		this.onCallReturn = config.onCallReturn;
+		this.isRowLive = config.isRowLive;
 	}
 
 	start( row: XiriTableRow, column: XiriTableField, skipSavingCheck = false ): void {
 		if ( !column.editable || !this.editUrl || ( !skipSavingCheck && this.savingCell() ) )
 			return;
+		this.editSeq++;
 		const val = row[ column.id ] as XiriTableCellValue;
 		this.editingOriginalValue = Array.isArray( val ) ? JSON.parse( JSON.stringify( val ) ) : val;
 		if ( column.format === 'chips' && Array.isArray( val ) && !column.editableOptionsUrl ) {
@@ -187,6 +193,7 @@ export class XiriTableInlineEditService {
 	}
 
 	cancel(): void {
+		this.editSeq++;
 		const editing = this.editingCell();
 		if ( editing ) {
 			editing.row[ editing.field ] = this.editingOriginalValue;
@@ -205,6 +212,12 @@ export class XiriTableInlineEditService {
 		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
 		const newValue = row[ column.id ] as XiriTableCellValue;
 		const originalValue = this.editingOriginalValue;
+		const seq = this.editSeq;
+		const snapshot = {
+			chips: this.editingChipsValues(),
+			options: this.loadedEditableOptions(),
+			cache: new Map( this.optionCache ),   // enthält auch nur per editableSearchUrl gefundene Optionen
+		};
 		this.editingCell.set( null );
 		this.editingOriginalValue = null;
 		this.loadedEditableOptions.set( [] );
@@ -239,8 +252,20 @@ export class XiriTableInlineEditService {
 			},
 			error: ( err: unknown ) => {
 				this.savingCell.set( null );
-				row[ column.id ] = originalValue;
-				this.onDataUpdate();
+				if ( this.editSeq !== seq || !this.isRowLive( row ) ) {
+					// User ist schon woanders (Tab, Escape, neue Zelle) oder ein Reload hat die Row ersetzt: nichts kapern, Wert verwerfen
+					row[ column.id ] = originalValue;
+					this.onDataUpdate();
+				} else {
+					// Abgelehnten Wert stehen lassen und Zelle wieder öffnen; Escape stellt weiterhin das Original her
+					this.loadedEditableOptions.set( snapshot.options );
+					this.editingChipsValues.set( snapshot.chips );
+					this.editingOriginalValue = originalValue;
+					this.editingCell.set( { row, field: column.id } );
+					this.initSearch( column, row );
+					snapshot.cache.forEach( ( o, k ) => this.optionCache.set( k, o ) );   // nach initSearch, das den Cache leert
+					this.focus();
+				}
 				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
 			}
 		} );
@@ -272,7 +297,8 @@ export class XiriTableInlineEditService {
 			const direction = event.shiftKey ? -1 : 1;
 			const nextColumn = this.getAdjacentEditableColumn( column.id, direction );
 			this.save( row, column );
-			if ( nextColumn ) {
+			// Nur weiterspringen, wenn der Save die Zelle nicht (synchron abgelehnt) wieder geöffnet hat
+			if ( nextColumn && !this.editingCell() ) {
 				this.start( row, nextColumn, true );
 			}
 		}

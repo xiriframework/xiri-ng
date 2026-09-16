@@ -6,8 +6,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+
+- **Inline-Edit verwirft bei einer Backend-Ablehnung die Eingabe nicht mehr.** Lehnt der Server den
+  Wert einer Zelle mit einem HTTP-Fehler ab (z. B. falsches Format), sprang die Zelle auf den alten
+  Wert zurück und die Eingabe war weg. Jetzt bleibt der eingegebene Wert stehen, die Zelle öffnet sich
+  wieder im Edit-Modus mit Fokus im Feld, und der Fehlertext erscheint wie bisher als Snackbar. Escape
+  stellt weiterhin den ursprünglichen Wert her. Geladene Optionen und per Server-Suche gefundene
+  Chip-Optionen bleiben dabei erhalten. Ist der User inzwischen in einer anderen Zelle (Tab, Escape)
+  oder hat ein Reload die Zeile ersetzt, gilt weiterhin das alte Verhalten (Wert zurücksetzen).
 ### Added
 
+- **`XiriFormField.selectAll` blendet im Multi-Select (`type: 'select'`, `multiple: true`) einen „Alle / Keine“-Toggle ein.**
+  Nutzt die Toggle-All-Checkbox von `ngx-mat-select-search` über der Optionsliste; deshalb wird mit `selectAll` immer
+  der Zweig mit Suchfeld gerendert, auch bei `search: false`. Der Toggle wirkt auf die aktuell sichtbaren — bei aktiver
+  Suche also nur die gefilterten — Optionen, lässt deaktivierte Optionen unangetastet und verschwindet, wenn kein
+  Treffer wählbar ist. Go-Seite: `SelectField.SetSelectAll(true)` ab `xiri-go >= 0.3.10`.
 - **Nachladbare Panels: `refresh: "panel"` lädt genau eine Card neu.** Gibt ein Button (Api-Aktion,
   Dialog-Ergebnis, letzter Poll-Tick) oder eine Tabellenaktion `{"done": true, "refresh": "panel"}` zurück,
   lädt die nächstgelegene `xiri-card` mit `url` ihre URL erneut — auch aus verschachtelten Komponenten,

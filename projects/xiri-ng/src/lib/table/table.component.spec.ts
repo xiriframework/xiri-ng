@@ -901,10 +901,11 @@ describe( 'XiriTableComponent', () => {
 			expect( mockDataService.post ).not.toHaveBeenCalledWith( '/edit', expect.anything() );
 		} );
 
-		it( 'should restore original value on save error', () => {
+		it( 'should reopen the cell with the rejected value on save error', () => {
 			const column = { id: 'name', name: 'Name', editable: true };
 			component.options.editUrl = '/edit';
 			const row = { id: 1, name: 'Original' };
+			component.dataSource.data = [ row ];
 
 			component.startInlineEdit( row, column as XiriTableField );
 			row.name = 'Changed';
@@ -914,8 +915,141 @@ describe( 'XiriTableComponent', () => {
 			);
 			component.saveInlineEdit( row, column as XiriTableField );
 
-			expect( row.name ).toBe( 'Original' );
+			expect( row.name ).toBe( 'Changed' );
+			expect( component.editingCell() ).toEqual( { row, field: 'name' } );
+			expect( component.isSaving( row, 'name' ) ).toBe( false );
 			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Save failed' );
+
+			row.name = 'Fixed';
+			mockDataService.post.mockReturnValue( of( {} ) );
+			component.saveInlineEdit( row, column as XiriTableField );
+			expect( mockDataService.post ).toHaveBeenLastCalledWith( '/edit', { id: 1, field: 'name', value: 'Fixed' } );
+		} );
+
+		it( 'should restore the original value on Escape after a rejected save', () => {
+			const column = { id: 'name', name: 'Name', editable: true };
+			component.options.editUrl = '/edit';
+			const row = { id: 1, name: 'Original' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column as XiriTableField );
+			row.name = 'Changed';
+			mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Save failed' } } ) ) );
+			component.saveInlineEdit( row, column as XiriTableField );
+
+			component.cancelInlineEdit();
+			expect( row.name ).toBe( 'Original' );
+			expect( component.editingCell() ).toBeNull();
+		} );
+
+		it( 'should revert instead of reopening when the user has moved on', () => {
+			const colA = { id: 'a', name: 'A', editable: true } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row = { id: 1, a: 'OrigA', b: 'OrigB' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			row.a = 'ChangedA';
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			component.saveInlineEdit( row, colA );
+
+			component.startInlineEdit( row, colB, true );
+			pending.error( { error: { error: 'Save failed' } } );
+
+			expect( row.a ).toBe( 'OrigA' );
+			expect( row.b ).toBe( 'OrigB' );
+			expect( component.editingCell() ).toEqual( { row, field: 'b' } );
+		} );
+
+		it( 'should not reopen when the user cancelled another edit in the meantime', () => {
+			const colA = { id: 'a', name: 'A', editable: true } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row = { id: 1, a: 'OrigA', b: 'OrigB' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			row.a = 'ChangedA';
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			component.saveInlineEdit( row, colA );
+
+			component.startInlineEdit( row, colB, true );
+			component.cancelInlineEdit();
+			pending.error( { error: { error: 'Save failed' } } );
+
+			expect( row.a ).toBe( 'OrigA' );
+			expect( component.editingCell() ).toBeNull();
+		} );
+
+		it( 'should stay on the rejected cell on Tab when the save fails synchronously', () => {
+			const colA = { id: 'a', name: 'A', editable: true } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true } as XiriTableField;
+			component.displayedColumns = [ colA, colB ];
+			component.options.editUrl = '/edit';
+			const row = { id: 1, a: 'OrigA', b: 'OrigB' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			row.a = 'ChangedA';
+			mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Save failed' } } ) ) );
+			const event = new KeyboardEvent( 'keydown', { key: 'Tab' } );
+			Object.defineProperty( event, 'target', { value: document.createElement( 'input' ) } );
+			component.onInlineEditKeydown( event, row, colA );
+
+			expect( component.editingCell() ).toEqual( { row, field: 'a' } );
+			expect( row.a ).toBe( 'ChangedA' );
+		} );
+
+		it( 'should keep search-only chip options after a rejected save', () => {
+			vi.useFakeTimers();
+			try {
+				const column = {
+					id: 'tags', name: 'Tags', editable: true, format: 'chips',
+					editableOptions: [], editableSearchUrl: '/search',
+				} as XiriTableField;
+				component.options.editUrl = '/edit';
+				const row = { id: 1, tags: [] as { label: string; color?: string }[] };
+				component.dataSource.data = [ row ];
+
+				component.startInlineEdit( row, column );
+				mockDataService.post.mockReturnValue( of( [ { value: '42', label: 'Berlin', color: 'primary' } ] ) );
+				component.inlineSearchControl.setValue( 'Ber' );
+				vi.advanceTimersByTime( 200 );
+				component.onChipsSelectionChange( row, column, [ '42' ] );
+				expect( row.tags ).toEqual( [ { label: 'Berlin', color: 'primary' } ] );
+
+				mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Save failed' } } ) ) );
+				component.saveInlineEdit( row, column );
+
+				expect( component.editingChipsValues() ).toEqual( [ '42' ] );
+				expect( component.getEditableOptions( column ) ).toContainEqual( { value: '42', label: 'Berlin', color: 'primary' } );
+				component.onChipsSelectionChange( row, column, [ '42' ] );
+				expect( row.tags ).toEqual( [ { label: 'Berlin', color: 'primary' } ] );
+			} finally {
+				vi.useRealTimers();
+			}
+		} );
+
+		it( 'should not reopen when the row was replaced by a reload', () => {
+			const column = { id: 'name', name: 'Name', editable: true } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row = { id: 1, name: 'Original' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			row.name = 'Changed';
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			component.saveInlineEdit( row, column );
+
+			component.dataSource.data = [ { ...row } ];
+			pending.error( { error: { error: 'Save failed' } } );
+
+			expect( row.name ).toBe( 'Original' );
+			expect( component.editingCell() ).toBeNull();
 		} );
 
 		it( 'should load editable options from URL', () => {
