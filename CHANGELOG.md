@@ -6,6 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+
+- **Tabelle mit `saveState`: der gespeicherte Suchtext filtert nach der Rückkehr wieder.** Bisher zeigte das
+  Suchfeld zwar den Text, client-seitig blieben aber alle Zeilen sichtbar (`dataSource.filter` wurde nie gesetzt)
+  und server-seitig fehlte `_search` im ersten Request, weil der State erst nach der ersten Antwort restauriert
+  wurde. Der Suchtext wird jetzt in `ngOnInit` vor dem ersten Load wiederhergestellt; Sort und Paginator
+  weiterhin nach den ersten Daten.
 
 ## [0.4.11]
 ### Changed
