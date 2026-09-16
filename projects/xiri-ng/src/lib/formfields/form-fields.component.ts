@@ -476,40 +476,47 @@ export class XiriFormFieldsComponent implements OnInit {
 			control.setValue( emptyValueForField( field ) );
 	}
 	
+	// Hängt bewusst nur an form(). Der Control-Umbau ist ein Seiteneffekt und läuft untracked:
+	// addControl lässt die FormGroupDirective das neue Control sofort an eine wiederverwendete
+	// Directive binden (writeValue), und MatSelect schreibt dabei ein Signal im KeyManager -
+	// in einer Computed wäre das NG0600.
 	fields = computed( () => {
-		
-		this._fieldsLoaded = false;
-		if ( this._fields !== null ) {
-			for ( let i = 0; i != this._fields.length; i++ ) {
-				this.formGroup.removeControl( this._fields[ i ].id );
-			}
-			this._fields = null;
-		}
-		
+
 		const fields = this.form();
-		if ( fields == null ) {
-			return null;
-		}
-		
-		this._fields = fields;
+		return untracked( () => {
 
-		// Neue Feldliste: alte Render-Kopien und Patch-Stände gehören zum vorherigen Formular.
-		this.formGeneration++;
-		this.patchedClones.clear();
-		this.lastPatch.clear();
+			this._fieldsLoaded = false;
+			if ( this._fields !== null ) {
+				for ( let i = 0; i != this._fields.length; i++ ) {
+					this.formGroup.removeControl( this._fields[ i ].id );
+				}
+				this._fields = null;
+			}
 
-		const initialCollapsed = new Set<string>();
-		for ( const f of fields ) {
-			if ( f.type === 'header' && f.collapsible && f.collapsed )
-				initialCollapsed.add( f.id );
-		}
-		untracked( () => this.collapsedSections.set( initialCollapsed ) );
+			if ( fields == null ) {
+				return null;
+			}
 
-		this.createControl();
-		
-		this.lastValue = JSON.stringify( this.formGroup.value );
-		this._fieldsLoaded = true;
-		return this._fields;
+			this._fields = fields;
+
+			// Neue Feldliste: alte Render-Kopien und Patch-Stände gehören zum vorherigen Formular.
+			this.formGeneration++;
+			this.patchedClones.clear();
+			this.lastPatch.clear();
+
+			const initialCollapsed = new Set<string>();
+			for ( const f of fields ) {
+				if ( f.type === 'header' && f.collapsible && f.collapsed )
+					initialCollapsed.add( f.id );
+			}
+			this.collapsedSections.set( initialCollapsed );
+
+			this.createControl();
+
+			this.lastValue = JSON.stringify( this.formGroup.value );
+			this._fieldsLoaded = true;
+			return this._fields;
+		} );
 	} );
 	
 	private createControl(): void {

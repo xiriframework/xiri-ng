@@ -4,6 +4,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { delay, of, Subject, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriDateComponent } from './date/date.component';
@@ -1301,6 +1302,37 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'old' ) ).toBeNull();
 			expect( component.formGroup.get( 'new' ) ).toBeTruthy();
 		} );
+
+		it( 'ersetzt ein gerendertes Select mit gleicher Feld-ID ohne NG0600 und bindet es ans neue Control', async () => {
+			host.fields.set( [ { id: 'x', type: 'select', subtype: 'model', value: 1,
+				list: [ { id: 1, name: 'A' }, { id: 2, name: 'B' } ] } ] );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			const select = fixture.debugElement.query( By.directive( MatSelect ) ).componentInstance as MatSelect;
+			const oldControl = component.formGroup.get( 'x' );
+			expect( ( select.selected as MatOption ).value ).toBe( 1 );
+
+			// Neue Liste: writeValue läuft synchron noch gegen die alten Optionen, Material zieht die
+			// Auswahl erst per Microtask nach.
+			host.fields.set( [ { id: 'x', type: 'select', subtype: 'model', value: 4,
+				list: [ { id: 3, name: 'C' }, { id: 4, name: 'D' } ] } ] );
+			expect( () => fixture.detectChanges() ).not.toThrow();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( fixture.debugElement.query( By.directive( MatSelect ) ).componentInstance ).toBe( select );
+			expect( component.formGroup.get( 'x' ) ).not.toBe( oldControl );
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 4 );
+			expect( ( select.selected as MatOption ).value ).toBe( 4 );
+
+			component.formGroup.get( 'x' )!.setValue( 3 );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+			expect( ( select.selected as MatOption ).value ).toBe( 3 );
+		} );
 	} );
 
 	describe( 'null form input', () => {
@@ -2102,16 +2134,15 @@ describe( 'XiriFormFieldsComponent', () => {
 			fixture.detectChanges();
 			await clickAdd();
 
-			// Die Control-Identität entscheidet, nicht die Feld-ID. (Ein zweites Formular mit derselben
-			// Select-ID lässt sich hier nicht aufbauen: das Ersetzen eines gerenderten Selects löst
-			// unabhängig von addUrl NG0600 aus - vorbestehend.)
-			host.fields.set( [ { id: 'y', type: 'text', value: 'neu' } ] );
+			// Die Control-Identität entscheidet, nicht die Feld-ID: zweites Formular mit derselben Select-ID.
+			host.fields.set( [ selectField( { value: 11 } ) ] );
 			fixture.detectChanges();
+			const newControl = component.formGroup.get( 'x' );
 			expect( () => created() ).not.toThrow();
 
-			expect( component.formGroup.get( 'x' ) ).toBeNull();
-			expect( component.formGroup.get( 'y' )!.value ).toBe( 'neu' );
-			expect( component.formGroup.value ).toEqual( { y: 'neu' } );
+			expect( component.formGroup.get( 'x' ) ).toBe( newControl );
+			expect( newControl!.value ).toBe( 11 );
+			expect( component.fields()![ 0 ].list!.length ).toBe( 2 );
 		} );
 
 		it( 'verwirft das Ergebnis, wenn das Control inzwischen deaktiviert wurde', async () => {
