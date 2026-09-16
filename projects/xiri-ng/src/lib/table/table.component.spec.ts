@@ -1446,7 +1446,10 @@ describe( 'XiriTableComponent', () => {
 
 		it( 'should render a scalar patched into a text2/textn cell as one line, not as characters', async () => {
 			createFixture( {
-				fields: [ { id: 't', name: 'T', format: 'text2', cellObject: 'string' }, { id: 'n', name: 'N', format: 'textn', cellObject: 'string' } ],
+				fields: [
+					{ id: 't', name: 'T', format: 'text2', cellObject: 'string' },
+					{ id: 'n', name: 'N', format: 'textn', cellObject: 'string' },
+				],
 				data: [ { id: 1, t: 'Neu', n: null } ],
 			} );
 			await fixture.whenStable();
@@ -1476,7 +1479,10 @@ describe( 'XiriTableComponent', () => {
 		} );
 
 		it( 'should unpack a server footer cell object to its display', () => {
-			component.displayedColumns = [ { id: 'tl', name: 'TL', cellObject: 'number' }, { id: 'n', name: 'N', format: 'number' } ] as XiriTableField[];
+			component.displayedColumns = [
+				{ id: 'tl', name: 'TL', cellObject: 'number' },
+				{ id: 'n', name: 'N', format: 'number' },
+			] as XiriTableField[];
 			internals( component ).setFooter( { tl: { d: '4d 04:00', v: 360000 }, n: [ '1.234', 1234 ] } );
 			expect( component.footer[ 'tl' ] ).toBe( '4d 04:00' );
 			expect( component.footer[ 'n' ] ).toBe( '1.234' );
