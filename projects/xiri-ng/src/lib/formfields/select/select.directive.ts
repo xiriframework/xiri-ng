@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Directive, effect, inject, input, OnInit, OnDestroy } from "@angular/core";
-import { UntypedFormControl } from "@angular/forms";
+import { AbstractControl, UntypedFormControl } from "@angular/forms";
 import {
 	catchError,
 	debounceTime,
@@ -47,6 +47,14 @@ export class XiriSelectDirective implements OnInit, OnDestroy {
 	private _filteredValuesSubject: ReplaySubject<XiriFormFieldSelectOption[]> = new ReplaySubject<XiriFormFieldSelectOption[]>(
 		1
 	);
+
+	/** what the panel currently shows — the basis for the select-all toggle */
+	private _filtered: XiriFormFieldSelectOption[] = [];
+
+	private emit( list: XiriFormFieldSelectOption[] ) {
+		this._filtered = list;
+		this._filteredValuesSubject.next( list );
+	}
 	
 	/** indicate search operation is in progress */
 	public searching = false;
@@ -78,7 +86,7 @@ export class XiriSelectDirective implements OnInit, OnDestroy {
 				value = [];
 
 			this._allValues = value;
-			this._filteredValuesSubject.next( this._allValues.slice() );
+			this.emit( this._allValues.slice() );
 		});
 	}
 
@@ -102,9 +110,7 @@ export class XiriSelectDirective implements OnInit, OnDestroy {
 								} ) )
 					} ),
 					tap( ( filteredList ) => {
-						this._filteredValuesSubject.next(
-							this._allValues.slice().concat( filteredList as XiriFormFieldSelectOption[] )
-						)
+						this.emit( this._allValues.slice().concat( filteredList as XiriFormFieldSelectOption[] ) );
 					} ),
 					tap( () => {
 						this.searching = false;
@@ -137,28 +143,57 @@ export class XiriSelectDirective implements OnInit, OnDestroy {
 		// get the search keyword
 		let search = this._filterFormControl.value;
 		if ( !search ) {
-			this._filteredValuesSubject.next( this._allValues.slice() );
+			this.emit( this._allValues.slice() );
 			return;
 		} else {
 			search = search.toLowerCase();
 		}
 		// filter the _allValues
-		this._filteredValuesSubject.next(
-			this._allValues.filter( el => this.predicate()( search, el ) )
-		);
+		this.emit( this._allValues.filter( el => this.predicate()( search, el ) ) );
 	}
 	
-	// [showToggleAllCheckbox]="field.multiple" (toggleAll)="xiriSelect.toggleSelectAll($event)"
-	/**
-	toggleSelectAll(selectAllValue: boolean) {
-		this._filteredValuesSubject.pipe(take(1), takeUntil(this._onDestroy))
-			.subscribe(val => {
-				if (selectAllValue) {
-					this._filterFormControl.patchValue(val);
-				} else {
-					this._filterFormControl.patchValue([]);
-				}
-			});
+	// ---- select all / none (ngx-mat-select-search toggle-all checkbox) ----
+	// Contract: "visible" = what the panel currently shows (_filtered). Disabled and group
+	// options are never toggled; already selected disabled options survive a "none".
+
+	private selectableIds(): Set<unknown> {
+		return new Set( this._filtered.filter( o => !o.disabled && !o.isGroup ).map( o => o.id ) );
 	}
-	 **/
+
+	private static ids( value: unknown ): unknown[] {
+		return Array.isArray( value ) ? value : [];
+	}
+
+	/** false when nothing is selectable — the checkbox is hidden then, otherwise MatCheckbox would stay checked after a no-op click */
+	hasSelectable(): boolean {
+		return this.selectableIds().size > 0;
+	}
+
+	allSelected( value: unknown ): boolean {
+		const sel = this.selectableIds();
+		const cur = new Set( XiriSelectDirective.ids( value ) );
+		return sel.size > 0 && [ ...sel ].every( id => cur.has( id ) );
+	}
+
+	someSelected( value: unknown ): boolean {
+		const sel = this.selectableIds();
+		const cur = new Set( XiriSelectDirective.ids( value ) );
+		const hits = [ ...sel ].filter( id => cur.has( id ) ).length;
+		return hits > 0 && hits < sel.size;
+	}
+
+	toggleSelectAll( selectAll: boolean, control: AbstractControl | null ) {
+		if ( !control || control.disabled )
+			return;
+		const sel = this.selectableIds();
+		const cur = XiriSelectDirective.ids( control.value );
+		const next = selectAll
+			? cur.concat( [ ...sel ].filter( id => !cur.includes( id ) ) )
+			: cur.filter( id => !sel.has( id ) );
+		if ( next.length === cur.length && next.every( ( id, i ) => id === cur[ i ] ) )
+			return;
+		control.setValue( next );
+		control.markAsDirty();
+		control.markAsTouched();
+	}
 }

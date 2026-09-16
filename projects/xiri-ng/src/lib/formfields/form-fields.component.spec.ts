@@ -3,6 +3,7 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { delay, of, Subject, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { MatSelect } from '@angular/material/select';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriDateComponent } from './date/date.component';
 import { XiriVolumeComponent } from './volume/volume.component';
@@ -285,6 +286,109 @@ describe( 'XiriFormFieldsComponent', () => {
 			fixture.detectChanges();
 
 			expect( component.formGroup.get( 'anrede' )!.value ).toBe( 'm' );
+		} );
+	} );
+
+	describe( 'select all toggle (selectAll)', () => {
+		const LIST = [ { id: 1, name: 'A' }, { id: 2, name: 'AB' }, { id: 3, name: 'B', disabled: true } ];
+
+		async function render( field: Partial<XiriFormField> ) {
+			host.fields.set( [ { id: 'tags', type: 'select', multiple: true, selectAll: true, search: false, value: [ 1 ], list: LIST, ...field } as XiriFormField ] );
+			await fixture.whenStable();
+			const matSelect = fixture.debugElement.query( By.directive( MatSelect ) ).componentInstance as MatSelect;
+			matSelect.open();
+			await fixture.whenStable();
+			return { matSelect, panel: matSelect.panel.nativeElement as HTMLElement };
+		}
+
+		function checkbox( panel: HTMLElement ): HTMLInputElement | null {
+			return panel.querySelector( '.mat-select-search-toggle-all-checkbox input' );
+		}
+
+		async function click( panel: HTMLElement ) {
+			checkbox( panel )!.click();
+			await fixture.whenStable();
+		}
+
+		// Tippt wie der User ins Suchfeld von ngx-mat-select-search; das treibt xiriSelect.formControl.
+		async function type( panel: HTMLElement, text: string ) {
+			const input = panel.querySelector<HTMLInputElement>( 'ngx-mat-select-search input.mat-select-search-input:not(.mat-select-search-hidden)' )!;
+			input.value = text;
+			input.dispatchEvent( new Event( 'input' ) );
+			await fixture.whenStable();
+		}
+
+		it( 'wählt und entwählt per Klick alle wählbaren Optionen, disabled bleibt außen vor', async () => {
+			const { matSelect, panel } = await render( {} );
+			const ctrl = component.formGroup.get( 'tags' )!;
+
+			expect( checkbox( panel ) ).not.toBeNull();
+			expect( checkbox( panel )!.indeterminate ).toBe( true );
+
+			await click( panel );
+			expect( ctrl.value ).toEqual( [ 1, 2 ] );
+			expect( checkbox( panel )!.checked ).toBe( true );
+
+			await click( panel );
+			expect( ctrl.value ).toEqual( [] );
+			expect( checkbox( panel )!.checked ).toBe( false );
+			expect( ctrl.dirty ).toBe( true );
+			matSelect.close();
+		} );
+
+		it( 'lässt required nach „Keine“ fehlschlagen', async () => {
+			const { matSelect, panel } = await render( { required: true } );
+			const ctrl = component.formGroup.get( 'tags' )!;
+
+			await click( panel );
+			await click( panel );
+
+			expect( ctrl.value ).toEqual( [] );
+			expect( ctrl.invalid ).toBe( true );
+			matSelect.close();
+		} );
+
+		it( 'wirkt bei aktiver Suche nur auf die gefilterten Optionen und folgt externem setValue', async () => {
+			const { matSelect, panel } = await render( { search: true, list: [ { id: 1, name: 'A' }, { id: 2, name: 'AB' }, { id: 3, name: 'B' } ] } );
+			const ctrl = component.formGroup.get( 'tags' )!;
+
+			await type( panel, 'A' );
+			await click( panel );
+			expect( ctrl.value ).toEqual( [ 1, 2 ] );
+
+			await click( panel );
+			expect( ctrl.value ).toEqual( [] );
+
+			await type( panel, '' );
+			expect( panel.querySelectorAll( 'mat-option:not(.contains-mat-select-search)' ).length ).toBe( 3 );
+			expect( ctrl.value ).toEqual( [] );
+
+			ctrl.setValue( [ 3 ] );
+			await fixture.whenStable();
+			expect( checkbox( panel )!.indeterminate ).toBe( true );
+			matSelect.close();
+		} );
+
+		it( 'blendet die Checkbox aus, wenn kein Treffer wählbar ist', async () => {
+			const { matSelect, panel } = await render( { search: true } );
+
+			await type( panel, 'ZZZ' );
+
+			expect( checkbox( panel ) ).toBeNull();
+			matSelect.close();
+		} );
+
+		it( 'rendert ohne selectAll weiterhin den Zweig ohne Suche', async () => {
+			const { matSelect, panel } = await render( { selectAll: undefined } );
+			expect( panel.querySelector( 'ngx-mat-select-search' ) ).toBeNull();
+			matSelect.close();
+		} );
+
+		it( 'zeigt bei Single-Select trotz selectAll keine Checkbox', async () => {
+			const { matSelect, panel } = await render( { multiple: undefined, value: 1, search: true } );
+			expect( panel.querySelector( 'ngx-mat-select-search' ) ).not.toBeNull();
+			expect( checkbox( panel ) ).toBeNull();
+			matSelect.close();
 		} );
 	} );
 

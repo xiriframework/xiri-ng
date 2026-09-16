@@ -64,6 +64,7 @@ export interface XiriFormField {
 	pattern?: string
 
 	multiple?: boolean // treeselect, multiselect
+	selectAll?: boolean // select (multiple): "Alle/Keine"-Toggle über der Optionsliste
 	url?: string // treeselect, multiselect
 	search?: boolean // treeselect, multiselect
 	serverSideSearch?: boolean // select

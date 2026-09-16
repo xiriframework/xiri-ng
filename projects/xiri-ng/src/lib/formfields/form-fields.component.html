@@ -115,7 +115,7 @@
 			@case ('select') {
 				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
-					@if (field.search === false) {
+					@if (field.search === false && !field.selectAll) {
 						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="!!field.required" panelClass="selectPanel">
 							@for (x of field.list; track x.id) {
 								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
@@ -127,7 +127,11 @@
 								<ngx-mat-select-search [formControl]="xiriSelect.formControl" xiriSelect #xiriSelect="xiriSelect"
 								                       [values]="field.list || []" [searching]="xiriSelect.searching"
 								                       [serverSideSearch]="!!field.serverSideSearch" [serverUrl]="field.url || ''"
-								                       [serverParams]="field.params || {}"></ngx-mat-select-search>
+								                       [serverParams]="field.params || {}"
+								                       [showToggleAllCheckbox]="!!field.multiple && !!field.selectAll && xiriSelect.hasSelectable()"
+								                       [toggleAllCheckboxChecked]="!!field.multiple && !!field.selectAll && xiriSelect.allSelected(formGroup.get(field.id)?.value)"
+								                       [toggleAllCheckboxIndeterminate]="!!field.multiple && !!field.selectAll && xiriSelect.someSelected(formGroup.get(field.id)?.value)"
+								                       (toggleAll)="xiriSelect.toggleSelectAll($event, formGroup.get(field.id))"></ngx-mat-select-search>
 							</mat-option>
 							@for (x of xiriSelect.filter | async; track x.id) {
 								<mat-option [value]="x.id" [disabled]="x.disabled">{{ x.name }}</mat-option>
