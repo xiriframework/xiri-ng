@@ -147,3 +147,44 @@ MAX_ROUNDS=3 erreicht (Runde 0 technisch gescheitert, Runden 1 und 2 REVISE). Ke
 1. `Card.DataResponse` wechselt das Envelope auf `{"card": …}` (Claudes Empfehlung).
 2. Bei Reload-Fehler bleibt der geladene Header stehen, nur der Inhalt wird durch die Fehlermeldung ersetzt — Codex' Finding R2-6 damit doch übernommen: `lastCard`-Puffer als `linkedSignal`, URL-bezogen.
 3. Tests bleiben bei der Konvention der bestehenden Card-Specs (Claudes Position).
+
+## Code-Review (Modus A) nach Umsetzung
+
+### Runde 1 (Session 01a0aa0a-5243-72f3-a0cd-62811627e9ff) — VERDICT: REVISE
+
+Es bleiben zwei Fehler im Card-Zustandswechsel. Zeilenangaben beziehen sich auf die geprüften Commits; Arbeitsbaumänderungen und `22ee55a` wurden ausgeschlossen.
+
+1. **[P2] Erfolgreiche Zeilen-Antworten können dauerhaft ignoriert werden.**  
+   [card.component.ts:118](/workspace/xiri/xiri-ng/projects/xiri-ng/src/lib/card/card.component.ts:118): Liefert dieselbe URL zuerst `{card: …}` und später `{data: rows}`, behält `loadedCard` die alte Card. `_loaded` verwirft dadurch die neuen Zeilen; alte Inhalte und Buttons bleiben sichtbar. Der Puffer unterscheidet fehlende Antworten beziehungsweise Fehler nicht von erfolgreichen Nicht-Card-Antworten. Mit Angular-Signals im Speicher reproduziert.  
+   **Behebung:** Bei erfolgreicher Zeilen-Antwort den Card-Puffer löschen; den Übergang `{card: …}` → `{data: rows}` testen.
+
+2. **[P2] Wiederholung nach einem Reload-Fehler zeigt erneut das Initial-Skeleton.**  
+   [card.component.ts:141](/workspace/xiri/xiri-ng/projects/xiri/xiri-ng/src/lib/card/card.component.ts:141): Nach Erfolg → Reload-Fehler → erneutem Laden ist `_raw()` leer, obwohl `loadedCard()` noch vorhanden ist. `showSkeleton()` wird deshalb wahr. Das widerspricht dem Vertrag „Skeleton nur, solange noch nie etwas geladen wurde“. Der Fehlertest endet vor diesem Wiederholungsfall.  
+   **Behebung:** Den URL-bezogenen Erfolgspuffer bei der Skeleton-Bedingung berücksichtigen und einen offenen Retry nach einem Fehler testen.
+
+Weitere Hinweise:
+
+- **Tests:** [table.component.spec.ts:1062](/workspace/xiri/xiri-ng/projects/xiri-ng/src/lib/table/table.component.spec.ts:1062) wäre auch vor der Änderung grün: Damals gab es ebenfalls keinen `onPanelRefresh`-Callback. Er erkennt zwar das versehentliche Entfernen der neuen `fromButton`-Unterscheidung, beweist aber keinen tatsächlich genau einmal ausgeführten Reload. **Behebung:** Einen Button-Klick mit echtem Response-Handler bis zum Host testen und exakt einen Aufruf erwarten. Die positiven Card-, Button- und Go-Tests sichern dagegen neue Funktion ab; der offene Subject-Test prüft sinnvoll den Erhalt der Komponenten während eines Reloads.
+- **Konventionen:** Neue Zeilen überschreiten 140 Zeichen in [cards.component.ts:62](/workspace/xiri/xiri-ng/projects/demo/src/app/cards/cards.component.ts:62), [mock-api.interceptor.ts:187](/workspace/xiri/xiri-ng/projects/demo/src/app/mock/mock-api.interceptor.ts:187) und [card.component.spec.ts:424](/workspace/xiri/xiri-ng/projects/xiri-ng/src/lib/card/card.component.spec.ts:424). Der geänderte Import in [button.component.ts:11](/workspace/xiri/xiri-ng/projects/xiri-ng/src/lib/button/button.component.ts:11) verwendet weiterhin doppelte Quotes. **Behebung:** Zeilen umbrechen und den Import auf Single Quotes umstellen.
+
+`hasValue()`-Fehlerschutz, URL-Wechsel des Puffers, `pendingReload`-Effect und `skipSelf`-Weiterleitung sind ansonsten nachvollziehbar korrekt. Bestehende reine `{data: rows}`-Endpoints bleiben erhalten; `refresh:table/page` bleibt unverändert. Keine zusätzlich eingeführte Sicherheitslücke gefunden. Der Go-Envelope-Wechsel entspricht der dokumentierten Nutzerentscheidung.
+
+Keine Dateien geändert. Keine vollständigen Test-/Lint-Läufe; durchgeführt wurden Commit-Review und isolierte Signal-Proben im Speicher.
+
+VERDICT: REVISE
+### Umsetzung: Commit acee109 — Puffer bei Zeilen-Antwort leeren, kein Skeleton beim Retry, Zeilenlängen, Single-Quote-Import. Verworfen: integrierter Tabellenaktions-Test (fromButton macht Doppelaufruf strukturell unmöglich).
+
+### Runde 2 (resume) — VERDICT: APPROVED
+
+`acee109` frisch aus Git geprüft: **Beide materiellen Findings sind behoben.**
+
+- Erfolgreiche `{data: rows}`-Antworten leeren den Card-Puffer; Fehler behalten ihn weiterhin.
+- Beim Retry nach einem Reload-Fehler erscheint kein Skeleton. Beim URL-Wechsel wird der Puffer weiterhin zurückgesetzt.
+- Die neuen Tests prüfen die problematischen Übergänge gezielt und würden mit der vorherigen Implementierung scheitern.
+- Die beanstandeten Zeilenlängen und der Import sind korrigiert.
+
+Der fehlende Tabellenintegrationstest bleibt eine optionale Absicherung, kein Blocker. `fromButton` verhindert die zweite Panel-Behandlung korrekt. Der Card-Button-Test allein deckt allerdings den zusätzlichen Tabellenpfad nicht ab.
+
+Keine neuen materiellen Probleme gefunden. Isolierte Signal-Proben und `git diff --check` erfolgreich; vollständige Tests nicht erneut ausgeführt. Keine Dateien geändert.
+
+VERDICT: APPROVED
