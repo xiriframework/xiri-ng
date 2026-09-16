@@ -10,7 +10,7 @@ import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
-import { XiriResponseHandlerService } from '../services/response-handler.service';
+import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 
@@ -1027,6 +1027,53 @@ describe( 'XiriTableComponent', () => {
 
 		it( 'should not fail on null result', () => {
 			expect( () => internals( component ).callReturn( null ) ).not.toThrow();
+		} );
+
+		it( 'reicht onPanelRefresh an den injizierten Panel-Host durch', () => {
+			const panelHost = { reloadPanel: vi.fn() };
+			fixture?.destroy();
+			TestBed.resetTestingModule();
+			TestBed.configureTestingModule( {
+				imports: [ TestHostComponent ],
+				providers: [
+					provideRouter( [] ),
+					{ provide: XiriDataService, useValue: mockDataService },
+					{ provide: XiriDownloadService, useValue: mockDownloadService },
+					{ provide: XiriSnackbarService, useValue: mockSnackbar },
+					{ provide: MatDialog, useValue: mockDialog },
+					{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
+					{ provide: XiriResponseHandlerService, useValue: mockResponseHandler },
+					{ provide: XIRI_PANEL_HOST, useValue: panelHost },
+				],
+			} );
+			fixture = TestBed.createComponent( TestHostComponent );
+			host = fixture.componentInstance;
+			fixture.detectChanges();
+			component = host.table();
+
+			internals( component ).callReturn( { done: true, refresh: 'panel' } );
+
+			const callbacks = mockResponseHandler.handle.mock.calls[ 0 ][ 1 ] as { onPanelRefresh?: () => void };
+			expect( callbacks.onPanelRefresh ).toEqual( expect.any( Function ) );
+			callbacks.onPanelRefresh!();
+			expect( panelHost.reloadPanel ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'reicht von xiri-button weitergereichte Ergebnisse nicht noch einmal als Panel-Refresh weiter', () => {
+			const btn: XiriButton = { text: 'x', type: 'basic', action: 'api', url: '/x' };
+			component.buttonReturn( { button: btn, result: { done: true, refresh: 'panel' }, done: true, loading: false } );
+
+			const callbacks = mockResponseHandler.handle.mock.calls[ 0 ][ 1 ] as { onPanelRefresh?: () => void };
+			expect( callbacks.onPanelRefresh ).toBeUndefined();
+		} );
+
+		it( 'warnt bei refresh:panel ohne umschließende Card', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => undefined );
+			internals( component ).callReturn( { done: true, refresh: 'panel' } );
+			const callbacks = mockResponseHandler.handle.mock.calls[ 0 ][ 1 ] as { onPanelRefresh?: () => void };
+			callbacks.onPanelRefresh!();
+			expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'refresh:panel' ) );
+			warn.mockRestore();
 		} );
 
 		it( 'should not fail on undefined result', () => {

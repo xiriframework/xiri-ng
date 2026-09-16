@@ -35,7 +35,7 @@ import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriDataService } from '../services/data.service';
 import { XiriButton, XiriButtonComponent, XiriButtonResult } from "../button/button.component";
 import { XiriSnackbarService } from '../services/snackbar.service';
-import { XiriResponseHandlerService } from '../services/response-handler.service';
+import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
@@ -216,6 +216,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private numberService = inject( XiriLocaleService );
 	private snackbar = inject( XiriSnackbarService );
 	private responseHandler = inject( XiriResponseHandlerService );
+	// Nächstgelegene Card; null außerhalb einer Card. Ziel für refresh:'panel' aus eigenen Aktionspfaden.
+	private panelHost = inject( XIRI_PANEL_HOST, { optional: true } );
 	private downloadService = inject( XiriDownloadService );
 	inlineEdit = inject( XiriTableInlineEditService );
 	tree = inject( XiriTableTreeService );
@@ -1047,10 +1049,11 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( !event.done )
 			return;
 		
-		this.callReturn( event.result );
+		// xiri-button hat refresh:'panel' schon an den Panel-Host gegeben – hier nicht noch einmal.
+		this.callReturn( event.result, true );
 	}
 	
-	private callReturn( result: unknown ) {
+	private callReturn( result: unknown, fromButton = false ) {
 		this.responseHandler.handle( result, {
 			onTableRefresh: () => this.reload(),
 			onTableUpdate: ( id, field, content ) => {
@@ -1059,8 +1062,16 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					return;
 				this.dataSource.data[ i ][ field ] = content as XiriTableCellValue;
 				this.dataSource._updateChangeSubscription();
-			}
+			},
+			onPanelRefresh: fromButton ? undefined : () => this.refreshPanel(),
 		} );
+	}
+
+	private refreshPanel() {
+		if ( this.panelHost )
+			this.panelHost.reloadPanel();
+		else
+			console.warn( 'xiri-table: refresh:panel ohne umschließende Card' );
 	}
 
 	// Row ids are backend values (int64 or string) and are passed through untouched.
