@@ -110,7 +110,11 @@ export class XiriSelectDirective implements OnInit, OnDestroy {
 								} ) )
 					} ),
 					tap( ( filteredList ) => {
-						this.emit( this._allValues.slice().concat( filteredList as XiriFormFieldSelectOption[] ) );
+						// Server kann Optionen liefern, die schon in der Startliste stehen (z. B. eine per addUrl
+						// angelegte): nicht doppelt anzeigen.
+						const known = new Set( this._allValues.map( o => o.id ) );
+						const fresh = ( filteredList as XiriFormFieldSelectOption[] ).filter( o => !known.has( o.id ) );
+						this.emit( this._allValues.slice().concat( fresh ) );
 					} ),
 					tap( () => {
 						this.searching = false;

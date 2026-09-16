@@ -1,7 +1,7 @@
 <div class="dialog">
 	<div class="dialog-header">
 		<h1 mat-dialog-title>{{ header() }}</h1>
-		@if (type() !== 'waiting') {
+		@if (type() !== 'waiting' && !done()) {
 			<button mat-icon-button aria-label="Schließen" (click)="dialogRef.close(null)"><mat-icon>close</mat-icon></button>
 		}
 	</div>

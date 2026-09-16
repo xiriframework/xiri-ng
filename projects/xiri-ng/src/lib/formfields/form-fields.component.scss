@@ -18,8 +18,24 @@
 	// Material-Felder nicht auf die Zeilenhöhe strecken: ein Treeselect (300px) in derselben
 	// Grid-Zeile würde sonst jedes mat-form-field daneben mitziehen (.mat-mdc-text-field-wrapper
 	// hat flex:auto). Nur mat-form-field — header/divider/question zentrieren bewusst in der Zelle.
-	> mat-form-field {
+	> mat-form-field,
+	> .add-wrap {
 		align-self: start;
+	}
+
+	// Control plus optionaler "+"-Button (addUrl) nebeneinander; der Button bleibt oben am Feld.
+	.add-wrap {
+		display:     flex;
+		align-items: flex-start;
+		gap:         4px;
+
+		.add-wrap-control {
+			flex:      1;
+			min-width: 0;
+		}
+		.add-option {
+			margin-top: 4px;
+		}
 	}
 
 	mat-form-field mat-icon {

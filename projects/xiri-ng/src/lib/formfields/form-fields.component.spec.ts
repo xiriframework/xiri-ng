@@ -4,6 +4,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { delay, of, Subject, throwError } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { MatSelect } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
 import { XiriFormFieldsComponent } from './form-fields.component';
 import { XiriDateComponent } from './date/date.component';
 import { XiriVolumeComponent } from './volume/volume.component';
@@ -61,9 +62,11 @@ describe( 'XiriFormFieldsComponent', () => {
 
 	let httpStub: { get: ReturnType<typeof vi.fn>; post: ReturnType<typeof vi.fn> };
 	let snackbarStub: { error: ReturnType<typeof vi.fn>; handleResponse: ReturnType<typeof vi.fn> };
+	let dialogStub: { open: ReturnType<typeof vi.fn> };
 
 	beforeEach( () => {
 		stubLocalStorage();
+		dialogStub = { open: vi.fn() };
 
 		httpStub = { get: vi.fn().mockReturnValue( of( {} ) ), post: vi.fn().mockReturnValue( of( {} ) ) };
 		// handleResponse gehört zum Vertrag: XiriDataService ruft es in einem tap auf jeder Antwort.
@@ -75,6 +78,7 @@ describe( 'XiriFormFieldsComponent', () => {
 				{ provide: XiriDataServiceConfig, useValue: { api: '/api/' } },
 				{ provide: HttpClient, useValue: httpStub },
 				{ provide: XiriSnackbarService, useValue: snackbarStub },
+				{ provide: MatDialog, useValue: dialogStub },
 				{ provide: MAT_DATE_LOCALE, useValue: enUS },
 				...provideDateFnsAdapter(),
 			],
@@ -1974,6 +1978,166 @@ describe( 'XiriFormFieldsComponent', () => {
 
 				expect( bar() ).toBeNull();
 			} );
+		} );
+	} );
+	describe( 'addUrl ("+"-Button: neue Option per Dialog anlegen)', () => {
+
+		const ADD_URL = '/Thing/Add';
+		let afterClosed: Subject<unknown>;
+
+		beforeEach( () => {
+			afterClosed = new Subject<unknown>();
+			dialogStub.open.mockReturnValue( { afterClosed: () => afterClosed.asObservable(), close: vi.fn() } );
+		} );
+
+		function selectField( over: Partial<XiriFormField> = {} ): XiriFormField {
+			return {
+				id: 'x', type: 'select', required: false, search: false, value: null,
+				list: [ { id: 10, name: 'Alpha' }, { id: 11, name: 'Beta' } ], addUrl: ADD_URL,
+				...over,
+			};
+		}
+
+		function addButtons() {
+			return fixture.debugElement.queryAll( By.css( 'button.add-option' ) );
+		}
+
+		async function clickAdd() {
+			addButtons()[ 0 ].nativeElement.click();
+			await vi.waitFor( () => expect( dialogStub.open ).toHaveBeenCalled() );
+		}
+
+		function created( id: unknown = 99, name: unknown = 'Neu' ) {
+			afterClosed.next( { done: true, created: { id, name } } );
+			fixture.detectChanges();
+		}
+
+		it( 'rendert den Button nur bei Feldern mit addUrl', () => {
+			host.fields.set( [ selectField(), selectField( { id: 'y', addUrl: undefined } ) ] );
+			fixture.detectChanges();
+
+			expect( addButtons().length ).toBe( 1 );
+		} );
+
+		it( 'öffnet den Dialog per GET auf addUrl, ohne das Select aufzuklappen', async () => {
+			host.fields.set( [ selectField() ] );
+			fixture.detectChanges();
+
+			await clickAdd();
+
+			expect( dialogStub.open ).toHaveBeenCalledWith( expect.anything(), { data: { type: 'load', url: ADD_URL } } );
+			expect( document.querySelector( '.mat-mdc-select-panel' ) ).toBeNull();
+		} );
+
+		it( 'ist bei deaktiviertem Formular deaktiviert', () => {
+			host.fields.set( [ selectField() ] );
+			host.disabled.set( true );
+			fixture.detectChanges();
+
+			expect( addButtons()[ 0 ].nativeElement.disabled ).toBe( true );
+		} );
+
+		it( 'übernimmt und selektiert die neue Option (Single-Select mit leerem Wert)', async () => {
+			host.fields.set( [ selectField() ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 99 );
+			expect( component.fields()![ 0 ].list ).toContainEqual( { id: 99, name: 'Neu' } );
+		} );
+
+		it( 'ergänzt bei multiple die bestehenden Werte und dedupliziert', async () => {
+			host.fields.set( [ selectField( { multiple: true, value: [ 10 ] } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 10, 99 ] );
+
+			dialogStub.open.mockClear();
+			await clickAdd();
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 10, 99 ] );
+			expect( component.fields()![ 0 ].list!.filter( o => o.id === 99 ).length ).toBe( 1 );
+		} );
+
+		it( 'funktioniert beim multiselect (treeselect ohne url)', async () => {
+			host.fields.set( [ selectField( { type: 'multiselect', value: [ 10 ] } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 10, 99 ] );
+		} );
+
+		it( 'funktioniert bei chips und zeigt das Label der neuen Option', async () => {
+			host.fields.set( [ selectField( { type: 'chips', value: [ 'frei' ] } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 'frei', 99 ] );
+			expect( fixture.nativeElement.textContent ).toContain( 'Neu' );
+		} );
+
+		it( 'lässt bei Abbruch alles unverändert', async () => {
+			host.fields.set( [ selectField( { value: 10 } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			afterClosed.next( null );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
+			expect( component.fields()![ 0 ].list!.length ).toBe( 2 );
+		} );
+
+		it( 'schreibt nicht in ein Formular, das während des Dialogs gewechselt hat', async () => {
+			host.fields.set( [ selectField() ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			// Die Control-Identität entscheidet, nicht die Feld-ID. (Ein zweites Formular mit derselben
+			// Select-ID lässt sich hier nicht aufbauen: das Ersetzen eines gerenderten Selects löst
+			// unabhängig von addUrl NG0600 aus - vorbestehend.)
+			host.fields.set( [ { id: 'y', type: 'text', value: 'neu' } ] );
+			fixture.detectChanges();
+			expect( () => created() ).not.toThrow();
+
+			expect( component.formGroup.get( 'x' ) ).toBeNull();
+			expect( component.formGroup.get( 'y' )!.value ).toBe( 'neu' );
+			expect( component.formGroup.value ).toEqual( { y: 'neu' } );
+		} );
+
+		it( 'verwirft das Ergebnis, wenn das Control inzwischen deaktiviert wurde', async () => {
+			host.fields.set( [ selectField( { value: 10 } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			component.formGroup.get( 'x' )!.disable();
+			created();
+
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
+		} );
+
+		it( 'ignoriert ungültige created-Antworten, akzeptiert aber id 0', async () => {
+			host.fields.set( [ selectField( { value: 10 } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			created( null, 'Neu' );
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
+			afterClosed.next( { done: true, created: { id: 5 } } );
+			fixture.detectChanges();
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
+
+			created( 0, 'Null' );
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 0 );
 		} );
 	} );
 } );

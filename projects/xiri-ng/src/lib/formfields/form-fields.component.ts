@@ -58,6 +58,7 @@ import { XiriSelectDirective } from './select/select.directive';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -116,6 +117,7 @@ export class XiriFormFieldsComponent implements OnInit {
 	
 	private formBuilder = inject( UntypedFormBuilder );
 	private destroyRef = inject( DestroyRef );
+	private dialog = inject( MatDialog );
 	private elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
 	private readonly localeService = inject( XiriLocaleService );
 	private dataService = inject( XiriDataService );
@@ -327,6 +329,48 @@ export class XiriFormFieldsComponent implements OnInit {
 					return EMPTY;
 				} ),
 			) ) );
+	}
+
+	// "+"-Button (field.addUrl): öffnet den Server-Dialog per GET und übernimmt die angelegte Option.
+	protected openAdd( id: string ): void {
+
+		const field = this._fields?.find( f => f.id === id );
+		const control = this.formGroup.get( id );
+		if ( !field?.addUrl || !control )
+			return;
+		const url = field.addUrl;
+
+		// Lazy: dialog.component importiert xiri-form-fields, ein statischer Import wäre ein Zyklus.
+		import( '../dialog/dialog.component' ).then( m => {
+			this.dialog.open( m.XiriDialogComponent, { data: { type: 'load', url } } )
+				.afterClosed()
+				.pipe( takeUntilDestroyed( this.destroyRef ) )
+				.subscribe( ( res: unknown ) => this.addOption( id, control, ( res as { created?: unknown } | null )?.created ) );
+		} ).catch( err => console.error( 'xiri-form-fields: dialog import failed', err ) );
+	}
+
+	private addOption( id: string, control: AbstractControl, created: unknown ): void {
+
+		const field = this._fields?.find( f => f.id === id );
+		// Das Formular kann inzwischen gewechselt haben (auch mit gleicher Feld-ID): nur ins Control
+		// schreiben, das den Dialog geöffnet hat.
+		if ( !field || this.formGroup.get( id ) !== control || control.disabled || !isCreatedOption( created ) )
+			return;
+
+		if ( !collectOptionIds( field.list ?? [] ).has( created.id ) )
+			field.list = [ ...( field.list ?? [] ), { id: created.id, name: created.name } ];
+
+		// Nicht über Array.isArray entscheiden: ein leeres Single-Select startet intern mit [].
+		if ( field.multiple || field.type === 'treeselect' || field.type === 'chips' ) {
+			const current: unknown[] = Array.isArray( control.value ) ? control.value : [];
+			if ( !current.includes( created.id ) )
+				control.setValue( [ ...current, created.id ] );
+		} else {
+			control.setValue( created.id );
+		}
+
+		this.patchedClones.set( id, { ...field } );
+		this.patchVersion.update( v => v + 1 );
 	}
 
 	private applyPatch( url: string, patch: Record<string, unknown> ): void {
@@ -985,4 +1029,11 @@ function validatorArrayMax( max: number ): ValidatorFn {
 		const ok = control.value.length <= max;
 		return ok ? null : { max: { value: control.value } };
 	};
+}
+
+function isCreatedOption( value: unknown ): value is { id: number | string; name: string } {
+	if ( value === null || typeof value !== 'object' )
+		return false;
+	const { id, name } = value as { id?: unknown; name?: unknown };
+	return ( typeof id === 'string' || ( typeof id === 'number' && Number.isFinite( id ) ) ) && typeof name === 'string';
 }

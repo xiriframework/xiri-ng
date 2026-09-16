@@ -135,4 +135,16 @@ describe( 'XiriSelectDirective – toggleSelectAll', () => {
 		dir.toggleSelectAll( true, ctrl );
 		expect( ctrl.value ).toEqual( [ 1, 9 ] );
 	} );
+
+	it( 'zeigt eine Option nicht doppelt, wenn der Server sie erneut liefert', async () => {
+		const { dir, post } = await setup( [ { id: 1, name: 'Lokal' }, { id: 9, name: 'Server' } ], true );
+
+		dir.formControl.setValue( 'ser' );
+		await new Promise( resolve => setTimeout( resolve, 300 ) );
+
+		expect( post ).toHaveBeenCalled();
+		let shown: XiriFormFieldSelectOption[] = [];
+		dir.filter.subscribe( list => shown = list );
+		expect( shown.map( o => o.id ) ).toEqual( [ 1, 9 ] );
+	} );
 } );

@@ -113,7 +113,8 @@
 				</mat-form-field>
 			}
 			@case ('select') {
-				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+				<div class="add-wrap" [class]="field.class" [hidden]="field.hide">
+				<mat-form-field class="add-wrap-control" [formGroup]="formGroup" floatLabel="auto">
 					<mat-label>{{ field.name }}</mat-label>
 					@if (field.search === false && !field.selectAll) {
 						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="!!field.required" panelClass="selectPanel">
@@ -149,9 +150,15 @@
 						</ng-container>
 					}
 				</mat-form-field>
+				@if (field.addUrl) {
+					<button mat-icon-button type="button" class="add-option" aria-label="Neu anlegen"
+					        [disabled]="disabled() || formGroup.get(field.id)?.disabled" (click)="openAdd(field.id)"><mat-icon>add</mat-icon></button>
+				}
+				</div>
 			}
 			@case ('treeselect') {
-				<div class="treeselect" [class]="field.class" [hidden]="field.hide">
+				<div class="treeselect add-wrap" [class]="field.class" [hidden]="field.hide">
+				<div class="add-wrap-control">
 					<xiri-treeselect [field]="field" [formControlName]="field.id"
 					                 [class.error]="formGroup.get(field.id)?.touched && formGroup.get(field.id)?.invalid"></xiri-treeselect>
 					<div class="xhint" aria-live="polite" [class.error]="formGroup.get(field.id)?.touched && formGroup.get(field.id)?.invalid">
@@ -169,6 +176,11 @@
 							</ng-container>
 						}
 					</div>
+				</div>
+				@if (field.addUrl) {
+					<button mat-icon-button type="button" class="add-option" aria-label="Neu anlegen"
+					        [disabled]="disabled() || formGroup.get(field.id)?.disabled" (click)="openAdd(field.id)"><mat-icon>add</mat-icon></button>
+				}
 				</div>
 			}
 			@case ('date') {
@@ -368,8 +380,12 @@
 				</div>
 			}
 			@case ('chips') {
-				<div [class]="field.class" [hidden]="field.hide">
-					<xiri-chips [field]="field" [formControlName]="field.id"></xiri-chips>
+				<div class="add-wrap" [class]="field.class" [hidden]="field.hide">
+					<xiri-chips class="add-wrap-control" [field]="field" [formControlName]="field.id"></xiri-chips>
+					@if (field.addUrl) {
+						<button mat-icon-button type="button" class="add-option" aria-label="Neu anlegen"
+						        [disabled]="disabled() || formGroup.get(field.id)?.disabled" (click)="openAdd(field.id)"><mat-icon>add</mat-icon></button>
+					}
 				</div>
 			}
 			@default {

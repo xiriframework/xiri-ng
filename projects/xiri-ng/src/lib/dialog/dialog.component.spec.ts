@@ -246,6 +246,18 @@ describe( 'XiriDialogComponent', () => {
 			vi.useRealTimers();
 		} );
 
+		it( 'sperrt während der Erfolgsanzeige Escape, Backdrop und das Schließen-Kreuz', () => {
+			vi.useFakeTimers();
+			mockDataService.get.mockReturnValue( of( { done: true, created: { id: 7, name: 'Neu' } } ) );
+
+			createComponent( { type: 'load', url: 'test' } );
+			fixture.detectChanges();
+
+			expect( mockDialogRef.disableClose ).toBe( true );
+			expect( fixture.nativeElement.querySelector( 'button[aria-label="Schließen"]' ) ).toBeNull();
+			vi.useRealTimers();
+		} );
+
 		it( 'should close dialog on response without buttons or done', () => {
 			const response = { goto: '/page' };
 			mockDataService.get.mockReturnValue( of( response ) );

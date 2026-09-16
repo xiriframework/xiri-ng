@@ -86,6 +86,9 @@ export interface XiriFormField {
 	// Both are required — a dependency without a url cannot be resolved.
 	reloadOn?: string[]
 	reloadUrl?: string
+	// "+"-Button neben dem Feld: GET addUrl liefert einen Formular-Dialog, dessen POST mit
+	// {done, created: {id, name}} antwortet; die Option wird angehängt und selektiert.
+	addUrl?: string
 
 	control?: FormControl
 

@@ -39,8 +39,24 @@ export class SelectsComponent {
 		url: '',
 		fields: [ {
 			type: 'select',
-			name: 'Multi-Select mit „Alle / Keine“',
+			name: 'Multi-Select mit „+“ (neue Option per Dialog)',
 			class: 'xcol-start xcol-md-6 xcol-xl-4',
+			id: 'tags_add',
+			multiple: true,
+			required: false,
+			search: false,
+			hint: 'Legt per Server-Dialog eine neue Option an und selektiert sie',
+			value: [ 1 ],
+			list: [
+				{ id: 1, name: 'Produktion' },
+				{ id: 2, name: 'Logistik' },
+				{ id: 3, name: 'Vertrieb' },
+			],
+			addUrl: 'Test/Tag/AddDialog',
+		}, {
+			type: 'select',
+			name: 'Multi-Select mit „Alle / Keine“',
+			class: 'xcol-md-6 xcol-xl-4',
 			id: 'tags_all',
 			multiple: true,
 			selectAll: true,
@@ -8293,7 +8309,15 @@ export class SelectsComponent {
 		} ]
 	};
 
-	goSelectFieldsCode = `// Multi-Select mit "Alle / Keine"-Toggle (wirkt auf die sichtbaren Optionen)
+	goSelectFieldsCode = `// "+"-Button neben dem Feld: GET liefert dialog.NewDialogForm, POST antwortet mit
+// response.NewReturnDone().WithCreated(id, name) - die Option wird übernommen und selektiert
+tagsAdd := field.NewSelectField("tags_add", "Multi-Select", false,
+    []field.SelectOption{{Value: 1, Label: "Produktion"}, {Value: 2, Label: "Logistik"}}).
+    SetMultiple(true).
+    SetClass("xcol-start xcol-md-6 xcol-xl-4")
+tagsAdd.BaseField.SetAddURL(xurl.NewUrlPrefix("/Test/Tag/AddDialog", "/api"))
+
+// Multi-Select mit "Alle / Keine"-Toggle (wirkt auf die sichtbaren Optionen)
 tags := field.NewSelectField("tags_all", "Multi-Select", false,
     []field.SelectOption{
         {Value: 1, Label: "Produktion"},
@@ -8302,7 +8326,7 @@ tags := field.NewSelectField("tags_all", "Multi-Select", false,
     }).
     SetMultiple(true).
     SetSelectAll(true).
-    SetClass("xcol-start xcol-md-6 xcol-xl-4")
+    SetClass("xcol-md-6 xcol-xl-4")
 
 // Checkbox-Liste (type "multiselect") mit Limit
 multi := field.NewModelListField("multiselect", "multiselect", true, "user", []int32{3})

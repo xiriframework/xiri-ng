@@ -83,6 +83,18 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getDialogComponentResponse() } ) );
 	}
 
+	// addUrl ("+"-Button am Formfeld): GET liefert das Anlege-Formular, POST antwortet wie
+	// response.NewReturnDone().WithCreated(id, name) - das Feld übernimmt und selektiert die Option.
+	if ( req.url.includes( 'Test/Tag/AddDialog' ) ) {
+		if ( req.method === 'POST' ) {
+			const name = ( req.body as { name?: string } ).name ?? 'Neu';
+			return of( new HttpResponse( { status: 200, body: {
+				done: true, created: { id: Date.now(), name }, message: 'Angelegt', messageType: 'success',
+			} } ) ).pipe( delay( 400 ) );
+		}
+		return of( new HttpResponse( { status: 200, body: getTagAddDialogResponse() } ) );
+	}
+
 	// DialogForm: a standard edit form. Submit (POST) simulates a short save and completes.
 	if ( req.url.includes( 'Test/Test/DialogForm' ) ) {
 		if ( req.method === 'POST' )
@@ -513,6 +525,24 @@ function getDialogFormResponse(): unknown {
 		buttons: [
 			{ text: 'Abbrechen', type: 'basic', action: 'close' },
 			{ text: 'Speichern', type: 'raised', action: 'save', default: true, color: 'primary' }
+		]
+	};
+}
+
+function getTagAddDialogResponse(): unknown {
+	return {
+		header: 'Neuer Tag',
+		type: 'form',
+		url: 'Test/Tag/AddDialog',
+		fields: [
+			{ id: 'name', type: 'text', name: 'Name', required: true },
+			{ id: 'color', type: 'select', name: 'Farbe', search: false, required: false, list: [
+				{ id: 1, name: 'Grün' }, { id: 2, name: 'Blau' }, { id: 3, name: 'Rot' }
+			] },
+		],
+		buttons: [
+			{ text: 'Abbrechen', type: 'basic', action: 'close' },
+			{ text: 'Anlegen', type: 'raised', action: 'save', default: true, color: 'primary' }
 		]
 	};
 }

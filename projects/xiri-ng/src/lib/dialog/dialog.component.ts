@@ -35,7 +35,7 @@ export interface XiriDialogSettings {
 	url?: string
 	size?: XiriDialogSize | string
 
-	type: "form" | "data" | "question" | "waiting" | "table" | "component"
+	type: "form" | "data" | "question" | "waiting" | "table" | "component" | "load"
 	data?: unknown
 	filter?: Record<string, unknown> | null
 }
@@ -267,6 +267,8 @@ export class XiriDialogComponent implements OnDestroy {
 			
 		} else if ( res.done ) {
 			
+			// Bis zum close(res) darf nichts anderes schließen, sonst geht das Ergebnis (z. B. created) verloren.
+			this.dialogRef.disableClose = true;
 			this.done.set( true );
 			this.formFields.set( null );
 

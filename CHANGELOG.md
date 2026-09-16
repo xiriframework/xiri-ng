@@ -6,6 +6,21 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **`addUrl` an `select`, `multiselect`/`treeselect`, `object`/`model` und `chips`: ein „+“-Button neben dem Feld
+  legt eine neue Option per Dialog an.** Klick öffnet `XiriDialogComponent` per GET auf `addUrl`; antwortet der
+  POST des Dialogs mit `{ done: true, created: { id, name } }`, hängt das Feld die Option an seine Liste und
+  selektiert sie (Mehrfachwerte: zusätzlich, ohne Duplikat). Ergebnisse werden verworfen, wenn das Formular
+  inzwischen gewechselt hat oder das Control deaktiviert ist; `created` wird validiert (`id` String oder endliche
+  Zahl, `name` String). Go-Seite: `field.BaseField.SetAddURL` + `response.NewReturnDone().WithCreated`.
+
+### Fixed
+
+- **Der Dialog lässt sich während der Erfolgsanzeige (`done`) nicht mehr per Escape, Backdrop oder Kreuz
+  schließen.** Bisher ging in der Sekunde vor dem automatischen `close(res)` die Antwort verloren.
+- **Select mit Server-Suche zeigt eine Option nicht mehr doppelt**, wenn der Server eine bereits in der
+  Startliste enthaltene Option erneut liefert.
 
 ## [0.4.10]
 ### Fixed
