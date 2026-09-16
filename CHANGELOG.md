@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.12]
 ### Fixed
 
 - **Tabelle mit `saveState`: der gespeicherte Suchtext filtert nach der Rückkehr wieder.** Bisher zeigte das
