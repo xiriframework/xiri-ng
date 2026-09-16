@@ -6,6 +6,20 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **Nachladbare Panels: `refresh: "panel"` lädt genau eine Card neu.** Gibt ein Button (Api-Aktion,
+  Dialog-Ergebnis, letzter Poll-Tick) oder eine Tabellenaktion `{"done": true, "refresh": "panel"}` zurück,
+  lädt die nächstgelegene `xiri-card` mit `url` ihre URL erneut — auch aus verschachtelten Komponenten,
+  gefunden per DI-Token `XIRI_PANEL_HOST`. Eine Card ohne `url` reicht an die nächste äußere Card weiter
+  und fällt ohne solche auf den Page-Reload zurück (wie `refresh: "page"`). Läuft der erste Load noch,
+  wird der Reload nachgeholt. Ohne umschließende Card warnen Button und Tabelle in der Konsole.
+  Go-Seite: `response.NewReturnRefreshPanel()` ab `xiri-go >= 0.3.10`.
+- **`xiri-card` übernimmt aus ihrer `url`-Antwort die komplette Card.** Antwortet der Endpoint mit
+  `{"card": {…}}` (so liefert es `Card.DataResponse(ctx)` ab `xiri-go >= 0.3.10`), werden Titel, Untertitel,
+  Icon, Buttons, `fields`, `data` und `components` daraus übernommen. Während eines Reloads bleibt der
+  bisherige Inhalt stehen; schlägt ein Reload fehl, bleiben Titel und Buttons der letzten Antwort stehen und
+  nur der Inhalt zeigt die Fehlermeldung. Antworten mit Inhaltszeilen (`{data: rows}`) verhalten sich wie bisher.
 
 ## [0.4.9]
 ### Added

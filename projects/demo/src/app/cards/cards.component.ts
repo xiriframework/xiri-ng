@@ -57,6 +57,12 @@ export class CardsComponent {
 		icon: 'layers_clear',
 	};
 
+	sectionPanel: XiriSectionSettings = {
+		title: 'Nachladbares Panel',
+		subtitle: 'url + refresh: "panel" — der Button speichert, danach lädt nur diese Card Titel, Buttons und Inhalt neu. Die Nachbar-Card bleibt stehen.',
+		icon: 'sync',
+	};
+
 	sectionDenseCard: XiriSectionSettings = {
 		title: 'Dense Card',
 		subtitle: 'dense: 2 — Compact display with reduced padding.',
@@ -262,6 +268,18 @@ export class CardsComponent {
 		data: { 'IMEI': '862272080384789', 'Eingebaut': 'seit 15.04.2026', 'Box-Status': 'Ja (Status 1)' }
 	};
 
+	public cardPanel: XiriCardSettings = {
+		url: 'Test/Panel/Insurance',
+		header: 'Versicherung',
+		headerSub: 'lädt …',
+	};
+
+	public cardPanelNeighbour: XiriCardSettings = {
+		header: 'Leasing (statisch)',
+		headerSub: 'darf beim Panel-Reload nicht flackern',
+		data: { 'Leasinggeber': 'Porsche Bank', 'Rate': '389,00 € / Monat' },
+	};
+
 	public card2 = {
 		header: 'Card with Buttons',
 		headerSub: 'buttonsTop + buttonsBottom',
@@ -395,6 +413,18 @@ c := card.NewCardList(
 
 // Ohne Header: einfach keinen Header setzen, dann wird er nicht gerendert.
 c2 := card.NewCardList("", content).WithFlat(true)`;
+
+	goCardPanelCode = `// Page: Card als Shell mit eigener URL
+panel := card.NewCard(core.CardTypeTable, nil, "Versicherung", nil, nil, nil, false, false, nil)
+panel.SetURL(c.apiUrl("Vehicle", id, "Panel", "Insurance"))
+
+// Panel-Endpoint: komplette Card bauen, DataResponse → {"card": {...}}
+p := card.NewCardList("Versicherung", content)
+p.ButtonTop(button.NewSimpleDialogButton("Bearbeiten", editUrl, core.ColorPrimary))
+return wc.Data(p)
+
+// Dialog-Submit: nur das Panel neu laden
+return wc.Component(response.NewReturnRefreshPanel().WithMessage("Gespeichert", response.MessageSuccess))`;
 
 	goCardButtonsCode = `c := card.NewCardList(
     card.Header{

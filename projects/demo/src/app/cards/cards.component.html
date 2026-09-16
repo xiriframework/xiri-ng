@@ -74,6 +74,25 @@
 		</div>
 	</div>
 
+	<!-- Nachladbares Panel -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionPanel">
+				<div class="xrow">
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardPanel"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<xiri-card [settings]="cardPanelNeighbour"></xiri-card>
+					</div>
+					<div class="xcol-md-4">
+						<app-go-code [code]="goCardPanelCode" title="Go: card.SetURL + response.NewReturnRefreshPanel"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 	<!-- Dense Card -->
 	<div class="xrow">
 		<div class="xcol">

@@ -24,6 +24,9 @@ interface MockRequestBody {
 // Poll-Zähler für den Waiting-Dialog: die Demo simuliert einen Job, der nach einigen Polls fertig ist.
 let dialogWaitingPolls = 0;
 
+// Zähler, damit man beim Panel-Demo sieht, dass wirklich neu geladen wurde.
+let panelLoads = 0;
+
 export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Only intercept API calls
@@ -168,6 +171,25 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	}
 
 	// Table data endpoints for Test/Test/Home
+	// Nachladbares Panel: Save antwortet mit refresh:'panel', die Card lädt sich danach selbst neu.
+	if ( req.url.includes( 'Test/Panel/Insurance/Save' ) ) {
+		return of( new HttpResponse( { status: 200, body: { done: true, refresh: 'panel', message: 'Gespeichert', messageType: 'success' } } ) )
+			.pipe( delay( 300 ) );
+	}
+	if ( req.url.includes( 'Test/Panel/Insurance' ) ) {
+		panelLoads++;
+		return of( new HttpResponse( { status: 200, body: { card: {
+			type: 'table',
+			header: 'Versicherung',
+			headerSub: `Stand: ${ panelLoads }. Ladung`,
+			headerIcon: 'shield',
+			buttonsTop: { class: 'small', buttons: [
+				{ text: 'Bearbeiten', type: 'icon', action: 'api', icon: 'edit', hint: 'Speichert und lädt nur dieses Panel neu', url: 'Test/Panel/Insurance/Save' },
+			] },
+			data: { 'Versicherer': 'Allianz', 'Prämie': `${ 480 + panelLoads * 10 },00 € / Jahr`, 'Laufzeit bis': '31.12.2026' },
+		} } } ) ).pipe( delay( 300 ) );
+	}
+
 	if ( req.url.includes( 'Test/Test/Table1Data' ) ) {
 		return of( new HttpResponse( { status: 200, body: getTable1Data( req.body as MockRequestBody ) } ) );
 	}
