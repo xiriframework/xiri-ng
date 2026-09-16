@@ -317,6 +317,8 @@ stepperSettings = {
 <xiri-expansion [settings]="{ panels: [{ title: 'GPS', buttons: {...}, data: [{ type: 'card', cols: 12, data: { flat: true, data: {...} } }] }] }"/>  <!-- buttons: Header-Buttons; flat: Card ohne Schatten -->
 <!-- Tabelle im Panel: options.flat statt Rahmen im Rahmen, kein cols nötig. Panel halbiert dann automatisch seinen Seitenabstand. -->
 <xiri-expansion [settings]="{ multi: false, unload: true, panels: [{ title: 'Standort Wien', icon: 'place', data: [{ type: 'table', data: { data: rows, fields, options: { flat: true, pagination: false, search: false } } }] }] }"/>
+<!-- Nachladbares Panel: url → POST null → { panel: { title, buttons, data, … } }; refresh:'panel' aus Header-Button/Inhalt lädt nur dieses Panel neu (auch xiri-card mit url). -->
+<xiri-expansion [settings]="{ panels: [{ title: 'lädt …', expanded: true, url: 'Vehicle/7/Panel/Insurance', data: [] }] }"/>
 <xiri-sidenav [settings]="{ prefix: '/app/', fields: navItems }"/>
 <xiri-breadcrumb [settings]="breadcrumbItems"/>
 <xiri-skeleton type="table-row" [lines]="5" [columns]="4"/>
