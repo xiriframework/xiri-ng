@@ -300,11 +300,12 @@ export class XiriButtonComponent implements OnDestroy {
 		                  } );
 	}
 
+	// Ohne umschließende Card: wie eine Card ohne url → Page-Reload.
 	private refreshPanel() {
 		if ( this.panelHost )
 			this.panelHost.reloadPanel();
 		else
-			console.warn( 'xiri-button: refresh:panel ohne umschließende Card', this.button().url );
+			this.responseHandler.handle( { refresh: 'page' } );
 	}
 
 	private startPolling( url: string, intervalMs: number, text?: string ) {

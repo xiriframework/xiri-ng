@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+
+- **`refresh: "panel"` ohne umschließende Card lädt die Seite neu statt nur zu warnen.** Liegt der auslösende
+  `xiri-button` oder die `xiri-table` in keiner `xiri-card` und keinem Expansion-Panel, schrieben beide bisher
+  `console.warn` und die Seite blieb veraltet. Jetzt verhalten sie sich wie eine Card ohne `url`: `refresh: "page"`
+  (braucht `onSameUrlNavigation: 'reload'`). Damit kann derselbe Bearbeiten-Dialog auf einer Detailseite im Panel und auf
+  einer Übersichtsseite ohne Panel `NewReturnRefreshPanel()` liefern. Upgrade-Hinweis: ein `autoLoad`-Button ohne
+  Panel-Host, dessen Aktion `refresh: "panel"` liefert, läuft ab jetzt in dieselbe Endlosschleife wie bei
+  `refresh: "page"`. `xiri-links` und der `addUrl`-Dialog der Formularfelder sind unverändert.
+
 ### Added
 
 - **`addUrl` an `select`, `multiselect`/`treeselect`, `object`/`model` und `chips`: ein „+“-Button neben dem Feld

@@ -12,7 +12,7 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 
 // Narrow view onto the component's private members the tests reach into.
 interface TableInternals {
@@ -1223,13 +1223,62 @@ describe( 'XiriTableComponent', () => {
 			expect( callbacks.onPanelRefresh ).toBeUndefined();
 		} );
 
-		it( 'warnt bei refresh:panel ohne umschließende Card', () => {
+		it( 'gibt refresh:panel ohne umschließende Card als refresh:page an den Handler weiter statt zu warnen', () => {
 			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => undefined );
 			internals( component ).callReturn( { done: true, refresh: 'panel' } );
 			const callbacks = mockResponseHandler.handle.mock.calls[ 0 ][ 1 ] as { onPanelRefresh?: () => void };
 			callbacks.onPanelRefresh!();
-			expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'refresh:panel' ) );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledTimes( 2 );
+			expect( mockResponseHandler.handle.mock.calls[ 1 ][ 0 ] ).toEqual( { refresh: 'page' } );
+			expect( warn ).not.toHaveBeenCalled();
 			warn.mockRestore();
+		} );
+
+		// Integrationsebene: echter XiriResponseHandlerService, echter Router. Der Header-Button antwortet
+		// refresh:'panel'; xiri-button behandelt es, die Tabelle darf es nicht noch einmal auslösen.
+		describe( 'refresh:panel aus einem Header-Button (echter Handler)', () => {
+			let navigate: ReturnType<typeof vi.spyOn>;
+
+			function createWithRealHandler( panelHost?: { reloadPanel: ReturnType<typeof vi.fn> } ) {
+				fixture?.destroy();
+				TestBed.resetTestingModule();
+				TestBed.configureTestingModule( {
+					imports: [ TestHostComponent ],
+					providers: [
+						provideRouter( [] ),
+						{ provide: XiriDataService, useValue: mockDataService },
+						{ provide: XiriDownloadService, useValue: mockDownloadService },
+						{ provide: XiriSnackbarService, useValue: mockSnackbar },
+						{ provide: MatDialog, useValue: mockDialog },
+						{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
+						...( panelHost ? [ { provide: XIRI_PANEL_HOST, useValue: panelHost } ] : [] ),
+					],
+				} );
+				navigate = vi.spyOn( TestBed.inject( Router ), 'navigate' ).mockResolvedValue( true );
+				mockDataService.post.mockReturnValue( of( { done: true, refresh: 'panel' } ) );
+				fixture = TestBed.createComponent( TestHostComponent );
+				host = fixture.componentInstance;
+				host.settings.set( {
+					fields:  [ { id: 'name', name: 'Name' } ],
+					data:    [ { id: 1, name: 'A' } ],
+					options: { buttons: { class: '', buttons: [ { text: 'Speichern', type: 'raised', action: 'api', url: '/save' } ] } },
+				} );
+				fixture.detectChanges();
+				component = host.table();
+				fixture.nativeElement.querySelector( 'xiri-buttonline xiri-buttonstyle' )?.click();
+			}
+
+			it( 'lädt mit Panel-Host genau einmal das Panel und navigiert nicht', () => {
+				const panelHost = { reloadPanel: vi.fn() };
+				createWithRealHandler( panelHost );
+				expect( panelHost.reloadPanel ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt ohne Panel-Host genau einmal die Seite neu', () => {
+				createWithRealHandler();
+				expect( navigate ).toHaveBeenCalledTimes( 1 );
+			} );
 		} );
 
 		it( 'should not fail on undefined result', () => {

@@ -1050,7 +1050,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( !event.done )
 			return;
 		
-		// xiri-button hat refresh:'panel' schon an den Panel-Host gegeben – hier nicht noch einmal.
+		// xiri-button hat refresh:'panel' schon behandelt (Panel-Host oder Page-Fallback) – hier nicht noch einmal.
 		this.callReturn( event.result, true );
 	}
 	
@@ -1068,11 +1068,12 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 	}
 
+	// Ohne umschließende Card: wie eine Card ohne url → Page-Reload.
 	private refreshPanel() {
 		if ( this.panelHost )
 			this.panelHost.reloadPanel();
 		else
-			console.warn( 'xiri-table: refresh:panel ohne umschließende Card' );
+			this.responseHandler.handle( { refresh: 'page' } );
 	}
 
 	// Row ids are backend values (int64 or string) and are passed through untouched.

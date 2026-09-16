@@ -662,7 +662,7 @@ describe('XiriButtonComponent', () => {
 		});
 	});
 
-	it('warnt bei refresh:panel ohne umschließende Card statt zu navigieren', () => {
+	it('lädt bei refresh:panel ohne umschließende Card die Seite neu statt zu warnen', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		mockDataService.post.mockReturnValue(of({ done: true, refresh: 'panel' }));
 		host.btn.set(makeButton({ action: 'api', url: '/lonely/save' }));
@@ -670,9 +670,38 @@ describe('XiriButtonComponent', () => {
 
 		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
 
-		expect(warn).toHaveBeenCalledWith(expect.stringContaining('refresh:panel'), '/lonely/save');
-		expect(mockRouter.navigate).not.toHaveBeenCalled();
+		expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
+		expect(warn).not.toHaveBeenCalled();
 		warn.mockRestore();
+	});
+
+	it('lädt bei refresh:panel aus einem Dialog ohne umschließende Card die Seite genau einmal neu', () => {
+		const afterClosedSubject: AfterClosedSubject = new Subject();
+		mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });
+		host.btn.set(makeButton({ action: 'dialog', url: '/lonely/edit' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+		afterClosedSubject.next({ done: true, refresh: 'panel' });
+		afterClosedSubject.complete();
+
+		expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
+	});
+
+	it('navigiert nicht, wenn der Dialog ohne Ergebnis geschlossen wird', () => {
+		const afterClosedSubject: AfterClosedSubject = new Subject();
+		mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });
+		host.btn.set(makeButton({ action: 'dialog', url: '/lonely/edit' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+		afterClosedSubject.next(null);
+		afterClosedSubject.complete();
+
+		expect(mockDialog.open).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).not.toHaveBeenCalled();
 	});
 });
 

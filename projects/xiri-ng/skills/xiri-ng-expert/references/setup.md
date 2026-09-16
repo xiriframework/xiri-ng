@@ -80,7 +80,8 @@ Verhalten je nach Response:
 - `goto: url` → `router.navigate([url])`
 - `refresh: "page"` → `router.navigate([router.url])` — braucht `onSameUrlNavigation: 'reload'` (siehe dyncomponent.md)
 - `refresh: "table"` → `onTableRefresh()` wenn gesetzt, sonst wie `refresh: "page"`
-- `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback)
+- `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback im Handler; `xiri-button` und
+  `xiri-table` liefern ohne Panel-Host selbst `{ refresh: "page" }` nach, siehe unten)
 - `update: "table"` → `onTableUpdate(id, field, content)` wenn gesetzt
 
 ### Nachladbare Panels: `XIRI_PANEL_HOST`
@@ -97,7 +98,9 @@ export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
   `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
 - `xiri-button` und `xiri-table` injizieren den Token optional und rufen bei `refresh: "panel"` `reloadPanel()` der
   nächstgelegenen Card — egal ob der Button im Card-Header, unten oder in einer verschachtelten Komponente liegt.
-  Ohne umschließende Card: `console.warn`.
+  Ohne umschließende Card: `refresh: "page"` (ab 0.4.11; 0.4.10 warnte nur in der Konsole) — braucht wie
+  `refresh: "page"` `onSameUrlNavigation: 'reload'`. Nur diese beiden Auslöser kennen `refresh: "panel"`;
+  `xiri-links` und der `addUrl`-Dialog der Formularfelder ignorieren es.
 - Eine Card ohne `url` reicht per `skipSelf` an die nächste äußere Card weiter; ohne solche → `refresh: "page"`.
 - Eigene Komponenten, die als Panel gelten sollen, implementieren `XiriPanelHost` und providen den Token genauso;
   `createPanelLoader({ url, key })` aus `services/panel-loader.ts` liefert Laden, Envelope-Auspacken, Puffer und
