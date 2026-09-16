@@ -15,6 +15,11 @@ versioning follows [Semantic Versioning](https://semver.org/).
   stellt weiterhin den ursprünglichen Wert her. Geladene Optionen und per Server-Suche gefundene
   Chip-Optionen bleiben dabei erhalten. Ist der User inzwischen in einer anderen Zelle (Tab, Escape)
   oder hat ein Reload die Zeile ersetzt, gilt weiterhin das alte Verhalten (Wert zurücksetzen).
+- **Material-Formularfelder werden im Formular-Grid nicht mehr auf die Zeilenhöhe eines hohen Nachbarn gestreckt.**
+  Stand ein Treeselect/Multiselect (300px Liste) in derselben Grid-Zeile, wuchsen `text`, `number`, `password`, `select`,
+  `yearmonth` und `textarea` daneben auf dieselbe Höhe, weil Grid-Items standardmäßig strecken und Materials
+  `.mat-mdc-text-field-wrapper` mit `flex: auto` mitzieht. `mat-form-field` sitzt jetzt mit `align-self: start` oben in der Zelle;
+  Datumsfelder hatten diese Regel bereits einzeln.
 ### Added
 
 - **`XiriFormField.selectAll` blendet im Multi-Select (`type: 'select'`, `multiple: true`) einen „Alle / Keine“-Toggle ein.**
