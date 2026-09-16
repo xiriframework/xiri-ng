@@ -936,8 +936,30 @@ describe( 'XiriTableComponent', () => {
 			row.name = 'Changed';
 			mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Save failed' } } ) ) );
 			component.saveInlineEdit( row, column as XiriTableField );
+			expect( row.name ).toBe( 'Changed' );
+			expect( component.editingCell() ).toEqual( { row, field: 'name' } );
+
+			const event = new KeyboardEvent( 'keydown', { key: 'Escape' } );
+			component.onInlineEditKeydown( event, row, column as XiriTableField );
+			expect( row.name ).toBe( 'Original' );
+			expect( component.editingCell() ).toBeNull();
+		} );
+
+		it( 'should not reopen when the user pressed Escape while the save was pending', () => {
+			const column = { id: 'name', name: 'Name', editable: true } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row = { id: 1, name: 'Original' };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			row.name = 'Changed';
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			component.saveInlineEdit( row, column );
 
 			component.cancelInlineEdit();
+			pending.error( { error: { error: 'Save failed' } } );
+
 			expect( row.name ).toBe( 'Original' );
 			expect( component.editingCell() ).toBeNull();
 		} );
