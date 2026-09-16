@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.11]
 ### Changed
 
 - **`refresh: "panel"` ohne umschließende Card lädt die Seite neu statt nur zu warnen.** Liegt der auslösende
