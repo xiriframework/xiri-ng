@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.13]
 ### Fixed
 
 - **Treeselect: Such-Icon in schmalen Dialogen nicht mehr abgeschnitten.** Der Kopf war ein 12-Spalten-`.xrow`,
