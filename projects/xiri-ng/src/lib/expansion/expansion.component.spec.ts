@@ -512,11 +512,12 @@ describe('XiriExpansionComponent nachladbares Panel', () => {
 		expect(q('mat-expansion-panel b')).toBeNull();
 	});
 
-	it('holt einen Reload nach, der während des ersten Ladens angefordert wurde, und zeigt kein Skeleton beim Reload', async () => {
+	it('holt einen Reload nach, der während des ersten Ladens angefordert wurde; während des Reloads kein Skeleton', async () => {
 		const first = new Subject<unknown>();
+		const second = new Subject<unknown>();
 		let calls = 0;
 		post.mockImplementation((url: string) =>
-			url === 'panel/1' ? (++calls === 1 ? first : of(panel(calls))) : of({ done: true, refresh: 'panel' }));
+			url === 'panel/1' ? (++calls === 1 ? first : second) : of({ done: true, refresh: 'panel' }));
 		host.settings.set({ panels: [{ title: 'X', url: 'panel/1', expanded: true, data: [] }] });
 		fixture.detectChanges();
 		expect(q('xiri-skeleton')).toBeTruthy();
@@ -527,12 +528,38 @@ describe('XiriExpansionComponent nachladbares Panel', () => {
 
 		first.next(panel(1));
 		first.complete();
-		await settle();
-		await settle();
+		// Kein whenStable(): der nachgeholte Request bleibt offen. Ein Tick für den Resource-Effect genügt.
+		await new Promise(r => setTimeout(r));
+		fixture.detectChanges();
+		await new Promise(r => setTimeout(r));
+		fixture.detectChanges();
 
+		// Reload läuft (second offen): kein Skeleton, Inhalt der ersten Antwort steht noch.
 		expect(calls).toBe(2);
-		expect(q('mat-panel-description').textContent).toContain('Stand 2');
+		const contentBefore = q('mat-expansion-panel b');
+		expect(contentBefore.textContent).toContain('Inhalt 1');
 		expect(q('xiri-skeleton')).toBeNull();
+
+		second.next(panel(2));
+		second.complete();
+		await settle();
+		expect(q('mat-panel-description').textContent).toContain('Stand 2');
+		expect(q('mat-expansion-panel b').textContent).toContain('Inhalt 2');
+	});
+
+	it('rendert ein statisches Panel, ohne XiriDataService zu instanziieren', () => {
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule({ imports: [ContentHostComponent], providers: [
+			{ provide: Router, useValue: router },
+			// Würde der Loader den Service eager injizieren, flöge der Test hier – Shell-Panels brauchen kein HTTP.
+			{ provide: XiriDataService, useFactory: () => { throw new Error('XiriDataService darf ohne url nicht angefordert werden'); } },
+		] });
+		const bare = TestBed.createComponent(ContentHostComponent);
+		bare.componentInstance.settings.set({ panels: [{ title: 'Statisch', expanded: true,
+			data: [{ type: 'html', data: { html: '<i>ohne http</i>' } }] }] });
+
+		expect(() => bare.detectChanges()).not.toThrow();
+		expect(bare.nativeElement.querySelector('mat-expansion-panel i').textContent).toContain('ohne http');
 	});
 
 	it('Panel ohne url: reloadPanel lädt die Seite neu; in einer url-Card lädt die Card neu', async () => {

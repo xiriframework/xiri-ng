@@ -1,4 +1,4 @@
-import { computed, effect, inject, linkedSignal, signal } from '@angular/core';
+import { computed, effect, inject, Injector, linkedSignal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { XiriDataService } from './data.service';
 
@@ -12,13 +12,15 @@ import { XiriDataService } from './data.service';
  * - `reloadOrQueue`: lädt neu; läuft der erste Load noch, wird der Reload nachgeholt, sobald er fertig ist.
  */
 export function createPanelLoader<T extends object>( opts: { url: () => string | undefined; key: string } ) {
-	const dataService = inject( XiriDataService );
+	// XiriDataService erst beim ersten Request auflösen: Hosts ohne url (statische Card, Shell-Panel) brauchen so
+	// weiterhin keinen HttpClient-Provider.
+	const injector = inject( Injector );
 	// Signal, kein Boolean: der Effect muss darauf reagieren, wenn es gesetzt wird.
 	const pendingReload = signal( false );
 
 	const resource = rxResource( {
 		params: opts.url,
-		stream: ( { params } ) => dataService.post( params, null ),
+		stream: ( { params } ) => injector.get( XiriDataService ).post( params, null ),
 	} );
 
 	const errorMsg = computed( () => {
