@@ -23,15 +23,27 @@ class TestHostComponent {
 	settings = signal<XiriCardSettings>({});
 }
 
+@Component({
+	selector: 'test-host-two',
+	template: `<xiri-card [settings]="a()" /><xiri-card [settings]="b()" />`,
+	imports: [XiriCardComponent],
+})
+class TwoCardsHostComponent {
+	a = signal<XiriCardSettings>({});
+	b = signal<XiriCardSettings>({});
+}
+
 describe('XiriCardComponent', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 	let host: TestHostComponent;
 	let mockDataService: { post: ReturnType<typeof vi.fn> };
+	let router: { navigate: ReturnType<typeof vi.fn>; url: string };
 
 	beforeEach(async () => {
 		mockDataService = {
 			post: vi.fn().mockReturnValue(of({})),
 		};
+		router = { navigate: vi.fn().mockResolvedValue(true), url: '/current' };
 
 		await TestBed.configureTestingModule({
 			imports: [TestHostComponent],
@@ -40,7 +52,7 @@ describe('XiriCardComponent', () => {
 				{ provide: XiriDownloadService, useValue: { download: vi.fn() } },
 				{ provide: MatDialog, useValue: { open: vi.fn() } },
 				{ provide: Location, useValue: { back: vi.fn() } },
-				{ provide: Router, useValue: { navigate: vi.fn(), url: '/' } },
+				{ provide: Router, useValue: router },
 				{ provide: ActivatedRoute, useValue: {} },
 			],
 		}).compileComponents();
@@ -315,6 +327,238 @@ describe('XiriCardComponent', () => {
 
 		const errorDiv = fixture.nativeElement.querySelector('.load-error');
 		expect(errorDiv?.textContent).toContain('Server error');
+	});
+
+	describe('nachladbares Panel', () => {
+
+		function panel(n: number) {
+			return { card: { type: 'table', header: 'Versicherung', headerSub: `Stand ${n}`, headerIcon: null, headerIconColor: null,
+				buttonsTop: { class: 'small', buttons: [{ text: 'Bearbeiten', type: 'icon', action: 'api', url: 'panel/1/save', icon: 'edit' }] },
+				buttonsBottom: { class: 'small', buttons: [{ text: 'Unten', type: 'basic', action: 'api', url: 'panel/1/save' }] },
+				data: { Versicherer: n === 1 ? 'Allianz' : 'Uniqa' } } };
+		}
+
+		/** post-Mock: Panel-URL zählt Ladungen hoch, alles andere antwortet mit refresh:panel. */
+		function mockPanel(panelUrl: string) {
+			let loads = 0;
+			mockDataService.post.mockImplementation((url: string) =>
+				url === panelUrl ? of(panel(++loads)) : of({ done: true, refresh: 'panel' }));
+			return () => mockDataService.post.mock.calls.filter(c => c[0] === panelUrl).length;
+		}
+
+		async function settle(f: ComponentFixture<unknown> = fixture) {
+			await f.whenStable();
+			f.detectChanges();
+		}
+
+		function comp(): XiriCardComponent {
+			return fixture.debugElement.children[0].componentInstance as XiriCardComponent;
+		}
+
+		it('übernimmt Titel, Buttons und Inhalt aus {card: …}', async () => {
+			mockPanel('panel/1');
+			host.settings.set({ url: 'panel/1', header: 'Lade …' });
+			fixture.detectChanges();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+			expect(fixture.nativeElement.querySelector('mat-card-header xiri-buttonline')).toBeTruthy();
+			expect(fixture.nativeElement.querySelector('mat-card-actions xiri-buttonline')).toBeTruthy();
+			expect(comp().cardData()).toEqual({ Versicherer: 'Allianz' });
+		});
+
+		it('behandelt {data: rows} weiterhin als Inhalt — auch mit Schlüsseln type und card', async () => {
+			mockDataService.post.mockReturnValue(of({ data: { type: 'Diesel', card: 'Visa', Hersteller: 'VW' } }));
+			host.settings.set({ url: 'rows/1', header: 'Fahrzeug' });
+			fixture.detectChanges();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Fahrzeug');
+			expect(comp().cardData()).toEqual({ type: 'Diesel', card: 'Visa', Hersteller: 'VW' });
+		});
+
+		it('lässt Shell-Inhaltsfelder nicht in eine komplette Card durchsickern', async () => {
+			mockPanel('panel/1');
+			host.settings.set({ url: 'panel/1', components: [{ type: 'html', data: { html: 'shell' } }] });
+			fixture.detectChanges();
+			await settle();
+
+			expect(comp().card().components).toBeUndefined();
+			expect(comp().hasComponents()).toBe(false);
+		});
+
+		it('lädt sich neu und zeigt die zweite Antwort, wenn ein Header-Button refresh:panel zurückgibt', async () => {
+			const loads = mockPanel('panel/1');
+			host.settings.set({ url: 'panel/1' });
+			fixture.detectChanges();
+			await settle();
+			expect(loads()).toBe(1);
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 1');
+
+			fixture.nativeElement.querySelector('mat-card-header xiri-buttonline xiri-buttonstyle').click();
+			await settle();
+
+			expect(mockDataService.post).toHaveBeenCalledWith('panel/1/save', {});
+			expect(loads()).toBe(2);
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 2');
+			expect(fixture.nativeElement.querySelector('xiri-skeleton')).toBeNull();
+			expect(router.navigate).not.toHaveBeenCalled();
+		});
+
+		it('funktioniert auch über einen Bottom-Button', async () => {
+			const loads = mockPanel('panel/1');
+			host.settings.set({ url: 'panel/1' });
+			fixture.detectChanges();
+			await settle();
+
+			fixture.nativeElement.querySelector('mat-card-actions xiri-buttonline xiri-buttonstyle').click();
+			await settle();
+
+			expect(loads()).toBe(2);
+		});
+
+		it('findet die Card aus einem Button in verschachtelten Komponenten und behält sie während des Reloads', async () => {
+			let loads = 0;
+			const second = new Subject<unknown>();
+			const nested = (n: number) => ({ card: { type: 'table', header: 'Panel', headerSub: `Stand ${n}`, buttonsTop: null, buttonsBottom: null,
+				components: [{ type: 'buttonline', data: { class: '', buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'panel/2/save' }] } }] } });
+			mockDataService.post.mockImplementation((url: string) => {
+				if (url !== 'panel/2') return of({ done: true, refresh: 'panel' });
+				return ++loads === 1 ? of(nested(1)) : second;
+			});
+			host.settings.set({ url: 'panel/2' });
+			fixture.detectChanges();
+			await settle();
+			const buttonlineBefore = fixture.nativeElement.querySelector('mat-card-content xiri-buttonline');
+
+			buttonlineBefore.querySelector('xiri-buttonstyle').click();
+			// Kein whenStable(): das wartet auf den offenen Request. Ein Tick für den Resource-Effect genügt.
+			await new Promise(r => setTimeout(r));
+			fixture.detectChanges();
+
+			// Reload läuft (second offen): kein Skeleton, dieselbe Komponenteninstanz steht noch im DOM.
+			expect(loads).toBe(2);
+			expect(fixture.nativeElement.querySelector('xiri-skeleton')).toBeNull();
+			expect(fixture.nativeElement.querySelector('mat-card-content xiri-buttonline')).toBe(buttonlineBefore);
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 1');
+
+			second.next(nested(2));
+			second.complete();
+			await settle();
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 2');
+		});
+
+		it('lässt ein Geschwister-Panel unberührt', async () => {
+			let a = 0, b = 0;
+			mockDataService.post.mockImplementation((url: string) => {
+				if (url === 'panel/a') return of(panel(++a));
+				if (url === 'panel/b') return of(panel(++b));
+				return of({ done: true, refresh: 'panel' });
+			});
+			const two = TestBed.createComponent(TwoCardsHostComponent);
+			two.componentInstance.a.set({ url: 'panel/a' });
+			two.componentInstance.b.set({ url: 'panel/b' });
+			two.detectChanges();
+			await settle(two);
+
+			two.nativeElement.querySelectorAll('xiri-card')[0].querySelector('mat-card-header xiri-buttonstyle').click();
+			await settle(two);
+
+			expect(a).toBe(2);
+			expect(b).toBe(1);
+		});
+
+		it('reicht refresh:panel einer Card ohne url an die äußere URL-Card weiter', async () => {
+			let loads = 0;
+			mockDataService.post.mockImplementation((url: string) =>
+				url === 'outer'
+					? of({ card: { type: 'table', header: 'Außen', headerSub: `Stand ${++loads}`, buttonsTop: null, buttonsBottom: null,
+						components: [{ type: 'card', data: { header: 'Innen', buttonsTop: { class: '',
+							buttons: [{ text: 'Save', type: 'basic', action: 'api', url: 'inner/save' }] }, data: { a: '1' } } }] } })
+					: of({ done: true, refresh: 'panel' }));
+			host.settings.set({ url: 'outer' });
+			fixture.detectChanges();
+			await settle();
+
+			fixture.nativeElement.querySelector('mat-card-content xiri-card mat-card-header xiri-buttonstyle').click();
+			await settle();
+
+			expect(loads).toBe(2);
+			expect(router.navigate).not.toHaveBeenCalled();
+		});
+
+		it('lädt die Seite neu, wenn keine Card mit url über ihr liegt', () => {
+			host.settings.set({ header: 'Statisch', data: { a: '1' } });
+			fixture.detectChanges();
+
+			comp().reloadPanel();
+
+			expect(router.navigate).toHaveBeenCalledWith(['/current']);
+			expect(mockDataService.post).not.toHaveBeenCalled();
+		});
+
+		it('holt einen Reload nach, der während des ersten Ladens angefordert wurde', async () => {
+			const first = new Subject<unknown>();
+			let calls = 0;
+			mockDataService.post.mockImplementation(() => ++calls === 1 ? first : of(panel(2)));
+			host.settings.set({ url: 'panel/1' });
+			fixture.detectChanges();
+
+			comp().reloadPanel();
+			expect(calls).toBe(1);
+
+			first.next(panel(1));
+			first.complete();
+			await settle();
+			await settle();
+
+			expect(calls).toBe(2);
+			expect(fixture.nativeElement.querySelector('mat-card-subtitle').textContent).toContain('Stand 2');
+		});
+
+		it('zeigt bei Fehler beim ersten Laden Header aus settings und Fehlermeldung, ohne zu werfen', async () => {
+			mockDataService.post.mockReturnValue(throwError(() => ({ error: { error: 'Nicht gefunden' } })));
+			host.settings.set({ url: 'panel/x', header: 'Versicherung' });
+			expect(() => fixture.detectChanges()).not.toThrow();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+			expect(fixture.nativeElement.querySelector('.load-error').textContent).toContain('Nicht gefunden');
+		});
+
+		it('behält bei Reload-Fehler den geladenen Header und ersetzt nur den Inhalt durch die Fehlermeldung', async () => {
+			let calls = 0;
+			mockDataService.post.mockImplementation(() => ++calls === 1 ? of(panel(1)) : throwError(() => ({ error: { error: 'Server weg' } })));
+			host.settings.set({ url: 'panel/1', header: 'Shell' });
+			fixture.detectChanges();
+			await settle();
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+
+			comp().reloadPanel();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+			expect(fixture.nativeElement.querySelector('mat-card-header xiri-buttonline')).toBeTruthy();
+			expect(fixture.nativeElement.querySelector('.load-error').textContent).toContain('Server weg');
+			expect(fixture.nativeElement.querySelector('xiri-raw-table')).toBeNull();
+			expect(fixture.nativeElement.querySelector('xiri-skeleton')).toBeNull();
+		});
+
+		it('leert den Header-Puffer bei url-Wechsel', async () => {
+			mockDataService.post.mockImplementation((url: string) =>
+				url === 'panel/1' ? of(panel(1)) : throwError(() => ({ error: { error: 'Nicht gefunden' } })));
+			host.settings.set({ url: 'panel/1', header: 'Shell' });
+			fixture.detectChanges();
+			await settle();
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Versicherung');
+
+			host.settings.set({ url: 'panel/other', header: 'Shell' });
+			fixture.detectChanges();
+			await settle();
+
+			expect(fixture.nativeElement.querySelector('mat-card-title').textContent).toContain('Shell');
+			expect(fixture.nativeElement.querySelector('.load-error').textContent).toContain('Nicht gefunden');
+		});
 	});
 });
 

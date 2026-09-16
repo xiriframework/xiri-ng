@@ -1,26 +1,26 @@
-<mat-card class="card mat-mdc-elevation-specific" [class.mat-elevation-z2]="!settings().flat" [class.flat]="settings().flat">
+<mat-card class="card mat-mdc-elevation-specific" [class.mat-elevation-z2]="!card().flat" [class.flat]="card().flat">
 	@if (showHeader()) {
-	<mat-card-header (click)="onHeaderClick($event)" [class.collapsible]="settings().collapsible">
-		@if (settings().headerIcon) {
+	<mat-card-header (click)="onHeaderClick($event)" [class.collapsible]="card().collapsible">
+		@if (card().headerIcon) {
 			<div mat-card-avatar class="header-image">
-				<mat-icon [class]="settings().headerIconColor || 'primary'">{{ settings().headerIcon }}</mat-icon>
+				<mat-icon [class]="card().headerIconColor || 'primary'">{{ card().headerIcon }}</mat-icon>
 			</div>
 		}
-		@if (settings().header) {
-			<mat-card-title [class]="{hasHeaderSub: settings().headerSub}">{{ settings().header }}</mat-card-title>
+		@if (card().header) {
+			<mat-card-title [class]="{hasHeaderSub: card().headerSub}">{{ card().header }}</mat-card-title>
 		}
-		@if (settings().headerSub) {
-			<mat-card-subtitle>{{ settings().headerSub }}</mat-card-subtitle>
+		@if (card().headerSub) {
+			<mat-card-subtitle>{{ card().headerSub }}</mat-card-subtitle>
 		}
-		@if (settings().buttonsTop) {
-			<xiri-buttonline [settings]="settings().buttonsTop!"></xiri-buttonline>
+		@if (card().buttonsTop) {
+			<xiri-buttonline [settings]="card().buttonsTop!"></xiri-buttonline>
 		}
-		@if (settings().collapsible) {
+		@if (card().collapsible) {
 			<button mat-icon-button (click)="toggleCollapse()" class="collapse-btn" aria-label="Auf-/Zuklappen">
 				<mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
 			</button>
 		}
-		@if (settings().reload && settings().url) {
+		@if (card().reload && card().url) {
 			<button mat-icon-button (click)="reload()" [disabled]="loading()" class="reload-btn" aria-label="Neu laden">
 				<mat-icon [class.spinning]="loading()">autorenew</mat-icon>
 			</button>
@@ -29,7 +29,7 @@
 	}
 	<div class="collapse-wrapper" [class.collapsed]="isCollapsed()">
 		<div class="collapse-inner">
-			@if (loading() && !cardData()) {
+			@if (showSkeleton()) {
 				<mat-card-content>
 					<xiri-skeleton type="table-row" [columns]="2" [lines]="3"></xiri-skeleton>
 				</mat-card-content>
@@ -39,18 +39,18 @@
 				</mat-card-content>
 			} @else if (hasComponents()) {
 				<mat-card-content class="hasComponents" [style.--xiri-card-padding]="componentsPadding()">
-					<xiri-dyncomponent [data]="settings().components!" class="xrow"></xiri-dyncomponent>
+					<xiri-dyncomponent [data]="card().components!" class="xrow"></xiri-dyncomponent>
 				</mat-card-content>
 			} @else {
-				<mat-card-content class="hasTable" [style.max-height]="settings().maxHeight || '50vh'">
+				<mat-card-content class="hasTable" [style.max-height]="card().maxHeight || '50vh'">
 					@if (rawTable()) {
 						<xiri-raw-table [settings]="rawTable()!"></xiri-raw-table>
 					}
 				</mat-card-content>
 			}
-			@if (settings().buttonsBottom) {
+			@if (card().buttonsBottom) {
 				<mat-card-actions align="end">
-					<xiri-buttonline [settings]="settings().buttonsBottom!"></xiri-buttonline>
+					<xiri-buttonline [settings]="card().buttonsBottom!"></xiri-buttonline>
 				</mat-card-actions>
 			}
 		</div>
