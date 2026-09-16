@@ -93,12 +93,17 @@ export interface XiriPanelHost { reloadPanel(): void; }
 export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
 ```
 
-- `xiri-card` stellt sich selbst als `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
+- `xiri-card` und jedes `mat-expansion-panel` in `xiri-expansion` (Directive `xiriExpansionPanel`) stellen sich als
+  `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
 - `xiri-button` und `xiri-table` injizieren den Token optional und rufen bei `refresh: "panel"` `reloadPanel()` der
   nächstgelegenen Card — egal ob der Button im Card-Header, unten oder in einer verschachtelten Komponente liegt.
   Ohne umschließende Card: `console.warn`.
 - Eine Card ohne `url` reicht per `skipSelf` an die nächste äußere Card weiter; ohne solche → `refresh: "page"`.
-- Eigene Komponenten, die als Panel gelten sollen, implementieren `XiriPanelHost` und providen den Token genauso.
+- Eigene Komponenten, die als Panel gelten sollen, implementieren `XiriPanelHost` und providen den Token genauso;
+  `createPanelLoader({ url, key })` aus `services/panel-loader.ts` liefert Laden, Envelope-Auspacken, Puffer und
+  Reload-Queue fertig (so nutzen es Card und Expansion-Panel).
+- Rendert die Komponente Inhalt über `ngTemplateOutlet`, muss sie `injector` (ihren Element-Injector) mitgeben —
+  eingebettete Views lösen DI sonst über die deklarierende View auf, und Buttons im Inhalt finden den Host nicht.
 
 Antwortformat des Card-Endpoints siehe `components.md` → xiri-card. Ab xiri-ng 0.4.10 / xiri-go 0.3.10.
 

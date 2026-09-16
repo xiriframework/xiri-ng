@@ -640,7 +640,8 @@ interface XiriExpansionPanelSettings {
   icon?: string;
   disabled?: boolean;                // sperrt nur den Toggle, nicht die Header-Buttons
   expanded?: boolean;
-  data: XiriDynData[];
+  url?: string;                      // Nachladbares Panel: POST null → {panel: …}, s. u. Shell hat data: []
+  data?: XiriDynData[];
   lazy?: boolean;
   unload?: boolean;
   buttons?: XiriButtonlineSettings;  // Aktions-Buttons rechts im Panel-Header (wie section.buttons).
@@ -653,6 +654,17 @@ interface XiriExpansionPanelSettings {
 Enthält ein Panel eine flache Card (`card.flat`) oder eine flache Tabelle (`table.options.flat`),
 bekommt das Panel die Klasse `flat-content` und halbiert seinen Seitenabstand (24px → 12px) — die
 flache Komponente bringt Rahmen und Innenabstand selbst mit.
+
+**Nachladbares Panel (`url` + `refresh: "panel"`):** Jedes `mat-expansion-panel` trägt die Directive
+`xiriExpansionPanel` und ist damit `XIRI_PANEL_HOST` (siehe setup.md). Mit `url` lädt sich das Panel per POST
+(Body `null`); die Antwort `{ panel: { title, description?, icon?, buttons?, data } }` (Go:
+`Panel.DataResponse(ctx)` ab xiri-go 0.3.10) ersetzt Titel, Beschreibung, Icon, Header-Buttons und Inhalt —
+`expanded`, `disabled`, `lazy`, `unload` bleiben aus der Page, ein Reload klappt nichts zu. Gibt ein Header-Button,
+ein Button im Inhalt oder eine Tabellenaktion `{ done: true, refresh: 'panel' }` zurück, lädt genau dieses Panel
+neu. Eine flache Card ohne `url` im Inhalt reicht an das Panel weiter. Lade-, Fehler- und Puffer-Verhalten wie bei
+`xiri-card` (Skeleton nur beim ersten Laden, Inhalt bleibt beim Reload stehen, bei Reload-Fehler bleibt der Header).
+Der Inhalt wird mit `ngTemplateOutletInjector` = Element-Injector des Panels gerendert; ohne das fänden Buttons im
+Inhalt (eingebettete View) das Panel nicht.
 
 **Panel mit Header-Buttons + rahmenloser Card** (statt Card mit `buttonsTop` im Panel, die doppelten
 Titel und Schatten erzeugt):

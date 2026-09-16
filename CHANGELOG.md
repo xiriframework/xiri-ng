@@ -39,6 +39,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Icon, Buttons, `fields`, `data` und `components` daraus übernommen. Während eines Reloads bleibt der
   bisherige Inhalt stehen; schlägt ein Reload fehl, bleiben Titel und Buttons der letzten Antwort stehen und
   nur der Inhalt zeigt die Fehlermeldung. Antworten mit Inhaltszeilen (`{data: rows}`) verhalten sich wie bisher.
+- **Expansion-Panels sind nachladbar und Panel-Host.** `XiriExpansionPanelSettings.url` lädt das Panel per POST
+  von dieser URL; die Antwort `{"panel": {…}}` (Go: `Panel.DataResponse(ctx)` ab `xiri-go >= 0.3.10`) ersetzt
+  Titel, Beschreibung, Icon, Header-Buttons und Inhalt, `expanded`/`disabled`/`lazy`/`unload` bleiben aus der
+  Page. Jedes `mat-expansion-panel` trägt die neue Directive `xiriExpansionPanel` und ist damit `XIRI_PANEL_HOST`:
+  `refresh: "panel"` aus einem Header-Button, einem Button im Inhalt oder einer Tabellenaktion lädt genau dieses
+  Panel neu — der Fall „Buttons im Panel-Header, flache Card als Inhalt“ funktioniert damit ohne Page-Reload.
+  Panel ohne `url` reicht an den äußeren Host weiter oder fällt auf den Page-Reload zurück. Lade-, Fehler- und
+  Puffer-Verhalten wie bei der Card (gemeinsame Logik in `createPanelLoader`, jetzt exportiert).
 
 ## [0.4.9]
 ### Added

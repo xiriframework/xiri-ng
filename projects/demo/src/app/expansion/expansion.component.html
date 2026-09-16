@@ -126,6 +126,22 @@
 		</div>
 	</div>
 
+	<!-- Nachladbares Panel -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="sectionPanelUrl">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-expansion [settings]="expansionPanelUrlSettings" [dyncomponent]="dynTemplate"></xiri-expansion>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goExpansionPanelUrlCode" title="Go: expansion.Panel.SetURL + response.NewReturnRefreshPanel"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+
 </div>
 
 <ng-template #dynTemplate let-obj>

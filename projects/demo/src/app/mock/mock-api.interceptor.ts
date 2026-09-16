@@ -26,6 +26,7 @@ let dialogWaitingPolls = 0;
 
 // Zähler, damit man beim Panel-Demo sieht, dass wirklich neu geladen wurde.
 let panelLoads = 0;
+let expansionPanelLoads = 0;
 
 export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
@@ -171,6 +172,22 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 	}
 
 	// Table data endpoints for Test/Test/Home
+	// Nachladbares Expansion-Panel: komplette Panel-Antwort {panel: …}; Save-Route wird mit der Card geteilt.
+	if ( req.url.includes( 'Test/ExpansionPanel/Insurance' ) ) {
+		expansionPanelLoads++;
+		return of( new HttpResponse( { status: 200, body: { panel: {
+			title: 'Versicherung',
+			description: `Stand: ${ expansionPanelLoads }. Ladung`,
+			icon: 'shield',
+			buttons: { class: 'small', buttons: [
+				{ text: 'Bearbeiten', type: 'icon', action: 'api', icon: 'edit', hint: 'Speichert und lädt nur dieses Panel neu',
+					url: 'Test/Panel/Insurance/Save' },
+			] },
+			data: [ { type: 'card', cols: 12, data: { flat: true,
+				data: { 'Versicherer': 'Allianz', 'Prämie': `${ 480 + expansionPanelLoads * 10 },00 € / Jahr`, 'Laufzeit bis': '31.12.2026' } } } ],
+		} } } ) ).pipe( delay( 300 ) );
+	}
+
 	// Nachladbares Panel: Save antwortet mit refresh:'panel', die Card lädt sich danach selbst neu.
 	if ( req.url.includes( 'Test/Panel/Insurance/Save' ) ) {
 		return of( new HttpResponse( { status: 200, body: { done: true, refresh: 'panel', message: 'Gespeichert', messageType: 'success' } } ) )

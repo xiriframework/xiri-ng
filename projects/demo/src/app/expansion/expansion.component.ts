@@ -410,4 +410,42 @@ e := expansion.NewExpansion().
     AddContent(card.NewCardList("", content).WithFlat(true).WithDisplay("xcol xcol-md-12"))
 
 e := expansion.NewExpansion().WithMulti(true).AddPanel(p)`;
+
+	// --- Nachladbares Panel ---
+	sectionPanelUrl: XiriSectionSettings = {
+		title: 'Nachladbares Panel',
+		subtitle: 'panel.url + refresh: "panel" — der Header-Button speichert, danach lädt nur dieses Panel Titel, Buttons und Inhalt neu. '
+			+ 'Das Nachbar-Panel bleibt stehen.',
+		icon: 'sync',
+		iconColor: 'primary',
+	};
+
+	expansionPanelUrlSettings: XiriExpansionSettings = {
+		multi: true,
+		panels: [
+			{ title: 'Versicherung', description: 'lädt …', icon: 'shield', expanded: true, url: 'Test/ExpansionPanel/Insurance', data: [] },
+			{
+				title: 'Leasing (statisch)',
+				description: 'darf beim Panel-Reload nicht flackern',
+				icon: 'directions_car',
+				expanded: true,
+				data: [ { type: 'card', cols: 12, data: { flat: true, data: { 'Leasinggeber': 'Porsche Bank', 'Rate': '389,00 € / Monat' } } } ],
+			},
+		]
+	};
+
+	goExpansionPanelUrlCode = `// Page: Panel als Shell mit eigener URL
+p := expansion.NewPanel("Versicherung").WithIcon("shield").WithExpanded(true).
+    SetURL(c.apiUrl("Vehicle", id, "Panel", "Insurance"))
+e := expansion.NewExpansion().WithMulti(true).AddPanel(p)
+
+// Panel-Endpoint: komplettes Panel inkl. Header-Buttons, wc.Data → {"panel": {...}}
+panel := expansion.NewPanel("Versicherung").WithIcon("shield").
+    Buttons(button.NewButtonLine("small", nil).
+        Add(button.NewSimpleDialogButton("Bearbeiten", editUrl, core.ColorPrimary))).
+    AddContent(card.NewCardList("", content).WithFlat(true).WithDisplay("xcol xcol-md-12"))
+return wc.Data(panel)
+
+// Dialog-Submit: nur dieses Panel neu laden
+return wc.Component(response.NewReturnRefreshPanel().WithMessage("Gespeichert", response.MessageSuccess))`;
 }
