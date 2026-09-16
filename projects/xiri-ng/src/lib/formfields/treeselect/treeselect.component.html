@@ -1,14 +1,12 @@
 <div class="main">
 	<div class="line">
-		<div class="xrow xsmall">
-			<div class="xcol xcol-md-6 header"><span>{{ field.name }}</span></div>
-			<div class="xcol xcol-md-6 search">
-				@if (field.search !== false) {
-					<!-- ponytail: Suche und Aufklapp-Button bleiben auch gesperrt bedienbar. Beide
-					     ändern den Wert nicht, sperren würde nur das Nachschauen behindern. -->
-					<xiri-search (changed)="searchDo($event)"></xiri-search>
-				}
-			</div>
+		<div class="header"><span>{{ field.name }}</span></div>
+		<div class="search">
+			@if (field.search !== false) {
+				<!-- ponytail: Suche und Aufklapp-Button bleiben auch gesperrt bedienbar. Beide
+				     ändern den Wert nicht, sperren würde nur das Nachschauen behindern. -->
+				<xiri-search (changed)="searchDo($event)"></xiri-search>
+			}
 		</div>
 	</div>
 	<div class="tree">

@@ -124,8 +124,8 @@ export class FormsComponent {
 		}, {
 			type: 'textarea',
 			name: 'textarea',
-			value: 1,
-			max: 10,
+			value: 'Angemeldet mit 01.07.2022 Vignette Ja. GPS seit 30.08.2022. Bei Kilometerstand 12345 Service gemacht und noch viel mehr Text ohne Zeilenumbruch.',
+			max: 500,
 			class: 'xcol-start xcol-md-6 xcol-xl-3',
 			id: 'textarea',
 		}, {

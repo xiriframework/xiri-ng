@@ -13,7 +13,14 @@
 	}
 }
 
+// Kein .xrow im Kopf: die 11 Spalten-Gaps à 24px brauchen 264px — in schmalen Dialogen (~240px
+// Innenbreite) kollabieren alle Tracks auf 0 und das Grid läuft rechts über .main hinaus, das Such-Icon
+// wird abgeschnitten. Flex mit Umbruch: Label und Suche nebeneinander, solange dem Label 8rem bleiben,
+// sonst rutscht die Suche rechtsbündig in eine eigene Zeile (containerbasiert statt Viewport-Breakpoint).
 .line {
+	display:                 flex;
+	flex-wrap:               wrap;
+	align-items:             center;
 	background-color:        var(--surface-bright, #F9F9FC);
 	padding:                 0 0 0 1rem;
 	border-bottom:           1px solid var(--outline-variant, #C2C7CF);
@@ -21,16 +28,33 @@
 	border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--xiri-radius-xs, var(--mat-sys-corner-extra-small)));
 
 	.header {
+		flex:        1 1 8rem;
+		min-width:   0;
 		color:       var(--on-surface-variant, rgba(0, 0, 0, 0.54));
 		display:     flex;
 		align-items: center;
 		min-height:  32px;
+
+		span {
+			min-width:     0;
+			overflow-wrap: anywhere; // untrennbare lange Labels laufen nicht in die Suche
+		}
 	}
 
 	.search {
-		display:         flex;
-		justify-content: flex-end;
-		padding-right:   0.5rem;
+		flex:          0 1 auto;
+		min-width:     0;
+		max-width:     100%;
+		box-sizing:    border-box;
+		margin-left:   auto;
+		// = margin-left 8px + margin-right 2px der geöffneten xiri-search (.search.open), die mit
+		// width:100% + Margins sonst um genau diesen Betrag über ihren Host hinausragt.
+		padding-right: 10px;
+
+		xiri-search {
+			display:   block; // definite Breite für width:100% der inneren .search
+			min-width: 0;
+		}
 	}
 }
 

@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+
+- **Treeselect: Such-Icon in schmalen Dialogen nicht mehr abgeschnitten.** Der Kopf war ein 12-Spalten-`.xrow`,
+  dessen elf 24px-Gaps unter ~282px Feldbreite mehr Platz brauchten als vorhanden; alle Spalten kollabierten auf 0
+  und die Suche lief rechts über den Rahmen. Der Kopf ist jetzt eine umbrechende Flex-Zeile: Label und Suche
+  nebeneinander, solange dem Label 8rem bleiben, sonst rückt die Suche rechtsbündig in eine eigene Zeile. Das
+  ersetzt auch das bisherige viewport-basierte Stapeln unter 768px durch ein containerbasiertes.
+- **Textarea bricht lange Zeilen um statt horizontal zu scrollen.** Das globale `white-space: pre` auf Textareas
+  ist entfernt; es gilt der Browser-Default `pre-wrap`. Explizite Zeilenumbrüche und Tabs bleiben erhalten, der
+  Formularwert ändert sich nicht.
 
 ## [0.4.12]
 ### Fixed

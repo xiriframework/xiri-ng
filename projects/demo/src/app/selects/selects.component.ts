@@ -8296,6 +8296,19 @@ export class SelectsComponent {
 			hint: 'Kategorie wählen',
 			list: undefined,
 			required: false,
+		}, {
+			type: 'treeselect',
+			name: 'treeselect schmal',
+			class: 'xcol-md-3', // ~220px bei 1280px Viewport, wie ein schmaler Dialog; unter ~282px kollabierte das alte 12-Spalten-Grid im Kopf
+			id: 'treeselect4',
+			hint: 'Schmale Spalte: Suchsymbol muss sichtbar bleiben',
+			list: [
+				{ id: 1, name: 'ABAG Posch' },
+				{ id: 2, name: 'ABAG Privat' },
+				{ id: 3, name: 'ABAG Verwaltungs GmbH' },
+				{ id: 4, name: 'Alexander Müller LUIS' },
+				{ id: 5, name: 'Antsfer-MFG' },
+			],
 		} ],
 		buttons: [ {
 			text: 'Back',
