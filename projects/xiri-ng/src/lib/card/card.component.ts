@@ -1,11 +1,10 @@
-import { Component, computed, effect, forwardRef, inject, input, linkedSignal, signal, Signal } from '@angular/core';
+import { Component, computed, forwardRef, inject, input, linkedSignal, Signal } from '@angular/core';
 import { XiriResponseHandlerService, XiriPanelHost, XIRI_PANEL_HOST } from '../services/response-handler.service';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { createPanelLoader } from '../services/panel-loader';
 import { XiriButtonlineSettings, XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriColor } from '../types/color.type';
 import { XiriRawTableSettings, XiriRawTableComponent } from "../raw-table/xiri-raw-table.component";
 import { XiriTableField } from "../raw-table/tabefield.interface";
-import { XiriDataService } from '../services/data.service';
 import { XiriSkeletonComponent } from '../skeleton/skeleton.component';
 import { XiriDynData } from '../dyncomponent/dyndata.interface';
 import { XiriDynComponentComponent } from '../dyncomponent/dyncomponent.component';
@@ -66,15 +65,14 @@ export interface XiriCardSettings {
             } )
 export class XiriCardComponent implements XiriPanelHost {
 
-	private dataService = inject( XiriDataService );
 	private responseHandler = inject( XiriResponseHandlerService );
 	// Nächste äußere Card (Provider dieser Card übersprungen). Ziel für refresh:'panel', wenn diese Card keine url hat.
 	private parentPanel = inject( XIRI_PANEL_HOST, { optional: true, skipSelf: true } );
-	// Ein während eines laufenden Loads angeforderter Reload wird nachgeholt, sobald der Load fertig ist.
-	// Signal, kein Boolean: der Effect muss darauf reagieren, wenn es gesetzt wird.
-	private pendingReload = signal( false );
 
 	settings = input.required<XiriCardSettings>();
+
+	// Lädt {card: …} von settings().url; puffert die letzte komplette Card (siehe panel-loader.ts).
+	private loader = createPanelLoader<XiriCardSettings>( { url: () => this.settings().url, key: 'card' } );
 
 	// Bei flat nur rendern, wenn der Header Inhalt hat; sonst bliebe eine leere 32px-Leiste.
 	showHeader = computed( () => {
@@ -88,43 +86,11 @@ export class XiriCardComponent implements XiriPanelHost {
 		computation: ( collapsed, previous ) => collapsed ?? previous?.value ?? false,
 	} );
 
-	private cardResource = rxResource( {
-		params: () => this.settings().url,
-		stream: ( { params } ) => this.dataService.post( params, null ),
-	} );
-
-	loading = this.cardResource.isLoading;
-
-	errorMsg = computed( () => {
-		const e = this.cardResource.error() as { cause?: unknown } | undefined;
-		if ( !e ) return '';
-		const http = ( e.cause ?? e ) as { error?: { error?: string } };
-		return http.error?.error || 'Fehler beim Laden';
-	} );
-
-	// value() wirft im Fehlerzustand (ResourceValueError) – deshalb nur nach hasValue() lesen.
-	private _raw = computed<unknown>( () => this.cardResource.hasValue() ? this.cardResource.value() : undefined );
-
-	/** Komplette Card aus der aktuellen Antwort: Top-Level-Schlüssel `card` mit Objektwert. Sonst null. */
-	private responseCard = computed<XiriCardSettings | null>( () => {
-		const r = this._raw() as { card?: unknown } | null | undefined;
-		const c = r && typeof r === 'object' && !Array.isArray( r ) ? r.card : undefined;
-		return c && typeof c === 'object' && !Array.isArray( c ) ? c as XiriCardSettings : null;
-	} );
-
-	/**
-	 * Zuletzt erfolgreich geladene komplette Card. Bleibt bei Reload-Fehler stehen (keine Antwort vorhanden),
-	 * wird bei url-Wechsel und bei einer erfolgreichen Zeilen-Antwort ({data: rows}) geleert.
-	 */
-	private loadedCard = linkedSignal<{ url: string | undefined; card: XiriCardSettings | null; hasValue: boolean },
-		XiriCardSettings | null>( {
-		source: () => ( { url: this.settings().url, card: this.responseCard(), hasValue: this._raw() != null } ),
-		computation: ( s, prev ) => {
-			if ( s.card ) return s.card;
-			if ( s.hasValue ) return null;
-			return prev && prev.source.url === s.url ? prev.value : null;
-		},
-	} );
+	loading = this.loader.loading;
+	errorMsg = this.loader.errorMsg;
+	private _raw = this.loader.raw;
+	/** Zuletzt erfolgreich geladene komplette Card ({card: …}); null bei Zeilen-Antworten. */
+	private loadedCard = this.loader.loaded;
 
 	/** Inhaltszeilen aus einer Nicht-Card-Antwort: {data: rows} → rows, sonst die Antwort selbst. */
 	private _loaded = computed( () => {
@@ -245,20 +211,7 @@ export class XiriCardComponent implements XiriPanelHost {
 	}
 
 	reload() {
-		if ( this.loading() ) return;
-		this.cardResource.reload();
-	}
-
-	constructor() {
-		// pendingReload zuerst lesen, damit beide Signale als Abhängigkeit registriert sind.
-		effect( () => {
-			const pending = this.pendingReload();
-			const loading = this.cardResource.isLoading();
-			if ( pending && !loading ) {
-				this.pendingReload.set( false );
-				this.cardResource.reload();
-			}
-		} );
+		this.loader.reload();
 	}
 
 	/** refresh:'panel' aus Button/Tabelle in dieser Card. Ohne url: äußere Card, sonst Page-Reload. */
@@ -270,10 +223,7 @@ export class XiriCardComponent implements XiriPanelHost {
 				this.responseHandler.handle( { refresh: 'page' } );
 			return;
 		}
-		// reload() gibt false zurück, solange der erste Load läuft – dann nachholen.
-		// ponytail: bei url-Wechsel während pending läuft danach ein Reload zu viel; harmlos.
-		if ( !this.cardResource.reload() )
-			this.pendingReload.set( true );
+		this.loader.reloadOrQueue();
 	}
 
 }

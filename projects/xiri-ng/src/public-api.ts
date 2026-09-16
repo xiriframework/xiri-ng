@@ -81,6 +81,7 @@ export * from './lib/services/theme.service';
 export * from './lib/services/locale.service';
 export * from './lib/services/snackbar.service';
 export * from './lib/services/response-handler.service';
+export * from './lib/services/panel-loader';
 export * from './lib/services/download.service';
 
 export * from './lib/provider';
