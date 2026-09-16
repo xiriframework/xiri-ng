@@ -118,6 +118,8 @@ export class XiriFormFieldsComponent implements OnInit {
 	private formBuilder = inject( UntypedFormBuilder );
 	private destroyRef = inject( DestroyRef );
 	private dialog = inject( MatDialog );
+	// Der lazy Import in openAdd() kann nach der Zerstörung auflösen; takeUntilDestroyed greift erst danach.
+	private destroyed = false;
 	private elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
 	private readonly localeService = inject( XiriLocaleService );
 	private dataService = inject( XiriDataService );
@@ -180,6 +182,7 @@ export class XiriFormFieldsComponent implements OnInit {
 		} );
 		
 		this.formGroup = this.formBuilder.group( {} );
+		this.destroyRef.onDestroy( () => this.destroyed = true );
 		
 		effect( () => {
 			const isDisabled = this.disabled();
@@ -342,19 +345,25 @@ export class XiriFormFieldsComponent implements OnInit {
 
 		// Lazy: dialog.component importiert xiri-form-fields, ein statischer Import wäre ein Zyklus.
 		import( '../dialog/dialog.component' ).then( m => {
+			if ( this.destroyed || this.formGroup.get( id ) !== control )
+				return;
 			this.dialog.open( m.XiriDialogComponent, { data: { type: 'load', url } } )
 				.afterClosed()
 				.pipe( takeUntilDestroyed( this.destroyRef ) )
-				.subscribe( ( res: unknown ) => this.addOption( id, control, ( res as { created?: unknown } | null )?.created ) );
+				.subscribe( ( res: unknown ) => this.addOption( id, control, res ) );
 		} ).catch( err => console.error( 'xiri-form-fields: dialog import failed', err ) );
 	}
 
-	private addOption( id: string, control: AbstractControl, created: unknown ): void {
+	private addOption( id: string, control: AbstractControl, res: unknown ): void {
 
 		const field = this._fields?.find( f => f.id === id );
+		const { done, created } = ( res ?? {} ) as { done?: unknown; created?: unknown };
 		// Das Formular kann inzwischen gewechselt haben (auch mit gleicher Feld-ID): nur ins Control
 		// schreiben, das den Dialog geöffnet hat.
-		if ( !field || this.formGroup.get( id ) !== control || control.disabled || !isCreatedOption( created ) )
+		if ( !field || this.formGroup.get( id ) !== control || control.disabled || done !== true || !isCreatedOption( created ) )
+			return;
+		// Bei chips sind Strings Freitext, nur Zahlen werden als Option aufgelöst.
+		if ( field.type === 'chips' && typeof created.id !== 'number' )
 			return;
 
 		if ( !collectOptionIds( field.list ?? [] ).has( created.id ) )
@@ -363,9 +372,12 @@ export class XiriFormFieldsComponent implements OnInit {
 		// Nicht über Array.isArray entscheiden: ein leeres Single-Select startet intern mit [].
 		if ( field.multiple || field.type === 'treeselect' || field.type === 'chips' ) {
 			const current: unknown[] = Array.isArray( control.value ) ? control.value : [];
-			if ( !current.includes( created.id ) )
+			if ( !current.includes( created.id ) ) {
+				control.markAsDirty();
 				control.setValue( [ ...current, created.id ] );
-		} else {
+			}
+		} else if ( control.value !== created.id ) {
+			control.markAsDirty();
 			control.setValue( created.id );
 		}
 

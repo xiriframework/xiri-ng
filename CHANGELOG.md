@@ -15,6 +15,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
   inzwischen gewechselt hat oder das Control deaktiviert ist; `created` wird validiert (`id` String oder endliche
   Zahl, `name` String). Go-Seite: `field.BaseField.SetAddURL` + `response.NewReturnDone().WithCreated`.
 
+### Changed
+
+- **Bei `select`-Feldern liegt `field.class` jetzt auf einem Wrapper-`div` um das `mat-form-field`** (Platz
+  für den „+“-Button). Eigene Selektoren der Form `mat-form-field.meineKlasse` greifen dort nicht mehr;
+  `.meineKlasse mat-form-field` verwenden.
+
 ### Fixed
 
 - **Der Dialog lässt sich während der Erfolgsanzeige (`done`) nicht mehr per Escape, Backdrop oder Kreuz

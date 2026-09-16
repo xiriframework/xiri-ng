@@ -2125,6 +2125,49 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
 		} );
 
+		it( 'markiert das Control als dirty (Stepper invalidiert Folgeschritte über pristine)', async () => {
+			host.fields.set( [ selectField() ] );
+			fixture.detectChanges();
+			await clickAdd();
+			expect( component.formGroup.get( 'x' )!.dirty ).toBe( false );
+
+			created();
+
+			expect( component.formGroup.get( 'x' )!.dirty ).toBe( true );
+		} );
+
+		it( 'übernimmt created nur bei done: true', async () => {
+			host.fields.set( [ selectField( { value: 10 } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			afterClosed.next( { done: false, created: { id: 99, name: 'Neu' } } );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
+		} );
+
+		it( 'verwirft bei chips String-IDs (wären dort Freitext)', async () => {
+			host.fields.set( [ selectField( { type: 'chips', value: [ 'frei' ] } ) ] );
+			fixture.detectChanges();
+			await clickAdd();
+
+			created( 'tag-99', 'Neu' );
+
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 'frei' ] );
+		} );
+
+		it( 'öffnet keinen Dialog mehr, wenn die Komponente während des Imports zerstört wurde', async () => {
+			host.fields.set( [ selectField() ] );
+			fixture.detectChanges();
+
+			addButtons()[ 0 ].nativeElement.click();
+			fixture.destroy();
+			await new Promise( resolve => setTimeout( resolve, 300 ) );
+
+			expect( dialogStub.open ).not.toHaveBeenCalled();
+		} );
+
 		it( 'ignoriert ungültige created-Antworten, akzeptiert aber id 0', async () => {
 			host.fields.set( [ selectField( { value: 10 } ) ] );
 			fixture.detectChanges();
