@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { of, Subject, throwError } from 'rxjs';
-import { XiriTableComponent, XiriTableOptions, XiriTableRow, XiriTableSettings } from './table.component';
+import { XiriTableCellValue, XiriTableComponent, XiriTableOptions, XiriTableRow, XiriTableSettings } from './table.component';
 import { XiriButton } from '../button/button.component';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
@@ -21,6 +22,8 @@ interface TableInternals {
 	getSortingDataAccessor(): ( data: XiriTableRow, sortHeaderId: string ) => string | number;
 	dialogRef?: { close( value: unknown ): void };
 	_changeDetectorRef: ChangeDetectorRef;
+	onTableUpdate( id: unknown, field: string, content: unknown ): void;
+	setFooter( footer: Record<string, XiriTableCellValue> ): void;
 }
 
 function internals( component: XiriTableComponent ): TableInternals {
@@ -1393,6 +1396,90 @@ describe( 'XiriTableComponent', () => {
 			const accessor = internals( component ).getSortingDataAccessor();
 			component.displayedColumns = [ { id: 'tags', name: 'Tags', format: 'chips' } as XiriTableField ];
 			expect( accessor( { tags: null }, 'tags' ) ).toBe( '' );
+		} );
+
+		it( 'should return v of a cellObject column, string or number', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'd', name: 'D', cellObject: 'string' } as XiriTableField ];
+			expect( accessor( { d: { d: '24.02.2024', v: '2024-02-24' } }, 'd' ) ).toBe( '2024-02-24' );
+			expect( accessor( { d: { d: '4d 04:00', v: 360000 } }, 'd' ) ).toBe( 360000 );
+		} );
+
+		it( 'should sort a cellObject cell without v like an empty cell', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'd', name: 'D', cellObject: 'string' } as XiriTableField ];
+			expect( accessor( { d: { d: '', v: null } }, 'd' ) ).toBe( '' );
+			// a server patched a plain string into the cell: never mix it with the values
+			expect( accessor( { d: '24.02.2024' }, 'd' ) ).toBe( '' );
+		} );
+
+		it( 'should sort a DMY date column chronologically through MatTableDataSource', () => {
+			const rows: XiriTableRow[] = [
+				{ id: 1, d: { d: '01.02.2024', v: '2024-02-01' } },
+				{ id: 2, d: { d: '15.01.2024', v: '2024-01-15' } },
+				{ id: 3, d: { d: '31.01.2024', v: '2024-01-31' } },
+				{ id: 4, d: { d: '', v: null } },
+			];
+			createFixture( { fields: [ { id: 'd', name: 'D', cellObject: 'string' } ], data: rows } );
+			const sorted = component.dataSource.sortData( rows, { active: 'd', direction: 'asc' } as unknown as MatSort );
+			// string sort of the display would give 01.02 < 15.01 < 31.01
+			expect( sorted.map( r => r.id ) ).toEqual( [ 4, 2, 3, 1 ] );
+		} );
+
+		it( 'should render d of a cellObject cell for text, text2 and textn', async () => {
+			createFixture( {
+				fields: [
+					{ id: 'd', name: 'D', cellObject: 'string' },
+					{ id: 't', name: 'T', format: 'text2', cellObject: 'string' },
+					{ id: 'n', name: 'N', format: 'textn', cellObject: 'string' },
+				],
+				data: [ { id: 1, d: { d: '24.02.2024', v: '2024-02-24' }, t: { d: [ 'a', 'b' ], v: 1 }, n: { d: [ 'x', 'y', 'z' ], v: 2 } } ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+			const text = ( sel: string ) => ( fixture.nativeElement.querySelector( sel )?.textContent ?? '' ) as string;
+			expect( text( 'td.mat-column-d' ).trim() ).toBe( '24.02.2024' );
+			expect( text( 'td.mat-column-d' ) ).not.toContain( '2024-02-24' );
+			expect( text( 'td.mat-column-t' ).replace( /\s/g, '' ) ).toBe( 'ab' );
+			expect( fixture.nativeElement.querySelectorAll( 'td.mat-column-n div' ).length ).toBe( 3 );
+		} );
+
+		it( 'should render a scalar patched into a text2/textn cell as one line, not as characters', async () => {
+			createFixture( {
+				fields: [ { id: 't', name: 'T', format: 'text2', cellObject: 'string' }, { id: 'n', name: 'N', format: 'textn', cellObject: 'string' } ],
+				data: [ { id: 1, t: 'Neu', n: null } ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+			expect( ( fixture.nativeElement.querySelector( 'td.mat-column-t' )?.textContent ?? '' ).replace( /\s/g, '' ) ).toBe( 'Neu' );
+			expect( fixture.nativeElement.querySelectorAll( 'td.mat-column-n div' ).length ).toBe( 0 );
+		} );
+
+		it( 'should search the display of a cellObject cell, not [object Object]', () => {
+			createFixture( {
+				fields: [ { id: 'd', name: 'D', cellObject: 'string' } ],
+				data: [ { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } }, { id: 2, d: { d: '01.03.2024', v: '2024-03-01' } } ],
+			} );
+			component.dataSource.filter = '24.02';
+			expect( component.dataSource.filteredData.map( r => r.id ) ).toEqual( [ 1 ] );
+		} );
+
+		it( 'should normalise non-object cells of cellObject columns on load and on table update', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => { /* intentionally empty */ } );
+			createFixture( { fields: [ { id: 'd', name: 'D', cellObject: 'string' } ], data: [ { id: 1, d: '24.02.2024' } ] } );
+			expect( component.dataSource.data[ 0 ].d ).toEqual( { d: '24.02.2024', v: null } );
+			expect( warn ).toHaveBeenCalledTimes( 1 );
+
+			internals( component ).onTableUpdate( 1, 'd', '25.02.2024' );
+			expect( component.dataSource.data[ 0 ].d ).toEqual( { d: '25.02.2024', v: null } );
+			warn.mockRestore();
+		} );
+
+		it( 'should unpack a server footer cell object to its display', () => {
+			component.displayedColumns = [ { id: 'tl', name: 'TL', cellObject: 'number' }, { id: 'n', name: 'N', format: 'number' } ] as XiriTableField[];
+			internals( component ).setFooter( { tl: { d: '4d 04:00', v: 360000 }, n: [ '1.234', 1234 ] } );
+			expect( component.footer[ 'tl' ] ).toBe( '4d 04:00' );
+			expect( component.footer[ 'n' ] ).toBe( '1.234' );
 		} );
 	} );
 

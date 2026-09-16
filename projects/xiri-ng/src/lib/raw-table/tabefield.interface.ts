@@ -38,4 +38,6 @@ export interface XiriTableField {
 	editableOptionsUrl?: string;
 	editableOptionsSearch?: boolean;
 	editableSearchUrl?: string;
+	/** Go builder: cells of this column are { d: display, v: raw value } objects (see table/cell.ts); the value names the kind of v. */
+	cellObject?: 'string' | 'number';
 }
