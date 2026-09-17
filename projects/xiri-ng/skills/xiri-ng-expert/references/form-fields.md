@@ -232,6 +232,15 @@ Array = **UND**-Verknüpfung:
   ]}
 ```
 
+**Laufzeitverhalten (ab 0.4.14):** Ein per `showWhen` verstecktes Feld wird im FormGroup **disabled**.
+Es fehlt damit in `formGroup.value` und im Submit-Body, und seine Validatoren zählen nicht — ein
+verstecktes Pflichtfeld blockiert den Submit nicht. Wird es wieder sichtbar, wird es enabled und
+behält seinen letzten Wert; ein vom Backend gesetztes `disabled: true` oder das globale
+`disabled`-Input bleiben dabei bestehen. Felder in **eingeklappten Sections** gelten nicht als
+versteckt und bleiben enabled. Bedingungen lesen `control.value` direkt, ein disabled Trigger-Feld
+funktioniert also weiterhin als Trigger. Server-seitig bindet xiri-go für den fehlenden Key den
+Konstruktor-Default.
+
 ### reloadOn — Inhalt vom Server nachladen
 
 `showWhen` blendet ein Feld ein und aus. `reloadOn` lädt seinen **Inhalt** neu, sobald sich ein

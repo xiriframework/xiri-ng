@@ -133,6 +133,7 @@ Verfügbare `type`-Werte: `text`, `email`, `password`, `textarea`, `number`, `bo
 `display` = `'full' | 'line' | 'small'` — Layout-Modus.
 
 **showWhen-Operators:** `equals`, `notEquals`, `contains`, `greaterThan`, `lessThan`, `in`, `notEmpty`.
+Versteckte Felder sind disabled: kein Wert im Submit, keine Validierung (ab 0.4.14; Details `references/form-fields.md`).
 
 **reloadOn — Inhalt vom Server nachladen.** Während `showWhen` ein Feld nur ein- und ausblendet,
 lädt `reloadOn` seinen Inhalt neu, sobald sich ein anderes Feld ändert:

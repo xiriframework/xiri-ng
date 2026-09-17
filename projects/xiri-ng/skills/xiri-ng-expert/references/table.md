@@ -201,6 +201,8 @@ export interface XiriTableField {
 
   buttons?: XiriButton[];       // Action-Buttons in der Zelle
   icons?: { icon: string; color?: string; hint?: string }[];
+                                // format 'icon': row[id] wählt das Icon; row[id + 'Hint'] (xiri-go
+                                // WithRowHint) überschreibt ab 0.4.14 den Icon-hint als Tooltip pro Zeile
 
   display?: string;             // CSS-Klasse auf <td>
   header?: string;              // Custom Header-Text (falls ≠ name)
@@ -385,6 +387,7 @@ tableSettings: XiriTableSettings = {
         { icon: 'check_circle', color: 'success', hint: 'Aktiv' },
         { icon: 'cancel',       color: 'warn',    hint: 'Inaktiv' },
       ]},
+    // Row mit { status: 0, statusHint: 'Aktiv seit 08:12' } zeigt den Row-Hint statt 'Aktiv'
     { id: 'count',  name: 'Anzahl', format: 'number',
       webformat: 'integer', align: 'right', footer: 'sum' },
     { id: 'note',   name: 'Notiz', editable: true, inputType: 'text' },
