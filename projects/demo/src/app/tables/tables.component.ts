@@ -109,7 +109,7 @@ export class TablesComponent {
 
 	public data: XiriTableSettings = {
 		data: [
-			{ id: 1, name: 'line 1', content: 'content', content3: 0, content4: [ false, false ], content5: '<b>test</b>', nums: 123 },
+			{ id: 1, name: 'line 1', content: 'content', content3: 0, content3Hint: 'Row hint: done at 08:12', content4: [ false, false ], content5: '<b>test</b>', nums: 123 },
 			{ id: 2, name: 'line 2', content: 'content content content', content3: 1, content4: [ true, 'test' ], content5: '<b>test</b>', nums: 123 },
 			{ id: 3, name: 'line 3', content: 'content', content3: 1, content4: [], content5: '<b>test</b>', nums: 123 },
 		],
@@ -119,7 +119,7 @@ export class TablesComponent {
 			{ id: 'name', name: 'content hier kann sehr viel stehen', header: 'sideways' },
 			{ id: 'content', name: 'content hier kann sehr viel', header: 'vertical right', display: 'right' },
 			{ id: 'content2', name: 'content2', hide: true },
-			{ id: 'content3', name: 'hier', header: 'upright', format: 'icon', icons: [ { icon: 'done' }, { icon: 'close', color: 'warn' } ] },
+			{ id: 'content3', name: 'hier', header: 'upright', format: 'icon', icons: [ { icon: 'done', hint: 'Icon-set hint: done' }, { icon: 'close', color: 'warn', hint: 'Icon-set hint: open' } ] },
 			{ id: 'content5', name: 'content5', format: 'html' },
 			{ id: 'top1', name: 'content5', format: 'header', headerSpan: 2 },
 			{ id: 'top2', name: 'content5', format: 'header', headerSpan: 5 }

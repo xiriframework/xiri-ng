@@ -22,6 +22,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `inputType: 'date'`), der Mock liefert nach dem Save ein neues `{d, v}`.
 - **Tabellen: Row-Hint für Icon-Spalten.** Liefert eine Row den Key `<fieldId>Hint` (xiri-go `WithRowHint`),
   wird er als Tooltip der Icon-Zelle angezeigt und hat Vorrang vor dem statischen Hint aus dem Icon-Set.
+  Demo „Tables“, Tabelle 1: Zeile 1 trägt einen `content3Hint`, die übrigen Zeilen zeigen den Icon-Set-Hint.
 
 ### Changed
 
