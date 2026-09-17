@@ -20,6 +20,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Locale-Datumsformate in xiri-go.
 - **Demo „Inline Edit Table“:** editierbare Datumsspalte `Available` als Zellobjekt (`cellObject: 'string'`,
   `inputType: 'date'`), der Mock liefert nach dem Save ein neues `{d, v}`.
+- **Tabellen: Row-Hint für Icon-Spalten.** Liefert eine Row den Key `<fieldId>Hint` (xiri-go `WithRowHint`),
+  wird er als Tooltip der Icon-Zelle angezeigt und hat Vorrang vor dem statischen Hint aus dem Icon-Set.
 
 ### Changed
 
