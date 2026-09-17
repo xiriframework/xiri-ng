@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { ChangeDetectorRef, Component, signal, viewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { of, Subject, throwError } from 'rxjs';
-import { XiriTableComponent, XiriTableOptions, XiriTableRow, XiriTableSettings } from './table.component';
+import { XiriTableCellValue, XiriTableComponent, XiriTableOptions, XiriTableRow, XiriTableSettings } from './table.component';
+import { normalizeEditValue } from './cell';
 import { XiriButton } from '../button/button.component';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriDataService } from '../services/data.service';
@@ -21,6 +23,8 @@ interface TableInternals {
 	getSortingDataAccessor(): ( data: XiriTableRow, sortHeaderId: string ) => string | number;
 	dialogRef?: { close( value: unknown ): void };
 	_changeDetectorRef: ChangeDetectorRef;
+	onTableUpdate( id: unknown, field: string, content: unknown ): void;
+	setFooter( footer: Record<string, XiriTableCellValue> ): void;
 }
 
 function internals( component: XiriTableComponent ): TableInternals {
@@ -842,6 +846,35 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	describe( 'normalizeEditValue', () => {
+		const date = { id: 'd', name: 'D', cellObject: 'string', inputType: 'date' } as XiriTableField;
+		const dt = { id: 't', name: 'T', cellObject: 'string', inputType: 'datetime-local' } as XiriTableField;
+		const secs = { id: 's', name: 'S', cellObject: 'number', inputType: 'number' } as XiriTableField;
+		const secsAsText = { id: 's', name: 'S', cellObject: 'number', inputType: 'text' } as XiriTableField;
+
+		it( 'maps a cleared input to null', () => {
+			expect( normalizeEditValue( date, '' ) ).toBeNull();
+			expect( normalizeEditValue( secs, '' ) ).toBeNull();
+			expect( normalizeEditValue( dt, null ) ).toBeNull();
+		} );
+
+		it( 'pads the seconds datetime-local drops', () => {
+			expect( normalizeEditValue( dt, '2024-02-24T15:05' ) ).toBe( '2024-02-24T15:05:00' );
+			expect( normalizeEditValue( dt, '2024-02-24T15:05:30' ) ).toBe( '2024-02-24T15:05:30' );
+		} );
+
+		it( 'turns numeric columns into numbers regardless of the html input type, garbage into null', () => {
+			expect( normalizeEditValue( secs, '3600' ) ).toBe( 3600 );
+			expect( normalizeEditValue( secsAsText, '3600' ) ).toBe( 3600 );   // WithInputType("text") on a duration
+			expect( normalizeEditValue( secs, 'abc' ) ).toBeNull();
+			expect( normalizeEditValue( date, '2024-02-25' ) ).toBe( '2024-02-25' );
+		} );
+
+		it( 'maps a whitespace-only input to null, not 0, on a numeric column', () => {
+			expect( normalizeEditValue( secs, '   ' ) ).toBeNull();
+		} );
+	} );
+
 	describe( 'inline editing', () => {
 		it( 'should not start edit if column is not editable', () => {
 			const column = { id: 'name', name: 'Name', editable: false };
@@ -1171,6 +1204,379 @@ describe( 'XiriTableComponent', () => {
 			expect( event.preventDefault ).toHaveBeenCalled();
 			expect( component.editingCell() ).toBeNull();
 		} );
+
+		it( 'should edit a draft of v, leave the cell untouched and post v', () => {
+			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			expect( component.editValue( row, column ) ).toBe( '2024-02-24' );
+			component.setEditValue( row, column, '2024-02-25' );
+			expect( component.editValue( row, column ) ).toBe( '2024-02-25' );
+			expect( row.d ).toEqual( { d: '24.02.2024', v: '2024-02-24' } );   // draft only
+
+			mockDataService.post.mockReturnValue( of( { done: true, updates: { d: { d: '25.02.2024', v: '2024-02-25' } } } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 'd', value: '2024-02-25' } );
+			expect( row.d ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( mockResponseHandler.handle ).not.toHaveBeenCalledWith( expect.objectContaining( { refresh: 'table' } ), expect.anything() );
+		} );
+
+		it( 'should show the draft as d and reload a url table when the server patches nothing', () => {
+			createFixture( { url: '/rows', fields: [ { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } ] } );
+			const column = component.displayedColumns[ 0 ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( row.d ).toEqual( { d: '2024-02-25', v: '2024-02-25' } );
+			expect( mockResponseHandler.handle ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { done: true, refresh: 'table' } ), expect.anything() );
+		} );
+
+		it( 'should not reload a static-data table, and not when the response already acts', () => {
+			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];   // fixture has settings.data, no url
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+			expect( row.d ).toEqual( { d: '2024-02-25', v: '2024-02-25' } );
+			expect( mockResponseHandler.handle ).not.toHaveBeenCalledWith( expect.objectContaining( { refresh: 'table' } ), expect.anything() );
+
+			mockResponseHandler.handle.mockClear();
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-26' );
+			mockDataService.post.mockReturnValue( of( { done: true, goto: '/x' } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledTimes( 1 );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( expect.objectContaining( { goto: '/x' } ), expect.anything() );
+		} );
+
+		it( 'should treat a seconds-stripped datetime-local value as unchanged', () => {
+			const column = { id: 't', name: 'T', editable: true, cellObject: 'string', inputType: 'datetime-local' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, t: { d: '24.02.2024 15:05', v: '2024-02-24T15:05:00' } };
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-24T15:05' );   // what the browser emits
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should post null when the input was cleared, and drop the draft on cancel', () => {
+			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '' );
+			mockDataService.post.mockReturnValue( of( { done: true, updates: { d: { d: '', v: null } } } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 'd', value: null } );
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-03-01' );
+			component.cancelInlineEdit();
+			expect( row.d ).toEqual( { d: '', v: null } );
+			expect( component.editValue( row, column ) ).toBeNull();
+		} );
+
+		it( 'should keep editing a plain cell through editValue/setEditValue', () => {
+			const column = { id: 'name', name: 'Name', editable: true } as XiriTableField;
+			const row: XiriTableRow = { id: 1, name: 'Original' };
+			component.setEditValue( row, column, 'Changed' );
+			expect( row.name ).toBe( 'Changed' );
+			expect( component.editValue( row, column ) ).toBe( 'Changed' );
+		} );
+
+		it( 'should compare unchanged against the start value, not a cell the server updated meanwhile', () => {
+			// A saved → Tab opens B → A's response patches B → B left untouched: B must not post its stale start value.
+			const colA = { id: 'a', name: 'A', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.displayedColumns = [ colA, colB ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, a: { d: '01.01.2024', v: '2024-01-01' }, b: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			component.setEditValue( row, colA, '2024-01-02' );
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			// Real Tab: saves A (pending) and opens B with skipSavingCheck — a plain startInlineEdit would be blocked by the saving guard.
+			const tab = { key: 'Tab', shiftKey: false, preventDefault: () => { /* noop */ },
+				target: document.createElement( 'input' ) } as unknown as KeyboardEvent;
+			component.onInlineEditKeydown( tab, row, colA );
+			expect( component.editingCell() ).toEqual( { row, field: 'b' } );
+			pending.next( { done: true, updates: { a: { d: '02.01.2024', v: '2024-01-02' }, b: { d: '25.02.2024', v: '2024-02-25' } } } );
+			pending.complete();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+
+			mockDataService.post.mockClear();
+			component.saveInlineEdit( row, colB );                        // B left untouched
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+		} );
+
+		it( 'should not mistake another save\'s patch for its own when two saves overlap', () => {
+			// A saved → Tab to B → B changed and saved → A's response patches B → B's response is {done:true}:
+			// B must still fall back to its draft and reload, not keep A's intermediate value.
+			createFixture( { url: '/rows', fields: [
+				{ id: 'a', name: 'A', editable: true, cellObject: 'string', inputType: 'date' },
+				{ id: 'b', name: 'B', editable: true, cellObject: 'string', inputType: 'date' },
+			] } );
+			const [ colA, colB ] = component.displayedColumns;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, a: { d: '01.01.2024', v: '2024-01-01' }, b: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			const pendingA = new Subject<unknown>();
+			const pendingB = new Subject<unknown>();
+			component.startInlineEdit( row, colA );
+			component.setEditValue( row, colA, '2024-01-02' );
+			mockDataService.post.mockReturnValueOnce( pendingA );
+			const tab = { key: 'Tab', shiftKey: false, preventDefault: () => { /* noop */ },
+				target: document.createElement( 'input' ) } as unknown as KeyboardEvent;
+			component.onInlineEditKeydown( tab, row, colA );
+			component.setEditValue( row, colB, '2024-02-26' );
+			mockDataService.post.mockReturnValueOnce( pendingB );
+			component.saveInlineEdit( row, colB );
+
+			pendingA.next( { done: true, updates: { a: { d: '02.01.2024', v: '2024-01-02' }, b: { d: '25.02.2024', v: '2024-02-25' } } } );
+			pendingA.complete();
+			mockResponseHandler.handle.mockClear();
+			pendingB.next( { done: true } );
+			pendingB.complete();
+
+			expect( row.b ).toEqual( { d: '2024-02-26', v: '2024-02-26' } );          // B's own draft, not A's patch
+			expect( mockResponseHandler.handle ).toHaveBeenLastCalledWith( expect.objectContaining( { refresh: 'table' } ), expect.anything() );
+		} );
+
+		it( 'should not reload when the single-cell update targets another row', () => {
+			createFixture( { url: '/rows', fields: [ { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } ] } );
+			const column = component.displayedColumns[ 0 ];
+			component.options.editUrl = '/edit';
+			const row1: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			const row2: XiriTableRow = { id: 2, d: { d: '01.01.2024', v: '2024-01-01' } };
+			component.dataSource.data = [ row1, row2 ];
+			mockResponseHandler.handle.mockImplementation( ( result: unknown, cb: ResponseCallbacks ) => {
+				const r = result as { table?: string; id?: unknown; field?: string; content?: unknown; refresh?: string };
+				if ( r.table === 'update' ) cb.onTableUpdate?.( r.id, r.field as string, r.content );
+				if ( r.refresh === 'table' ) cb.onTableRefresh?.();
+			} );
+
+			component.startInlineEdit( row1, column );
+			component.setEditValue( row1, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true, table: 'update', id: 2, field: 'd',
+				content: { d: '02.01.2024', v: '2024-01-02' } } ) );
+			component.saveInlineEdit( row1, column );
+
+			expect( row2.d ).toEqual( { d: '02.01.2024', v: '2024-01-02' } );
+			expect( row1.d ).toEqual( { d: '2024-02-25', v: '2024-02-25' } );          // text fallback, not the stale display
+			expect( mockResponseHandler.handle ).toHaveBeenLastCalledWith( expect.objectContaining( { refresh: 'table' } ), expect.anything() );
+		} );
+
+		it( 'should keep the numeric type of v when the column uses a text input, and match string options', () => {
+			const column = { id: 's', name: 'S', editable: true, cellObject: 'number', inputType: 'text',
+				editableOptions: [ { value: '3600', label: '1 h' }, { value: '7200', label: '2 h' } ] } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, s: { d: '01:00', v: 3600 } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			expect( component.compareEditValue( component.editValue( row, column ), '3600' ) ).toBe( true );
+			component.setEditValue( row, column, '7200' );                 // what mat-select emits: the option string
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 's', value: 7200 } );
+			expect( row.s ).toEqual( { d: '7200', v: 7200 } );
+		} );
+
+		it( 'should keep the server display and set v from the draft when updates patches the edited cell with a bare value', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => { /* intentionally empty */ } );
+			mockDataService.post.mockReturnValue( of( { data: [] } ) );
+			createFixture( { url: '/rows', fields: [ { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } ] } );
+			const column = component.displayedColumns[ 0 ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true, updates: { d: '25.02.2024' } } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( row.d ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( warn ).toHaveBeenCalledTimes( 1 );
+			expect( mockResponseHandler.handle ).not.toHaveBeenCalledWith( expect.objectContaining( { refresh: 'table' } ), expect.anything() );
+			warn.mockRestore();
+		} );
+
+		it( 'should keep the server display and set v from the draft when a table:update alias delivers a bare value', () => {
+			createFixture( { url: '/rows', fields: [ { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } ] } );
+			const column = component.displayedColumns[ 0 ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+			mockResponseHandler.handle.mockImplementation( ( result: unknown, cb: ResponseCallbacks ) => {
+				const r = result as { table?: string; id?: unknown; field?: string; content?: unknown };
+				if ( r.table === 'update' ) cb.onTableUpdate?.( r.id, r.field as string, r.content );
+			} );
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true, table: 'update', id: 1, field: 'd', content: '25.02.2024' } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( row.d ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'should not reload when a table:update alias patched the edited cell', () => {
+			createFixture( { url: '/rows', fields: [ { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } ] } );
+			const column = component.displayedColumns[ 0 ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+			mockResponseHandler.handle.mockImplementation( ( result: unknown, cb: ResponseCallbacks ) => {
+				const r = result as { update?: string; id?: unknown; field?: string; content?: unknown };
+				if ( r.update === 'table' ) cb.onTableUpdate?.( r.id, r.field as string, r.content );
+			} );
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true, update: 'table', id: 1, field: 'd',
+				content: { d: '25.02.2024', v: '2024-02-25' } } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( row.d ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( mockResponseHandler.handle ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'should reopen a cellObject cell with the rejected draft on error and drop it on Escape', () => {
+			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.displayedColumns = [ column ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-30' );
+			mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Kein gültiges Datum' } } ) ) );
+			component.saveInlineEdit( row, column );
+
+			expect( component.editingCell() ).toEqual( { row, field: 'd' } );
+			expect( component.editValue( row, column ) ).toBe( '2024-02-30' );       // rejected draft stays visible
+			expect( row.d ).toEqual( { d: '24.02.2024', v: '2024-02-24' } );          // cell untouched
+
+			// Retry with a corrected draft succeeds …
+			component.setEditValue( row, column, '2024-02-29' );
+			mockDataService.post.mockReturnValue( of( { done: true, updates: { d: { d: '29.02.2024', v: '2024-02-29' } } } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenLastCalledWith( '/edit', { id: 1, field: 'd', value: '2024-02-29' } );
+			expect( row.d ).toEqual( { d: '29.02.2024', v: '2024-02-29' } );
+
+			// … and Escape after a second rejection drops the draft without touching the cell.
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-31' );
+			mockDataService.post.mockReturnValue( throwError( () => ( { error: { error: 'Kein gültiges Datum' } } ) ) );
+			component.saveInlineEdit( row, column );
+			component.onInlineEditKeydown( new KeyboardEvent( 'keydown', { key: 'Escape' } ), row, column );
+			expect( component.editingCell() ).toBeNull();
+			expect( component.editValue( row, column ) ).toBe( '2024-02-29' );
+			expect( row.d ).toEqual( { d: '29.02.2024', v: '2024-02-29' } );
+		} );
+
+		it( 'should type an empty numeric cell by the column kind, not by v or inputType', () => {
+			const column = { id: 's', name: 'S', editable: true, cellObject: 'number', inputType: 'text' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, s: { d: '', v: null } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '7200' );
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 's', value: 7200 } );
+			expect( row.s ).toEqual( { d: '7200', v: 7200 } );
+		} );
+
+		it( 'should warn when an updates entry for a cellObject column is not a cell object', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => { /* intentionally empty */ } );
+			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			const other = { id: 'lastModified', name: 'LM', cellObject: 'string' } as XiriTableField;
+			component.displayedColumns = [ column, other ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' }, lastModified: { d: '01.01.2024', v: '2024-01-01' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '2024-02-25' );
+			mockDataService.post.mockReturnValue( of( { done: true,
+				updates: { d: { d: '25.02.2024', v: '2024-02-25' }, lastModified: '25.02.2024' } } ) );
+			component.saveInlineEdit( row, column );
+
+			expect( row.lastModified ).toEqual( { d: '25.02.2024', v: null } );
+			expect( warn ).toHaveBeenCalledTimes( 1 );
+			warn.mockRestore();
+		} );
+
+		it( 'should keep a patch applied by another cell\'s save on Escape, not the stale original', () => {
+			// A edited → Tab (pending save) → B opened → A's response patches B via updates → Escape in
+			// B must keep B's patched cell object, not revert to the value B had when it started editing.
+			const colA = { id: 'a', name: 'A', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.displayedColumns = [ colA, colB ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, a: { d: '01.01.2024', v: '2024-01-01' }, b: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			component.setEditValue( row, colA, '2024-01-02' );
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			const tab = { key: 'Tab', shiftKey: false, preventDefault: () => { /* noop */ },
+				target: document.createElement( 'input' ) } as unknown as KeyboardEvent;
+			component.onInlineEditKeydown( tab, row, colA );
+			expect( component.editingCell() ).toEqual( { row, field: 'b' } );
+
+			pending.next( { done: true, updates: { a: { d: '02.01.2024', v: '2024-01-02' }, b: { d: '25.02.2024', v: '2024-02-25' } } } );
+			pending.complete();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+
+			mockDataService.post.mockClear();
+			component.onInlineEditKeydown( new KeyboardEvent( 'keydown', { key: 'Escape' } ), row, colB );
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( component.editingCell() ).toBeNull();
+		} );
+
+		it( 'should keep the raw draft while typing a numeric cellObject cell, normalising only on save', () => {
+			const column = { id: 's', name: 'S', editable: true, cellObject: 'number', inputType: 'text' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, s: { d: '01:00', v: 3600 } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '-' );
+			expect( component.editValue( row, column ) ).toBe( '-' );
+
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 's', value: null } );
+		} );
 	} );
 
 	describe( 'getEditableOptions', () => {
@@ -1362,6 +1768,24 @@ describe( 'XiriTableComponent', () => {
 			const row = { name: undefined };
 			expect( component.saveCallCheck( button, row ) ).toBe( false );
 		} );
+
+		it( 'should return false when a checked cell object has no value', () => {
+			const button = { check: [ 'datum' ] } as unknown as XiriButton;
+			const row = { datum: { d: '', v: null } };
+			expect( component.saveCallCheck( button, row ) ).toBe( false );
+		} );
+
+		it( 'should return true when a checked cell object has a value', () => {
+			const button = { check: [ 'datum' ] } as unknown as XiriButton;
+			const row = { datum: { d: '24.02.2024', v: '2024-02-24' } };
+			expect( component.saveCallCheck( button, row ) ).toBe( true );
+		} );
+
+		it( 'should return true when a checked cell object has the number zero as value', () => {
+			const button = { check: [ 'dauer' ] } as unknown as XiriButton;
+			const row = { dauer: { d: '00:00', v: 0 } };
+			expect( component.saveCallCheck( button, row ) ).toBe( true );
+		} );
 	} );
 
 	describe( 'sorting data accessor', () => {
@@ -1394,6 +1818,118 @@ describe( 'XiriTableComponent', () => {
 			component.displayedColumns = [ { id: 'tags', name: 'Tags', format: 'chips' } as XiriTableField ];
 			expect( accessor( { tags: null }, 'tags' ) ).toBe( '' );
 		} );
+
+		it( 'should return v of a cellObject column, string or number', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'd', name: 'D', cellObject: 'string' } as XiriTableField ];
+			expect( accessor( { d: { d: '24.02.2024', v: '2024-02-24' } }, 'd' ) ).toBe( '2024-02-24' );
+			expect( accessor( { d: { d: '4d 04:00', v: 360000 } }, 'd' ) ).toBe( 360000 );
+		} );
+
+		it( 'should sort a cellObject cell without v like an empty cell', () => {
+			const accessor = internals( component ).getSortingDataAccessor();
+			component.displayedColumns = [ { id: 'd', name: 'D', cellObject: 'string' } as XiriTableField ];
+			expect( accessor( { d: { d: '', v: null } }, 'd' ) ).toBe( '' );
+			// a server patched a plain string into the cell: never mix it with the values
+			expect( accessor( { d: '24.02.2024' }, 'd' ) ).toBe( '' );
+		} );
+
+		it( 'should sort a DMY date column chronologically through MatTableDataSource', () => {
+			const rows: XiriTableRow[] = [
+				{ id: 1, d: { d: '01.02.2024', v: '2024-02-01' } },
+				{ id: 2, d: { d: '15.01.2024', v: '2024-01-15' } },
+				{ id: 3, d: { d: '31.01.2024', v: '2024-01-31' } },
+				{ id: 4, d: { d: '', v: null } },
+			];
+			createFixture( { fields: [ { id: 'd', name: 'D', cellObject: 'string' } ], data: rows } );
+			const sorted = component.dataSource.sortData( rows, { active: 'd', direction: 'asc' } as unknown as MatSort );
+			// string sort of the display would give 01.02 < 15.01 < 31.01
+			expect( sorted.map( r => r.id ) ).toEqual( [ 4, 2, 3, 1 ] );
+		} );
+
+		it( 'should render d of a cellObject cell for text, text2 and textn', async () => {
+			createFixture( {
+				fields: [
+					{ id: 'd', name: 'D', cellObject: 'string' },
+					{ id: 't', name: 'T', format: 'text2', cellObject: 'string' },
+					{ id: 'n', name: 'N', format: 'textn', cellObject: 'string' },
+				],
+				data: [ { id: 1, d: { d: '24.02.2024', v: '2024-02-24' }, t: { d: [ 'a', 'b' ], v: 1 }, n: { d: [ 'x', 'y', 'z' ], v: 2 } } ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+			const text = ( sel: string ) => ( fixture.nativeElement.querySelector( sel )?.textContent ?? '' ) as string;
+			expect( text( 'td.mat-column-d' ).trim() ).toBe( '24.02.2024' );
+			expect( text( 'td.mat-column-d' ) ).not.toContain( '2024-02-24' );
+			expect( text( 'td.mat-column-t' ).replace( /\s/g, '' ) ).toBe( 'ab' );
+			expect( fixture.nativeElement.querySelectorAll( 'td.mat-column-n div' ).length ).toBe( 3 );
+		} );
+
+		it( 'should render a scalar patched into a text2/textn cell as one line, not as characters', async () => {
+			createFixture( {
+				fields: [
+					{ id: 't', name: 'T', format: 'text2', cellObject: 'string' },
+					{ id: 'n', name: 'N', format: 'textn', cellObject: 'string' },
+				],
+				data: [ { id: 1, t: 'Neu', n: null } ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+			expect( ( fixture.nativeElement.querySelector( 'td.mat-column-t' )?.textContent ?? '' ).replace( /\s/g, '' ) ).toBe( 'Neu' );
+			expect( fixture.nativeElement.querySelectorAll( 'td.mat-column-n div' ).length ).toBe( 0 );
+		} );
+
+		it( 'should search the display of a cellObject cell, not [object Object]', () => {
+			createFixture( {
+				fields: [ { id: 'd', name: 'D', cellObject: 'string' } ],
+				data: [ { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } }, { id: 2, d: { d: '01.03.2024', v: '2024-03-01' } } ],
+			} );
+			component.dataSource.filter = '24.02';
+			expect( component.dataSource.filteredData.map( r => r.id ) ).toEqual( [ 1 ] );
+		} );
+
+		it( 'should normalise non-object cells of cellObject columns on load and on table update', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => { /* intentionally empty */ } );
+			createFixture( { fields: [ { id: 'd', name: 'D', cellObject: 'string' } ], data: [ { id: 1, d: '24.02.2024' } ] } );
+			expect( component.dataSource.data[ 0 ].d ).toEqual( { d: '24.02.2024', v: null } );
+			expect( warn ).toHaveBeenCalledTimes( 1 );
+
+			internals( component ).onTableUpdate( 1, 'd', '25.02.2024' );
+			expect( component.dataSource.data[ 0 ].d ).toEqual( { d: '25.02.2024', v: null } );
+			warn.mockRestore();
+		} );
+
+		it( 'should unpack a server footer cell object to its display', () => {
+			component.displayedColumns = [
+				{ id: 'tl', name: 'TL', cellObject: 'number' },
+				{ id: 'n', name: 'N', format: 'number' },
+			] as XiriTableField[];
+			internals( component ).setFooter( { tl: { d: '4d 04:00', v: 360000 }, n: [ '1.234', 1234 ] } );
+			expect( component.footer[ 'tl' ] ).toBe( '4d 04:00' );
+			expect( component.footer[ 'n' ] ).toBe( '1.234' );
+		} );
+
+		it( 'should reduce a plain array footer value to its first element', () => {
+			component.displayedColumns = [ { id: 't', name: 'T', format: 'text2' } ] as XiriTableField[];
+			internals( component ).setFooter( { t: [ 'a', 'b' ] } );
+			expect( component.footer[ 't' ] ).toBe( 'a' );
+		} );
+	} );
+
+	describe( 'tree sorting', () => {
+		it( 'orders siblings of a cellObject tree column chronologically', () => {
+			createFixture( {
+				fields: [ { id: 'd', name: 'D', cellObject: 'string' } ],
+				tree: { idField: 'id', parentIdField: 'parentId', treeColumn: 'd' },
+				data: [
+					{ id: 1, parentId: 0, d: { d: '01.02.2024', v: '2024-02-01' } },
+					{ id: 2, parentId: 0, d: { d: '15.01.2024', v: '2024-01-15' } },
+					{ id: 3, parentId: 0, d: { d: '31.01.2024', v: '2024-01-31' } },
+				],
+			} );
+			fixture.detectChanges();
+			expect( component.dataSource.data.map( r => r.id ) ).toEqual( [ 2, 3, 1 ] );
+		} );
 	} );
 
 	describe( 'ngOnDestroy', () => {
@@ -1410,6 +1946,21 @@ describe( 'XiriTableComponent', () => {
 			const column = { id: 'name', name: 'Name', inputPaste: false } as XiriTableField;
 			const event = { clipboardData: { getData: vi.fn().mockReturnValue( '' ) } } as unknown as ClipboardEvent;
 			expect( component.pasteInput( event, {}, column ) ).toBe( false );
+		} );
+
+		it( 'should paste only into input columns and leave structured cells alone', () => {
+			component.displayedColumns = [
+				{ id: 'a', name: 'A', format: 'input', inputPaste: true },
+				{ id: 'd', name: 'D', cellObject: 'string' },
+				{ id: 'b', name: 'B', format: 'input' },
+			] as XiriTableField[];
+			const row: XiriTableRow = { id: 1, a: '', d: { d: '24.02.2024', v: '2024-02-24' }, b: '' };
+			component.dataSource.data = [ row ];
+			const event = { clipboardData: { getData: vi.fn().mockReturnValue( 'x\ty\tz' ) } } as unknown as ClipboardEvent;
+			component.pasteInput( event, row, component.displayedColumns[ 0 ] );
+			expect( row.a ).toBe( 'x' );
+			expect( row.d ).toEqual( { d: '24.02.2024', v: '2024-02-24' } );
+			expect( row.b ).toBe( 'z' );
 		} );
 	} );
 

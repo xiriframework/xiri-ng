@@ -222,4 +222,27 @@ describe( 'XiriRawTableComponent', () => {
 		fixture.detectChanges();
 		expect( component.tableClass() ).toContain( 'dense-6' );
 	} );
+
+	it( 'should not throw and show an empty table when data is null', () => {
+		host.settings.set( { data: null as unknown as unknown[], fields: [ { id: 'd', name: 'd', cellObject: 'string' } ] } );
+		expect( () => fixture.detectChanges() ).not.toThrow();
+		component = host.rawTable();
+		expect( component.dataSource.data ).toEqual( [] );
+	} );
+
+	it( 'should render d of cell objects for text, text2 and textn (dialog tables)', () => {
+		host.settings.set( {
+			data: [ { id: 1, d: { d: '24.02.2024', v: '2024-02-24' }, t: { d: [ 'a', 'b' ], v: 1 }, n: { d: [ 'x', 'y' ], v: 2 } } ],
+			fields: [
+				{ id: 'd', name: 'd', cellObject: 'string' },
+				{ id: 't', name: 't', format: 'text2', cellObject: 'string' },
+				{ id: 'n', name: 'n', format: 'textn', cellObject: 'string' },
+			],
+		} );
+		fixture.detectChanges();
+		const text = ( sel: string ) => ( fixture.nativeElement.querySelector( sel )?.textContent ?? '' ) as string;
+		expect( text( 'td.mat-column-d' ).trim() ).toBe( '24.02.2024' );
+		expect( text( 'td.mat-column-t' ).replace( /\s/g, '' ) ).toBe( 'ab' );
+		expect( fixture.nativeElement.querySelectorAll( 'td.mat-column-n div' ).length ).toBe( 2 );
+	} );
 } );

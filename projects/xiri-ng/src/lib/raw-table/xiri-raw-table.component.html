@@ -29,13 +29,14 @@
 					}
 					@case ('text2') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
-							<div>{{ $any(row)[column.id][0] }}</div>
-							<div>{{ $any(row)[column.id][1] }}</div>
+							@let lines = cellLines(row, column);
+							<div>{{ lines[0] }}</div>
+							<div>{{ lines[1] }}</div>
 						</td>
 					}
 					@case ('textn') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
-							@for (line of $any(row)[column.id]; track $index) {
+							@for (line of cellLines(row, column); track $index) {
 								<div>{{ line }}</div>
 							}
 						</td>
@@ -61,7 +62,7 @@
 					}
 					@case ('number') {
 						<td mat-cell *matCellDef="let row" [class]="column.display">
-							{{ column.textPrefix }}{{ $any(row)[column.id][0] }}{{ column.textSuffix }}
+							{{ column.textPrefix }}{{ cellText(row, column) }}{{ column.textSuffix }}
 						</td>
 					}
 					@case ('chips') {
@@ -74,7 +75,7 @@
 						</td>
 					}
 					@default {
-						<td mat-cell *matCellDef="let row" [class]="column.display">{{ $any(row)[column.id] }}</td>
+						<td mat-cell *matCellDef="let row" [class]="column.display">{{ cellText(row, column) }}</td>
 					}
 				}
 			</ng-container>

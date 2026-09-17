@@ -39,7 +39,14 @@ import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/respons
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
-import { XiriTagChip } from '../formfields/field.interface';
+import {
+	asCellObject,
+	cellDisplay as cellDisplayOf,
+	cellLines as cellLinesOf,
+	isCellObject,
+	normalizeCellObjects,
+	sortValue
+} from './cell';
 import { XiriButtonlineComponent, XiriButtonlineSettings } from "../buttonline/buttonline.component";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { XiriTableField } from "../raw-table/tabefield.interface";
@@ -363,7 +370,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			if ( all === null ) {
 				this.dataSource.data = [];
 			} else if ( this.tree.enabled ) {
-				this.tree.build( all );
+				const treeField = this.displayedColumns.find( col => col.id === this.tree.treeColumn );
+				this.tree.build( all, row => sortValue( row, this.tree.treeColumn, treeField ) );
 				this.refreshTree();
 			} else {
 				this.dataSource.data = all;
@@ -392,6 +400,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			onDataUpdate: () => this.dataSource._updateChangeSubscription(),
 			onCallReturn: ( result ) => this.callReturn( result ),
 			isRowLive: ( row ) => this.dataSource.data.includes( row ),
+			hasUrl: () => !!this.settings().url,
 		} );
 
 		if ( this.options.pagination )
@@ -428,7 +437,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		if ( this.options.search && !this.options.serverSide && !this.tree.enabled ) {
 			this.dataSource.filterPredicate = ( data: XiriTableRow, filter: string ): boolean => {
 				const dataStr = this.columnsToSearch.reduce( ( currentTerm: string, key: string ) => {
-					return currentTerm + data[ key ] + '◬';
+					const value = cellDisplayOf( data[ key ] as XiriTableCellValue, this.displayedColumns.find( c => c.id === key ) );
+					return currentTerm + value + '◬';
 				}, '' ).toLowerCase();
 				return dataStr.indexOf( filter ) !== -1;
 			};
@@ -474,8 +484,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 							} else if ( column.footer === 'sum' ) {
 								let sum = 0;
 								this._displayeddata.forEach( ( row: XiriTableRow ) => {
-									const cell = row[ column.id ] as XiriTableCellValue[] | undefined;
-									sum += +( cell ? cell[ 1 ] as number : 0 );
+									const v = sortValue( row, column.id, column );
+									sum += typeof v === 'number' ? v : 0;
 								} );
 								
 								if ( !column.webformat )
@@ -623,6 +633,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	
 	private setData( data: XiriTableRow[] ): void {
 
+		if ( normalizeCellObjects( data, this.displayedColumns ) )
+			console.warn( 'xiri-table: cells of cellObject columns must be {d, v} objects; bare values were wrapped and sort as empty' );
+
 		this._alldata.set( data );
 
 		if ( this._firstData ) {
@@ -653,8 +666,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 		this.displayedColumns.forEach( ( column: XiriTableField ) => {
 			const value = this.footer[ column.id ];
-			if ( Array.isArray( value ) )
-				this.footer[ column.id ] = value[ 0 ];
+			const shown = cellDisplayOf( value, column );
+			this.footer[ column.id ] = Array.isArray( shown ) ? shown[ 0 ] : shown;
 		} );
 	}
 	
@@ -744,8 +757,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 	private rowMatches( row: XiriTableRow, term: string ): boolean {
 		let dataStr = '';
-		for ( const key of this.columnsToSearch )
-			dataStr += row[ key ] + '◬';
+		for ( const key of this.columnsToSearch ) {
+			const value = cellDisplayOf( row[ key ] as XiriTableCellValue, this.displayedColumns.find( c => c.id === key ) );
+			dataStr += value + '◬';
+		}
 		return dataStr.toLowerCase().indexOf( term ) !== -1;
 	}
 
@@ -1017,8 +1032,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		const check = button.check ?? [];
 		for ( let i = 0; i != check.length; i++ ) {
 			const k = check[ i ];
+			const cell = row[ k ] as XiriTableCellValue;
+			const value = isCellObject( cell ) ? cell.v : cell;
 
-			if ( row[ k ] === null || row[ k ] === undefined || row[ k ] === '' ) {
+			if ( value === null || value === undefined || value === '' ) {
 				return false;
 			}
 		}
@@ -1068,15 +1085,20 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private callReturn( result: unknown, fromButton = false ) {
 		this.responseHandler.handle( result, {
 			onTableRefresh: () => this.reload(),
-			onTableUpdate: ( id, field, content ) => {
-				const i = this.dataSource.data.findIndex( ( x: XiriTableRow ) => x.id === id );
-				if ( i == -1 )
-					return;
-				this.dataSource.data[ i ][ field ] = content as XiriTableCellValue;
-				this.dataSource._updateChangeSubscription();
-			},
+			onTableUpdate: ( id, field, content ) => this.onTableUpdate( id, field, content as XiriTableCellValue ),
 			onPanelRefresh: fromButton ? undefined : () => this.refreshPanel(),
 		} );
+	}
+
+	private onTableUpdate( id: unknown, field: string, content: XiriTableCellValue ): void {
+		const i = this.dataSource.data.findIndex( ( x: XiriTableRow ) => x.id === id );
+		if ( i == -1 )
+			return;
+		const column = this.displayedColumns.find( c => c.id === field );
+		if ( column?.cellObject && !isCellObject( content ) )
+			console.warn( `xiri-table: update for cellObject column "${ field }" is not a {d, v} object; it will sort as empty` );
+		this.dataSource.data[ i ][ field ] = column?.cellObject ? asCellObject( content ) : content;
+		this.dataSource._updateChangeSubscription();
 	}
 
 	// Ohne umschließende Card: wie eine Card ohne url → Page-Reload.
@@ -1108,6 +1130,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	saveInlineEdit( row: XiriTableRow, column: XiriTableField ): void {
 		this.inlineEdit.save( row, column );
 	}
+
+	editValue( row: XiriTableRow, column: XiriTableField ): XiriTableCellValue { return this.inlineEdit.editValue( row, column ); }
+
+	setEditValue( row: XiriTableRow, column: XiriTableField, value: XiriTableCellValue ): void {
+		this.inlineEdit.setEditValue( row, column, value );
+	}
+
+	compareEditValue = ( a: unknown, b: unknown ): boolean => this.inlineEdit.compareEditValue( a, b );
 
 	isEditing( row: XiriTableRow, fieldId: string ): boolean {
 		return this.inlineEdit.isEditing( row, fieldId );
@@ -1172,6 +1202,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 					break;
 
 				const col = this.displayedColumns[ curCol ];
+				// Only input cells take pasted text: other formats carry structured cells (number tuples,
+				// cell objects, chips), and a pasted string would break their display and sorting.
+				if ( col.format !== 'input' )
+					continue;
 				result[ col.id ] = clipRowsArray[ i ][ j ];
 			}
 		}
@@ -1206,17 +1240,17 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 
 	private getSortingDataAccessor(): ( data: XiriTableRow, sortHeaderId: string ) => string | number {
-		return ( data: XiriTableRow, sortHeaderId: string ): string | number => {
-			const column = this.displayedColumns.find( col => col.id === sortHeaderId );
-			if ( column && column.format === 'number' )
-				return ( data[ sortHeaderId ] as XiriTableCellValue[] )[ 1 ] as number;
+		return ( data, sortHeaderId ) =>
+			sortValue( data, sortHeaderId, this.displayedColumns.find( col => col.id === sortHeaderId ) );
+	}
 
-			// ponytail: sort by the first chip's label — without this MatTable compares the raw object
-			// array, which coerces to "[object Object],..." and effectively sorts by chip count.
-			if ( column && column.format === 'chips' )
-				return ( data[ sortHeaderId ] as XiriTagChip[] | null | undefined )?.[ 0 ]?.label ?? '';
+	/** Display part of a cell (see cell.ts); used by every cell template. */
+	cellText( row: XiriTableRow, column: XiriTableField ): XiriTableCellValue {
+		return cellDisplayOf( row[ column.id ] as XiriTableCellValue, column );
+	}
 
-			return data[ sortHeaderId ] as string | number;
-		};
+	/** Display lines of a text2/textn cell. */
+	cellLines( row: XiriTableRow, column: XiriTableField ): XiriTableCellValue[] {
+		return cellLinesOf( row[ column.id ] as XiriTableCellValue, column );
 	}
 }

@@ -74,12 +74,15 @@ export function normalizeParent( value: unknown ): XiriTreeId | null {
 	return value as XiriTreeId;
 }
 
+/** Resolves the value a tree column sorts its siblings by (see sortValue in cell.ts). */
+export type XiriTreeSortKey = ( row: XiriTableRow ) => string | number;
+
 /**
  * Builds a node tree from a flat row list. Rows whose parentId is missing from the dataset
  * become roots. Cycles are detected and the offending node is treated as a root (with a
  * console warning) instead of crashing.
  */
-export function buildTree( rows: XiriTableRow[], idField: string, parentIdField: string, treeColumn?: string ): XiriTreeNode[] {
+export function buildTree( rows: XiriTableRow[], idField: string, parentIdField: string, keyOf?: XiriTreeSortKey ): XiriTreeNode[] {
 	const nodeMap = new Map<XiriTreeId, XiriTreeNode>();
 	for ( const row of rows ) {
 		const id = row[ idField ] as XiriTreeId;
@@ -104,8 +107,8 @@ export function buildTree( rows: XiriTableRow[], idField: string, parentIdField:
 	}
 
 	assignLevels( roots, 0 );
-	if ( treeColumn )
-		sortSiblings( roots, treeColumn );
+	if ( keyOf )
+		sortSiblings( roots, keyOf );
 
 	return roots;
 }
@@ -134,12 +137,17 @@ function assignLevels( nodes: XiriTreeNode[], level: number ): void {
 	}
 }
 
-/** Sorts siblings alphabetically by the tree column at every level. */
-export function sortSiblings( nodes: XiriTreeNode[], treeColumn: string ): void {
-	nodes.sort( ( a, b ) =>
-		String( a.row[ treeColumn ] ?? '' ).localeCompare( String( b.row[ treeColumn ] ?? '' ), undefined, { sensitivity: 'base' } ) );
+/** Sorts siblings at every level: numerically when both keys are numbers, otherwise locale-aware by string. */
+export function sortSiblings( nodes: XiriTreeNode[], keyOf: XiriTreeSortKey ): void {
+	nodes.sort( ( a, b ) => {
+		const ka = keyOf( a.row );
+		const kb = keyOf( b.row );
+		if ( typeof ka === 'number' && typeof kb === 'number' )
+			return ka - kb;
+		return String( ka ?? '' ).localeCompare( String( kb ?? '' ), undefined, { sensitivity: 'base' } );
+	} );
 	for ( const node of nodes )
-		sortSiblings( node.children, treeColumn );
+		sortSiblings( node.children, keyOf );
 }
 
 /**
@@ -269,12 +277,12 @@ export class XiriTableTreeService {
 		this.treeColumnId = config.treeColumn || firstColumnId;
 	}
 
-	/** Builds the tree from flat rows and initialises the expand-state. */
-	build( rows: XiriTableRow[] ): void {
+	/** Builds the tree from flat rows and initialises the expand-state. keyOf defaults to the raw tree-column value. */
+	build( rows: XiriTableRow[], keyOf: XiriTreeSortKey = row => row[ this.treeColumnId ] as string | number ): void {
 		if ( !this.config )
 			return;
 
-		this.roots = buildTree( rows, this.config.idField, this.config.parentIdField, this.treeColumnId );
+		this.roots = buildTree( rows, this.config.idField, this.config.parentIdField, keyOf );
 
 		const persisted = this.loadPersisted();
 		if ( persisted )
