@@ -198,6 +198,7 @@ export class XiriFormFieldsComponent implements OnInit {
 						}
 					}
 				}
+				this.syncConditionalControls();
 			}
 		} );
 		
@@ -253,6 +254,7 @@ export class XiriFormFieldsComponent implements OnInit {
 		
 		this.formGroup.valueChanges.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
 			if ( this._fieldsLoaded && !this.applyingPatch ) {
+				this.syncConditionalControls();
 				const currentValue = JSON.stringify( this.formGroup.value );
 				if ( currentValue === this.lastValue )
 					return;
@@ -440,6 +442,8 @@ export class XiriFormFieldsComponent implements OnInit {
 			this.applyingPatch = false;
 		}
 
+		this.syncConditionalControls();
+
 		if ( patchedNow.size === 0 )
 			return;
 
@@ -512,6 +516,7 @@ export class XiriFormFieldsComponent implements OnInit {
 			this.collapsedSections.set( initialCollapsed );
 
 			this.createControl();
+			this.syncConditionalControls();
 
 			this.lastValue = JSON.stringify( this.formGroup.value );
 			this._fieldsLoaded = true;
@@ -801,6 +806,10 @@ export class XiriFormFieldsComponent implements OnInit {
 		if ( this.isInCollapsedSection( field ) )
 			return false;
 		
+		return this.matchesShowWhen( field );
+	}
+
+	private matchesShowWhen( field: XiriFormField ): boolean {
 		if ( !field.showWhen )
 			return true;
 		
@@ -809,6 +818,26 @@ export class XiriFormFieldsComponent implements OnInit {
 		                                             : [ field.showWhen ];
 		
 		return conditions.every( condition => this.evaluateCondition( condition ) );
+	}
+
+	// Per showWhen versteckte Felder werden disabled: sie fallen aus formGroup.value (der
+	// Server bekommt keine veralteten Werte) und aus der Validierung (ein verstecktes Pflichtfeld
+	// blockiert den Submit nicht). Sichtbar gewordene Felder werden wieder enabled - außer sie
+	// sind vom Backend (field.disabled) oder global (disabled-Input) deaktiviert. Eingeklappte
+	// Sections zählen nicht als versteckt, deshalb matchesShowWhen statt isFieldVisible.
+	private syncConditionalControls(): void {
+		for ( const field of this._fields ?? [] ) {
+			if ( !field.showWhen )
+				continue;
+			const control = this.formGroup.get( field.id );
+			if ( !control )
+				continue;
+			const shouldEnable = this.matchesShowWhen( field ) && !field.disabled && !this.disabled();
+			if ( shouldEnable && control.disabled )
+				control.enable( { emitEvent: false } );
+			else if ( !shouldEnable && control.enabled )
+				control.disable( { emitEvent: false } );
+		}
 	}
 	
 	toggleSection( header: XiriFormField ): void {

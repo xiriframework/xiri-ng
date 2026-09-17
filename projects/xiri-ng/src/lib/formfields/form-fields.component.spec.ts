@@ -615,6 +615,56 @@ describe( 'XiriFormFieldsComponent', () => {
 	} );
 
 	describe( 'isFieldVisible / showWhen', () => {
+		it( 'excludes a hidden field from formGroup.value and validity', () => {
+			host.fields.set( [
+				{ id: 'type', type: 'text', value: 'A' },
+				{
+					id: 'detail',
+					type: 'text',
+					value: '',
+					required: true,
+					showWhen: { field: 'type', operator: 'equals', value: 'A' },
+				},
+			] );
+			fixture.detectChanges();
+
+			// sichtbar + leer + required → invalid, Wert enthalten
+			expect( component.formGroup.valid ).toBe( false );
+			expect( 'detail' in component.formGroup.value ).toBe( true );
+
+			component.formGroup.get( 'type' )!.setValue( 'B' );
+			fixture.detectChanges();
+
+			expect( component.isFieldVisible( component.fields()![ 1 ] ) ).toBe( false );
+			expect( 'detail' in component.formGroup.value ).toBe( false );
+			expect( component.formGroup.valid ).toBe( true );
+
+			component.formGroup.get( 'type' )!.setValue( 'A' );
+			fixture.detectChanges();
+
+			expect( 'detail' in component.formGroup.value ).toBe( true );
+			expect( component.formGroup.valid ).toBe( false );
+		} );
+
+		it( 'keeps a backend-disabled field disabled when it becomes visible again', () => {
+			host.fields.set( [
+				{ id: 'type', type: 'text', value: 'B' },
+				{
+					id: 'detail',
+					type: 'text',
+					value: 'x',
+					disabled: true,
+					showWhen: { field: 'type', operator: 'equals', value: 'A' },
+				},
+			] );
+			fixture.detectChanges();
+
+			component.formGroup.get( 'type' )!.setValue( 'A' );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'detail' )!.disabled ).toBe( true );
+		} );
+
 		it( 'should return true when no showWhen condition', () => {
 			host.fields.set( [
 				{ id: 'name', type: 'text', value: '' },

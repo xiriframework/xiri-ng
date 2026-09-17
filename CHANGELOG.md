@@ -27,6 +27,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Nachbarspalten anderer Formate überschrieben, was strukturierte Zellen (number, chips, Zellobjekte) zerstörte.
 - **Tabellen (Tree): Geschwister sortieren numerisch, wenn beide Werte Zahlen sind** (`9` vor `10`), sonst
   wie bisher per `localeCompare`.
+- **Form: per `showWhen` versteckte Felder werden disabled.** Sie fehlen im Submit-Body (`formGroup.value`)
+  und zählen nicht für die Validierung, ein verstecktes Pflichtfeld blockiert den Submit also nicht mehr.
+  Wird das Feld wieder sichtbar, wird es enabled, außer es ist vom Backend (`disabled`) oder global
+  deaktiviert. Eingeklappte Sections gelten nicht als versteckt.
 
 ## [0.4.13]
 ### Fixed
