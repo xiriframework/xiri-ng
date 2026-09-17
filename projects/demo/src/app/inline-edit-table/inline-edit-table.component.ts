@@ -6,6 +6,12 @@ import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.int
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
+/** dd.mm.yyyy from an ISO date — what the Go formatter renders for the De locale. */
+function isoToDisplay( iso: string ): string {
+	const [ y, m, d ] = iso.split( '-' );
+	return `${ d }.${ m }.${ y }`;
+}
+
 @Component( {
 	            selector: 'app-inline-edit-table',
 	            templateUrl: './inline-edit-table.component.html',
@@ -19,6 +25,10 @@ export class InlineEditTableComponent {
 		( this.tableSettings.data as XiriTableRow[] ).forEach( ( r, i ) => {
 			r.brand = this.brands[ i % this.brands.length ];
 			r.category = this.categories[ i % this.categories.length ];
+			// Cell object {d, v}: the table shows d, sorts and edits v (ISO date). Dates span month/year boundaries
+			// so sorting by display text would give a different order.
+			const iso = this.availableFrom[ i % this.availableFrom.length ];
+			r.available = { d: isoToDisplay( iso ), v: iso };
 		} );
 	}
 
@@ -37,12 +47,14 @@ export class InlineEditTableComponent {
 	sectionTable: XiriSectionSettings = {
 		title: 'Inline Editing',
 		subtitle: 'Click on Product/Price for text input, Status for select dropdown, Tags for multi-select chips. ' +
-			'Brand has a client-side searchable list, Category a server-side searchable list. ID is read-only.',
+			'Brand has a client-side searchable list, Category a server-side searchable list. Available is a date cell ' +
+			'object {d, v}: sorted and edited by ISO value, displayed as dd.mm.yyyy. ID is read-only.',
 		icon: 'edit',
 	};
 
 	private brands = [ 'Acme', 'Globex', 'Initech', 'Umbrella', 'Stark', 'Wayne', 'Wonka', 'Soylent', 'Hooli', 'Pied Piper' ];
 	private categories = [ 'Computers', 'Peripherals', 'Storage', 'Audio', 'Accessories' ];
+	private availableFrom = [ '2026-02-03', '2026-01-28', '2025-12-31', '2026-03-01', '2026-01-05', '2025-11-30', '2026-02-28' ];
 
 	tableSettings: XiriTableSettings = {
 		data: [
@@ -94,6 +106,7 @@ export class InlineEditTableComponent {
 					{ value: 'Sale', label: 'Sale', color: 'warn' },
 				]
 			},
+			{ id: 'available', name: 'Available', editable: true, cellObject: 'string', inputType: 'date' },
 			{ id: 'lastModified', name: 'Last Modified', sort: false },
 		] as XiriTableField[],
 		options: {
@@ -114,6 +127,7 @@ export class InlineEditTableComponent {
     Brand    string
     Category string
     Tags     []string
+    Avail    time.Time
 }
 
 func buildProductTable() *table.Table[ProductRow] {
@@ -144,6 +158,10 @@ func buildProductTable() *table.Table[ProductRow] {
             {Value: "Premium", Label: "Premium", Color: core.ColorEmerald},
             {Value: "Sale", Label: "Sale", Color: core.ColorWarn},
         })
+
+    // Date fields deliver cell objects {d, v}: the client sorts by v (ISO), shows d, edits v with <input type="date">
+    tb.DateField("available", "Available", func(r ProductRow) time.Time { return r.Avail }).
+        WithEditable(true)
 
     tb.SetEditUrl("Portal/Product/InlineEdit")
 

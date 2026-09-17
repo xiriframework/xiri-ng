@@ -273,8 +273,12 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 			} ) ).pipe( delay( 500 ) );
 		}
 
+		// Cell-object columns (date) get the whole {d, v} back — like tbl.Cell(ctx, fieldID, row) in Go
+		const value = body?.field === 'available' && body?.value
+			? { d: String( body.value ).split( '-' ).reverse().join( '.' ), v: body.value }
+			: body?.value;
 		const updates: Record<string, unknown> = {
-			[ String( body?.field ) ]: body?.value,
+			[ String( body?.field ) ]: value,
 			lastModified: new Date().toLocaleString( 'de-DE' ),
 		};
 		return of( new HttpResponse( {

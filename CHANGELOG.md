@@ -18,6 +18,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   sie `v` als Text, URL-Tabellen laden neu. Nicht-Objekte in solchen Spalten werden beim Laden und bei Patches zu
   `{d, v: null}` normalisiert (Konsolenwarnung) und sortieren wie leer. Grundlage für die
   Locale-Datumsformate in xiri-go.
+- **Demo „Inline Edit Table“:** editierbare Datumsspalte `Available` als Zellobjekt (`cellObject: 'string'`,
+  `inputType: 'date'`), der Mock liefert nach dem Save ein neues `{d, v}`.
 
 ### Changed
 
