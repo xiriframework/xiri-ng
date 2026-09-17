@@ -1423,6 +1423,7 @@ describe( 'XiriTableComponent', () => {
 
 		it( 'should reopen a cellObject cell with the rejected draft on error and drop it on Escape', () => {
 			const column = { id: 'd', name: 'D', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.displayedColumns = [ column ];
 			component.options.editUrl = '/edit';
 			const row: XiriTableRow = { id: 1, d: { d: '24.02.2024', v: '2024-02-24' } };
 			component.dataSource.data = [ row ];
@@ -1486,6 +1487,51 @@ describe( 'XiriTableComponent', () => {
 			expect( row.lastModified ).toEqual( { d: '25.02.2024', v: null } );
 			expect( warn ).toHaveBeenCalledTimes( 1 );
 			warn.mockRestore();
+		} );
+
+		it( 'should keep a patch applied by another cell\'s save on Escape, not the stale original', () => {
+			// A edited → Tab (pending save) → B opened → A's response patches B via updates → Escape in
+			// B must keep B's patched cell object, not revert to the value B had when it started editing.
+			const colA = { id: 'a', name: 'A', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			const colB = { id: 'b', name: 'B', editable: true, cellObject: 'string', inputType: 'date' } as XiriTableField;
+			component.displayedColumns = [ colA, colB ];
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, a: { d: '01.01.2024', v: '2024-01-01' }, b: { d: '24.02.2024', v: '2024-02-24' } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, colA );
+			component.setEditValue( row, colA, '2024-01-02' );
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending );
+			const tab = { key: 'Tab', shiftKey: false, preventDefault: () => { /* noop */ },
+				target: document.createElement( 'input' ) } as unknown as KeyboardEvent;
+			component.onInlineEditKeydown( tab, row, colA );
+			expect( component.editingCell() ).toEqual( { row, field: 'b' } );
+
+			pending.next( { done: true, updates: { a: { d: '02.01.2024', v: '2024-01-02' }, b: { d: '25.02.2024', v: '2024-02-25' } } } );
+			pending.complete();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+
+			mockDataService.post.mockClear();
+			component.onInlineEditKeydown( new KeyboardEvent( 'keydown', { key: 'Escape' } ), row, colB );
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+			expect( row.b ).toEqual( { d: '25.02.2024', v: '2024-02-25' } );
+			expect( component.editingCell() ).toBeNull();
+		} );
+
+		it( 'should keep the raw draft while typing a numeric cellObject cell, normalising only on save', () => {
+			const column = { id: 's', name: 'S', editable: true, cellObject: 'number', inputType: 'text' } as XiriTableField;
+			component.options.editUrl = '/edit';
+			const row: XiriTableRow = { id: 1, s: { d: '01:00', v: 3600 } };
+			component.dataSource.data = [ row ];
+
+			component.startInlineEdit( row, column );
+			component.setEditValue( row, column, '-' );
+			expect( component.editValue( row, column ) ).toBe( '-' );
+
+			mockDataService.post.mockReturnValue( of( { done: true } ) );
+			component.saveInlineEdit( row, column );
+			expect( mockDataService.post ).toHaveBeenCalledWith( '/edit', { id: 1, field: 's', value: null } );
 		} );
 	} );
 

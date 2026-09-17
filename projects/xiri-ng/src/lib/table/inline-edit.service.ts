@@ -159,7 +159,10 @@ export class XiriTableInlineEditService {
 
 	setEditValue( row: XiriTableRow, column: XiriTableField, value: XiriTableCellValue ): void {
 		if ( column.cellObject )
-			this.editDraft = normalizeEditValue( column, value );
+			// Raw browser value, kept as is: [ngModel] is one-way, so normalising here (e.g. a leading
+			// "-" or a trailing "." on a numeric column) would write a mangled value back into the input
+			// and break typing. Normalisation happens once, in save().
+			this.editDraft = value as string | number | null;
 		else
 			row[ column.id ] = value;
 	}
@@ -237,7 +240,12 @@ export class XiriTableInlineEditService {
 		this.editSeq++;
 		const editing = this.editingCell();
 		if ( editing ) {
-			editing.row[ editing.field ] = this.editingOriginalValue;
+			// A cellObject cell was never mutated by the editor: restoring it here could revert a
+			// patch another save's response applied to it meanwhile (Tab to another cell, whose save
+			// then patches this one via updates) — the draft is dropped, the cell is left as is.
+			const column = this.displayedColumns.find( c => c.id === editing.field );
+			if ( !column?.cellObject )
+				editing.row[ editing.field ] = this.editingOriginalValue;
 			this.editingCell.set( null );
 			this.editingOriginalValue = null;
 		}
@@ -253,8 +261,9 @@ export class XiriTableInlineEditService {
 	save( row: XiriTableRow, column: XiriTableField ): void {
 		const editing = this.editingCell();
 		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
-		const cell = row[ column.id ] as XiriTableCellValue;
-		const draft = this.editDraft;
+		// Normalised here, not in setEditValue: the draft holds the raw browser value while typing (see
+		// setEditValue), so "-" or "7200." are not clobbered mid-edit; only the committed save normalises.
+		const draft = column.cellObject ? normalizeEditValue( column, this.editDraft ) : null;
 		const newValue = column.cellObject ? draft : row[ column.id ] as XiriTableCellValue;
 		const originalValue = column.cellObject ? this.editStart : this.editingOriginalValue;
 		const seq = this.editSeq;
@@ -324,11 +333,11 @@ export class XiriTableInlineEditService {
 						row[ column.id ] = originalValue;
 					this.onDataUpdate();
 				} else {
-					// Abgelehnten Wert stehen lassen und Zelle wieder öffnen; Escape stellt weiterhin das Original her.
-					// Bei Zellobjekten ist "das Original" die unveränderte Zelle (cell), nicht der normalisierte Startwert.
+					// Abgelehnten Wert stehen lassen und Zelle wieder öffnen; Escape stellt weiterhin das Original her
+					// (bei Zellobjekten per cancel() nur noch fürs Draft, die Zelle bleibt sowieso unberührt).
 					this.loadedEditableOptions.set( snapshot.options );
 					this.editingChipsValues.set( snapshot.chips );
-					this.editingOriginalValue = column.cellObject ? cell : originalValue;
+					this.editingOriginalValue = originalValue;
 					this.editingCell.set( { row, field: column.id } );
 					this.initSearch( column, row );
 					snapshot.cache.forEach( ( o, k ) => this.optionCache.set( k, o ) );   // nach initSearch, das den Cache leert
