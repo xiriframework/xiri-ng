@@ -29,6 +29,7 @@ import { parseHttpError } from '../services/error.util';
 import { HttpErrorResponse } from '@angular/common/http';
 
 
+import { formState, XiriFormChangeLike } from '../formfields/form-state';
 export type XiriDialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
 export interface XiriDialogSettings {
@@ -413,10 +414,11 @@ export class XiriDialogComponent implements OnDestroy {
 		}, 10 );
 	}
 
-	public formChanged( event: { valid: boolean; value: Record<string, unknown> | null } ) {
+	public formChanged( event: XiriFormChangeLike ) {
 
-		this.formValid.set( event.valid );
-		this.formValues = event.value;
+		const state = formState( event );
+		this.formValid.set( state.valid );
+		this.formValues = state.value;
 	}
 	
 	ngOnDestroy() {

@@ -305,6 +305,57 @@ describe( 'XiriFormComponent', () => {
 			component.formChanged( { valid: false, value: {} } as unknown as UntypedFormGroup );
 			expect( component.formValid ).toBe( false );
 		} );
+
+		// Sind alle Controls disabled, ist die FormGroup selbst DISABLED (valid false, invalid false).
+		// Ein Anzeige-Formular mit OK-Button muss trotzdem absendbar bleiben.
+		it( 'hält ein Formular nur aus disabled Feldern absendbar', async () => {
+			mockFormService.parse.mockReturnValue( {
+				url: 'test/form',
+				fields: [ { id: 'x', type: 'text', value: 'v', disabled: true } ],
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
+				extra: {},
+			} );
+			createFixture();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid ).toBe( true );
+		} );
+
+		// Ein sichtbares disabled Feld plus ein per showWhen verstecktes ergibt ebenfalls eine komplett
+		// disabled Gruppe. Angular liefert dann den Rohwert — der veraltete versteckte Wert darf trotzdem
+		// nicht zum Server, der showWhen nicht kennt und ihn binden würde.
+		it( 'schickt bei komplett disabled Gruppe keine versteckten Werte mit', async () => {
+			mockFormService.parse.mockReturnValue( {
+				url: 'test/form',
+				fields: [
+					{ id: 'kind', type: 'text', value: 'standard', disabled: true },
+					{ id: 'details', type: 'text', value: 'stale', showWhen: { field: 'kind', operator: 'equals', value: 'special' } },
+				],
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
+				extra: {},
+			} );
+			createFixture();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid ).toBe( true );
+			expect( component[ 'formValues' ] ).toEqual( {} );
+		} );
+
+		it( 'sperrt ein Formular mit invalidem Pflichtfeld weiterhin', async () => {
+			mockFormService.parse.mockReturnValue( {
+				url: 'test/form',
+				fields: [ { id: 'x', type: 'text', value: '', required: true } ],
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
+				extra: {},
+			} );
+			createFixture();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid ).toBe( false );
+		} );
 	} );
 
 	describe( 'simulate action', () => {

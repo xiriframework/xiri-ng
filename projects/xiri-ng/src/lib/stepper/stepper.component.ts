@@ -25,6 +25,7 @@ import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { formState } from '../formfields/form-state';
 export interface XiriStepperSettings {
 	url?: string
 	steps: XiriStepperStep[]
@@ -42,6 +43,8 @@ export interface XiriStepperStep {
 // Event emitted by xiri-form-fields (carries the underlying FormGroup, exposing valid/value/pristine).
 export interface XiriStepperFormChangeEvent {
 	valid: boolean
+	// true, wenn alle Controls disabled sind — dann ist valid false, ohne dass etwas ungültig wäre.
+	disabled?: boolean
 	value: Record<string, unknown> | null
 	pristine?: boolean
 }
@@ -145,8 +148,9 @@ export class XiriStepperComponent implements OnInit {
 
 	formChanged( step: StepState, event: XiriStepperFormChangeEvent, i: number ) {
 
-		if ( event.valid )
-			step.data = event.value as Record<string, unknown>;
+		const { valid, value } = formState( event );
+		if ( valid )
+			step.data = value as Record<string, unknown>;
 		if ( !event.pristine ) {
 			step.completed.set( false );
 			const steps = this.steps();
@@ -157,7 +161,7 @@ export class XiriStepperComponent implements OnInit {
 			}
 		}
 
-		step.valid.set( event.valid );
+		step.valid.set( valid );
 	}
 
 	clickButton( button: XiriButton ): void {

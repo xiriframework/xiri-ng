@@ -80,7 +80,7 @@ export interface XiriFormField {
   // --- State ---
   hide?: boolean;
   required?: boolean;
-  disabled?: boolean;        // greift beim Aufbau nur bei den zusammengesetzten Feldtypen, s.u.
+  disabled?: boolean;        // Control beim Aufbau disabled, Feld fällt aus formGroup.value (s.u.)
   collapsible?: boolean;     // header
   collapsed?: boolean;       // header initial
 
@@ -122,16 +122,19 @@ export interface XiriFormField {
 }
 ```
 
-**`disabled` beim Aufbau.** Das Feld deaktiviert beim Formularaufbau **nicht** das äußere
-FormControl — `createControl()` legt es immer `enabled` an. Ausgewertet wird es nur von den
-zusammengesetzten Feldtypen (`date`, `daterange`, `datetimerange`, `yearmonth`, `treeselect`,
-`volume`, `file`), die es in ihrem eigenen `field`-Setter lesen. Bei `text`, `number`, `textarea`,
-`select`, `multiselect` und `bool` bleibt es beim Aufbau wirkungslos, weil das Template
-`field.disabled` nicht auswertet.
+**`disabled` (ab 0.4.14).** Ein Feld mit `disabled: true` bekommt beim Aufbau ein **disabled FormControl** —
+bei allen Feldtypen, auch `text`, `select`, `bool`, `timelimit`. Es fällt damit aus `formGroup.value`
+(kein Wert im Submit-Body) und aus der Validierung; xiri-go bindet für den Key ohnehin nie den
+Request-Wert, sondern den Default. `formGroup.get(id).disable()` von außen, das `disabled`-Input der
+ganzen `xiri-form-fields` und ein `disabled` aus einem `reloadOn`-Patch verhalten sich gleich. Wer einen
+Server-Wert nur anzeigen will, nimmt ein `info`-Feld.
 
-Was zuverlässig wirkt: `formGroup.get(id).disable()` von außen (seit 0.4.4 auf allen Feldtypen),
-der `disabled`-Input der ganzen `xiri-form-fields`, und ein `disabled` aus einem `reloadOn`-Patch —
-letzterer geht über das FormControl, das Feld fällt dann also auch aus `formGroup.value`.
+Eine bewusste Ausnahme vom „kein Wert“: **Reload-Trigger** gehen über `getRawValue()`, ein disabled
+Trigger-Feld steuert also weiterhin abhängige Listen. Eine FormGroup, deren Controls **alle** disabled sind
+(nur gesperrte Felder, oder gesperrte plus per `showWhen` versteckte), ist bei Angular `DISABLED` statt `VALID`
+(`valid === false`, `invalid === false`) und liefert alle Werte als Rohwert; `xiri-form`, `xiri-dialog`,
+`xiri-query` und `xiri-stepper` normalisieren das über `formState()` zu gültig mit Payload `{}` — ein
+Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (der `showWhen` nicht kennt).
 
 ### Feld-Typen
 

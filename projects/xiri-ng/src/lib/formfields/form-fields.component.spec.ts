@@ -12,7 +12,7 @@ import { XiriVolumeComponent } from './volume/volume.component';
 import { XiriChipsComponent } from './chips/chips.component';
 import { XiriFileComponent } from './file/file.component';
 import { XiriFormField, XiriFormFieldConditionOperator } from './field.interface';
-import { UntypedFormGroup } from '@angular/forms';
+import { FormControlName, NgControl, UntypedFormGroup } from '@angular/forms';
 import { XiriDataServiceConfig } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriLocaleService } from '../services/locale.service';
@@ -1022,6 +1022,53 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'editable' )!.enabled ).toBe( true );
 		} );
 
+		// field.disabled kam bisher nur über Effect, Patch oder showWhen ans Control; beim Aufbau blieb
+		// es enabled — der Benutzer konnte tippen, der Server verwarf den Wert stillschweigend.
+		it( 'sperrt ein Backend-disabled Feld schon beim Aufbau', () => {
+			host.fields.set( [
+				{ id: 'readonly', type: 'text', value: 'locked', disabled: true },
+				{ id: 'editable', type: 'text', value: '' },
+			] );
+			fixture.detectChanges();
+
+			const control = component.formGroup.get( 'readonly' )!;
+			expect( control.disabled ).toBe( true );
+			expect( control.value ).toBe( 'locked' );
+			expect( 'readonly' in component.formGroup.value ).toBe( false );
+			expect( 'editable' in component.formGroup.value ).toBe( true );
+			expect( component.formGroup.valid ).toBe( true );
+
+			const inputs = Array.from( fixture.nativeElement.querySelectorAll( 'input' ) ) as HTMLInputElement[];
+			expect( inputs.length ).toBe( 2 );
+			expect( inputs.map( i => i.disabled ) ).toEqual( [ true, false ] );
+		} );
+
+		// Der disabled-Effect läuft nur bei einem Wechsel des Inputs. Wird die Feldliste ersetzt, während
+		// er true ist, rechnet Angular den Gruppenstatus beim addControl neu — die neuen Felder wären offen.
+		it( 'legt Controls disabled an, wenn die Feldliste bei globalem disabled ersetzt wird', () => {
+			host.fields.set( [ { id: 'a', type: 'text', value: '' } ] );
+			fixture.detectChanges();
+			host.disabled.set( true );
+			fixture.detectChanges();
+
+			host.fields.set( [ { id: 'b', type: 'text', value: '' } ] );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'b' )!.disabled ).toBe( true );
+			expect( component.formGroup.disabled ).toBe( true );
+		} );
+
+		it( 'hide ändert nichts an der Sperre eines disabled Felds', () => {
+			host.fields.set( [
+				{ id: 'hidden', type: 'text', value: 'x', hide: true, disabled: true },
+				{ id: 'shown', type: 'text', value: '' },
+			] );
+			fixture.detectChanges();
+
+			expect( component.formGroup.get( 'hidden' )!.disabled ).toBe( true );
+			expect( 'hidden' in component.formGroup.value ).toBe( false );
+		} );
+
 		// Die zusammengesetzten Feldtypen halten ihre Eingaben in einer eigenen inneren FormGroup.
 		// control.disable() erreicht die nur über setDisabledState() des CVA -- und das war bei den
 		// meisten ein leerer Rumpf, die Felder blieben trotz gesperrtem Control bedienbar.
@@ -1033,9 +1080,10 @@ describe( 'XiriFormFieldsComponent', () => {
 			//
 			// Der Treeselect bekommt bewusst einen Gruppenknoten mit Kind, sonst rendert nur der
 			// eine der beiden mat-tree-node-Zweige.
-			// backendDisabled: false, wo field.disabled die Komponente gar nicht erreicht.
+			// fieldInput: false, wo field.disabled die Komponente gar nicht erreicht — dort gibt es
+			// keine zweite Sperrquelle, die ein setDisabledState(false) überleben müsste.
 			const CASES: {
-				type: string, field: Partial<XiriFormField>, selector: string, backendDisabled?: boolean
+				type: string, field: Partial<XiriFormField>, selector: string, fieldInput?: boolean
 			}[] = [
 				{ type: 'date', field: {}, selector: 'input' },
 				{ type: 'yearmonth', field: {}, selector: 'input' },
@@ -1043,9 +1091,9 @@ describe( 'XiriFormFieldsComponent', () => {
 				{ type: 'datetimerange', field: {}, selector: 'input, mat-select' },
 				{ type: 'volume', field: {}, selector: 'input' },
 				{ type: 'file', field: {}, selector: 'input' },
-				// timelimit bekommt in form-fields.component.html kein [field]; seine deklarative
-				// Sperre laeuft ausschliesslich ueber den @Input() disabled.
-				{ type: 'timelimit', field: {}, selector: 'input[type=checkbox], mat-select', backendDisabled: false },
+				// timelimit bekommt in form-fields.component.html kein [field]; die Backend-Sperre
+				// erreicht es nur über das beim Aufbau disabled angelegte Control.
+				{ type: 'timelimit', field: {}, selector: 'input[type=checkbox], mat-select', fieldInput: false },
 				{
 					type: 'treeselect',
 					field: {
@@ -1106,15 +1154,37 @@ describe( 'XiriFormFieldsComponent', () => {
 				} );
 			}
 
-			// Der wichtigste Test des Umbaus: Angular ruft beim Control-Setup setDisabledState(false)
-			// (forms.mjs:1886, callSetDisabledState ist per Default 'always'), und zwar NACH dem
-			// field-Input. Ohne getrennt gehaltene Quellen hebt das ein Backend-disabled wieder auf.
-			// Über alle Feldtypen, weil jeder seine eigene Quellentrennung mitbringt.
-			for ( const c of CASES.filter( x => x.backendDisabled !== false ) ) {
-				it( `lässt setDisabledState(false) beim Setup Backend-disabled von ${ c.type } nicht aufheben`, () => {
+			// Ein Backend-disabled Feld ist beim Aufbau gesperrt: Control (kein Wert im Submit) und
+			// DOM. Seit das Control disabled angelegt wird, ruft Angular beim Setup setDisabledState(true);
+			// die Quellentrennung (field.disabled darf ein setDisabledState(false) nicht aufheben,
+			// callSetDisabledState ist per Default 'always') wird deshalb darunter explizit geprüft.
+			for ( const c of CASES ) {
+				it( `sperrt Backend-disabled ${ c.type } beim Aufbau in Control und DOM`, () => {
+					// Der Header hält die Gruppe enabled (sonst liefert Angular den Rohwert), rendert
+					// aber kein Element, das der Selektor treffen könnte.
+					host.fields.set( [
+						{ id: 'f', type: c.type, disabled: true, ...c.field } as XiriFormField,
+						{ id: 'other', type: 'header', name: 'H' },
+					] );
+					fixture.detectChanges();
+
+					expect( component.formGroup.get( 'f' )!.disabled ).toBe( true );
+					expect( 'f' in component.formGroup.value ).toBe( false );
+					const found = elements( c.selector );
+					expect( found.length ).toBeGreaterThan( 0 );
+					expect( found.every( e => e.disabled ) ).toBe( true );
+				} );
+
+				it.skipIf( c.fieldInput === false )( `hält Backend-disabled von ${ c.type } gegen setDisabledState(false)`, () => {
 					host.fields.set( [
 						{ id: 'f', type: c.type, disabled: true, ...c.field } as XiriFormField,
 					] );
+					fixture.detectChanges();
+
+					// Simuliert, was Angular beim Setup eines enabled Controls tut.
+					const accessor = fixture.debugElement.query( By.directive( FormControlName ) )
+					                        .injector.get( NgControl ).valueAccessor!;
+					accessor.setDisabledState!( false );
 					fixture.detectChanges();
 
 					const found = elements( c.selector );

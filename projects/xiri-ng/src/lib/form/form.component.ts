@@ -13,6 +13,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { XiriFormField } from "../formfields/field.interface";
 
+import { formState } from '../formfields/form-state';
 export interface XiriFormSettings {
 	load?: boolean
 	url: string
@@ -158,8 +159,9 @@ export class XiriFormComponent implements OnInit {
 	
 	public formChanged( event: UntypedFormGroup ) {
 
-		this.formValid = event.valid;
-		this.formValues = event.value;
+		const state = formState( event );
+		this.formValid = state.valid;
+		this.formValues = state.value;
 		
 		// data = { ...data, ...this.extra }
 		// this.events.push( '' + this.formValid + ' => ' + JSON.stringify( event.value ) );

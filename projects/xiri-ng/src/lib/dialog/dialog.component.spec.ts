@@ -357,6 +357,36 @@ describe( 'XiriDialogComponent', () => {
 			component.formChanged( { valid: false, value: null } );
 			expect( component.formValid() ).toBe( false );
 		} );
+
+		// Sind alle Controls disabled, ist die FormGroup selbst DISABLED (valid false, invalid false).
+		// Ein Anzeige-Dialog mit OK-Button muss trotzdem absendbar bleiben.
+		it( 'hält einen Dialog nur aus disabled Feldern absendbar', async () => {
+			createComponent( {
+				type: 'form', url: 'test/form', header: 'Anzeige',
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
+				fields: [ { id: 'x', type: 'text', value: 'v', disabled: true } ],
+			} );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid() ).toBe( true );
+			// Disabled Controls sind nie Teil des Submits — auch nicht als Rohwert der DISABLED-Gruppe.
+			expect( component[ 'formValues' ] ).toEqual( {} );
+		} );
+
+		it( 'sperrt einen Dialog mit invalidem Pflichtfeld weiterhin', async () => {
+			createComponent( {
+				type: 'form', url: 'test/form', header: 'Eingabe',
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
+				fields: [ { id: 'x', type: 'text', value: '', required: true } ],
+			} );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid() ).toBe( false );
+		} );
 	} );
 
 	describe( 'breakpoint observer', () => {

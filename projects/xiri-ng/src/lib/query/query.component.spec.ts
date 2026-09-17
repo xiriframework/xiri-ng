@@ -206,6 +206,55 @@ describe( 'XiriQueryComponent', () => {
 			expect( component.filterData() ).toEqual( { base: 'value' } );
 		} );
 
+		// Sind alle Controls disabled, ist die FormGroup selbst DISABLED (valid false, invalid false).
+		// Ein Filter nur aus gesperrten Feldern muss trotzdem initial laden und Folgeereignisse
+		// über den Debounce-Pfad durchreichen.
+		it( 'lädt initial, wenn alle Filterfelder disabled sind', async () => {
+			createFixture( { fields: [ { id: 'x', type: 'text', value: 'v', disabled: true } ] } );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid() ).toBe( true );
+			expect( host.changeEvents.length ).toBe( 1 );
+		} );
+
+		// Sichtbares disabled Feld plus per showWhen verstecktes Feld: komplett disabled Gruppe, Angular
+		// liefert den Rohwert. Der veraltete versteckte Wert darf nicht in die Filterdaten.
+		it( 'filtert bei komplett disabled Gruppe nicht mit versteckten Werten', async () => {
+			createFixture( { fields: [
+				{ id: 'kind', type: 'text', value: 'standard', disabled: true },
+				{ id: 'details', type: 'text', value: 'stale', showWhen: { field: 'kind', operator: 'equals', value: 'special' } },
+			] } );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( host.changeEvents ).toEqual( [ {} ] );
+		} );
+
+		it( 'reicht ein DISABLED-Formular auch über den Debounce-Pfad durch', () => {
+			vi.useFakeTimers();
+			createFixture( { fields: [ { id: 'x', type: 'text', value: 'v', disabled: true } ] } );
+			vi.advanceTimersByTime( 400 );
+			const before = host.changeEvents.length;
+
+			// Zweites Ereignis, wie es die FormGroup liefert: valid false, disabled true. Der
+			// Ungültig-Zweig würde null emittieren, der Gültig-Zweig die Filterwerte.
+			component.formChanged( { valid: false, disabled: true, value: { x: 'v' } } );
+			vi.advanceTimersByTime( 400 );
+
+			expect( host.changeEvents.length ).toBe( before + 1 );
+			expect( host.changeEvents.at( -1 ) ).toEqual( {} );
+		} );
+
+		it( 'lädt nicht initial, wenn ein Pflichtfeld invalid ist', async () => {
+			createFixture( { fields: [ { id: 'x', type: 'text', value: '', required: true } ] } );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.formValid() ).toBe( false );
+			expect( host.changeEvents.length ).toBe( 0 );
+		} );
+
 		it( 'should update formValid signal', () => {
 			component.formChanged( { valid: true, value: {} } );
 			expect( component.formValid() ).toBe( true );

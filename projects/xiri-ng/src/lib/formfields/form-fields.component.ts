@@ -665,8 +665,14 @@ export class XiriFormFieldsComponent implements OnInit {
 			field.required = !!field.required;
 			field.disabled = !!field.disabled;
 			
+			// Gleich disabled anlegen (Boxed-Value-Form): ein Backend-disabled Feld fällt damit aus
+			// formGroup.value und der Validierung, wie bei Patch und showWhen. this.disabled() dazu,
+			// weil der Effect nur bei einem Wechsel des Inputs läuft — beim Ersetzen der Feldliste
+			// während eines globalen disabled würde die Gruppe sonst wieder bedienbar. Ungeboxt
+			// läse Angular einen Objektwert mit value/disabled-Keys selbst als Zustandsbox; `?? null`
+			// hält den bisherigen Startwert, den der Default-Parameter ungeboxt aus undefined machte.
 			const control = this.formBuilder.control(
-				field.value,
+				{ value: field.value ?? null, disabled: field.disabled || this.disabled() },
 				this.bindValidations( field )
 			);
 			

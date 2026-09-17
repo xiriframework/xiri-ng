@@ -29,6 +29,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatChip, MatChipRemove, MatChipSet } from "@angular/material/chips";
 import { HttpErrorResponse } from "@angular/common/http";
 
+import { formState } from '../formfields/form-state';
 export interface XiriQuerySettings {
 	fields?: XiriFormField[]
 	dyn?: XiriDynData[]
@@ -61,6 +62,8 @@ const NON_FILTER_FIELD_TYPES = new Set( [ 'header', 'divider', 'info', 'html', '
 // Event emitted by xiri-form-fields (carries the underlying FormGroup, exposing valid/value/pristine).
 export interface XiriQueryFormChangeEvent {
 	valid: boolean
+	// true, wenn alle Controls disabled sind — dann ist valid false, ohne dass etwas ungültig wäre.
+	disabled?: boolean
 	value: Record<string, unknown> | null
 	pristine?: boolean
 }
@@ -201,19 +204,23 @@ export class XiriQueryComponent implements OnInit {
 	}
 
 	public formChanged( event: XiriQueryFormChangeEvent ) {
-		this.formValid.set( event.valid );
-		this.rawValue.set( event.value );
+		// Die drei Auswertungen (hier, initialer Load, Debounce) müssen übereinstimmen, deshalb
+		// wandert der normalisierte Stand mit ins Ereignis für den Debounce.
+		const { valid, value } = formState( event );
+		event = { ...event, valid, value };
+		this.formValid.set( valid );
+		this.rawValue.set( value );
 
 		if ( this.extra !== null ) {
-			if ( event.value && typeof event.value === 'object' )
-				this.filterData.set( { ...this.extra, ...event.value } );
+			if ( value && typeof value === 'object' )
+				this.filterData.set( { ...this.extra, ...value } );
 			else
 				this.filterData.set( this.extra );
 		} else
-			this.filterData.set( event.value );
+			this.filterData.set( value );
 
 		// Emit immediately on first valid change (for initial load), debounce subsequent changes
-		if ( !this._initialChangeDone && event.valid ) {
+		if ( !this._initialChangeDone && valid ) {
 			this._initialChangeDone = true;
 			this.dynData.filterData = this.filterData();
 			this.filterChange.emit( this.filterData() );

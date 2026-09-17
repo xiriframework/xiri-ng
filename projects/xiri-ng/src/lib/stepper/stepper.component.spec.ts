@@ -216,6 +216,41 @@ describe( 'XiriStepperComponent', () => {
 			expect( step.valid() ).toBe( false );
 		} );
 
+		// Sind alle Controls disabled, ist die FormGroup selbst DISABLED (valid false, invalid false).
+		// Ein Schritt nur aus gesperrten Feldern muss trotzdem „Weiter“ freigeben.
+		it( 'gibt einen Schritt nur aus disabled Feldern frei', async () => {
+			createFixture( {
+				url: 'test/stepper',
+				steps: [ {
+					title: 'Anzeige',
+					fields: [ { id: 'x', type: 'text', value: 'v', disabled: true } ],
+					buttons: [ { text: 'Next', action: 'next', type: 'raised', default: true } ],
+				} ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			const step = component.steps()[ 0 ];
+			expect( step.valid() ).toBe( true );
+			// Disabled Controls sind nie Teil des Submits — auch nicht als Rohwert der DISABLED-Gruppe.
+			expect( step.data ).toEqual( {} );
+		} );
+
+		it( 'sperrt einen Schritt mit invalidem Pflichtfeld weiterhin', async () => {
+			createFixture( {
+				url: 'test/stepper',
+				steps: [ {
+					title: 'Eingabe',
+					fields: [ { id: 'x', type: 'text', value: '', required: true } ],
+					buttons: [ { text: 'Next', action: 'next', type: 'raised', default: true } ],
+				} ],
+			} );
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			expect( component.steps()[ 0 ].valid() ).toBe( false );
+		} );
+
 		it( 'should reset subsequent steps when form is not pristine', () => {
 			const steps = component.steps();
 			steps[ 1 ].completed.set( true );

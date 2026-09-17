@@ -24,6 +24,22 @@ versioning follows [Semantic Versioning](https://semver.org/).
   wird er als Tooltip der Icon-Zelle angezeigt und hat Vorrang vor dem statischen Hint aus dem Icon-Set.
   Demo „Tables“, Tabelle 1: Zeile 1 trägt einen `content3Hint`, die übrigen Zeilen zeigen den Icon-Set-Hint.
 
+### Fixed
+
+- **Form: `disabled: true` sperrt das Feld jetzt schon beim Aufbau** — bei allen Feldtypen, auch `text`, `select`,
+  `bool` und `timelimit`. Bisher legte `createControl` das Control immer enabled an; nur zusammengesetzte Felder
+  sperrten ihre Eingabe visuell, der Wert stand trotzdem im Submit-Body (und xiri-go verwarf ihn stillschweigend).
+  Das Feld fällt jetzt aus `formGroup.value` und der Validierung, wie bei Patch und `showWhen`. Braucht xiri-go
+  ≥ v0.4.0, damit `disabled` überhaupt exportiert wird.
+- **Form: Feldliste ersetzen bei globalem `disabled`** legte enabled Controls in die deaktivierte Gruppe an; die neuen
+  Felder waren bedienbar.
+- **Form/Dialog/Query/Stepper: Formular nur aus disabled Feldern bleibt absendbar, ohne versteckte Werte.** Angular
+  setzt eine FormGroup, deren Controls alle disabled sind, auf `DISABLED` (`valid === false`) und liefert in `value`
+  den Rohwert aller Controls. Die Konsumenten werten das jetzt über `formState()` als gültig mit Payload `{}` —
+  disabled Controls (auch per `showWhen` versteckte) sind damit nie Teil des Submits. Die Event-Typen
+  `XiriQueryFormChangeEvent`/`XiriStepperFormChangeEvent` haben dafür ein optionales `disabled`.
+  (`todo/12-disabled-feld-export.md`)
+
 ### Changed
 
 - **Tabellen: Paste (`inputPaste`) schreibt nur noch in `format: 'input'`-Spalten.** Bisher wurden auch
