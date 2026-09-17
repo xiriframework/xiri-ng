@@ -6,6 +6,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **Tabellen: Zellobjekte `{d, v}` (`cellObject: 'string' | 'number'` im Feld, der Wert nennt den Typ
+  von `v`).** `xiri-table` zeigt `d`, sortiert nach `v` (auch im Tree-Modus), sucht in `d` und entpackt
+  Server-Footer; `xiri-raw-table` (Dialog-Tabellen) zeigt `d`. Der
+  Inline-Editor (Format `text`) editiert einen Entwurf von `v` mit dem `inputType` des Felds (`date`,
+  `datetime-local`, `number`), normalisiert Browserwerte (`""` → `null`, Zahlen, fehlende Sekunden)
+  und sendet `v`. Ohne Zellobjekt in der Antwort zeigt die Zelle `v` als Text; URL-Tabellen laden
+  zusätzlich neu. Nicht-Objekte in solchen Spalten werden beim Laden und bei Patches zu
+  `{d, v: null}` normalisiert (Konsolenwarnung) und sortieren wie leer. Grundlage für die
+  Locale-Datumsformate in xiri-go.
+
+### Changed
+
+- **Tabellen: Paste (`inputPaste`) schreibt nur noch in `format: 'input'`-Spalten.** Bisher wurden auch
+  Nachbarspalten anderer Formate überschrieben, was strukturierte Zellen (number, chips, Zellobjekte) zerstörte.
+- **Tabellen (Tree): Geschwister sortieren numerisch, wenn beide Werte Zahlen sind** (`9` vor `10`), sonst
+  wie bisher per `localeCompare`.
 
 ## [0.4.13]
 ### Fixed
