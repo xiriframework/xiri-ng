@@ -13,8 +13,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Server-Footer; `xiri-raw-table` (Dialog-Tabellen) zeigt `d`. Der
   Inline-Editor (Format `text`) editiert einen Entwurf von `v` mit dem `inputType` des Felds (`date`,
   `datetime-local`, `number`), normalisiert Browserwerte (`""` → `null`, Zahlen, fehlende Sekunden)
-  und sendet `v`. Ohne Zellobjekt in der Antwort zeigt die Zelle `v` als Text; URL-Tabellen laden
-  zusätzlich neu. Nicht-Objekte in solchen Spalten werden beim Laden und bei Patches zu
+  und sendet `v`. Liefert der Server für die editierte Zelle ein Zellobjekt, wird es übernommen; einen nackten Wert
+  behält der Client als Anzeige und setzt `v` auf die Eingabe (kein Reload); ohne Antwort für die Zelle zeigt
+  sie `v` als Text, URL-Tabellen laden neu. Nicht-Objekte in solchen Spalten werden beim Laden und bei Patches zu
   `{d, v: null}` normalisiert (Konsolenwarnung) und sortieren wie leer. Grundlage für die
   Locale-Datumsformate in xiri-go.
 
