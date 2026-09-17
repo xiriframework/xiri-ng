@@ -78,3 +78,22 @@ export function normalizeCellObjects( rows: XiriTableRow[], columns: XiriTableFi
 		}
 	return replaced;
 }
+
+/**
+ * Turns what a native input or select emits into the canonical v of a cell object: '' → null (cleared),
+ * numeric columns (column.cellObject === 'number') → number (garbage → null; the kind comes from the
+ * field metadata, so an html text input, string options or an empty v cannot change the type),
+ * datetime-local → seconds padded
+ * (browsers drop ":00"). Idempotent: applying it to a canonical v returns that v.
+ */
+export function normalizeEditValue( column: XiriTableField, value: XiriTableCellValue ): string | number | null {
+	if ( value === '' || value === null || value === undefined )
+		return null;
+	if ( column.cellObject === 'number' ) {
+		const n = Number( value );
+		return Number.isFinite( n ) ? n : null;
+	}
+	if ( column.inputType === 'datetime-local' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test( String( value ) ) )
+		return value + ':00';
+	return value as string | number;
+}

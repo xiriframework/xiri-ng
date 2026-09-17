@@ -400,6 +400,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			onDataUpdate: () => this.dataSource._updateChangeSubscription(),
 			onCallReturn: ( result ) => this.callReturn( result ),
 			isRowLive: ( row ) => this.dataSource.data.includes( row ),
+			hasUrl: () => !!this.settings().url,
 		} );
 
 		if ( this.options.pagination )
@@ -1126,6 +1127,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	saveInlineEdit( row: XiriTableRow, column: XiriTableField ): void {
 		this.inlineEdit.save( row, column );
 	}
+
+	editValue( row: XiriTableRow, column: XiriTableField ): XiriTableCellValue { return this.inlineEdit.editValue( row, column ); }
+
+	setEditValue( row: XiriTableRow, column: XiriTableField, value: XiriTableCellValue ): void {
+		this.inlineEdit.setEditValue( row, column, value );
+	}
+
+	compareEditValue = ( a: unknown, b: unknown ): boolean => this.inlineEdit.compareEditValue( a, b );
 
 	isEditing( row: XiriTableRow, fieldId: string ): boolean {
 		return this.inlineEdit.isEditing( row, fieldId );

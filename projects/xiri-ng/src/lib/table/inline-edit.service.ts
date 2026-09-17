@@ -7,6 +7,7 @@ import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriTableCellValue, XiriTableRow } from './tree.service';
+import { asCellObject, isCellObject, normalizeEditValue } from './cell';
 
 export interface EditableOption { value: string; label: string; color?: string }
 
@@ -14,7 +15,12 @@ export interface EditableOption { value: string; label: string; color?: string }
 interface ChipValue { label: string; color?: string }
 
 // Shape of the per-cell save response: optional field updates applied back to the row.
-interface InlineEditResult { updates?: Record<string, XiriTableCellValue> }
+// update/id/content only for typing acted (a single-cell update alias) below.
+interface InlineEditResult {
+	updates?: Record<string, XiriTableCellValue>;
+	refresh?: string; goto?: string; page?: string; table?: string; field?: string;
+	update?: string; id?: unknown; content?: XiriTableCellValue;
+}
 
 // Reads a human-readable message out of an unknown HTTP error value.
 function errorMessage( err: unknown ): string | undefined {
@@ -44,6 +50,13 @@ export class XiriTableInlineEditService {
 	displayedOptions = signal<EditableOption[]>( [] );
 
 	private editingOriginalValue: XiriTableCellValue = null;
+	// Draft of v while a cellObject cell is edited. The cell itself is never mutated by the editor:
+	// cancel drops the draft, the server (or the save fallback) replaces the whole cell.
+	// editStart is the normalised v at start(): "unchanged" compares against it, never against the
+	// live cell, which another save's updates may have patched meanwhile (Tab navigation).
+	private editDraft: string | number | null = null;
+	private editStart: string | number | null = null;
+	private hasUrl!: () => boolean;
 	// Hochgezählt bei jedem start()/cancel(): ein verspäteter Save-Fehler öffnet die Zelle nur wieder, wenn seitdem nichts passiert ist.
 	private editSeq = 0;
 	private editableOptionsSub: Subscription | null = null;
@@ -70,6 +83,7 @@ export class XiriTableInlineEditService {
 		onDataUpdate: () => void;
 		onCallReturn: ( result: unknown ) => void;
 		isRowLive: ( row: XiriTableRow ) => boolean;
+		hasUrl: () => boolean;
 	} ): void {
 		this.getEditUrl = config.getEditUrl;
 		this.getDisplayedColumns = config.getDisplayedColumns;
@@ -78,14 +92,21 @@ export class XiriTableInlineEditService {
 		this.onDataUpdate = config.onDataUpdate;
 		this.onCallReturn = config.onCallReturn;
 		this.isRowLive = config.isRowLive;
+		this.hasUrl = config.hasUrl;
 	}
 
 	start( row: XiriTableRow, column: XiriTableField, skipSavingCheck = false ): void {
 		if ( !column.editable || !this.editUrl || ( !skipSavingCheck && this.savingCell() ) )
 			return;
 		this.editSeq++;
+		if ( column.cellObject && !isCellObject( row[ column.id ] as XiriTableCellValue ) )
+			row[ column.id ] = asCellObject( row[ column.id ] as XiriTableCellValue );
 		const val = row[ column.id ] as XiriTableCellValue;
 		this.editingOriginalValue = Array.isArray( val ) ? JSON.parse( JSON.stringify( val ) ) : val;
+		if ( column.cellObject ) {
+			this.editStart = normalizeEditValue( column, isCellObject( val ) ? val.v : null );
+			this.editDraft = this.editStart;
+		}
 		if ( column.format === 'chips' && Array.isArray( val ) && !column.editableOptionsUrl ) {
 			this.editingChipsValues.set( ( val as unknown as ChipValue[] ).map( ( c ) => {
 				const opt = column.editableOptions?.find( o => o.label === c.label );
@@ -126,6 +147,26 @@ export class XiriTableInlineEditService {
 			this.initSearch( column, row );
 			this.focus();
 		}
+	}
+
+	/** Value the inline editor shows: the draft of a cellObject cell while editing, else v, else the cell. */
+	editValue( row: XiriTableRow, column: XiriTableField ): XiriTableCellValue {
+		const cell = row[ column.id ] as XiriTableCellValue;
+		if ( column.cellObject )
+			return this.isEditing( row, column.id ) ? this.editDraft : ( isCellObject( cell ) ? cell.v : null );
+		return cell;
+	}
+
+	setEditValue( row: XiriTableRow, column: XiriTableField, value: XiriTableCellValue ): void {
+		if ( column.cellObject )
+			this.editDraft = normalizeEditValue( column, value );
+		else
+			row[ column.id ] = value;
+	}
+
+	/** compareWith for mat-select: option values are strings, v of a duration cell is a number. */
+	compareEditValue( a: unknown, b: unknown ): boolean {
+		return String( a ?? '' ) === String( b ?? '' );
 	}
 
 	/** Sets up the search box + subscription for searchable inline-edit selects. */
@@ -200,6 +241,8 @@ export class XiriTableInlineEditService {
 			this.editingCell.set( null );
 			this.editingOriginalValue = null;
 		}
+		this.editDraft = null;
+		this.editStart = null;
 		this.editableOptionsSub?.unsubscribe();
 		this.editableOptionsSub = null;
 		this.loadedEditableOptions.set( [] );
@@ -210,8 +253,10 @@ export class XiriTableInlineEditService {
 	save( row: XiriTableRow, column: XiriTableField ): void {
 		const editing = this.editingCell();
 		if ( !editing || editing.row !== row || editing.field !== column.id ) return;
-		const newValue = row[ column.id ] as XiriTableCellValue;
-		const originalValue = this.editingOriginalValue;
+		const cell = row[ column.id ] as XiriTableCellValue;
+		const draft = this.editDraft;
+		const newValue = column.cellObject ? draft : row[ column.id ] as XiriTableCellValue;
+		const originalValue = column.cellObject ? this.editStart : this.editingOriginalValue;
 		const seq = this.editSeq;
 		const snapshot = {
 			chips: this.editingChipsValues(),
@@ -224,43 +269,66 @@ export class XiriTableInlineEditService {
 		this.editableOptionsLoading.set( false );
 		this.teardownSearch();
 
-		const unchanged = Array.isArray( newValue )
-			? JSON.stringify( newValue ) === JSON.stringify( originalValue )
-			: newValue === originalValue;
+		const unchanged = column.cellObject
+			? draft === originalValue
+			: Array.isArray( newValue ) ? JSON.stringify( newValue ) === JSON.stringify( originalValue ) : newValue === originalValue;
 		if ( unchanged ) {
 			return;
 		}
 
-		const value: XiriTableCellValue = column.format === 'chips' && Array.isArray( newValue )
-			? ( newValue as unknown as ChipValue[] ).map( ( c ) => c.label )
-			: newValue;
+		const value: XiriTableCellValue = column.cellObject
+			? draft
+			: column.format === 'chips' && Array.isArray( newValue )
+				? ( newValue as unknown as ChipValue[] ).map( ( c ) => c.label )
+				: newValue;
 		const payload = { id: row.id, field: column.id, value };
 		this.savingCell.set( { row, field: column.id } );
 		this.dataService.post( this.editUrl, payload ).pipe( takeUntil( this.abort$ ) ).subscribe( {
 			next: ( raw: unknown ) => {
 				const result = raw as InlineEditResult | null;
 				this.savingCell.set( null );
+				// Reference of the cell as it is NOW, not at send time: another save's response may have
+				// replaced it meanwhile (overlapping Tab saves) — that must not count as this save's patch.
+				const cellBefore = row[ column.id ] as XiriTableCellValue;
 				if ( result?.updates ) {
 					const updates = result.updates;
 					Object.keys( updates ).forEach( key => {
-						row[ key ] = updates[ key ];
+						const col = this.displayedColumns.find( c => c.id === key );
+						if ( col?.cellObject && !isCellObject( updates[ key ] ) )
+							console.warn( `xiri-table: updates.${ key } for a cellObject column is not a {d, v} object; it will sort as empty` );
+						row[ key ] = col?.cellObject ? asCellObject( updates[ key ] ) : updates[ key ];
 					} );
-					this.onDataUpdate();
 				}
-				this.onSaved( row, column.id );
+				// Let the handler apply refresh/goto/page and single-cell updates (table:update / update:table) first …
 				this.onCallReturn( result );
+				// … then judge by what actually happened to THIS cell: a new cell object replaced the old reference.
+				const patched = row[ column.id ] !== cellBefore && isCellObject( row[ column.id ] as XiriTableCellValue );
+				if ( column.cellObject && !patched ) {
+					// No new cell from the server: show the draft as text so d never lags behind v; url tables reload below.
+					row[ column.id ] = { ...asCellObject( cellBefore ), d: draft === null ? '' : String( draft ), v: draft };
+				}
+				this.onDataUpdate();
+				this.onSaved( row, column.id );
+				// A refresh/navigation already replaces or leaves this table; a single-cell update for another
+				// row/field does not, so the url table still reloads to get d for this cell.
+				const acted = !!( result?.refresh || result?.goto || result?.page || result?.table === 'refresh' );
+				if ( column.cellObject && !patched && !acted && this.hasUrl() )
+					this.onCallReturn( { done: true, refresh: 'table' } );
 			},
 			error: ( err: unknown ) => {
 				this.savingCell.set( null );
 				if ( this.editSeq !== seq || !this.isRowLive( row ) ) {
-					// User ist schon woanders (Tab, Escape, neue Zelle) oder ein Reload hat die Row ersetzt: nichts kapern, Wert verwerfen
-					row[ column.id ] = originalValue;
+					// User ist schon woanders (Tab, Escape, neue Zelle) oder ein Reload hat die Row ersetzt: nichts kapern,
+					// Wert verwerfen. Bei Zellobjekten wurde die Zelle nie verändert, also nichts zurückzusetzen.
+					if ( !column.cellObject )
+						row[ column.id ] = originalValue;
 					this.onDataUpdate();
 				} else {
-					// Abgelehnten Wert stehen lassen und Zelle wieder öffnen; Escape stellt weiterhin das Original her
+					// Abgelehnten Wert stehen lassen und Zelle wieder öffnen; Escape stellt weiterhin das Original her.
+					// Bei Zellobjekten ist "das Original" die unveränderte Zelle (cell), nicht der normalisierte Startwert.
 					this.loadedEditableOptions.set( snapshot.options );
 					this.editingChipsValues.set( snapshot.chips );
-					this.editingOriginalValue = originalValue;
+					this.editingOriginalValue = column.cellObject ? cell : originalValue;
 					this.editingCell.set( { row, field: column.id } );
 					this.initSearch( column, row );
 					snapshot.cache.forEach( ( o, k ) => this.optionCache.set( k, o ) );   // nach initSearch, das den Cache leert
@@ -360,7 +428,7 @@ export class XiriTableInlineEditService {
 		if ( column.format === 'chips' )
 			return this.editingChipsValues();
 		const row = this.editingCell()?.row;
-		const v = row ? row[ column.id ] : null;
+		const v = row ? this.editValue( row, column ) : null;
 		return v !== null && v !== undefined && v !== '' ? [ String( v ) ] : [];
 	}
 

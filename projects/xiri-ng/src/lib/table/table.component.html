@@ -300,7 +300,8 @@
 													<mat-spinner diameter="20"></mat-spinner>
 												} @else {
 													<mat-form-field class="xiri-inline-edit" subscriptSizing="dynamic">
-														<mat-select [(ngModel)]="row[column.id]"
+														<mat-select [ngModel]="editValue(row, column)" (ngModelChange)="setEditValue(row, column, $event)"
+														            [compareWith]="compareEditValue"
 														            (keydown)="onInlineEditKeydown($event, row, column)"
 														            (openedChange)="!$event && saveInlineEdit(row, column)">
 															@if (column.editableOptionsSearch || column.editableSearchUrl) {
@@ -318,7 +319,9 @@
 											} @else {
 												<mat-form-field class="xiri-inline-edit" subscriptSizing="dynamic">
 													<input matInput
-													       [(ngModel)]="row[column.id]"
+													       [type]="column.inputType || 'text'"
+													       [step]="column.inputType === 'datetime-local' ? 1 : null"
+													       [ngModel]="editValue(row, column)" (ngModelChange)="setEditValue(row, column, $event)"
 													       (blur)="saveInlineEdit(row, column)"
 													       (keydown)="onInlineEditKeydown($event, row, column)">
 													<button matSuffix mat-icon-button class="xiri-inline-edit-confirm"
