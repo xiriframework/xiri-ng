@@ -66,6 +66,7 @@ export function sortValue( row: XiriTableRow, columnId: string, column: XiriTabl
  * (undefined — the row simply has no value for the column) is left alone: absent is not malformed.
  */
 export function normalizeCellObjects( rows: XiriTableRow[], columns: XiriTableField[] ): boolean {
+	if ( !Array.isArray( rows ) ) return false;
 	let replaced = false;
 	const objectColumns = columns.filter( c => c.cellObject );
 	for ( const row of rows )
@@ -87,7 +88,7 @@ export function normalizeCellObjects( rows: XiriTableRow[], columns: XiriTableFi
  * (browsers drop ":00"). Idempotent: applying it to a canonical v returns that v.
  */
 export function normalizeEditValue( column: XiriTableField, value: XiriTableCellValue ): string | number | null {
-	if ( value === '' || value === null || value === undefined )
+	if ( value === null || value === undefined || String( value ).trim() === '' )
 		return null;
 	if ( column.cellObject === 'number' ) {
 		const n = Number( value );

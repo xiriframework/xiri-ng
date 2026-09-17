@@ -18,7 +18,7 @@ import { XiriUrlPipe } from '../pipes/url.pipe';
 import { RouterLink } from '@angular/router';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIcon } from '@angular/material/icon';
-import { cellDisplay, cellLines, normalizeCellObjects } from '../table/cell';
+import { cellDisplay, cellLines as cellLinesOf, normalizeCellObjects } from '../table/cell';
 import type { XiriTableCellValue, XiriTableRow } from '../table/tree.service';
 
 
@@ -76,7 +76,7 @@ export class XiriRawTableComponent {
 			const rows = this.settings().data as XiriRawTableRow[];
 			if ( normalizeCellObjects( rows as XiriTableRow[], this.displayedColumns ) )
 				console.warn( 'xiri-raw-table: cells of cellObject columns must be {d, v} objects; bare values were wrapped' );
-			this.dataSource.data = rows;
+			this.dataSource.data = rows ?? [];
 		} );
 	}
 
@@ -85,7 +85,7 @@ export class XiriRawTableComponent {
 	}
 
 	cellLines( row: XiriRawTableRow, column: XiriTableField ): unknown[] {
-		return cellLines( row[ column.id ] as XiriTableCellValue, column );
+		return cellLinesOf( row[ column.id ] as XiriTableCellValue, column );
 	}
 
 	private loadFields( fields: XiriTableField[] ) {

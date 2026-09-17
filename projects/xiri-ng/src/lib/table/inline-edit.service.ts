@@ -296,9 +296,16 @@ export class XiriTableInlineEditService {
 			next: ( raw: unknown ) => {
 				const result = raw as InlineEditResult | null;
 				this.savingCell.set( null );
-				// Reference of the cell as it is NOW, not at send time: another save's response may have
-				// replaced it meanwhile (overlapping Tab saves) — that must not count as this save's patch.
 				const cellBefore = row[ column.id ] as XiriTableCellValue;
+				// Whether the server said anything at all about THIS cell, and whether what it said was
+				// a real cell object — judged from the raw response, never from a row reference compare
+				// (another save's response can replace that reference for an unrelated reason meanwhile).
+				const ownUpdate = result?.updates ? result.updates[ column.id ] : undefined;
+				const isOwnSingleUpdate = ( result?.table === 'update' || result?.update === 'table' )
+					&& result?.id === row.id && result?.field === column.id;
+				const hadOwnPatch = ownUpdate !== undefined || isOwnSingleUpdate;
+				const patched = ( ownUpdate !== undefined && isCellObject( ownUpdate ) )
+					|| ( isOwnSingleUpdate && isCellObject( result?.content ) );
 				if ( result?.updates ) {
 					const updates = result.updates;
 					Object.keys( updates ).forEach( key => {
@@ -310,18 +317,21 @@ export class XiriTableInlineEditService {
 				}
 				// Let the handler apply refresh/goto/page and single-cell updates (table:update / update:table) first …
 				this.onCallReturn( result );
-				// … then judge by what actually happened to THIS cell: a new cell object replaced the old reference.
-				const patched = row[ column.id ] !== cellBefore && isCellObject( row[ column.id ] as XiriTableCellValue );
 				if ( column.cellObject && !patched ) {
-					// No new cell from the server: show the draft as text so d never lags behind v; url tables reload below.
-					row[ column.id ] = { ...asCellObject( cellBefore ), d: draft === null ? '' : String( draft ), v: draft };
+					row[ column.id ] = hadOwnPatch
+						// A bare value for this cell (reference changed, but not a real {d, v}): the server
+						// already delivered the display, keep it and set v from the draft. No reload needed.
+						? { ...asCellObject( row[ column.id ] as XiriTableCellValue ), v: draft }
+						// No word from the server about this cell at all: show the draft as text so d never
+						// lags behind v; url tables reload below to fetch the real d.
+						: { ...asCellObject( cellBefore ), d: draft === null ? '' : String( draft ), v: draft };
 				}
 				this.onDataUpdate();
 				this.onSaved( row, column.id );
 				// A refresh/navigation already replaces or leaves this table; a single-cell update for another
 				// row/field does not, so the url table still reloads to get d for this cell.
 				const acted = !!( result?.refresh || result?.goto || result?.page || result?.table === 'refresh' );
-				if ( column.cellObject && !patched && !acted && this.hasUrl() )
+				if ( column.cellObject && !patched && !hadOwnPatch && !acted && this.hasUrl() )
 					this.onCallReturn( { done: true, refresh: 'table' } );
 			},
 			error: ( err: unknown ) => {

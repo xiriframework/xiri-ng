@@ -666,7 +666,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 		this.displayedColumns.forEach( ( column: XiriTableField ) => {
 			const value = this.footer[ column.id ];
-			this.footer[ column.id ] = cellDisplayOf( value, column );
+			const shown = cellDisplayOf( value, column );
+			this.footer[ column.id ] = Array.isArray( shown ) ? shown[ 0 ] : shown;
 		} );
 	}
 	
