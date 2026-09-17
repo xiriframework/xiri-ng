@@ -15,6 +15,8 @@ import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { provideRouter, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { MatTooltip } from '@angular/material/tooltip';
 
 // Narrow view onto the component's private members the tests reach into.
 interface TableInternals {
@@ -2175,6 +2177,29 @@ describe( 'XiriTableComponent', () => {
 
 			expect( card().classList ).toContain( 'mat-elevation-z3' );
 			expect( card().classList ).not.toContain( 'flat' );
+		} );
+	} );
+
+	describe( 'icon column row hint', () => {
+
+		it( 'prefers the per-row hint over the icon set hint', () => {
+			createFixture( {
+				fields: [ {
+					id:     'status',
+					name:   'Status',
+					format: 'icon',
+					icons:  { online: { icon: 'check_circle', color: 'success', hint: 'Online' } } as unknown as XiriTableField[ 'icons' ],
+				} ],
+				data: [
+					{ id: 1, status: 'online', statusHint: 'Online seit 08:12' },
+					{ id: 2, status: 'online' },
+				],
+			} );
+
+			const tooltips = fixture.debugElement.queryAll( By.directive( MatTooltip ) )
+				.filter( d => d.nativeElement.tagName === 'MAT-ICON' )
+				.map( d => d.injector.get( MatTooltip ).message );
+			expect( tooltips ).toEqual( [ 'Online seit 08:12', 'Online' ] );
 		} );
 	} );
 } );

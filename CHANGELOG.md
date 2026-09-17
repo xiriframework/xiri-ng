@@ -20,6 +20,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Locale-Datumsformate in xiri-go.
 - **Demo „Inline Edit Table“:** editierbare Datumsspalte `Available` als Zellobjekt (`cellObject: 'string'`,
   `inputType: 'date'`), der Mock liefert nach dem Save ein neues `{d, v}`.
+- **Tabellen: Row-Hint für Icon-Spalten.** Liefert eine Row den Key `<fieldId>Hint` (xiri-go `WithRowHint`),
+  wird er als Tooltip der Icon-Zelle angezeigt und hat Vorrang vor dem statischen Hint aus dem Icon-Set.
 
 ### Changed
 
@@ -27,6 +29,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Nachbarspalten anderer Formate überschrieben, was strukturierte Zellen (number, chips, Zellobjekte) zerstörte.
 - **Tabellen (Tree): Geschwister sortieren numerisch, wenn beide Werte Zahlen sind** (`9` vor `10`), sonst
   wie bisher per `localeCompare`.
+- **Form: per `showWhen` versteckte Felder werden disabled.** Sie fehlen im Submit-Body (`formGroup.value`)
+  und zählen nicht für die Validierung, ein verstecktes Pflichtfeld blockiert den Submit also nicht mehr.
+  Wird das Feld wieder sichtbar, wird es enabled, außer es ist vom Backend (`disabled`) oder global
+  deaktiviert. Eingeklappte Sections gelten nicht als versteckt.
 
 ## [0.4.13]
 ### Fixed

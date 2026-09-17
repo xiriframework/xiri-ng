@@ -183,8 +183,8 @@
 									<td mat-cell *matCellDef="let row" [class]="column.display">
 										@if (column.icons?.[ $any(row[ column.id ]) ]; as icon) {
 											<mat-icon [class]="icon[ 'color' ] || 'primary'"
-											          [matTooltip]="icon[ 'hint' ] || '' "
-											          [matTooltipDisabled]="!icon[ 'hint' ]">{{ icon['icon'] }}
+											          [matTooltip]="row[ column.id + 'Hint' ] || icon[ 'hint' ] || '' "
+											          [matTooltipDisabled]="!( row[ column.id + 'Hint' ] || icon[ 'hint' ] )">{{ icon['icon'] }}
 											</mat-icon>
 										}
 									</td>
