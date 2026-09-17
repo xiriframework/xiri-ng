@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.4.14]
 ### Added
 
 - **Tabellen: Zellobjekte `{d, v}` (`cellObject: 'string' | 'number'` im Feld, der Wert nennt den Typ
