@@ -1032,8 +1032,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		const check = button.check ?? [];
 		for ( let i = 0; i != check.length; i++ ) {
 			const k = check[ i ];
+			const cell = row[ k ] as XiriTableCellValue;
+			const value = isCellObject( cell ) ? cell.v : cell;
 
-			if ( row[ k ] === null || row[ k ] === undefined || row[ k ] === '' ) {
+			if ( value === null || value === undefined || value === '' ) {
 				return false;
 			}
 		}

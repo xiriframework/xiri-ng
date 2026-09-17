@@ -1768,6 +1768,24 @@ describe( 'XiriTableComponent', () => {
 			const row = { name: undefined };
 			expect( component.saveCallCheck( button, row ) ).toBe( false );
 		} );
+
+		it( 'should return false when a checked cell object has no value', () => {
+			const button = { check: [ 'datum' ] } as unknown as XiriButton;
+			const row = { datum: { d: '', v: null } };
+			expect( component.saveCallCheck( button, row ) ).toBe( false );
+		} );
+
+		it( 'should return true when a checked cell object has a value', () => {
+			const button = { check: [ 'datum' ] } as unknown as XiriButton;
+			const row = { datum: { d: '24.02.2024', v: '2024-02-24' } };
+			expect( component.saveCallCheck( button, row ) ).toBe( true );
+		} );
+
+		it( 'should return true when a checked cell object has the number zero as value', () => {
+			const button = { check: [ 'dauer' ] } as unknown as XiriButton;
+			const row = { dauer: { d: '00:00', v: 0 } };
+			expect( component.saveCallCheck( button, row ) ).toBe( true );
+		} );
 	} );
 
 	describe( 'sorting data accessor', () => {
