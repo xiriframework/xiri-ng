@@ -11,7 +11,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Formulare: Server-Feldfehler am Feld.** Antwortet der Server mit 400 und `fields: {id: message}`
   (xiri-go `response.NewErrorResponseFromError`), zeigt `xiri-form` jede Meldung als `mat-error` am
   betroffenen Feld statt als Banner; die nächste Eingabe löscht sie. Neuer Input `serverErrors` an
-  `xiri-form-fields`, `XiriFormServiceError.fields` im Service. Demo `/Forms`: Name „fehler".
+  `xiri-form-fields`, `XiriFormServiceError.fields` im Service. Demo: Sidebar „Server (DynPage)" → „Form",
+  Name „fehler".
 
 ## [0.4.14]
 ### Added

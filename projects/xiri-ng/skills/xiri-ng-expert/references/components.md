@@ -20,6 +20,11 @@ interface XiriFormSettings {
 
 Outputs: keine.
 
+Fehlerantworten (HTTP 400/403/404/0) landen als `XiriFormServiceError { error: string; fields?: Record<string, string> }`
+im Formular: `fields` (xiri-go `response.NewErrorResponseFromError`, Feld-ID → Meldung) gehen als `serverErrors` an
+`xiri-form-fields` und erscheinen als `mat-error` am Feld, der Fehler-Banner bleibt dann leer. Ohne `fields` steht `error`
+im Banner (`xiri-error`). Signals: `fieldErrors()`, `error()`.
+
 ### xiri-dialog (via MatDialog)
 
 ```typescript
