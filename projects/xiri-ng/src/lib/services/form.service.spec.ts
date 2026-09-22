@@ -96,6 +96,19 @@ describe( 'XiriFormService', () => {
 			expect( error ).toEqual( { error: 'Invalid input' } );
 		} );
 
+		it( 'should pass per-field errors from a 400 response', () => {
+			const httpError = new HttpErrorResponse( {
+				status: 400,
+				error: { error: 'name: zu kurz', fields: { name: 'zu kurz', ignored: 42 } },
+			} );
+			dataService.post.mockReturnValue( throwError( () => httpError ) );
+
+			let error: XiriFormServiceError | undefined;
+			service.get( 'form/save', {} ).subscribe( { error: ( err ) => error = err } );
+
+			expect( error ).toEqual( { error: 'name: zu kurz', fields: { name: 'zu kurz' } } );
+		} );
+
 		it( 'should handle 403 error', () => {
 			const httpError = new HttpErrorResponse( { status: 403 } );
 			dataService.post.mockReturnValue( throwError( () => httpError ) );

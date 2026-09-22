@@ -6,7 +6,7 @@ import { XiriFormField } from "../formfields/field.interface";
 import { catchError, map, Observable, throwError, timer } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { XiriSessionStorageService } from "./sessionStorage.service";
-import { parseHttpError } from './error.util';
+import { parseFieldErrors, parseHttpError } from './error.util';
 
 
 export interface XiriFormServiceReturn {
@@ -39,6 +39,7 @@ export interface XiriFormServiceData {
 
 export interface XiriFormServiceError {
 	error: string
+	fields?: Record<string, string> // Validierungsfehler pro Feld-ID (xiri-go FieldErrors)
 }
 
 @Injectable( {
@@ -61,7 +62,8 @@ export class XiriFormService {
 			map( res => this.parse( res ) ),
 			catchError( ( err: HttpErrorResponse ): Observable<never> => {
 				return throwError( () => ({
-					error: parseHttpError( err )
+					error: parseHttpError( err ),
+					fields: parseFieldErrors( err ),
 				} as XiriFormServiceError) );
 			} )
 		);
