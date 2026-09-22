@@ -8,6 +8,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 ### Added
 
+- **Textfeld mit Vorschlägen.** Ein `text`-Feld mit `list` und/oder `url` zeigt ein `mat-autocomplete`-Panel:
+  `list` wird lokal gefiltert, `url` beim Tippen (200 ms Debounce) per `POST {search, …}` nachgeladen und
+  angehängt; `searchWith: string[]` nennt Feld-IDs, deren aktueller Wert (nur enabled Felder) mitgeschickt
+  wird. Auswahl übernimmt `name`, eigener Text bleibt erlaubt (Enter/Blur überschreiben nichts); ein
+  `reloadOn`-Patch der `list` löscht den Text nicht mehr und erreicht das Panel sofort. Vorschläge, die erst
+  per Reload kommen, brauchen initial `list: []`. Ohne `list`/`url` bleibt das Textfeld unverändert. Neue
+  `XiriSuggestDirective` (exportiert). Demo: /web/forms. Gegenstück xiri-go `SetSuggestions`/`SetSuggestionsURL`.
+
+### Added
+
 - **Formulare: Server-Feldfehler am Feld.** Antwortet der Server mit 400 und `fields: {id: message}`
   (xiri-go `response.NewErrorResponseFromError`), zeigt `xiri-form` jede Meldung als `mat-error` am
   betroffenen Feld statt als Banner; die nächste Eingabe löscht sie. Neuer Input `serverErrors` an

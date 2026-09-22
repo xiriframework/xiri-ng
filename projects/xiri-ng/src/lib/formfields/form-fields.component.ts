@@ -55,6 +55,8 @@ import { XiriDateComponent } from './date/date.component';
 import { XiriYearMonthComponent } from './yearmonth/yearmonth.component';
 import { XiriTreeselectComponent } from './treeselect/treeselect.component';
 import { XiriSelectDirective } from './select/select.directive';
+import { XiriSuggestDirective } from './suggest/suggest.directive';
+import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
@@ -111,6 +113,9 @@ function formatValidationDate( localeString: string, unixSeconds: number ): stri
 		            AsyncPipe,
 		            SafehtmlPipe,
 		            XiriChipsComponent,
+		            XiriSuggestDirective,
+		            MatAutocomplete,
+		            MatAutocompleteTrigger,
 	            ]
             } )
 export class XiriFormFieldsComponent implements OnInit {
@@ -489,8 +494,8 @@ export class XiriFormFieldsComponent implements OnInit {
 	private pruneValue( field: XiriFormField, control: AbstractControl ): void {
 
 		// Nur wenn die Liste autoritativ ist. Bei Server-Suche ist list nur der statische Sockel,
-		// bei chips sind es Vorschläge - dort würde Pruning gültige Eingaben löschen.
-		if ( field.url || field.type === 'chips' )
+		// bei chips und text sind es Vorschläge - dort würde Pruning gültige Eingaben löschen.
+		if ( field.url || field.type === 'chips' || field.type === 'text' )
 			return;
 
 		const ids = collectOptionIds( field.list ?? [] );
@@ -951,7 +956,7 @@ export class XiriFormFieldsComponent implements OnInit {
 //
 // Bewusst nicht patchbar: `id`, `type`, `subtype` (createControl normalisiert die einmalig, ein
 // Roh-Wert vom Server würde das zerlegen), `value` (den Wert behält der Client, siehe pruneValue),
-// `control`, `showWhen` und `url` (`serverSideSearch` und der Suchfluss der Select-Directive
+// `control`, `showWhen`, `url` und `searchWith` (`serverSideSearch` und der Suchfluss der Select-Directive
 // werden nur beim Aufbau abgeleitet, eine Änderung käme nie an).
 const PATCH_GUARDS: Record<string, ( value: unknown ) => boolean> = {
 	list:     isOptionList,

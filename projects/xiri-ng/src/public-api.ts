@@ -9,6 +9,7 @@ export { XiriUrlPipe, type XiriUrl } from "./lib/pipes/url.pipe";
 export * from "./lib/formfields/field.interface";
 export * from "./lib/formfields/form-fields.component";
 export * from "./lib/formfields/select/select.directive";
+export * from "./lib/formfields/suggest/suggest.directive";
 
 export * from "./lib/raw-table/tabefield.interface";
 export * from "./lib/raw-table/xiri-raw-table.component";

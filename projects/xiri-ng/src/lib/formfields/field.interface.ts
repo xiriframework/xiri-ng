@@ -68,6 +68,7 @@ export interface XiriFormField {
 	url?: string // treeselect, multiselect
 	search?: boolean // treeselect, multiselect
 	serverSideSearch?: boolean // select
+	searchWith?: string[] // text: IDs anderer Felder, deren aktueller (enabled) Wert im Vorschlags-Request mitgeht
 	params?: Record<string, unknown> // select
 
 	rows?: number // textfield

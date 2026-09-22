@@ -10,13 +10,37 @@
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
-					<input matInput
-					       [formControlName]="field.id"
-					       [type]="field.subtype || 'text'"
-					       [autocomplete]="field.name"
-					       [attr.minlength]="field.min"
-					       [attr.maxlength]="field.max"
-					       [required]="!!field.required">
+					@if (field.list || field.url) {
+						<!-- Vorschläge: eigener Zweig, weil MatAutocompleteTrigger den DefaultValueAccessor ersetzt
+						     (asynchrones writeValue, kein IME-Handling) - das darf normale Textfelder nicht treffen.
+						     Vorschläge, die erst per reloadOn kommen, brauchen initial list: [] (sonst Zweigwechsel). -->
+						<input matInput
+						       [formControlName]="field.id"
+						       [type]="field.subtype || 'text'"
+						       autocomplete="off"
+						       [xiriSuggest]="field" #suggest="xiriSuggest"
+						       [matAutocomplete]="auto"
+						       [attr.minlength]="field.min"
+						       [attr.maxlength]="field.max"
+						       [required]="!!field.required">
+						<!-- Freitext darf nie überschrieben werden - explizit, weil MAT_AUTOCOMPLETE_DEFAULT_OPTIONS
+						     der Host-App etwas anderes setzen könnte. Optionen disabled, sobald das Control gesperrt ist:
+						     Material schließt ein offenes Panel beim Disable nicht. -->
+						<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
+						                  [autoSelectActiveOption]="false">
+							@for (opt of suggest.options(); track opt.name) {
+								<mat-option [value]="opt.name" [disabled]="formGroup.get(field.id)?.disabled">{{ opt.name }}</mat-option>
+							}
+						</mat-autocomplete>
+					} @else {
+						<input matInput
+						       [formControlName]="field.id"
+						       [type]="field.subtype || 'text'"
+						       [autocomplete]="field.name"
+						       [attr.minlength]="field.min"
+						       [attr.maxlength]="field.max"
+						       [required]="!!field.required">
+					}
 					@if (field.textPrefix) {
 						<span matTextPrefix="">{{ field.textPrefix }}</span>
 					}

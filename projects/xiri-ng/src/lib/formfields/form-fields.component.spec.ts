@@ -189,6 +189,120 @@ describe( 'XiriFormFieldsComponent', () => {
 		} );
 	} );
 
+	describe( 'text suggestions', () => {
+		const cityField = ( extra: Partial<XiriFormField> = {} ): XiriFormField => ( {
+			type: 'text', id: 'city', name: 'Stadt',
+			list: [ { id: 'Wien', name: 'Wien' }, { id: 'Graz', name: 'Graz' }, { id: 'Linz', name: 'Linz' } ], ...extra
+		} );
+		// Der Trigger schreibt den Initialwert in einer Microtask (writeValue ist async): erst rendern
+		// und stabilisieren, dann tippen - sonst überschreibt writeValue den simulierten Text.
+		const render = async ( fields: XiriFormField[] ) => {
+			host.fields.set( fields );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			await vi.runAllTimersAsync();
+		};
+		const cityInput = () => fixture.nativeElement.querySelector( 'input[type="text"]' ) as HTMLInputElement;
+		const typeInto = async ( text: string, input: HTMLInputElement = cityInput() ) => {
+			input.focus();
+			input.value = text;
+			input.dispatchEvent( new Event( 'input' ) );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			expect( input.value ).toBe( text );
+			return input;
+		};
+		const panelOptions = () => Array.from( document.querySelectorAll( '.mat-mdc-autocomplete-panel mat-option' ) ) as HTMLElement[];
+		const panelTexts = () => panelOptions().map( o => o.textContent?.trim() );
+		const ENTER = { key: 'Enter', keyCode: 13 }; // Material wertet keyCode aus; JSDOM liefert sonst 0
+
+		beforeEach( () => vi.useFakeTimers() );
+		afterEach( () => {
+			vi.useRealTimers();
+			document.querySelectorAll( '.cdk-overlay-container' ).forEach( e => e.remove() );
+		} );
+
+		it( 'shows filtered suggestions while typing', async () => {
+			await render( [ cityField() ] );
+			await typeInto( 'gr' );
+			expect( panelTexts() ).toEqual( [ 'Graz' ] );
+		} );
+
+		it( 'takes over the clicked suggestion as control value', async () => {
+			await render( [ cityField() ] );
+			await typeInto( 'w' );
+			panelOptions()[ 0 ].click();
+			fixture.detectChanges();
+			expect( component.formGroup.get( 'city' )?.value ).toBe( 'Wien' );
+		} );
+
+		it( 'keeps typed text on enter while a suggestion is visible', async () => {
+			await render( [ cityField() ] );
+			const input = await typeInto( 'gr' ); // Graz ist sichtbar - eine aktive erste Option würde hier zuschlagen
+			expect( panelTexts() ).toEqual( [ 'Graz' ] );
+			input.dispatchEvent( new KeyboardEvent( 'keydown', ENTER ) );
+			fixture.detectChanges();
+			expect( component.formGroup.get( 'city' )?.value ).toBe( 'gr' );
+		} );
+
+		it( 'keeps free text on blur', async () => {
+			await render( [ cityField() ] );
+			const input = await typeInto( 'Klagenfurt' );
+			input.blur();
+			fixture.detectChanges();
+			await fixture.whenStable();
+			const ctrl = component.formGroup.get( 'city' );
+			expect( ctrl?.value ).toBe( 'Klagenfurt' );
+			expect( ctrl?.valid ).toBe( true );
+		} );
+
+		it( 'does not write into a control disabled while the panel is open', async () => {
+			await render( [ cityField() ] );
+			await typeInto( 'w' );
+			component.formGroup.get( 'city' )?.disable( { emitEvent: false } );
+			fixture.detectChanges();
+			panelOptions()[ 0 ].click();
+			fixture.detectChanges();
+			expect( component.formGroup.get( 'city' )?.value ).toBe( 'w' );
+		} );
+
+		it( 'shows server suggestions from url after the debounce', async () => {
+			httpStub.post.mockReturnValue( of( [ { id: 'Grambach', name: 'Grambach' } ] ) );
+			await render( [ cityField( { url: 'City/Search' } ) ] );
+			await typeInto( 'gr' );
+			vi.advanceTimersByTime( 199 );
+			expect( httpStub.post ).not.toHaveBeenCalled();
+			vi.advanceTimersByTime( 1 );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			expect( httpStub.post ).toHaveBeenCalledWith( '/api/City/Search', { search: 'gr' } );
+			expect( panelTexts() ).toEqual( [ 'Graz', 'Grambach' ] );
+		} );
+
+		it( 'sends searchWith context from the real form, also after form replacement', async () => {
+			await render( [ { type: 'number', id: 'dept', value: 3 }, cityField( { url: 'City/Search', searchWith: [ 'dept' ] } ) ] );
+			await typeInto( 'gr' );
+			vi.advanceTimersByTime( 200 );
+			expect( httpStub.post ).toHaveBeenCalledWith( '/api/City/Search', { dept: 3, search: 'gr' } );
+
+			await render( [ { type: 'number', id: 'dept', value: 8 }, cityField( { url: 'City/Search', searchWith: [ 'dept' ] } ) ] );
+			await typeInto( 'gra' );
+			vi.advanceTimersByTime( 200 );
+			expect( httpStub.post ).toHaveBeenLastCalledWith( '/api/City/Search', { dept: 8, search: 'gra' } );
+		} );
+
+		it( 'renders a text field without suggestions with the plain value accessor', () => {
+			host.fields.set( [ { type: 'text', id: 'plain', name: 'Plain' } ] );
+			fixture.detectChanges();
+			const input = fixture.nativeElement.querySelector( 'input' ) as HTMLInputElement;
+			expect( input.getAttribute( 'role' ) ).toBeNull();
+			expect( input.getAttribute( 'autocomplete' ) ).toBe( 'Plain' );
+			expect( fixture.nativeElement.querySelector( 'mat-autocomplete' ) ).toBeNull();
+			component.formGroup.get( 'plain' )?.setValue( 'sync' );
+			expect( input.value ).toBe( 'sync' ); // DefaultValueAccessor schreibt synchron, der Trigger-Accessor nicht
+		} );
+	} );
+
 	describe( 'select field handling', () => {
 		it( 'should transform array into list for select', () => {
 			host.fields.set( [ {
@@ -1777,6 +1891,57 @@ describe( 'XiriFormFieldsComponent', () => {
 			const tags = component.formGroup.get( 'tags' )!;
 			expect( tags.value ).toEqual( [ 10 ] );
 			expect( host.fields()![ 1 ].list ).toEqual( [ { id: 10, name: 'Alpha neu' } ] );
+		} );
+
+		it( 'keeps free text of a text field whose suggestion list was patched', () => {
+			respondWith( { city: { list: [ { id: 'Graz', name: 'Graz' } ] } } );
+			setFields( [ statusField(), {
+				id: 'city', type: 'text', value: 'Klagenfurt', reloadOn: [ 'status' ], reloadUrl: RELOAD_URL,
+				list: [ { id: 'Wien', name: 'Wien' } ],
+			} ] );
+
+			expect( component.formGroup.get( 'city' )!.value ).toBe( 'Klagenfurt' );
+		} );
+
+		it( 'shows a patched suggestion list without re-typing and keeps the same input element', async () => {
+			setFields( [ statusField(), {
+				id: 'city', type: 'text', value: '', reloadOn: [ 'status' ], reloadUrl: RELOAD_URL,
+				list: [ { id: 'Wien', name: 'Wien' } ],
+			} ] );
+			await fixture.whenStable();
+			const input = fixture.nativeElement.querySelector( 'input[type="text"]' ) as HTMLInputElement;
+			input.focus();
+			input.value = 'gr';
+			input.dispatchEvent( new Event( 'input' ) );
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			respondWith( { city: { list: [ { id: 'Grambach', name: 'Grambach' }, { id: 'Wien', name: 'Wien' } ] } } );
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			vi.advanceTimersByTime( 250 );
+			fixture.detectChanges();
+			await fixture.whenStable();
+
+			const texts = Array.from( document.querySelectorAll( '.mat-mdc-autocomplete-panel mat-option' ) ).map( o => o.textContent?.trim() );
+			expect( texts ).toEqual( [ 'Grambach', 'Wien' ] );
+			expect( fixture.nativeElement.querySelector( 'input[type="text"]' ) ).toBe( input );
+			document.querySelectorAll( '.cdk-overlay-container' ).forEach( e => e.remove() );
+		} );
+
+		it( 'renders a text field with an empty list as suggestion field so a patch can fill it in place', async () => {
+			setFields( [ statusField(), {
+				id: 'city', type: 'text', value: '', reloadOn: [ 'status' ], reloadUrl: RELOAD_URL, list: [],
+			} ] );
+			const input = fixture.nativeElement.querySelector( 'input[type="text"]' ) as HTMLInputElement;
+			expect( fixture.nativeElement.querySelector( 'mat-autocomplete' ) ).not.toBeNull();
+
+			respondWith( { city: { list: [ { id: 'Graz', name: 'Graz' } ] } } );
+			component.formGroup.get( 'status' )!.setValue( 2 );
+			vi.advanceTimersByTime( 250 );
+			fixture.detectChanges();
+
+			expect( fixture.nativeElement.querySelector( 'input[type="text"]' ) ).toBe( input );
+			expect( host.fields()![ 1 ].list ).toEqual( [ { id: 'Graz', name: 'Graz' } ] );
 		} );
 
 		it( 'drops values the new list no longer offers and keeps the rest', () => {

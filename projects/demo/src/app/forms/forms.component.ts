@@ -68,6 +68,21 @@ export class FormsComponent {
 			class: 'xcol-md-6 xcol-xl-3',
 			id: 'text1',
 		}, {
+			type: 'text',
+			name: 'Stadt (feste Vorschläge)',
+			hint: 'Liste kommt mit dem Formular, freie Eingabe möglich',
+			class: 'xcol-md-6 xcol-xl-3',
+			id: 'suggestLocal',
+			list: [ { id: 'Wien', name: 'Wien' }, { id: 'Graz', name: 'Graz' }, { id: 'Linz', name: 'Linz' }, { id: 'Salzburg', name: 'Salzburg' } ],
+		}, {
+			type: 'text',
+			name: 'Fahrzeug (Vorschläge vom Server)',
+			hint: 'Tippen lädt nach, Stadt geht als Kontext mit',
+			class: 'xcol-md-6 xcol-xl-3',
+			id: 'suggestRemote',
+			url: 'Test/Search/Select',
+			searchWith: [ 'suggestLocal' ],
+		}, {
 			type: 'number',
 			name: 'Int',
 			value: 1,
@@ -370,6 +385,13 @@ func (ctrl *Controller) FormReload(c echo.Context) error {
 
 	goFieldTypesCode = `fg := group.NewFormGroup([]field.FormField{
     field.NewTextField("text1", "Text", false, "Projekt Nordwind").
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewTextField("suggestLocal", "Stadt", false, "").
+        SetSuggestions("Wien", "Graz", "Linz", "Salzburg").   // feste Vorschläge, Freitext bleibt
+        SetClass("xcol-md-6 xcol-xl-3"),
+    field.NewTextField("suggestRemote", "Fahrzeug", false, "").
+        SetSuggestionsURL(xurl.NewUrlPrefix("/Test/Search/Select", "/api"),
+            "suggestLocal").                                    // POST {search, suggestLocal}; Handler: builder.BindSuggest
         SetClass("xcol-md-6 xcol-xl-3"),
     field.NewIntField("int1", "Int", false, 1).
         SetClass("xcol-md-6 xcol-xl-3"),

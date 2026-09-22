@@ -5,6 +5,7 @@ import { delay, of, throwError } from 'rxjs';
 // the same body type is shared across the different mock endpoints.
 interface MockRequestBody {
 	search?: string;
+	suggestLocal?: string; // Kontextfeld der Vorschlags-Demo (searchWith)
 	department?: number | string;
 	field?: string;
 	value?: string;
@@ -381,8 +382,9 @@ function getSearchSelectResponse( body: MockRequestBody ): unknown[] {
 		data.push( { id: i, name: 'Fahrzeug ' + i } );
 	}
 
-	// Filter by search term
-	return data.filter( item => item.name.includes( search ) );
+	// Filter by search term; der Kontext aus searchWith (Stadt) wird sichtbar angehängt
+	const suffix = body?.suggestLocal ? ` (${ body.suggestLocal })` : '';
+	return data.filter( item => item.name.includes( search ) ).map( item => ( { ...item, name: item.name + suffix } ) );
 }
 
 // Table mock responses
