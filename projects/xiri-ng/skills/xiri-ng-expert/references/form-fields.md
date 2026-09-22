@@ -115,6 +115,10 @@ export interface XiriFormField {
   // --- Conditional Display ---
   showWhen?: XiriFormFieldCondition | XiriFormFieldCondition[];
 
+  // --- Text: Vorschläge (mat-autocomplete, Freitext bleibt) ---
+  // list (id === name) lokal gefiltert; url beim Tippen: POST {search, <searchWith-Felder>} -> [{id, name}]
+  searchWith?: string[];     // Feld-IDs derselben Form, deren aktueller (enabled) Wert mitgeht
+
   // --- Server-driven content ---
   reloadOn?: string[];       // Feld-IDs, deren Änderung dieses Feld neu lädt
   reloadUrl?: string;        // Endpoint für den Reload (beides oder keins)
@@ -146,7 +150,7 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 
 | `type`          | Rendered als                                      | Wichtige Properties                |
 | --------------- | ------------------------------------------------- | ---------------------------------- |
-| `text`          | Mat-Input                                         | `subtype` (email/url), `pattern`   |
+| `text`         | Mat-Input, mit `list`/`url` plus mat-autocomplete | `subtype` (email/url), `pattern`, `list`, `url`, `searchWith` (Vorschläge) |
 | `email`         | Mat-Input type=email                              |                                    |
 | `password`      | Mat-Input type=password                           | `pwdhide`                          |
 | `textarea`      | Mat-Textarea                                      | `rows`                             |
@@ -250,6 +254,35 @@ versteckt und bleiben enabled. Bedingungen lesen `control.value` direkt, ein dis
 funktioniert also weiterhin als Trigger. Server-seitig bindet xiri-go für den fehlenden Key den
 Konstruktor-Default.
 
+### Vorschläge am Textfeld — `list`, `url`, `searchWith`
+
+Ein `text`-Feld mit `list` und/oder `url` bekommt ein `mat-autocomplete`-Panel (`XiriSuggestDirective`,
+exportiert). Der Wert bleibt ein freier String — die Directive schreibt nie ins Control, eine Auswahl
+setzt `name` ein.
+
+```typescript
+{ id: 'city', type: 'text', name: 'Stadt',
+  list: [ { id: 'Wien', name: 'Wien' }, { id: 'Graz', name: 'Graz' } ],
+  url: 'City/Suggest', searchWith: [ 'country' ] }
+```
+
+- `list` wird lokal case-insensitiv nach `name` gefiltert und ist per `reloadOn` patchbar; der Patch
+  erreicht das offene Panel sofort und löscht den getippten Text nicht.
+- `url`: 200 ms nach der letzten Eingabe `POST url { ...kontext, search }`; eine neue Eingabe bricht
+  Timer und laufenden Request ab, alte Antworten landen nie. Leere Eingabe fragt nicht an. Antwort
+  `[{ id, name }]`, Elemente ohne String-`name` werden verworfen, Treffer hängen hinter den lokalen,
+  Duplikate (nach `name`) fallen weg. Fokus allein löst keine Suche aus.
+- `searchWith`: Feld-IDs derselben Form (flache Schlüssel); mitgeschickt wird der Wert zur Request-Zeit,
+  nur von enabled Controls. `search` ist reserviert. Nicht patchbar (wie `url`).
+- Ohne `list`/`url` bleibt das Textfeld unverändert (DefaultValueAccessor, kein Autocomplete-Trigger).
+  Deshalb: kommen die Vorschläge erst per `reloadOn`, initial `list: []` liefern — sonst wechselt beim
+  Patch der Template-Zweig und das fokussierte Input wird ersetzt.
+- Enter/Blur übernehmen nie automatisch einen Vorschlag (`requireSelection`, `autoActiveFirstOption`,
+  `autoSelectActiveOption` sind explizit `false`, unabhängig von `MAT_AUTOCOMPLETE_DEFAULT_OPTIONS`).
+  Ist das Control disabled, sind die Optionen disabled.
+- Go: `field.NewTextField(...).SetSuggestions("Wien", "Graz")`, `.SetSuggestionsURL(u, "country")`,
+  Handler `builder.BindSuggest(c, country)` (siehe xiri-go-expert).
+
 ### reloadOn — Inhalt vom Server nachladen
 
 `showWhen` blendet ein Feld ein und aus. `reloadOn` lädt seinen **Inhalt** neu, sobald sich ein
@@ -288,7 +321,7 @@ Nach einem `list`-Patch behält das Feld alle Werte, die die neue Liste noch anb
 (rekursiv über `children`), und verwirft die übrigen. Ein `value` im Patch wird ignoriert — der
 Wert gehört dem Client.
 
-Nicht geprunt wird, wo die Liste nicht autoritativ ist: bei `chips` (nur Vorschläge) und bei
+Nicht geprunt wird, wo die Liste nicht autoritativ ist: bei `chips` und `text` (nur Vorschläge) und bei
 Selects mit `url` (dort ist `list` nur der statische Sockel der Server-Suche).
 
 **Patchbare Properties**

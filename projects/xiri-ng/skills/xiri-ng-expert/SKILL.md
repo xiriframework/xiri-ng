@@ -1,6 +1,6 @@
 ---
 name: xiri-ng-expert
-description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen oder reloadOn-Abhängigkeiten (Optionen vom Server nachladen), addUrl („+“-Button legt neue Option per Dialog an), oder Server-Side-Tables fragt.
+description: Experte für die xiri-ng Angular-Library. Verwende diesen Skill IMMER wenn Angular-Code geschrieben wird der @xiriframework/xiri-ng importiert, oder wenn der User nach xiri-Komponenten (xiri-dyncomponent, xiri-form-fields, xiri-table, xiri-card usw.), XiriDataService, XiriSnackbarService, provideXiriServices, Form-Feldern mit showWhen-Bedingungen, reloadOn-Abhängigkeiten oder Textfeld-Vorschlägen (Autocomplete mit Freitext: list/url/searchWith) (Optionen vom Server nachladen), addUrl („+“-Button legt neue Option per Dialog an), oder Server-Side-Tables fragt.
 ---
 
 # xiri-ng Expert
@@ -147,12 +147,29 @@ Beides ist Pflicht. Die Komponente postet **nur die Trigger-Werte** (`{departmen
 entprellt, ein Request pro URL, `switchMap`) und erwartet
 `{ "fields": { "team": { "list": [...], "required": true } } }`. Ein Reload läuft zusätzlich immer
 einmal direkt nach dem Aufbau der Controls. Werte, die die neue `list` noch anbietet, bleiben
-erhalten (rekursiv über `children`), der Rest wird verworfen — außer bei `chips` und Selects mit
-`url`, deren Liste nur ein Vorschlag bzw. der statische Sockel ist.
+erhalten (rekursiv über `children`), der Rest wird verworfen — außer bei `chips`, `text` (Liste sind
+nur Vorschläge) und Selects mit `url`, deren Liste der statische Sockel ist.
 
 Patchbar sind `list`, `name`, `hint`, `class`, `required`, `disabled`, `hide`, `search`, `min`,
-`max`, `params` — jeweils nur mit passendem Typ. `value`, `type`, `id` und `url` bewusst nicht.
+`max`, `params` — jeweils nur mit passendem Typ. `value`, `type`, `id`, `url` und `searchWith` bewusst nicht.
 Details und Grenzen in `references/form-fields.md`.
+
+**Vorschläge am Textfeld (mat-autocomplete, Freitext bleibt).** Ein `text`-Feld mit `list` und/oder
+`url` zeigt beim Tippen ein Vorschlags-Panel; eingetippt werden darf trotzdem alles:
+
+```typescript
+{ id: 'city', type: 'text', name: 'Stadt',
+  list: [ { id: 'Wien', name: 'Wien' }, { id: 'Graz', name: 'Graz' } ],   // lokal gefiltert
+  url: 'City/Suggest', searchWith: [ 'country' ] }                           // beim Tippen nachladen
+```
+
+`list` wird lokal gefiltert (`id === name`), `url` wird 200 ms entprellt per
+`POST { search: 'gr', country: 3 }` gefragt — `searchWith` nennt Feld-IDs derselben Form, deren
+aktueller Wert mitgeht (nur enabled Felder) — und erwartet `[{ id, name }]`; eingesetzt wird `name`,
+Servertreffer hängen hinter den lokalen. Enter/Blur übernehmen nie automatisch, ein `reloadOn`-Patch
+der `list` löscht den Text nicht. Kommen die Vorschläge erst per Reload, initial `list: []` setzen,
+sonst rendert die Komponente ein normales Textfeld und tauscht das Input beim Patch aus. Go:
+`field.NewTextField(...).SetSuggestions(...)` / `.SetSuggestionsURL(u, ids...)` + `builder.BindSuggest`.
 
 **addUrl — neue Option per Dialog anlegen.** `select`, `multiselect`/`treeselect`, `object`/`model`
 und `chips` bekommen mit `addUrl` einen „+“-Button neben dem Feld:
@@ -466,5 +483,8 @@ edit(row: any) {
 - Nicht `reloadOn` ohne `reloadUrl` (oder umgekehrt) — eine halbe Deklaration wird ignoriert
 - Nicht `url` **und** `reloadOn` auf demselben treeselect — mit `url` lädt es seinen Baum selbst
   per GET und ignoriert die gepatchte `list`
+- Kein `select` oder `chips`, wenn der Wert frei getippt werden darf und die Liste nur hilft —
+  `type: 'text'` mit `list` und/oder `url` (+ `searchWith`). Ein normales Textfeld ohne beides bleibt
+  ohne Autocomplete-Trigger; Vorschläge, die erst per `reloadOn` kommen, brauchen initial `list: []`
 - Keinen eigenen „Neu anlegen“-Button neben ein Select bauen — `addUrl` am Feld, der Dialog-POST
   antwortet mit `created: { id, name }`
