@@ -15,7 +15,13 @@ Renderer für `XiriFormField[]`. Baut intern eine `UntypedFormGroup` mit Reactiv
 @input display: XiriFormFieldDisplay = 'full'       // 'full' | 'line' | 'small'
 @input disabled: boolean = false
 @input check: Observable<void> = null                // Trigger für Revalidierung
+@input serverErrors: Record<string, string> | null = null // Validierungsfehler pro Feld-ID vom Server
 ```
+
+`serverErrors` trägt die `fields` einer 400-Antwort (xiri-go `response.NewErrorResponseFromError`,
+`{id: message}`). Jede Meldung erscheint als `mat-error` am Feld und verschwindet bei der nächsten
+Eingabe; unbekannte IDs werden ignoriert. `xiri-form` setzt den Input automatisch aus
+`XiriFormServiceError.fields` und lässt den Fehler-Banner dann leer.
 
 ### Outputs
 

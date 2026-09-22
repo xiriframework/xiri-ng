@@ -154,6 +154,14 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getGroupTableData( req.body as MockRequestBody ) } ) );
 	}
 
+	// Feldgenaue Server-Validierung (xiri-go FieldErrors): Name "fehler" liefert 400 mit fields.
+	if ( req.url.includes( 'Test/Form/Page' ) && req.method === 'POST' && ( req.body as { name?: unknown } )?.name === 'fehler' ) {
+		return throwError( () => new HttpErrorResponse( { status: 400, error: {
+			error: 'name: Dieser Name ist reserviert',
+			fields: { name: 'Dieser Name ist reserviert' },
+		} } ) ).pipe( delay( 200 ) );
+	}
+
 	if ( req.url.includes( 'Test/Form/Page' ) ) {
 		return of( new HttpResponse( { status: 200, body: getFormPage() } ) );
 	}

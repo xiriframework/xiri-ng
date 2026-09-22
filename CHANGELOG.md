@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+
+- **Formulare: Server-Feldfehler am Feld.** Antwortet der Server mit 400 und `fields: {id: message}`
+  (xiri-go `response.NewErrorResponseFromError`), zeigt `xiri-form` jede Meldung als `mat-error` am
+  betroffenen Feld statt als Banner; die nächste Eingabe löscht sie. Neuer Input `serverErrors` an
+  `xiri-form-fields`, `XiriFormServiceError.fields` im Service. Demo `/Forms`: Name „fehler".
 
 ## [0.4.14]
 ### Added
