@@ -28,6 +28,7 @@ import { enUS } from 'date-fns/locale/en-US';
 		[display]="display()"
 		[disabled]="disabled()"
 		[check]="checkSubject"
+		[serverErrors]="serverErrors()"
 		(formChange)="onFormChange($event)" />`,
 	imports: [ XiriFormFieldsComponent ],
 } )
@@ -35,6 +36,7 @@ class TestHostComponent {
 	fields = signal<XiriFormField[] | null>( null );
 	display = signal<'full' | 'line' | 'small'>( 'full' );
 	disabled = signal<boolean>( false );
+	serverErrors = signal<Record<string, string> | null>( null );
 	checkSubject = new Subject<void>();
 	formChangeEvents: UntypedFormGroup[] = [];
 	formFields = viewChild.required( XiriFormFieldsComponent );
@@ -2332,6 +2334,26 @@ describe( 'XiriFormFieldsComponent', () => {
 
 			created( 0, 'Null' );
 			expect( component.formGroup.get( 'x' )!.value ).toBe( 0 );
+		} );
+	} );
+
+	describe( 'serverErrors', () => {
+		it( 'zeigt den Server-Fehler als mat-error am Feld und löscht ihn bei Eingabe', () => {
+			host.fields.set( [ { id: 'name', type: 'text', value: 'ab' } ] );
+			fixture.detectChanges();
+
+			host.serverErrors.set( { name: 'zu kurz', unbekannt: 'wird ignoriert' } );
+			fixture.detectChanges();
+
+			const control = component.formGroup.get( 'name' )!;
+			expect( control.hasError( 'server' ) ).toBe( true );
+			const errorEl = fixture.nativeElement.querySelector( 'mat-error' ) as HTMLElement | null;
+			expect( errorEl?.textContent?.trim() ).toBe( 'zu kurz' );
+
+			control.setValue( 'abc' );
+			fixture.detectChanges();
+			expect( control.hasError( 'server' ) ).toBe( false );
+			expect( fixture.nativeElement.querySelector( 'mat-error' ) ).toBeNull();
 		} );
 	} );
 } );

@@ -130,6 +130,8 @@ export class XiriFormFieldsComponent implements OnInit {
 	disabled = input<boolean>( false );
 	formChange = output<UntypedFormGroup>();
 	check = input<Observable<void> | null>( null );
+	// Validierungsfehler pro Feld-ID vom Server (400 mit fields), siehe applyServerError().
+	serverErrors = input<Record<string, string> | null>( null );
 
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;
@@ -228,6 +230,16 @@ export class XiriFormFieldsComponent implements OnInit {
 			this.fields();
 			if ( formInput !== null && this._fieldsLoaded )
 				this.reloadKick.next();
+		} );
+
+		// Server-Feldfehler (400 mit fields) als Validierungseintrag 'server' einspeisen. Der nächste
+		// valueChange lässt Angular die Validatoren neu laufen und räumt den Eintrag von selbst weg.
+		effect( () => {
+			const errors = this.serverErrors();
+			if ( !errors )
+				return;
+			for ( const [ id, message ] of Object.entries( errors ) )
+				this.applyServerError( id, message );
 		} );
 	}
 
@@ -383,6 +395,23 @@ export class XiriFormFieldsComponent implements OnInit {
 			control.setValue( created.id );
 		}
 
+		this.patchedClones.set( id, { ...field } );
+		this.patchVersion.update( v => v + 1 );
+	}
+
+	private applyServerError( id: string, message: string ): void {
+
+		const field = this._fields?.find( f => f.id === id );
+		const control = field?.control;
+		if ( !field || !control )
+			return; // unbekannte ID (z. B. Form=false-Feld): ignorieren
+		// nullValidator: der Eintrag dient nur der Anzeige, der Fehler selbst kommt per setErrors.
+		field.validations = [
+			...( field.validations ?? [] ).filter( v => v.id !== 'server' ),
+			{ id: 'server', validator: Validators.nullValidator, message },
+		];
+		control.setErrors( { ...( control.errors ?? {} ), server: true } );
+		control.markAsTouched();
 		this.patchedClones.set( id, { ...field } );
 		this.patchVersion.update( v => v + 1 );
 	}
