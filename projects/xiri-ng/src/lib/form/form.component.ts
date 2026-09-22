@@ -46,6 +46,8 @@ export class XiriFormComponent implements OnInit {
 	public loadingButton = signal<XiriButton | null>( null );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
+	// Validierungsfehler pro Feld-ID aus einer 400-Antwort, geht als serverErrors an xiri-form-fields.
+	public fieldErrors = signal<Record<string, string> | null>( null );
 
 	private url!: string;
 	public buttons: XiriButton[] = [];
@@ -69,6 +71,7 @@ export class XiriFormComponent implements OnInit {
 		
 		this.loading.set( true );
 		this.error.set( '' );
+		this.fieldErrors.set( null );
 		
 		this.formService.get( this.url, data, this.extra ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe(
 			{
@@ -78,7 +81,9 @@ export class XiriFormComponent implements OnInit {
 				error: ( err: XiriFormServiceError ) => {
 					this.loading.set( false );
 					this.loadingButton.set( null );
-					this.error.set( err.error ?? 'Unknown Error' );
+					this.fieldErrors.set( err.fields ?? null );
+					// Mit Feldfehlern steht die Meldung am Feld; der Banner würde sie nur wiederholen.
+					this.error.set( err.fields ? '' : ( err.error ?? 'Unknown Error' ) );
 					
 					if ( this.buttons.length == 0 ) {
 						this.buttons = [ {

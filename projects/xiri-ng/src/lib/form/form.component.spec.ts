@@ -210,6 +210,17 @@ describe( 'XiriFormComponent', () => {
 
 			expect( component.loadingButton() ).toBeNull();
 		} );
+
+		it( 'should expose field errors and keep the banner empty when fields are present', () => {
+			mockFormService.get.mockReturnValue(
+				throwError( () => ( { error: 'name: zu kurz', fields: { name: 'zu kurz' } } ) )
+			);
+
+			createFixture( { url: 'fail', load: true } );
+
+			expect( component.fieldErrors() ).toEqual( { name: 'zu kurz' } );
+			expect( component.error() ).toBe( '' );
+		} );
 	} );
 
 	describe( 'clickButton', () => {

@@ -5,7 +5,7 @@
 		}
 		@if (formFields() !== null) {
 			<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [disabled]="loading()"
-			                  [check]="checkSubject.asObservable()"></xiri-form-fields>
+			                  [check]="checkSubject.asObservable()" [serverErrors]="fieldErrors()"></xiri-form-fields>
 		}
 		@if (error()) {
 			<xiri-error class="error" [text]="error()"></xiri-error>
