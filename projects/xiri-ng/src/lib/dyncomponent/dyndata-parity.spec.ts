@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 // @ts-expect-error - node:path ist zur Laufzeit vorhanden, aber nicht typisiert
 import { dirname, join } from 'node:path';
+import { XIRI_COMPONENT_TYPES } from './dyndata.interface';
 
 // Drift-Test: Jeder im DynComponent-Renderer verwendete @case-Typ muss auch
 // in der TypeScript-Union XiriDynDataType vorhanden sein. So faellt kuenftiger
@@ -15,14 +16,11 @@ import { dirname, join } from 'node:path';
 describe('XiriDynDataType parity', () => {
 	const here = dirname(fileURLToPath(import.meta.url));
 	const templateSrc: string = readFileSync(join(here, 'dyncomponent.component.html'), 'utf8');
-	const interfaceSrc: string = readFileSync(join(here, 'dyndata.interface.ts'), 'utf8');
 
 	// Alle @case ('X') Typen aus dem Template.
 	const rendererTypes = [...templateSrc.matchAll(/@case\s*\(\s*'([^']+)'\s*\)/g)].map((m) => m[1]);
 
-	// Alle Union-Member aus der XiriDynDataType-Deklaration.
-	const unionBody = interfaceSrc.match(/export type XiriDynDataType\s*=([\s\S]*?);/)?.[1] ?? '';
-	const unionTypes = [...unionBody.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+	const unionTypes: readonly string[] = XIRI_COMPONENT_TYPES;
 
 	it('extrahiert Typen aus beiden Quellen', () => {
 		expect(rendererTypes.length).toBeGreaterThan(0);
