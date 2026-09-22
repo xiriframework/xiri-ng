@@ -31,18 +31,18 @@ export interface XiriDynData {
   mode?: string;                          // Nur für 'barchart': 'simple' | 'stacked' | 'heatmap'
 }
 
-export type XiriDynDataType =
-  | 'card' | 'buttonline' | 'table' | 'cardlink' | 'links'
-  | 'form' | 'query' | 'stepper' | 'header' | 'list'
-  | 'spacer' | 'container'
-  | 'infopoint' | 'multiprogress' | 'imagetext'
-  | 'tabs' | 'expansion' | 'infotext' | 'html'
-  | 'stat' | 'empty-state' | 'timeline'
-  | 'page-header' | 'section' | 'divider'
-  | 'stat-grid' | 'toolbar' | 'description-list'
-  | 'barchart' | 'linechart' | 'piechart' | 'gaugechart'
-  | 'heatmap' | 'calendar' | 'tree' | 'sankey' | 'gantt';
+// Einzige Quelle aller type-Werte; die Union wird daraus abgeleitet.
+export const XIRI_COMPONENT_TYPES = ['card', 'buttonline', 'table', 'cardlink', /* … */ 'status', 'callout'] as const;
+export type XiriDynDataType = typeof XIRI_COMPONENT_TYPES[number];
+
+// Maschinenlesbarer Katalog (Name, Kategorie, Demo-Route, goBuilder, Keywords) je Typ.
+export const COMPONENT_CATALOG: readonly XiriCatalogEntry[];
 ```
+
+`XIRI_COMPONENT_TYPES`, `COMPONENT_CATALOG` und `XiriCatalogEntry` sind exportiert. Der Katalog ist
+maschinenlesbar: Agenten und Tools können ihn importieren, um zu erfahren, welche `type`-Werte der
+Renderer kennt und welche davon xiri-go ausgibt (`goBuilder`; Gegenstück `core.ComponentTypes()`).
+`catalog-parity.spec.ts` prüft Renderer-`@case`, Vertrag und Katalog gegeneinander.
 
 ## Mapping type → Komponente
 

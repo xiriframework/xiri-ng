@@ -8,6 +8,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 ### Added
 
+- **Komponenten-Vertrag exportiert.** `XIRI_COMPONENT_TYPES` (Quelle der Union `XiriDynDataType`) und
+  `COMPONENT_CATALOG` mit `XiriCatalogEntry` sind Teil der öffentlichen API; der Katalog ist aus dem
+  Demo-Projekt in die Lib gewandert und vollständig `readonly`. Ein Spec prüft Renderer-`@case`, Vertrag
+  und Katalog gegeneinander. Gegenstück xiri-go `core.ComponentTypes()`.
 - **Textfeld mit Vorschlägen.** Ein `text`-Feld mit `list` und/oder `url` zeigt ein `mat-autocomplete`-Panel:
   `list` wird lokal gefiltert, `url` beim Tippen (200 ms Debounce) per `POST {search, …}` nachgeladen und
   angehängt; `searchWith: string[]` nennt Feld-IDs, deren aktueller Wert (nur enabled Felder) mitgeschickt
