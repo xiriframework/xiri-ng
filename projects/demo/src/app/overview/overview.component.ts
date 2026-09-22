@@ -10,7 +10,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
-import { COMPONENT_CATALOG } from './component-catalog';
+import { COMPONENT_CATALOG } from 'projects/xiri-ng/src/lib/dyncomponent/component-catalog';
 
 @Component( {
 	            selector: 'app-overview',

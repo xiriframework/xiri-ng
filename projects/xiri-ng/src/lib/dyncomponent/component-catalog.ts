@@ -1,32 +1,33 @@
-// Component-Katalog für den Demo-Explorer (UX-009-Kern).
+// Komponenten-Katalog: maschinenlesbare Beschreibung aller "type"-Werte, die xiri-dyncomponent
+// rendert. Quelle der Typen ist XIRI_COMPONENT_TYPES (dyndata.interface.ts); der Katalog ergänzt
+// Name, Kategorie, Demo-Route und Suchbegriffe. Agenten und Tools können ihn importieren, um zu
+// erfahren, welche `type`-Werte der Renderer kennt. Der Demo-Explorer (/web/Overview) zeigt ihn an.
 //
-// Abgeleitet aus den tatsächlichen Fakten im Code:
-//   - `type`         : die @case-Typen aus dyncomponent.component.html.
-//   - `dyncomponent` : true, weil der Typ einen Renderer-@case besitzt (alle hier).
-//   - `goBuilder`    : true, wenn der Go-Code diesen "type" ausgibt
-//                      (xiri-go/component/**; via `grep '"type": "X"'`).
-//                      Nur `cardlink` hat aktuell keinen Go-Builder.
-//   - `angular`      : true, wenn eine eigene, aus public-api.ts exportierte
-//                      Lib-Component existiert. Die Inline-Primitive
-//                      (spacer/container/infotext/html) werden ohne eigene
-//                      Component direkt im Renderer gezeichnet → false.
+// Vertragsfelder (per Spec geprüft, siehe catalog-parity.spec.ts):
+//   - `type`         : aus XiriDynDataType; Katalog und XIRI_COMPONENT_TYPES sind deckungsgleich.
+//   - `dyncomponent` : true, wenn der Typ einen @case in dyncomponent.component.html besitzt.
+//   - `goBuilder`    : true, wenn xiri-go diesen "type" ausgibt; xiri-go prüft das in
+//                      component/core/types_test.go gegen core.ComponentTypes(). Nur `cardlink`
+//                      hat keinen Go-Builder.
+// Informationsfelder (nicht geprüft):
+//   - `angular`      : eigene, aus public-api.ts exportierte Lib-Component. Die Inline-Primitive
+//                      (spacer/container/infotext/html) zeichnet der Renderer direkt → false.
 //   - `route`        : die Demo-Route (app-routing.module.ts), die den Typ zeigt.
-//
-// Die Paritäts-Invariante (jeder @case-Typ ist im Katalog) wird von
-// projects/xiri-ng/src/lib/dyncomponent/catalog-parity.spec.ts abgesichert.
 
-export interface CatalogEntry {
-	type: string;
-	name: string;
-	category: string;
-	angular: boolean;
-	dyncomponent: boolean;
-	goBuilder: boolean;
-	route: string;
-	keywords: string[];
+import { XiriDynDataType } from './dyndata.interface';
+
+export interface XiriCatalogEntry {
+	readonly type: XiriDynDataType;
+	readonly name: string;
+	readonly category: string;
+	readonly angular: boolean;
+	readonly dyncomponent: boolean;
+	readonly goBuilder: boolean;
+	readonly route: string;
+	readonly keywords: readonly string[];
 }
 
-export const COMPONENT_CATALOG: CatalogEntry[] = [
+export const COMPONENT_CATALOG: readonly XiriCatalogEntry[] = [
 	// Data Entry
 	{ type: 'form', name: 'Form', category: 'Data Entry', angular: true, dyncomponent: true, goBuilder: true, route: '/Forms', keywords: [ 'form', 'field', 'input', 'formular', 'eingabe' ] },
 
