@@ -28,7 +28,7 @@ export * from './lib/button/button.component';
 export * from "./lib/buttonline/buttonline.component";
 export * from "./lib/dyncomponent/dyndata.interface";
 export * from "./lib/dyncomponent/dyncomponent.component";
-export * from "./lib/dyncomponent/component-catalog";
+export * from './lib/dyncomponent/component-catalog';
 export * from "./lib/cardlink/cardlink.component";
 export * from './lib/links/links.component';
 export * from "./lib/alert/alert.component";

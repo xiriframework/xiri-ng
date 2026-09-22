@@ -12,16 +12,18 @@ import { XIRI_COMPONENT_TYPES } from './dyndata.interface';
 import { COMPONENT_CATALOG } from './component-catalog';
 
 // Vertrag: XIRI_COMPONENT_TYPES ist die einzige Quelle. Renderer-@case und Katalog muessen dazu passen.
-// ponytail: Regex-Scan auf dem Template statt @angular/compiler; reicht, solange es genau einen @switch gibt.
+// ponytail: Regex-Scan auf dem Template statt @angular/compiler; der Test stellt sicher, dass es genau einen @switch gibt.
 describe('Komponenten-Vertrag', () => {
 	const here = dirname(fileURLToPath(import.meta.url));
 	const templateSrc: string = readFileSync(join(here, 'dyncomponent.component.html'), 'utf8')
 		.replace(/<!--[\s\S]*?-->/g, '');
-	const rendererTypes = [...templateSrc.matchAll(/@case\s*\(\s*'([^']+)'\s*\)/g)].map((m) => m[1]);
+	const rendererTypes = [...templateSrc.matchAll(/@case\s*\(\s*['"]([^'"]+)['"]\s*\)/g)].map((m) => m[1]);
 	const contract: readonly string[] = XIRI_COMPONENT_TYPES;
 	const catalogTypes: string[] = COMPONENT_CATALOG.map((e) => e.type);
 
-	it('extrahiert @case-Typen aus dem Renderer', () => {
+	it('Renderer hat genau einen @switch (obj.type), dem alle @case gehören', () => {
+		expect(templateSrc.match(/@switch\s*\(/g)?.length).toBe(1);
+		expect(templateSrc).toMatch(/@switch\s*\(\s*obj\.type\s*\)/);
 		expect(rendererTypes.length).toBeGreaterThan(0);
 	});
 
