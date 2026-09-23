@@ -204,7 +204,8 @@ export class DisplayComponent {
 	];
 
 	// --- SafeHtml ---
-	safeHtmlExample = '<strong style="color: green;">Safe HTML content</strong> with <em>formatting</em> and <a href="/Overview">link</a>.';
+	safeHtmlExample = '<strong>Safe HTML</strong> with <em>formatting</em>, <a href="/Overview">link</a> '
+		+ 'and a stripped <img src="x" onerror="alert(1)"> handler.';
 
 	goImagetextCode = `it := imagetext.New(
     "https://via.placeholder.com/300x200",

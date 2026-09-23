@@ -80,6 +80,17 @@ describe( 'XiriDescriptionListComponent', () => {
 		expect( span ).toBeTruthy();
 	} );
 
+	it( 'rendert html-Items ohne Event-Handler, behält class', () => {
+		host.settings.set( {
+			items: [ { label: 'Status', value: '<b class="x">ok</b><img src="x" onerror="window.__xss=1">', type: 'html' } ]
+		} );
+		fixture.detectChanges();
+
+		const dd: HTMLElement = fixture.nativeElement.querySelector( 'dd' );
+		expect( dd.querySelector( 'b.x' ) ).toBeTruthy();
+		expect( dd.querySelector( 'img' )?.getAttribute( 'onerror' ) ?? null ).toBeNull();
+	} );
+
 	it( 'should render icon in dt when provided', () => {
 		host.settings.set( {
 			items: [ { label: 'Phone', value: '123', icon: 'phone' } ]

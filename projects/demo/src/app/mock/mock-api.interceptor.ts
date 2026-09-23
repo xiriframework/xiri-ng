@@ -471,10 +471,10 @@ function getDialogsPage(): unknown {
 // what core.Component.Print() produces on the backend ({type, display, data}).
 function getDialogComponentResponse(): unknown {
 	const addressTable = ( name: string, street: string, city: string ) =>
-		`<table style="width:100%;border-collapse:collapse">
-			<tr><td style="padding:4px 8px;color:#888">Name</td><td style="padding:4px 8px">${ name }</td></tr>
-			<tr><td style="padding:4px 8px;color:#888">Street</td><td style="padding:4px 8px">${ street }</td></tr>
-			<tr><td style="padding:4px 8px;color:#888">City</td><td style="padding:4px 8px">${ city }</td></tr>
+		`<table width="100%" cellpadding="6">
+			<tr><th align="left">Name</th><td>${ name }</td></tr>
+			<tr><th align="left">Street</th><td>${ street }</td></tr>
+			<tr><th align="left">City</th><td>${ city }</td></tr>
 		</table>`;
 
 	return {
@@ -503,10 +503,10 @@ function getDialogComponentResponse(): unknown {
 						icon: 'inventory_2',
 						expanded: false,
 						data: [ { type: 'html', data: {
-							html: `<table style="width:100%;border-collapse:collapse">
-								<tr><th style="text-align:left;padding:4px 8px">Item</th><th style="text-align:right;padding:4px 8px">Qty</th></tr>
-								<tr><td style="padding:4px 8px">Widget A</td><td style="text-align:right;padding:4px 8px">3</td></tr>
-								<tr><td style="padding:4px 8px">Widget B</td><td style="text-align:right;padding:4px 8px">1</td></tr>
+							html: `<table width="100%" cellpadding="6">
+								<tr><th align="left">Item</th><th align="right">Qty</th></tr>
+								<tr><td>Widget A</td><td align="right">3</td></tr>
+								<tr><td>Widget B</td><td align="right">1</td></tr>
 							</table>`
 						} } ]
 					}

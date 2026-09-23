@@ -11,6 +11,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Dialog: `href`-Buttons folgen nur noch http(s)-, mailto-, tel- und relativen URLs.** Der Dialog setzte
   `window.location.href` ungeprüft, eine `javascript:`-URL aus Datensatzdaten lief damit im Seitenkontext.
   Unsichere URLs werden jetzt ignoriert. Buttons außerhalb von Dialogen waren über `[href]` schon geschützt.
+- **`safeHtml` sanitisiert, statt Angulars Sanitizer zu umgehen.** HTML aus Tabellenspalten (Format `html`),
+  Description-Lists, Infotexten/Infopoints, Alerts, Layout-`html` und Formular-HTML-Feldern lief über
+  `bypassSecurityTrustHtml`. Vom Backend eingebettete Datensatzdaten (z. B. Status oder Adresse) konnten so
+  Scripts in der Session jedes Betrachters ausführen (Stored XSS). Formatierung und `class` bleiben erhalten,
+  Scripts, Event-Handler und `javascript:`-URLs werden entfernt.
+  **Verhaltensänderung:** Angulars Allowlist entfernt auch die Attribute `style`, `id` und `data-*` sowie die
+  Elemente `<svg>`, `<iframe>` und `<input>`/`<button>`/`<form>`. Das gilt für Backend-HTML ebenso wie für Apps,
+  die die exportierte `safeHtml`-Pipe selbst verwenden. Stattdessen `class` mit globalen Styles nutzen.
 
 ### Fixed
 
