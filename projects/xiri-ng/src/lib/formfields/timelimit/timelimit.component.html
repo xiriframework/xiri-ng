@@ -28,8 +28,8 @@
 					</mat-form-field>
 					<mat-form-field class="time">
 						<mat-select formControlName="frommin" panelWidth="auto">
-							@for (m of minutes | keyvalue:onCompare; track m; let i = $index) {
-								<mat-option [value]="i">{{ m.value }}</mat-option>
+							@for (m of minutes; track m) {
+								<mat-option [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>
@@ -47,8 +47,8 @@
 					</mat-form-field>
 					<mat-form-field class="time">
 						<mat-select formControlName="tomin" panelWidth="auto">
-							@for (m of minutes | keyvalue; track m; let i = $index) {
-								<mat-option [value]="i">{{ m.value }}</mat-option>
+							@for (m of minutes; track m) {
+								<mat-option [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>

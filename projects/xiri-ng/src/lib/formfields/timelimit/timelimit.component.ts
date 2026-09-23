@@ -13,7 +13,6 @@ import {
 import { Subject } from "rxjs";
 import { FocusMonitor } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { KeyValuePipe } from '@angular/common';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -65,7 +64,6 @@ interface TimelimitValue {
 		            MatFormField,
 		            MatSelect,
 		            MatOption,
-		            KeyValuePipe,
 	            ]
             } )
 export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFieldControl<TimelimitValue>, OnInit, OnDestroy {
@@ -95,20 +93,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 	hours = [ '00', '01', '02', '03', '04', '05', '06', '07', '08', '09',
 	          '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
 	          '20', '21', '22', '23', '24' ];
-	minutes = {
-		0: '00',
-		5: '05',
-		10: '10',
-		15: '15',
-		20: '20',
-		25: '25',
-		30: '30',
-		35: '35',
-		40: '40',
-		45: '45',
-		50: '50',
-		55: '55'
-	};
+	minutes = [ 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55 ];
 	
 	constructor() {
 		if ( this.ngControl != null ) {
@@ -185,7 +170,7 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 			         !limit.wd[ 4 ] &&
 			         !limit.wd[ 5 ] &&
 			         !limit.wd[ 6 ] ) ) &&
-			     limit.fromhour == 0 && limit.frommin == 0 && limit.tohour == 24 && limit.frommin == 0 ) {
+			     limit.fromhour == 0 && limit.frommin == 0 && limit.tohour == 24 && limit.tomin == 0 ) {
 				isNotValid = true;
 			}
 		}
@@ -315,10 +300,6 @@ export class XiriTimelimitComponent implements ControlValueAccessor, MatFormFiel
 		if ( input === null || input === undefined )
 			return;
 		this._texts = input;
-	}
-
-	onCompare(): number {
-		return -1;
 	}
 	
 }
