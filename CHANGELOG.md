@@ -6,6 +6,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Security
+
+- **Dialog: `href`-Buttons folgen nur noch http(s)-, mailto-, tel- und relativen URLs.** Der Dialog setzte
+  `window.location.href` ungeprüft, eine `javascript:`-URL aus Datensatzdaten lief damit im Seitenkontext.
+  Unsichere URLs werden jetzt ignoriert. Buttons außerhalb von Dialogen waren über `[href]` schon geschützt.
+
 ### Fixed
 
 - **Formulare: Banner auch bei Feldfehlern.** `xiri-form` zeigt den Gesamttext `error` einer 400-Antwort jetzt

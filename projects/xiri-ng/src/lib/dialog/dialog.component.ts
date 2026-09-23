@@ -26,6 +26,7 @@ import { MatIcon } from '@angular/material/icon';
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDownloadService } from "../services/download.service";
 import { parseHttpError } from '../services/error.util';
+import { isSafeHref } from '../services/url.util';
 import { HttpErrorResponse } from '@angular/common/http';
 
 
@@ -392,7 +393,9 @@ export class XiriDialogComponent implements OnDestroy {
 		} else if ( button.action == 'link' ) {
 			this.router.navigate( [ button.url ] ).then();
 		} else if ( button.action == 'href' ) {
-			window.location.href = button.url ?? '';
+			const url = button.url ?? '';
+			if ( isSafeHref( url ) )
+				window.location.href = url;
 		} else {
 			if ( this.loading() )
 				return;

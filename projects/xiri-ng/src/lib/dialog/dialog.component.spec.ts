@@ -335,6 +335,23 @@ describe( 'XiriDialogComponent', () => {
 			expect( mockRouter.navigate ).toHaveBeenCalledWith( [ '/page' ] );
 		} );
 
+		it( 'führt javascript:-URLs eines href-Buttons nicht aus', async () => {
+			// javascript:-URLs laufen im echten jsdom-Fenster, nicht im Test-`window` (Vitest kopiert nur dessen Globals),
+			// und erst im nächsten Task.
+			const w = ( globalThis as unknown as { jsdom: { window: Record<string, unknown> } } ).jsdom.window;
+			delete w[ '__xss' ];
+			component.clickButton( { text: 'Web', action: 'href', type: 'flat', url: 'javascript:window.__xss=1' } );
+			await new Promise( resolve => setTimeout( resolve ) );
+			expect( w[ '__xss' ] ).toBeUndefined();
+			delete w[ '__xss' ];
+		} );
+
+		it( 'folgt relativen href-URLs weiter', () => {
+			component.clickButton( { text: 'Anker', action: 'href', type: 'flat', url: '#dialog-href' } );
+			expect( window.location.hash ).toBe( '#dialog-href' );
+			window.location.hash = '';
+		} );
+
 		it( 'should not submit if default button and form invalid', () => {
 			component.formChanged( { valid: false, value: {} } );
 			const button = { text: 'Save', action: 'submit', type: 'raised', default: true };
