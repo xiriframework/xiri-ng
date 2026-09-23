@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.5.0]
 ### Security
 
 - **Dialog: `href`-Buttons folgen nur noch http(s)-, mailto-, tel- und relativen URLs.** Der Dialog setzte
