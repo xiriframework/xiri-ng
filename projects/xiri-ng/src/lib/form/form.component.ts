@@ -82,8 +82,8 @@ export class XiriFormComponent implements OnInit {
 					this.loading.set( false );
 					this.loadingButton.set( null );
 					this.fieldErrors.set( err.fields ?? null );
-					// Mit Feldfehlern steht die Meldung am Feld; der Banner würde sie nur wiederholen.
-					this.error.set( err.fields ? '' : ( err.error ?? 'Unknown Error' ) );
+					// Banner immer zeigen: Fehler an unbekannten/unsichtbaren Feldern hätten sonst keine Anzeige.
+					this.error.set( err.error ?? 'Unknown Error' );
 					
 					if ( this.buttons.length == 0 ) {
 						this.buttons = [ {

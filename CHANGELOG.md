@@ -6,6 +6,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+
+- **Formulare: Banner auch bei Feldfehlern.** `xiri-form` zeigt den Gesamttext `error` einer 400-Antwort jetzt
+  immer im Banner, auch wenn `fields` mitkommt. Bisher blieb der Banner dann leer, und ein Fehler an einem
+  unbekannten oder unsichtbaren Feld war für den Benutzer nirgends zu sehen.
 
 ## [0.4.15]
 ### Added

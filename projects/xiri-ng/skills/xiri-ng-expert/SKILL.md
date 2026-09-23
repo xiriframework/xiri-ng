@@ -208,7 +208,7 @@ submit() {
 Lädt Felder + Buttons vom Backend, submit → POST → response-handler navigiert/refresht.
 
 Fehler: ein 400 mit `{error, fields?: {id: message}}` (xiri-go `response.NewErrorResponseFromError`) zeigt jede
-Feldmeldung als `mat-error` am Feld, der Banner bleibt leer; ohne `fields` erscheint `error` als Banner (`xiri-error`).
+Feldmeldung als `mat-error` am Feld; `error` erscheint immer als Banner (`xiri-error`), auch mit `fields`.
 
 ## xiri-table — volle Datentabelle
 

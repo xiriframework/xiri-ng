@@ -21,7 +21,7 @@ Renderer für `XiriFormField[]`. Baut intern eine `UntypedFormGroup` mit Reactiv
 `serverErrors` trägt die `fields` einer 400-Antwort (xiri-go `response.NewErrorResponseFromError`,
 `{id: message}`). Jede Meldung erscheint als `mat-error` am Feld und verschwindet bei der nächsten
 Eingabe; unbekannte IDs werden ignoriert. `xiri-form` setzt den Input automatisch aus
-`XiriFormServiceError.fields` und lässt den Fehler-Banner dann leer.
+`XiriFormServiceError.fields`; der Gesamttext `error` steht zusätzlich immer im Banner.
 
 ### Outputs
 

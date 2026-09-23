@@ -211,7 +211,7 @@ describe( 'XiriFormComponent', () => {
 			expect( component.loadingButton() ).toBeNull();
 		} );
 
-		it( 'should expose field errors and keep the banner empty when fields are present', () => {
+		it( 'should expose field errors and still show the full message in the banner', () => {
 			mockFormService.get.mockReturnValue(
 				throwError( () => ( { error: 'name: zu kurz', fields: { name: 'zu kurz' } } ) )
 			);
@@ -219,7 +219,8 @@ describe( 'XiriFormComponent', () => {
 			createFixture( { url: 'fail', load: true } );
 
 			expect( component.fieldErrors() ).toEqual( { name: 'zu kurz' } );
-			expect( component.error() ).toBe( '' );
+			// Fehler an unbekannten/unsichtbaren Feldern wären sonst nirgends sichtbar.
+			expect( component.error() ).toBe( 'name: zu kurz' );
 		} );
 	} );
 
