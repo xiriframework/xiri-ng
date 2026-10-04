@@ -63,7 +63,7 @@ export class TablesComponent {
 	sectionTable5: XiriSectionSettings = {
 		title: '5: Projects (clickedRow + borders + chips)',
 		subtitle: "Clickable rows, border lines, minimum table width, and format: 'chips' for colored tag display.",
-		icon: 'rows',
+		icon: 'table_rows',
 	};
 
 	sectionTable6: XiriSectionSettings = {
