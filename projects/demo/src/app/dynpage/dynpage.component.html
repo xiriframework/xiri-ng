@@ -1,17 +1,17 @@
 <div class="xcontainer-fluid">
 	<div class="xrow">
-		@if (bread) {
+		@if (bread()) {
 			<div class="xcol bread">
 				test
 			</div>
 		}
 		<div class="xcol">
-			@if (loading) {
+			@if (loading()) {
 				<div class="dynpage-loader">
 					<mat-spinner diameter="30"></mat-spinner>
 				</div>
 			}
-			@if (error) {
+			@if (error()) {
 				<div class="xcol error">
 					<h1>Page not found</h1>
 				</div>

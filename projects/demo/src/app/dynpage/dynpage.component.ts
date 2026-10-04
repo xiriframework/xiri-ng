@@ -25,11 +25,11 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	private router: Router = inject( Router );
 	private route: ActivatedRoute = inject( ActivatedRoute );
 	
-	public loading = true;
+	public loading = signal( true );
 	public data = signal<XiriDynData[]>( [] );
-	public bread: unknown = null;
+	public bread = signal<unknown>( null );
 	private subs: Subscription = new Subscription();
-	public error = false;
+	public error = signal( false );
 	
 	constructor() {
 		this.router.events.pipe(
@@ -46,10 +46,10 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	
 	private load() {
 		
-		this.loading = true;
+		this.loading.set( true );
 		this.data.set( [] );
-		this.bread = null;
-		this.error = false;
+		this.bread.set( null );
+		this.error.set( false );
 		
 		let url = this.router.url;
 		if ( url.lastIndexOf( '/', 0 ) === 0 )
@@ -65,14 +65,14 @@ export class DynpageComponent implements OnInit, OnDestroy {
 			{
 				next: ( res ) => {
 					const response = res as DynPageResponse;
-					this.bread = response.bread;
+					this.bread.set( response.bread );
 					this.data.set( response.data );
-					this.loading = false;
+					this.loading.set( false );
 				},
 				error: ( err ) => {
 					console.log( 'dynpage onreject', err );
-					this.error = true;
-					this.loading = false;
+					this.error.set( true );
+					this.loading.set( false );
 				}
 			}
 		) );
