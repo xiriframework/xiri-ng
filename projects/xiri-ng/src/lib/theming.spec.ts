@@ -67,4 +67,17 @@ describe( 'theming mixins', () => {
 	it( 'ships the no-padding rule for tab bodies with a child combinator', () => {
 		expect( css ).toMatch( /\.mat-mdc-tab-body\.xiri-tab-no-padding > \.mat-mdc-tab-body-content \{\s*padding: 0;/ );
 	} );
+
+	// Material 22 liest nur --mat-snack-bar-*, und "Material Icons" ist kein Peer: beides fiel sonst still aus.
+	it( 'styles the snackbar variants with tokens and a font Material 22 actually uses', () => {
+		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
+			// matchAll: the shared animation rule also ends in ".xiri-snackbar-warning {".
+			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );
+			expect( block, type ).toContain( '--mat-snack-bar-container-color:' );
+			expect( block, type ).toContain( '--mat-snack-bar-supporting-text-color:' );
+		}
+		expect( css ).not.toContain( '--mdc-snackbar-' );
+		expect( css ).not.toMatch( /font-family: "?Material Icons/ );
+		expect( css ).toMatch( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"/ );
+	} );
 } );

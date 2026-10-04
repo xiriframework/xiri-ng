@@ -228,7 +228,8 @@ td.align-right .xiri-chips-display {
 	animation: slideInUp var(--xiri-duration-normal) var(--xiri-easing-decelerate);
 
 	.mdc-snackbar__label::before {
-		font-family: 'Material Icons';
+		font-family: 'Material Symbols Outlined';
+		font-feature-settings: 'liga';
 		font-size:   20px;
 		margin-right: 8px;
 		vertical-align: middle;
@@ -236,33 +237,33 @@ td.align-right .xiri-chips-display {
 }
 
 .xiri-snackbar-success {
-	--mdc-snackbar-container-color: #{$color-success};
-	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-container-color: #{$color-success};
+	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: '\e876'; } // check_circle
+	.mdc-snackbar__label::before { content: 'check_circle'; }
 }
 
 .xiri-snackbar-error {
-	--mdc-snackbar-container-color: #{$color-red};
-	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-container-color: #{$color-red};
+	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: '\e000'; } // error
+	.mdc-snackbar__label::before { content: 'error'; }
 }
 
 .xiri-snackbar-info {
-	--mdc-snackbar-container-color: #{$color-info};
-	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-container-color: #{$color-info};
+	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: '\e88e'; } // info
+	.mdc-snackbar__label::before { content: 'info'; }
 }
 
 .xiri-snackbar-warning {
-	--mdc-snackbar-container-color: #{$color-orange};
-	--mdc-snackbar-supporting-text-color: white;
+	--mat-snack-bar-container-color: #{$color-orange};
+	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: '\e002'; } // warning
+	.mdc-snackbar__label::before { content: 'warning'; }
 }
