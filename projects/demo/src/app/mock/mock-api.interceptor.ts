@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { delay, of, throwError } from 'rxjs';
+import { delay, of, switchMap, throwError, timer } from 'rxjs';
 
 // Shape of the (optional) request bodies the mock handlers read. All fields are optional because
 // the same body type is shared across the different mock endpoints.
@@ -38,11 +38,11 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Error API — always fails, to demo the differentiated error message + retry button.
 	if ( req.url.includes( 'Test/Error/Fail' ) ) {
-		return throwError( () => new HttpErrorResponse( {
+		return failAfter( 400, {
 			status: 500,
 			error: { error: 'Server konnte die Daten nicht laden' },
 			statusText: 'Internal Server Error',
-		} ) ).pipe( delay( 400 ) );
+		} );
 	}
 
 	// Stepper API
@@ -157,10 +157,10 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	// Feldgenaue Server-Validierung (xiri-go FieldErrors): Name "fehler" liefert 400 mit fields.
 	if ( req.url.includes( 'Test/Form/Page' ) && req.method === 'POST' && ( req.body as { name?: unknown } )?.name === 'fehler' ) {
-		return throwError( () => new HttpErrorResponse( { status: 400, error: {
+		return failAfter( 200, { status: 400, error: {
 			error: 'name: Dieser Name ist reserviert',
 			fields: { name: 'Dieser Name ist reserviert' },
-		} } ) ).pipe( delay( 200 ) );
+		} } );
 	}
 
 	if ( req.url.includes( 'Test/Form/Page' ) ) {
@@ -275,11 +275,11 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 		// Simulate validation error for non-numeric price values
 		if ( body?.field === 'price' && isNaN( Number( String( body?.value ).replace( /,/g, '' ) ) ) ) {
-			return throwError( () => new HttpErrorResponse( {
+			return failAfter( 500, {
 				status: 400,
 				statusText: 'Bad Request',
 				error: { error: 'Price must be a valid number' }
-			} ) ).pipe( delay( 500 ) );
+			} );
 		}
 
 		// Cell-object columns (date) get the whole {d, v} back — like tbl.Cell(ctx, fieldID, row) in Go
@@ -979,4 +979,9 @@ function getQueryTableResult(): unknown {
 			}
 		]
 	};
+}
+
+// delay() only holds back next(): an error would arrive at once and skip the loading state.
+function failAfter( ms: number, init: ConstructorParameters<typeof HttpErrorResponse>[ 0 ] ) {
+	return timer( ms ).pipe( switchMap( () => throwError( () => new HttpErrorResponse( init ) ) ) );
 }
