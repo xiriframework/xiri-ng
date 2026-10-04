@@ -106,6 +106,9 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 			this.loadError.set( 'echarts is not installed. Add `npm install echarts` to your app.' );
 			return;
 		}
+		// Destroyed while echarts was loading: nothing to init, and DestroyRef.onDestroy would throw NG0911.
+		if ( this.destroyRef.destroyed )
+			return;
 
 		this.zone.runOutsideAngular( () => {
 			this.chart = this.echarts!.init( this.chartHostRef().nativeElement );
