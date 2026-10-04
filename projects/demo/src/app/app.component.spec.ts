@@ -6,7 +6,6 @@ import { By } from '@angular/platform-browser';
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BehaviorSubject } from 'rxjs';
-import { ThemeService } from 'projects/xiri-ng/src/lib/services/theme.service';
 import { AppComponent } from './app.component';
 
 describe( 'AppComponent', () => {
@@ -23,8 +22,6 @@ describe( 'AppComponent', () => {
 				provideZonelessChangeDetection(),
 				provideRouter( [] ),
 				{ provide: BreakpointObserver, useValue: { observe: () => breakpoint$ } },
-				// jsdom has no matchMedia, which the real ThemeService needs; the theme is irrelevant here.
-				{ provide: ThemeService, useValue: { isDark: () => false, toggle: () => undefined } },
 			],
 		} ).compileComponents();
 

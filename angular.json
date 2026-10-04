@@ -134,7 +134,8 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "tsConfig": "projects/demo/tsconfig.spec.json",
-            "buildTarget": "demo:build"
+            "buildTarget": "demo:build",
+            "setupFiles": [ "projects/demo/src/test-setup.ts" ]
           }
         }
       }
