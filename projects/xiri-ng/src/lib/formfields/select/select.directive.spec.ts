@@ -1,22 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { inputBinding } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { XiriSelectDirective } from './select.directive';
 import { XiriFormFieldSelectOption } from '../field.interface';
 import { XiriDataService } from '../../services/data.service';
-
-@Component( {
-	selector: 'xiri-select-test-host',
-	template: `<div xiriSelect [values]="values()" [serverSideSearch]="server()" serverUrl="/search"></div>`,
-	imports: [ XiriSelectDirective ],
-} )
-class TestHostComponent {
-	values = signal<XiriFormFieldSelectOption[]>( [] );
-	server = signal( false );
-	dir = viewChild.required( XiriSelectDirective );
-}
 
 // 3 ist disabled, 4 eine Gruppe, '2' ein String-Id neben der Zahl 2 — alle Kanten in einer Liste.
 const OPTIONS: XiriFormFieldSelectOption[] = [
@@ -30,14 +19,18 @@ const OPTIONS: XiriFormFieldSelectOption[] = [
 async function setup( values: XiriFormFieldSelectOption[], server = false ) {
 	const post = vi.fn().mockReturnValue( of( [ { id: 9, name: 'Server' } ] ) );
 	TestBed.configureTestingModule( {
-		imports: [ TestHostComponent ],
 		providers: [ { provide: XiriDataService, useValue: { post } } ],
 	} );
-	const fixture: ComponentFixture<TestHostComponent> = TestBed.createComponent( TestHostComponent );
-	fixture.componentInstance.values.set( values );
-	fixture.componentInstance.server.set( server );
+	const fixture = TestBed.createDirective( XiriSelectDirective, {
+		tagName: 'div',
+		bindings: [
+			inputBinding( 'values', () => values ),
+			inputBinding( 'serverSideSearch', () => server ),
+			inputBinding( 'serverUrl', () => '/search' ),
+		],
+	} );
 	await fixture.whenStable();
-	return { fixture, dir: fixture.componentInstance.dir(), post };
+	return { fixture, dir: fixture.directiveInstance, post };
 }
 
 describe( 'XiriSelectDirective – toggleSelectAll', () => {
