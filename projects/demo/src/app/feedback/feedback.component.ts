@@ -76,7 +76,7 @@ export class FeedbackComponent {
 
 	sectionSidepanel: XiriSectionSettings = {
 		title: 'XiriSidepanelService',
-		subtitle: 'Rechts einschiebendes Panel als Dialog-Alternative. ESC oder Backdrop-Klick schließt es; ' +
+		subtitle: 'Rechts einschiebendes Panel als Dialog-Alternative. ESC, Backdrop-Klick oder Navigation schließt es; ' +
 			'afterClosed() liefert das Ergebnis, analog zu MatDialogRef.',
 		icon: 'vertical_split',
 		iconColor: 'accent',

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Location } from '@angular/common';
 import { Overlay } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
@@ -17,6 +18,7 @@ export interface XiriSidepanelConfig {
 export class XiriSidepanelService {
 	private readonly overlay = inject( Overlay );
 	private readonly focusTrapFactory = inject( ConfigurableFocusTrapFactory );
+	private readonly location = inject( Location );
 
 	open( config: XiriSidepanelConfig ): XiriSidepanelRef {
 
@@ -41,7 +43,12 @@ export class XiriSidepanelService {
 		// Fokus im Panel halten (CDK Overlay macht das nicht automatisch, anders als MatDialog).
 		const focusTrap = this.focusTrapFactory.create( overlayRef.overlayElement );
 		focusTrap.focusInitialElementWhenReady();
-		overlayRef.detachments().subscribe( () => focusTrap.destroy() );
+		// Jede URL-Änderung (Link im Panel, goto/refresh-Response, Zurück-Button) schließt das Panel.
+		const stopUrlListener = this.location.onUrlChange( () => ref.close() );
+		overlayRef.detachments().subscribe( () => {
+			focusTrap.destroy();
+			stopUrlListener();
+		} );
 
 		overlayRef.backdropClick().subscribe( () => ref.close() );
 		overlayRef.keydownEvents().pipe( filter( e => e.keyCode === ESCAPE ) ).subscribe( () => ref.close() );
