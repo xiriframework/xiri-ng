@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, inputBinding, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { of, Subject, throwError } from 'rxjs';
 import { XiriSuggestDirective } from './suggest.directive';
@@ -23,16 +23,6 @@ class TestHostComponent {
 		kind: new FormControl( { value: 'x', disabled: true } ),
 	} );
 	field = signal<XiriFormField>( { type: 'text', id: 'city', list: [ WIEN, GRAZ ] } );
-	dir = viewChild.required( XiriSuggestDirective );
-}
-
-@Component( {
-	selector: 'xiri-suggest-bare-host',
-	template: `<input [xiriSuggest]="field()">`,
-	imports: [ XiriSuggestDirective ],
-} )
-class BareHostComponent {
-	field = signal<XiriFormField>( { type: 'text', id: 'city', url: 'City/Search', searchWith: [ 'dept' ] } );
 	dir = viewChild.required( XiriSuggestDirective );
 }
 
@@ -232,13 +222,13 @@ describe( 'XiriSuggestDirective ohne formGroup', () => {
 		vi.useFakeTimers();
 		const post = vi.fn().mockReturnValue( of( [] ) );
 		TestBed.configureTestingModule( {
-			imports: [ BareHostComponent ],
 			providers: [ { provide: XiriDataService, useValue: { post } } ],
 		} );
-		const fixture = TestBed.createComponent( BareHostComponent );
+		const field: XiriFormField = { type: 'text', id: 'city', url: 'City/Search', searchWith: [ 'dept' ] };
+		const fixture = TestBed.createDirective( XiriSuggestDirective, { bindings: [ inputBinding( 'xiriSuggest', () => field ) ] } );
 		fixture.detectChanges();
 		await fixture.whenStable();
-		const input = fixture.nativeElement.querySelector( 'input' ) as HTMLInputElement;
+		const input = fixture.nativeElement as HTMLInputElement;
 		input.value = 'gr';
 		input.dispatchEvent( new Event( 'input' ) );
 		vi.advanceTimersByTime( 200 );
