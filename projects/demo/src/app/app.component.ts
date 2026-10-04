@@ -106,7 +106,7 @@ export const demoNavFields: XiriNavigationField[] = [ {
 	name: 'Feedback & Status',
 	icon: 'notifications',
 	menu: true,
-	regex: /^(Feedback|Snackbar|Skeleton|EmptyState|Status|Callout|Test\/Test\/Dialogs)/,
+	regex: /^(Feedback|Snackbar|Skeleton|EmptyState|Status|Callout)/,
 	sub: [ {
 		name: 'Alerts & Status',
 		icon: 'report',
@@ -114,7 +114,7 @@ export const demoNavFields: XiriNavigationField[] = [ {
 	}, {
 		name: 'Dialogs',
 		icon: 'chat_bubble',
-		link: 'Test/Test/Dialogs'
+		link: 'Feedback/Dialogs'
 	}, {
 		name: 'Snackbar',
 		icon: 'chat',

@@ -129,13 +129,13 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		if ( req.url.includes( '/poll' ) ) {
 			dialogWaitingPolls++;
 			const finished = dialogWaitingPolls >= 3;
-			return of( new HttpResponse( { status: 200, body: finished ? { done: true, url: 'Test/Test/Dialogs' } : { done: false } } ) ).pipe( delay( 1200 ) );
+			return of( new HttpResponse( { status: 200, body: finished ? { done: true, url: 'Feedback/Dialogs' } : { done: false } } ) ).pipe( delay( 1200 ) );
 		}
 		dialogWaitingPolls = 0;
 		return of( new HttpResponse( { status: 200, body: getDialogWaitingResponse() } ) );
 	}
 
-	if ( req.url.includes( 'Test/Test/Dialogs' ) ) {
+	if ( req.url.includes( 'Feedback/Dialogs' ) ) {
 		return of( new HttpResponse( { status: 200, body: getDialogsPage() } ) );
 	}
 
