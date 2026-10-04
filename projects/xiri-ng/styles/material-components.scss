@@ -230,6 +230,10 @@ td.align-right .xiri-chips-display {
 	.mdc-snackbar__label::before {
 		font-family: 'Material Symbols Outlined';
 		font-feature-settings: 'liga';
+		letter-spacing: normal;
+		text-transform: none;
+		white-space: nowrap;
+		direction: ltr;
 		// Ligature name is in the aria-live region: each variant adds empty alt text (`/ ''`), the plain line before is the fallback.
 		font-size:   20px;
 		margin-right: 8px;

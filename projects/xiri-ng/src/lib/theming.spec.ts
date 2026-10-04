@@ -81,6 +81,13 @@ describe( 'theming mixins', () => {
 		expect( css ).toMatch( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"/ );
 	} );
 
+	// Same hardening as .material-symbols-outlined: inherited tracking or text-transform would break the ligature into plain text.
+	it( 'protects the snackbar icon ligature from inherited text styles', () => {
+		const before = css.match( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"[^}]*\}/ )?.[ 0 ] ?? '';
+		for ( const decl of [ 'letter-spacing: normal', 'text-transform: none', 'white-space: nowrap', 'direction: ltr' ] )
+			expect( before, decl ).toContain( decl );
+	} );
+
 	// The label sits in the snackbar's aria-live region: without empty alt text the ligature name ("check_circle") is announced.
 	it( 'hides the snackbar icon ligature from screen readers', () => {
 		for ( const name of [ 'check_circle', 'error', 'info', 'warning' ] )
