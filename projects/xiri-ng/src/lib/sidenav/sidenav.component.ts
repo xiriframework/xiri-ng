@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIcon } from '@angular/material/icon';
 import { MatListItem, MatListItemIcon, MatListItemMeta, MatListItemTitle } from '@angular/material/list';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatDrawer } from '@angular/material/sidenav';
 
 export interface XiriSidebarSettings {
 	
@@ -47,11 +48,14 @@ export interface XiriNavigationField {
 		            MatListItemMeta,
 		            XiriUrlPipe,
 	            ],
+	            host: { '(click)': 'onClick( $event )' },
             } )
 export class XiriSidenavComponent {
 	
 	private router: Router = inject( Router );
 	private cdr: ChangeDetectorRef = inject( ChangeDetectorRef );
+	// The surrounding mat-sidenav/mat-drawer, if any — MatSidenav provides itself as MatDrawer.
+	private drawer = inject( MatDrawer, { optional: true } );
 	
 	settings = input<XiriSidebarSettings>();
 	loading = true;
@@ -85,6 +89,14 @@ export class XiriSidenavComponent {
 		} );
 	}
 	
+	// An overlay drawer (mobile) covers the page, so close it once a link is chosen.
+	// Clicks on submenu toggles are no <a> and keep it open; a side drawer (desktop) stays.
+	protected onClick( event: MouseEvent ): void {
+
+		if ( this.drawer?.mode === 'over' && ( event.target as Element ).closest( 'a' ) )
+			this.drawer.close();
+	}
+
 	private compileRegex( fields: XiriNavigationField[] ): void {
 
 		if ( !fields )

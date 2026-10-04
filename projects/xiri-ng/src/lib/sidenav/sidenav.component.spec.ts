@@ -4,6 +4,9 @@ import { Component, signal } from '@angular/core';
 import { XiriSidenavComponent, XiriSidebarSettings, XiriNavigationField } from './sidenav.component';
 import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
+import { provideRouter } from '@angular/router';
+import { By } from '@angular/platform-browser';
+import { MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
 
 @Component({
 	selector: 'test-host',
@@ -359,5 +362,69 @@ describe('XiriSidenavComponent', () => {
 
 		expect(comp.loading).toBe(false);
 		expect(comp.fields.length).toBe(1);
+	});
+});
+
+@Component({
+	selector: 'test-drawer-host',
+	template: `
+		<mat-sidenav-container>
+			<mat-sidenav [mode]="mode()" opened>
+				<xiri-sidenav [settings]="settings" />
+			</mat-sidenav>
+		</mat-sidenav-container>`,
+	imports: [XiriSidenavComponent, MatSidenavContainer, MatSidenav],
+})
+class DrawerHostComponent {
+	mode = signal<'over' | 'side'>('over');
+	settings: XiriSidebarSettings = {
+		prefix: '/',
+		fields: [
+			{ name: 'Home', icon: 'home', link: 'home' },
+			{ name: 'Gruppe', icon: 'folder', menu: true, sub: [{ name: 'Kind', icon: 'x', link: 'kind' }] },
+		],
+	};
+}
+
+describe('XiriSidenavComponent inside a drawer', () => {
+	let fixture: ComponentFixture<DrawerHostComponent>;
+	let drawer: MatSidenav;
+
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [DrawerHostComponent],
+			providers: [provideRouter([{ path: '**', children: [] }])],
+		}).compileComponents();
+		fixture = TestBed.createComponent(DrawerHostComponent);
+		fixture.detectChanges();
+		drawer = fixture.debugElement.query(By.directive(MatSidenav)).componentInstance;
+	});
+
+	async function click(selector: string): Promise<void> {
+		(fixture.nativeElement.querySelector(selector) as HTMLElement).click();
+		await fixture.whenStable();
+	}
+
+	it('closes an overlay drawer when a link is clicked', async () => {
+		expect(drawer.opened).toBe(true);
+		await click('a[href="/home"]');
+		expect(drawer.opened).toBe(false);
+	});
+
+	it('closes an overlay drawer when a nested link is clicked', async () => {
+		await click('a[href="/kind"]');
+		expect(drawer.opened).toBe(false);
+	});
+
+	it('keeps an overlay drawer open when a submenu is toggled', async () => {
+		await click('mat-list-item.parent');
+		expect(drawer.opened).toBe(true);
+	});
+
+	it('keeps a side drawer open when a link is clicked', async () => {
+		fixture.componentInstance.mode.set('side');
+		fixture.detectChanges();
+		await click('a[href="/home"]');
+		expect(drawer.opened).toBe(true);
 	});
 });
