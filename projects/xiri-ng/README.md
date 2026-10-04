@@ -38,6 +38,7 @@ xiri-ng renders icons with [Material Symbols](https://fonts.google.com/icons). I
 `provideXiriServices()` makes `material-symbols-outlined` the default font set of `<mat-icon>`. Pick another set with
 `provideXiriServices({ api: '/api/', iconFontSet: 'material-symbols-rounded' })`, or pass `iconFontSet: null` to leave it to
 Angular Material, which detects the loaded Symbols font itself from 22.2 on.
+Snackbar icons always use Material Symbols Outlined, so keep `material-symbols/outlined` loaded even with another set.
 
 ## The main entry point: `xiri-dyncomponent`
 

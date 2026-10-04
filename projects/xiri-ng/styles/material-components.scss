@@ -230,6 +230,7 @@ td.align-right .xiri-chips-display {
 	.mdc-snackbar__label::before {
 		font-family: 'Material Symbols Outlined';
 		font-feature-settings: 'liga';
+		// Ligature name is in the aria-live region: each variant adds empty alt text (`/ ''`), the plain line before is the fallback.
 		font-size:   20px;
 		margin-right: 8px;
 		vertical-align: middle;
@@ -241,7 +242,7 @@ td.align-right .xiri-chips-display {
 	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: 'check_circle'; }
+	.mdc-snackbar__label::before { content: 'check_circle'; content: 'check_circle' / ''; }
 }
 
 .xiri-snackbar-error {
@@ -249,7 +250,7 @@ td.align-right .xiri-chips-display {
 	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: 'error'; }
+	.mdc-snackbar__label::before { content: 'error'; content: 'error' / ''; }
 }
 
 .xiri-snackbar-info {
@@ -257,7 +258,7 @@ td.align-right .xiri-chips-display {
 	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: 'info'; }
+	.mdc-snackbar__label::before { content: 'info'; content: 'info' / ''; }
 }
 
 .xiri-snackbar-warning {
@@ -265,5 +266,5 @@ td.align-right .xiri-chips-display {
 	--mat-snack-bar-supporting-text-color: white;
 	--mat-snack-bar-button-color: white;
 
-	.mdc-snackbar__label::before { content: 'warning'; }
+	.mdc-snackbar__label::before { content: 'warning'; content: 'warning' / ''; }
 }

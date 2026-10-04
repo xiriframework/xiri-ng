@@ -80,4 +80,10 @@ describe( 'theming mixins', () => {
 		expect( css ).not.toMatch( /font-family: "?Material Icons/ );
 		expect( css ).toMatch( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"/ );
 	} );
+
+	// The label sits in the snackbar's aria-live region: without empty alt text the ligature name ("check_circle") is announced.
+	it( 'hides the snackbar icon ligature from screen readers', () => {
+		for ( const name of [ 'check_circle', 'error', 'info', 'warning' ] )
+			expect( css, name ).toMatch( new RegExp( `content: "${ name }"\\s*/\\s*""` ) );
+	} );
 } );
