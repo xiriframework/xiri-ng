@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { XiriLocaleService } from "projects/xiri-ng/src/lib/services/locale.service";
 import { ThemeService } from "projects/xiri-ng/src/lib/services/theme.service";
-import { Subscription } from "rxjs";
-import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
+import { map } from "rxjs";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { Router, RouterLink, RouterOutlet } from "@angular/router";
 import { XiriSidebarSettings } from "projects/xiri-ng/src/lib/sidenav/sidenav.component";
 import { MatIcon } from "@angular/material/icon";
@@ -30,7 +31,7 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 	                       MatSidenavContent,
 	                       RouterOutlet ]
             } )
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent {
 	private breakpointObserver = inject( BreakpointObserver );
 	private router = inject( Router );
 	private localeService = inject( XiriLocaleService );
@@ -239,33 +240,14 @@ export class AppComponent implements OnInit, OnDestroy {
 			} ]
 		} ]
 	};
-	public navLoaded = false;
+	public navLoaded = true;
 
-	public isSmall = false;
-	public opened = false;
-	private sub: Subscription | null = null;
-	private subSidebar: Subscription | null = null;
+	// A signal, not a field: the demo runs zoneless, so a plain field set in subscribe never re-renders on resize.
+	public isSmall = toSignal( this.breakpointObserver.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
+		                           .pipe( map( state => state.matches ) ), { requireSync: true } );
 
 	constructor() {
 
 		this.localeService.setTimezone( 'Europe/London' );
-	}
-
-	ngOnInit() {
-
-		this.sub = this.breakpointObserver.observe( [ Breakpoints.XSmall, Breakpoints.Small ] )
-			.subscribe( ( state: BreakpointState ) => {
-				this.isSmall = state.matches;
-				this.opened = !state.matches;
-			} );
-
-		this.navLoaded = true;
-	}
-
-	ngOnDestroy() {
-		if ( this.sub )
-			this.sub.unsubscribe();
-		if ( this.subSidebar )
-			this.subSidebar.unsubscribe();
 	}
 }

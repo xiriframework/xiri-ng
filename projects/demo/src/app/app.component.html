@@ -1,4 +1,4 @@
-<div class="main-container" [class.nav-is-mobile]="isSmall">
+<div class="main-container" [class.nav-is-mobile]="isSmall()">
 	<mat-toolbar color="primary" class="nav-toolbar">
 		<mat-toolbar-row>
 			<button mat-icon-button (click)="snav.toggle()" aria-label="Navigation ein-/ausblenden">
@@ -18,7 +18,7 @@
 	</mat-toolbar>
 
 	<mat-sidenav-container class="nav-sidenav-container">
-		<mat-sidenav #snav [mode]="isSmall ? 'over' : 'side'" role="navigation" [fixedInViewport]="isSmall" fixedTopGap="48" [opened]="opened && navLoaded" (openedChange)="opened && (navLoaded = $event)" disableClose>
+		<mat-sidenav #snav [mode]="isSmall() ? 'over' : 'side'" role="navigation" [fixedInViewport]="isSmall()" fixedTopGap="48" [opened]="!isSmall() && navLoaded" (openedChange)="!isSmall() && (navLoaded = $event)" disableClose>
 			<mat-nav-list>
 				<xiri-sidenav [settings]="navsettings"></xiri-sidenav>
 			</mat-nav-list>
