@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { colsToClasses } from './cols.directive';
+import { inputBinding, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { colsToClasses, XiriCols, XiriColsDirective } from './cols.directive';
 
 describe('colsToClasses', () => {
 	it('Zahl → volle + Breakpoint-Klassen', () => {
@@ -14,3 +16,23 @@ describe('colsToClasses', () => {
 		expect(colsToClasses(undefined)).toBe('xcol');
 	});
 });
+
+describe( 'XiriColsDirective – Host-Klassen', () => {
+	it( 'setzt die Klassen aus xiriCols auf das Host-Element', async () => {
+		const fixture = TestBed.createDirective( XiriColsDirective, { tagName: 'div', bindings: [ inputBinding( 'xiriCols', () => 6 ) ] } );
+		await fixture.whenStable();
+
+		expect( fixture.nativeElement.className ).toBe( 'xcol xcol-md-6' );
+	} );
+
+	it( 'aktualisiert die Klassen, wenn sich xiriCols ändert', async () => {
+		const cols = signal<XiriCols>( 6 );
+		const fixture = TestBed.createDirective( XiriColsDirective, { tagName: 'div', bindings: [ inputBinding( 'xiriCols', cols ) ] } );
+		await fixture.whenStable();
+
+		cols.set( { sm: 12, xl: 4 } );
+		await fixture.whenStable();
+
+		expect( fixture.nativeElement.className ).toBe( 'xcol xcol-sm-12 xcol-xl-4' );
+	} );
+} );
