@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { switchMap, throwError, timer } from 'rxjs';
 import { appProviders } from '../app/app.config';
 import { AppComponent } from '../app/app.component';
+import { XiriNavigationField } from 'projects/xiri-ng/src/lib/sidenav/sidenav.component';
 
 // Requests the mock interceptor passes on would hit the network; in tests they end as 404.
 // Asynchronous like a real network: a synchronous error would hide missing change detection (zoneless).
@@ -38,4 +39,8 @@ export async function waitFor( fixture: ComponentFixture<unknown>, check: () => 
 
 export function mainText( fixture: ComponentFixture<AppComponent> ): string {
 	return ( fixture.nativeElement.querySelector( '.mainpage' ) as HTMLElement ).textContent ?? '';
+}
+
+export function navLinks( fields: XiriNavigationField[] ): string[] {
+	return fields.flatMap( f => [ ...( f.link ? [ f.link ] : [] ), ...navLinks( f.sub ?? [] ) ] );
 }

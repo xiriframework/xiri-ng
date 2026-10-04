@@ -5,7 +5,7 @@ import { ThemeService } from "projects/xiri-ng/src/lib/services/theme.service";
 import { map } from "rxjs";
 import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import { Router, RouterLink, RouterOutlet } from "@angular/router";
-import { XiriSidebarSettings } from "projects/xiri-ng/src/lib/sidenav/sidenav.component";
+import { XiriNavigationField, XiriSidebarSettings } from "projects/xiri-ng/src/lib/sidenav/sidenav.component";
 import { MatIcon } from "@angular/material/icon";
 import { XiriSidenavComponent } from 'projects/xiri-ng/src/lib/sidenav/sidenav.component';
 import { MatNavList } from '@angular/material/list';
@@ -13,6 +13,206 @@ import { MatSidenavContainer, MatSidenav, MatSidenavContent } from '@angular/mat
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatIconButton } from '@angular/material/button';
 import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
+
+export const demoNavFields: XiriNavigationField[] = [ {
+	name: 'Overview',
+	icon: 'home',
+	link: 'Overview'
+}, {
+	name: 'Forms',
+	icon: 'edit_note',
+	menu: true,
+	regex: /^(Forms|Dates|Selects|SpecialFields)/,
+	sub: [ {
+		name: 'Basic Fields',
+		icon: 'text_fields',
+		link: 'Forms'
+	}, {
+		name: 'Date & Time',
+		icon: 'calendar_month',
+		link: 'Dates'
+	}, {
+		name: 'Advanced',
+		icon: 'tune',
+		menu: true,
+		regex: /^(Selects|SpecialFields)/,
+		sub: [ {
+			name: 'Select Fields',
+			icon: 'checklist',
+			link: 'Selects'
+		}, {
+			name: 'Special Fields',
+			icon: 'extension',
+			link: 'SpecialFields'
+		} ]
+	} ]
+}, {
+	name: 'Tables',
+	icon: 'table_chart',
+	menu: true,
+	regex: /^(Tables|InlineEditTable|TableTree|Query|MasterDetail)/,
+	sub: [ {
+		name: 'Tables',
+		icon: 'table_chart',
+		link: 'Tables'
+	}, {
+		name: 'Query & Filter',
+		icon: 'filter_alt',
+		link: 'Query'
+	}, {
+		name: 'Inline Edit',
+		icon: 'edit_note',
+		link: 'InlineEditTable'
+	}, {
+		name: 'Tree Table',
+		icon: 'account_tree',
+		link: 'TableTree'
+	}, {
+		name: 'Master-Detail',
+		icon: 'vertical_split',
+		link: 'MasterDetail'
+	} ]
+}, {
+	name: 'Cards',
+	icon: 'dashboard',
+	link: 'Cards'
+}, {
+	name: 'Navigation & Layout',
+	icon: 'menu_open',
+	menu: true,
+	regex: /^(Navigation|Expansion|Breadcrumb|Layout|MultiCard)/,
+	sub: [ {
+		name: 'Layout',
+		icon: 'menu_open',
+		link: 'Navigation'
+	}, {
+		name: 'Page Layout',
+		icon: 'space_dashboard',
+		link: 'Layout'
+	}, {
+		name: 'Multi-Component Cards',
+		icon: 'view_quilt',
+		link: 'MultiCard'
+	}, {
+		name: 'Expansion',
+		icon: 'expand_more',
+		link: 'Expansion'
+	}, {
+		name: 'Breadcrumb',
+		icon: 'chevron_right',
+		link: 'Breadcrumb'
+	} ]
+}, {
+	name: 'Feedback & Status',
+	icon: 'notifications',
+	menu: true,
+	regex: /^(Feedback|Snackbar|Skeleton|EmptyState|Status|Callout|Test\/Test\/Dialogs)/,
+	sub: [ {
+		name: 'Alerts & Status',
+		icon: 'report',
+		link: 'Feedback'
+	}, {
+		name: 'Dialogs',
+		icon: 'chat_bubble',
+		link: 'Test/Test/Dialogs'
+	}, {
+		name: 'Snackbar',
+		icon: 'chat',
+		link: 'Snackbar'
+	}, {
+		name: 'Skeleton',
+		icon: 'hourglass_empty',
+		link: 'Skeleton'
+	}, {
+		name: 'Empty State',
+		icon: 'inbox',
+		link: 'EmptyState'
+	}, {
+		name: 'Status',
+		icon: 'label',
+		link: 'Status'
+	}, {
+		name: 'Callout',
+		icon: 'campaign',
+		link: 'Callout'
+	} ]
+}, {
+	name: 'Data Display',
+	icon: 'visibility',
+	menu: true,
+	regex: /^(Display|Stats|MultiStat|Timeline|BarCharts|EntitySummary)/,
+	sub: [ {
+		name: 'Components',
+		icon: 'visibility',
+		link: 'Display'
+	}, {
+		name: 'Stats / KPI',
+		icon: 'bar_chart',
+		link: 'Stats'
+	}, {
+		name: 'Multi Stat',
+		icon: 'view_column',
+		link: 'MultiStat'
+	}, {
+		name: 'Charts',
+		icon: 'insert_chart',
+		link: 'BarCharts'
+	}, {
+		name: 'Timeline',
+		icon: 'timeline',
+		link: 'Timeline'
+	}, {
+		name: 'Entity Summary',
+		icon: 'badge',
+		link: 'EntitySummary'
+	} ]
+}, {
+	name: 'Workflows',
+	icon: 'account_tree',
+	link: 'Workflow'
+}, {
+	name: 'Dynamic',
+	icon: 'dynamic_form',
+	link: 'Dynamic'
+}, {
+	name: 'Services',
+	icon: 'build',
+	link: 'Services'
+}, {
+	name: 'Locale & Sprachen',
+	icon: 'translate',
+	link: 'Locale'
+}, {
+	name: 'Server (DynPage)',
+	icon: 'cloud',
+	menu: true,
+	regex: /^(Home\/|Test\/)/,
+	sub: [ {
+		name: 'Login',
+		icon: 'login',
+		link: 'Home/Login/Test',
+		path: 'Home/Login/'
+	}, {
+		name: 'Query',
+		icon: 'search',
+		link: 'Test/Query/Page'
+	}, {
+		name: 'Simulation',
+		icon: 'play_arrow',
+		link: 'Test/Test/Home',
+		path: 'Test/Test/'
+	}, {
+		name: 'Groups',
+		icon: 'group',
+		link: 'Test/Group/Table',
+		path: 'Test/Group/'
+	}, {
+		name: 'Form',
+		icon: 'description',
+		link: 'Test/Form/Page',
+		path: 'Test/Form/'
+	} ]
+} ];
 
 @Component( {
 	            selector: 'app-root',
@@ -38,208 +238,7 @@ export class AppComponent {
 	protected themeService = inject( ThemeService );
 
 
-	public navsettings: XiriSidebarSettings = {
-		prefix: '/',
-		fields: [ {
-			name: 'Overview',
-			icon: 'home',
-			link: 'Overview'
-		}, {
-			name: 'Forms',
-			icon: 'edit_note',
-			menu: true,
-			regex: /^(Forms|Dates|Selects|SpecialFields)/,
-			sub: [ {
-				name: 'Basic Fields',
-				icon: 'text_fields',
-				link: 'Forms'
-			}, {
-				name: 'Date & Time',
-				icon: 'calendar_month',
-				link: 'Dates'
-			}, {
-				name: 'Advanced',
-				icon: 'tune',
-				menu: true,
-				regex: /^(Selects|SpecialFields)/,
-				sub: [ {
-					name: 'Select Fields',
-					icon: 'checklist',
-					link: 'Selects'
-				}, {
-					name: 'Special Fields',
-					icon: 'extension',
-					link: 'SpecialFields'
-				} ]
-			} ]
-		}, {
-			name: 'Tables',
-			icon: 'table_chart',
-			menu: true,
-			regex: /^(Tables|InlineEditTable|TableTree|Query|MasterDetail)/,
-			sub: [ {
-				name: 'Tables',
-				icon: 'table_chart',
-				link: 'Tables'
-			}, {
-				name: 'Query & Filter',
-				icon: 'filter_alt',
-				link: 'Query'
-			}, {
-				name: 'Inline Edit',
-				icon: 'edit_note',
-				link: 'InlineEditTable'
-			}, {
-				name: 'Tree Table',
-				icon: 'account_tree',
-				link: 'TableTree'
-			}, {
-				name: 'Master-Detail',
-				icon: 'vertical_split',
-				link: 'MasterDetail'
-			} ]
-		}, {
-			name: 'Cards',
-			icon: 'dashboard',
-			link: 'Cards'
-		}, {
-			name: 'Navigation & Layout',
-			icon: 'menu_open',
-			menu: true,
-			regex: /^(Navigation|Expansion|Breadcrumb|Layout|MultiCard)/,
-			sub: [ {
-				name: 'Layout',
-				icon: 'menu_open',
-				link: 'Navigation'
-			}, {
-				name: 'Page Layout',
-				icon: 'space_dashboard',
-				link: 'Layout'
-			}, {
-				name: 'Multi-Component Cards',
-				icon: 'view_quilt',
-				link: 'MultiCard'
-			}, {
-				name: 'Expansion',
-				icon: 'expand_more',
-				link: 'Expansion'
-			}, {
-				name: 'Breadcrumb',
-				icon: 'chevron_right',
-				link: 'Breadcrumb'
-			} ]
-		}, {
-			name: 'Feedback & Status',
-			icon: 'notifications',
-			menu: true,
-			regex: /^(Feedback|Snackbar|Skeleton|EmptyState|Status|Callout|Test\/Test\/Dialogs)/,
-			sub: [ {
-				name: 'Alerts & Status',
-				icon: 'report',
-				link: 'Feedback'
-			}, {
-				name: 'Dialogs',
-				icon: 'chat_bubble',
-				link: 'Test/Test/Dialogs'
-			}, {
-				name: 'Snackbar',
-				icon: 'chat',
-				link: 'Snackbar'
-			}, {
-				name: 'Skeleton',
-				icon: 'hourglass_empty',
-				link: 'Skeleton'
-			}, {
-				name: 'Empty State',
-				icon: 'inbox',
-				link: 'EmptyState'
-			}, {
-				name: 'Status',
-				icon: 'label',
-				link: 'Status'
-			}, {
-				name: 'Callout',
-				icon: 'campaign',
-				link: 'Callout'
-			} ]
-		}, {
-			name: 'Data Display',
-			icon: 'visibility',
-			menu: true,
-			regex: /^(Display|Stats|MultiStat|Timeline|BarCharts|EntitySummary)/,
-			sub: [ {
-				name: 'Components',
-				icon: 'visibility',
-				link: 'Display'
-			}, {
-				name: 'Stats / KPI',
-				icon: 'bar_chart',
-				link: 'Stats'
-			}, {
-				name: 'Multi Stat',
-				icon: 'view_column',
-				link: 'MultiStat'
-			}, {
-				name: 'Charts',
-				icon: 'insert_chart',
-				link: 'BarCharts'
-			}, {
-				name: 'Timeline',
-				icon: 'timeline',
-				link: 'Timeline'
-			}, {
-				name: 'Entity Summary',
-				icon: 'badge',
-				link: 'EntitySummary'
-			} ]
-		}, {
-			name: 'Workflows',
-			icon: 'account_tree',
-			link: 'Workflow'
-		}, {
-			name: 'Dynamic',
-			icon: 'dynamic_form',
-			link: 'Dynamic'
-		}, {
-			name: 'Services',
-			icon: 'build',
-			link: 'Services'
-		}, {
-			name: 'Locale & Sprachen',
-			icon: 'translate',
-			link: 'Locale'
-		}, {
-			name: 'Server (DynPage)',
-			icon: 'cloud',
-			menu: true,
-			regex: /^(Home\/|Test\/)/,
-			sub: [ {
-				name: 'Login',
-				icon: 'login',
-				link: 'Home/Login/Test',
-				path: 'Home/Login/'
-			}, {
-				name: 'Query',
-				icon: 'search',
-				link: 'Test/Query/Page'
-			}, {
-				name: 'Simulation',
-				icon: 'play_arrow',
-				link: 'Test/Test/Home',
-				path: 'Test/Test/'
-			}, {
-				name: 'Groups',
-				icon: 'group',
-				link: 'Test/Group/Table',
-				path: 'Test/Group/'
-			}, {
-				name: 'Form',
-				icon: 'description',
-				link: 'Test/Form/Page',
-				path: 'Test/Form/'
-			} ]
-		} ]
-	};
+	public navsettings: XiriSidebarSettings = { prefix: '/', fields: demoNavFields };
 	public navLoaded = true;
 
 	// A signal, not a field: the demo runs zoneless, so a plain field set in subscribe never re-renders on resize.
