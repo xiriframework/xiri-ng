@@ -16,12 +16,20 @@ export const appConfig: ApplicationConfig = {
 Signatur:
 
 ```typescript
-function provideXiriServices(config: Partial<XiriDataServiceConfig>): EnvironmentProviders
+function provideXiriServices(
+  config: Partial<XiriDataServiceConfig> & { iconFontSet?: string | null }
+): EnvironmentProviders
 
 class XiriDataServiceConfig {
   api: string = '/api/';
 }
 ```
+
+`iconFontSet` (Default `'material-symbols-outlined'`) wird Default-Font-Set von `<mat-icon>` ohne `fontSet`
+(`MatIconRegistry.setDefaultFontSetClass(…, 'mat-ligature-font')`). Anderes Set: `'material-symbols-rounded'` /
+`'material-symbols-sharp'` — passendes Stylesheet laden. `null` überlässt es Angular Material (ab 22.2 Autoerkennung
+über `document.fonts`; scheitert bei asynchron geladenem Font-CSS, SSR oder parallel geladenem Legacy-„Material Icons").
+Snackbar-Icons sind fest Outlined.
 
 Alle xiri-Services sind `providedIn: 'root'` — kein manuelles Registrieren nötig.
 

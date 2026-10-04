@@ -5,7 +5,7 @@ import { Subscription } from "rxjs";
 import { BreakpointObserver, Breakpoints, BreakpointState } from "@angular/cdk/layout";
 import { Router, RouterLink, RouterOutlet } from "@angular/router";
 import { XiriSidebarSettings } from "projects/xiri-ng/src/lib/sidenav/sidenav.component";
-import { MatIconRegistry, MatIcon } from "@angular/material/icon";
+import { MatIcon } from "@angular/material/icon";
 import { XiriSidenavComponent } from 'projects/xiri-ng/src/lib/sidenav/sidenav.component';
 import { MatNavList } from '@angular/material/list';
 import { MatSidenavContainer, MatSidenav, MatSidenavContent } from '@angular/material/sidenav';
@@ -33,7 +33,6 @@ import { MatToolbar, MatToolbarRow } from '@angular/material/toolbar';
 export class AppComponent implements OnInit, OnDestroy {
 	private breakpointObserver = inject( BreakpointObserver );
 	private router = inject( Router );
-	private iconRegistry = inject( MatIconRegistry );
 	private localeService = inject( XiriLocaleService );
 	protected themeService = inject( ThemeService );
 
@@ -249,7 +248,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
 	constructor() {
 
-		this.iconRegistry.setDefaultFontSetClass( 'material-symbols-outlined' );
 		this.localeService.setTimezone( 'Europe/London' );
 	}
 

@@ -30,7 +30,7 @@ npm install @xiriframework/xiri-ng
 
 ### Peer Dependencies
 
-Angular 21, Angular Material 21, date-fns 4, RxJS 7. See `package.json` for the full list.
+Angular 22, Angular Material 22, date-fns 4, RxJS 7, `material-symbols`. See `package.json` for the full list. Icon setup: see the [library README](projects/xiri-ng/README.md#icons).
 
 ## Quick Start
 
@@ -500,14 +500,15 @@ For a deep API reference (every component's inputs/outputs, services, pipes, typ
 
 | Dependency | Version |
 |-----------|---------|
-| Angular | ^21 |
-| Angular Material | ^21 |
-| Angular CDK | ^21 |
-| date-fns | ^4.1 |
-| @date-fns/tz | ^1.4 |
-| RxJS | ^7.8.1 |
-| ngx-mat-select-search | ^8.0.4 |
-| material-symbols | >= 0.40 |
+| Angular | ^22.0 |
+| Angular Material | ^22.0 |
+| Angular CDK | ^22.0 |
+| date-fns | ^4.3 |
+| @date-fns/tz | ^1.5 |
+| RxJS | ^7.8.2 |
+| ngx-mat-select-search | ^9.0.0 |
+| material-symbols | >= 0.44 |
+| echarts (optional) | ^6.1 |
 
 ## Claude Code Integration — `xiri-ng-expert` Skill
 

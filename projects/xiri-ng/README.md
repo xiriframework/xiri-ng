@@ -27,6 +27,18 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
+### Icons
+
+xiri-ng renders icons with [Material Symbols](https://fonts.google.com/icons). Include the font in your global `styles.scss`:
+
+```scss
+@use 'material-symbols/outlined';
+```
+
+`provideXiriServices()` makes `material-symbols-outlined` the default font set of `<mat-icon>`. Pick another set with
+`provideXiriServices({ api: '/api/', iconFontSet: 'material-symbols-rounded' })`, or pass `iconFontSet: null` to leave it to
+Angular Material, which detects the loaded Symbols font itself from 22.2 on.
+
 ## The main entry point: `xiri-dyncomponent`
 
 `xiri-ng` is designed around a central component that dynamically renders an array of JSON component definitions:
@@ -150,14 +162,15 @@ The main repository ships a [Claude Code](https://claude.com/claude-code) skill 
 
 ## Peer dependencies
 
-- Angular 21+
-- Angular Material 21+
-- Angular CDK 21+
+- Angular 22+
+- Angular Material 22+
+- Angular CDK 22+
 - RxJS 7.8+
-- `date-fns` 4+
-- `@date-fns/tz` 1+
-- `ngx-mat-select-search` 8+
-- `material-symbols` ≥ 0.40
+- `date-fns` 4.3+
+- `@date-fns/tz` 1.5+
+- `ngx-mat-select-search` 9+
+- `material-symbols` ≥ 0.44
+- `echarts` 6.1+ (optional, only for charts)
 
 ## License
 

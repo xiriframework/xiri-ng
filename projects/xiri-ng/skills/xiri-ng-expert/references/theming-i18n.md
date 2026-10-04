@@ -54,6 +54,7 @@ nicht über `mat.theme()` — die Komponenten lesen Xiris eigene, unprefixed CSS
 // src/styles.scss
 @use '@angular/material' as mat;
 @use '@xiriframework/xiri-ng/styles/material' as xirimat;
+@use 'material-symbols/outlined'; // Icon-Font, Pflicht-Peer; Set wählt provideXiriServices({ iconFontSet })
 
 $light-theme: xirimat.create-theme(mat.$azure-palette, mat.$blue-palette, light, -1);
 $dark-theme:  xirimat.create-theme(mat.$azure-palette, mat.$blue-palette, dark,  -1);
