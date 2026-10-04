@@ -157,6 +157,23 @@ describe( 'XiriSidepanelService – Navigation', () => {
 		expect( emitted ).toEqual( [ undefined ] );
 	} );
 
+	it( 'meldet den URL-Listener beim Schließen ab – spätere Navigation lässt den Fokus in Ruhe', async () => {
+		const trigger = document.createElement( 'button' );
+		document.body.appendChild( trigger );
+		trigger.focus();
+		service.open( { title: 'Detail' } ).close();
+
+		const later = document.createElement( 'input' );
+		document.body.appendChild( later );
+		later.focus();
+
+		await harness.navigateByUrl( '/b' );
+
+		expect( document.activeElement ).toBe( later );
+		trigger.remove();
+		later.remove();
+	} );
+
 	it( 'bleibt offen, wenn es beim Aktivieren der Ziel-Route geöffnet wird (Deep-Link)', async () => {
 		await harness.navigateByUrl( '/deep' );
 
