@@ -129,6 +129,13 @@
             ],
             "eslintConfig": "projects/demo/eslint.config.js"
           }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/demo/tsconfig.spec.json",
+            "buildTarget": "demo:build"
+          }
         }
       }
     }

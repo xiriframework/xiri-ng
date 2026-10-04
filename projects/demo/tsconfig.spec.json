@@ -1,0 +1,22 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "../../out-tsc/spec-demo",
+		// The demo imports the library by path (projects/xiri-ng/…), so the root spans both projects.
+		"rootDir": "../..",
+		"types": [],
+		"skipLibCheck": true
+	},
+	"include": [
+		"**/*.spec.ts",
+		"**/*.d.ts"
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
+}
