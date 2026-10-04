@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Tabellen-Menüs: deaktivierte Einträge mit Begründung.** Ein Menüeintrag in den Zeilendaten kann jetzt
+  `{ disabled: '<Grund>' }` statt URL oder `false` sein. Er bleibt sichtbar und fokussierbar
+  (`disabledInteractive`), zeigt den Grund als Tooltip und löst weder Navigation noch Dialog aus. Backend-Seite:
+  `table.AddMenuEntries` in xiri-go. Demo: Tabelle 4 auf der Tables-Seite.
+
 ## [0.5.0]
 ### Security
 

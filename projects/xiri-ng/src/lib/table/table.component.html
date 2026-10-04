@@ -142,10 +142,20 @@
 														</button>
 														<mat-menu #menuRef="matMenu">
 															@for (item of button.menuItems; track item; let j = $index) {
-																@if (row[column.id][i][j] !== false) {
+																@let cell = row[column.id][i][j];
+																@if (cell?.disabled) {
+																	<!-- Own element without routerLink/href/click: disabledInteractive keeps it focusable for the tooltip
+																	     but does not stop RouterLink or a (click) handler on the same element. -->
+																	<button mat-menu-item disabled disabledInteractive [matTooltip]="cell.disabled">
+																		@if (item.icon) {
+																			<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
+																		}
+																		<span>{{ item.text }}</span>
+																	</button>
+																} @else if (cell !== false) {
 																	@switch (item.action) {
 																		@case ('link') {
-																			@let menuUrl = row[column.id][i][j] | xiriUrl;
+																			@let menuUrl = cell | xiriUrl;
 																			<a mat-menu-item [routerLink]="menuUrl?.path" [queryParams]="menuUrl?.queryParams">
 																				@if (item.icon) {
 																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
@@ -154,7 +164,7 @@
 																			</a>
 																		}
 																		@case ('href') {
-																			<a mat-menu-item [href]="row[column.id][i][j]" target="_blank">
+																			<a mat-menu-item [href]="cell" target="_blank">
 																				@if (item.icon) {
 																					<mat-icon [class]="item.color || 'primary'">{{ item.icon }}</mat-icon>
 																				}

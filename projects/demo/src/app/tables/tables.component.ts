@@ -56,7 +56,7 @@ export class TablesComponent {
 
 	sectionTable4: XiriSectionSettings = {
 		title: '4: Products (Dense + Footer + Menu)',
-		subtitle: 'Dense mode, footer with sum/count calculation, menu button per row with submenu.',
+		subtitle: 'Dense mode, footer with sum/count calculation, menu button per row with submenu. Menu entries can be hidden per row (USB-C Hub) or shown disabled with a reason as tooltip (Wireless Mouse, Headset Pro).',
 		icon: 'grid_view',
 	};
 
@@ -208,12 +208,12 @@ export class TablesComponent {
 	public data4: XiriTableSettings = {
 		data: [
 			{ id: 1, name: 'Laptop Pro 15', nameLink: '/Overview', price: [ '1,299.00', 1299.00 ], category: 'Electronics', info: [ 'High-end laptop', '15 inch display' ], actions: [ [ '/Overview', '/Forms', false ] ] },
-			{ id: 2, name: 'Wireless Mouse', nameLink: '/Forms', price: [ '29.99', 29.99 ], category: 'Accessories', info: [ 'Bluetooth mouse', 'Ergonomic' ], actions: [ [ '/Tables', '/Cards', '/Feedback' ] ] },
+			{ id: 2, name: 'Wireless Mouse', nameLink: '/Forms', price: [ '29.99', 29.99 ], category: 'Accessories', info: [ 'Bluetooth mouse', 'Ergonomic' ], actions: [ [ '/Tables', '/Cards', { disabled: 'Discontinued — no further changes' } ] ] },
 			{ id: 3, name: 'USB-C Hub', nameLink: '/Tables', price: [ '59.90', 59.90 ], category: 'Accessories', info: [ '7-in-1 hub', 'USB-C port' ], actions: [ [ '/Overview', false, '/Workflow' ] ] },
 			{ id: 4, name: 'Monitor 27"', nameLink: '/Cards', price: [ '449.00', 449.00 ], category: 'Electronics', info: [ '4K monitor', 'IPS panel' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
 			{ id: 5, name: 'Mechanical Keyboard', nameLink: '/Feedback', price: [ '89.95', 89.95 ], category: 'Accessories', info: [ 'Mechanical', 'Cherry MX Blue' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
 			{ id: 6, name: 'Webcam HD', nameLink: '/Overview', price: [ '79.00', 79.00 ], category: 'Electronics', info: [ '1080p webcam', 'Autofocus' ], actions: [ [ '/Overview', '/Forms', false ] ] },
-			{ id: 7, name: 'Headset Pro', nameLink: '/Forms', price: [ '199.00', 199.00 ], category: 'Audio', info: [ 'Noise cancelling', 'Bluetooth 5.0' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
+			{ id: 7, name: 'Headset Pro', nameLink: '/Forms', price: [ '199.00', 199.00 ], category: 'Audio', info: [ 'Noise cancelling', 'Bluetooth 5.0' ], actions: [ [ '/Overview', { disabled: 'Locked while an order is open' }, '/Tables' ] ] },
 			{ id: 8, name: 'Docking Station', nameLink: '/Tables', price: [ '159.90', 159.90 ], category: 'Accessories', info: [ 'Triple display', 'USB-C PD 100W' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
 			{ id: 9, name: 'SSD 1TB', nameLink: '/Overview', price: [ '89.99', 89.99 ], category: 'Storage', info: [ 'NVMe SSD', 'PCIe Gen4' ], actions: [ [ '/Overview', false, '/Tables' ] ] },
 			{ id: 10, name: 'RAM 32GB', nameLink: '/Forms', price: [ '109.00', 109.00 ], category: 'Storage', info: [ 'DDR5 5600', 'CL36' ], actions: [ [ '/Overview', '/Forms', '/Tables' ] ] },
@@ -522,7 +522,22 @@ tb.FloatField("price", "Price", priceAcc).
     })
 tb.TextField("category", "Category", catAcc).
     WithFooterCount()
-tb.ButtonsField("actions", actionsAcc) // menu button
+fb := tb.ButtonsField("actions", "Actions", func(p Product) map[string]string { return nil })
+table.AddMenuEntries[Product](fb, 0, "more_vert", core.ColorPrimary, "Actions",
+    func(p Product) []table.MenuEntry {
+        edit := table.MenuEntry{URL: "/Forms"}
+        if p.OrderOpen {
+            edit = table.MenuEntry{DisabledHint: "Locked while an order is open"}
+        }
+        tbl := table.MenuEntry{URL: "/Tables"}
+        if p.Discontinued {
+            tbl = table.MenuEntry{DisabledHint: "Discontinued — no further changes"}
+        }
+        return []table.MenuEntry{{URL: "/Overview"}, edit, tbl} // MenuEntry{} hides an entry
+    })
+fb.AddMenuItem(table.FieldButtonActionLink, "home", core.ColorPrimary, "Home")
+fb.AddMenuItem(table.FieldButtonActionLink, "edit", core.ColorPrimary, "Edit")
+fb.AddMenuItem(table.FieldButtonActionLink, "table_chart", core.ColorPrimary, "Table")
 
 tb.SetOptions(table.TableOptions{
     Dense: true, Pagination: true, Footer: true,

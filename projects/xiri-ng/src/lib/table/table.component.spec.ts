@@ -17,6 +17,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { provideRouter, Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { MatTooltip } from '@angular/material/tooltip';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { MatMenuHarness } from '@angular/material/menu/testing';
+import { MatTooltipHarness } from '@angular/material/tooltip/testing';
 
 // Narrow view onto the component's private members the tests reach into.
 interface TableInternals {
@@ -2200,6 +2203,70 @@ describe( 'XiriTableComponent', () => {
 				.filter( d => d.nativeElement.tagName === 'MAT-ICON' )
 				.map( d => d.injector.get( MatTooltip ).message );
 			expect( tooltips ).toEqual( [ 'Online seit 08:12', 'Online' ] );
+		} );
+	} );
+
+	// A menu entry { disabled: hint } stays visible, focusable and explains itself in a tooltip,
+	// but must neither navigate nor open a dialog: disabledInteractive alone does not stop
+	// RouterLink or a (click) handler on the same element.
+	describe( 'disabled menu items', () => {
+
+		async function openMenu() {
+			createFixture( {
+				fields: [ {
+					id:      'actions',
+					name:    '',
+					format:  'buttons',
+					buttons: [ {
+						text:      '',
+						type:      'icon',
+						action:    'menu',
+						icon:      'more_vert',
+						hint:      'Zeilenaktionen',
+						menuItems: [
+							{ action: 'link', text: 'Öffnen' },
+							{ action: 'dialog', text: 'Stornieren' },
+							{ action: 'link', text: 'Bearbeiten' },
+						],
+					} ],
+				} ],
+				data: [ { id: 1, actions: [ [ '/a', { disabled: 'Schon verbucht' }, { disabled: 'Gesperrt' } ] ] } ],
+			} );
+			const loader = TestbedHarnessEnvironment.documentRootLoader( fixture );
+			const menu = await loader.getHarness( MatMenuHarness );
+			await menu.open();
+			return { loader, menu, navigate: vi.spyOn( TestBed.inject( Router ), 'navigateByUrl' ).mockResolvedValue( true ) };
+		}
+
+		it( 'renders disabled entries as focusable but disabled', async () => {
+			const { menu } = await openMenu();
+			const items = await menu.getItems();
+			expect( await Promise.all( items.map( i => i.getText() ) ) ).toEqual( [ 'Öffnen', 'Stornieren', 'Bearbeiten' ] );
+			expect( await Promise.all( items.map( i => i.isDisabled() ) ) ).toEqual( [ false, true, true ] );
+
+			const host = await ( await menu.getItems( { text: 'Stornieren' } ) )[ 0 ].host();
+			expect( await host.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
+			expect( await host.getAttribute( 'disabled' ) ).toBeNull();
+			expect( await host.getAttribute( 'tabindex' ) ).toBe( '0' );
+		} );
+
+		it( 'shows the reason as tooltip', async () => {
+			const { loader } = await openMenu();
+			const tooltips = await loader.getAllHarnesses( MatTooltipHarness.with( { selector: '.mat-mdc-menu-item-disabled-interactive' } ) );
+			await tooltips[ 0 ].show();
+			expect( await tooltips[ 0 ].getTooltipText() ).toBe( 'Schon verbucht' );
+		} );
+
+		it( 'neither opens a dialog nor navigates on click', async () => {
+			const { menu, navigate } = await openMenu();
+			await ( await menu.getItems( { text: 'Stornieren' } ) )[ 0 ].click();
+			await ( await menu.getItems( { text: 'Bearbeiten' } ) )[ 0 ].click();
+			expect( mockDialog.open ).not.toHaveBeenCalled();
+			expect( navigate ).not.toHaveBeenCalled();
+
+			// positive control: the spy does see navigation of an active entry
+			await ( await menu.getItems( { text: 'Öffnen' } ) )[ 0 ].click();
+			expect( navigate ).toHaveBeenCalled();
 		} );
 	} );
 } );
