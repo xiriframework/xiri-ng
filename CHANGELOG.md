@@ -13,6 +13,28 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `{ disabled: '<Grund>' }` statt URL oder `false` sein. Er bleibt sichtbar und fokussierbar
   (`disabledInteractive`), zeigt den Grund als Tooltip und löst weder Navigation noch Dialog aus. Backend-Seite:
   `table.AddMenuEntries` in xiri-go. Demo: Tabelle 4 auf der Tables-Seite.
+- **`provideXiriServices({ iconFontSet })`, Options-Typ als `XiriServicesConfig` exportiert.** Legt die
+  Default-Font-Set-Klasse von `MatIconRegistry` für `<mat-icon>` ohne `fontSet` fest. Der erste Aufruf entscheidet,
+  ein weiterer Aufruf (z. B. in einer Lazy Route) überschreibt das Font-Set der App nicht.
+
+### Changed
+
+- **Material Symbols sind jetzt das Standard-Icon-Font-Set.** `provideXiriServices()` registriert
+  `material-symbols-outlined` (mit `mat-ligature-font`) als Default. **Verhaltensänderung:** Apps ohne
+  Material-Symbols-Font sehen sonst Ligatur-Namen statt Icons; sie setzen `iconFontSet: null`, dann bleibt die
+  Erkennung bei Angular Material, oder geben ihr eigenes Font-Set an.
+- **Abhängigkeiten auf Angular 22.2.1 aktualisiert** (Entwicklung; die Peer-Dependencies bleiben unverändert).
+
+### Fixed
+
+- **Snackbar: Farben und Icons der Varianten unter Material 22.** Die Varianten nutzen jetzt die
+  `--mat-snack-bar-*`-Tokens statt der nicht mehr gelesenen `--mdc-snackbar-*`, die Icons Material-Symbols-Outlined-
+  Ligaturen statt des nie geladenen „Material Icons“-Fonts. Screenreader lesen die Ligatur-Namen nicht mehr vor,
+  geerbte Textstile (z. B. `letter-spacing`, `text-transform`) zerlegen die Ligatur nicht mehr. Snackbar-Icons
+  brauchen den Outlined-Font unabhängig vom gewählten `iconFontSet`.
+- **Sidepanel schließt bei URL-Wechsel.** Ein geschlossenes Sidepanel hört nicht mehr auf URL-Änderungen.
+- **Sidenav im Overlay-Modus schließt nach Klick auf einen Navigationslink.**
+- **Echarts-Host:** keine Initialisierung mehr, wenn die Komponente zerstört wurde, während echarts noch lud.
 
 ## [0.5.0]
 ### Security
