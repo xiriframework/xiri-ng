@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.0]
+
 ### Added
 
 - **Tabellen-Menüs: deaktivierte Einträge mit Begründung.** Ein Menüeintrag in den Zeilendaten kann jetzt
