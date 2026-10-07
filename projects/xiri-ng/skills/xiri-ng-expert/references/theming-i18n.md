@@ -121,6 +121,8 @@ this.locale.registerLanguage('fr', {
   localeString: 'fr-FR',
   dateFnsLocale: fr,                       // optional (Datepicker + Monatsnamen)
   validationMessages: { required: 'Champ requis', /* … alle 14 Keys */ },
+  // optional: Material-Datepicker-/Paginator-Texte; fehlende Keys = englische Material-Defaults
+  materialLabels: { datepicker: { openCalendarLabel: 'Ouvrir le calendrier' /* … */ }, paginator: { itemsPerPageLabel: 'Par page :' } },
 });
 this.locale.setLanguage('fr');
 ```

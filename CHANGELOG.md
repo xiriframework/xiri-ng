@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Material-Datepicker und -Paginator folgen der xiri-Sprache.** `MatDatepickerIntl` („Open calendar“, „Next month“ …)
+  und `MatPaginatorIntl` („Items per page“, „1 – 10 of 50“) blieben englisch. `XiriLocaleService` setzt sie jetzt per
+  Sprache; `de` ist eingebaut, eigene Sprachen geben sie über `registerLanguage(code, { …, materialLabels: { datepicker,
+  paginator } })` mit (fehlende Keys = Material-Default). Ein App-eigener `MatDatepickerIntl` für Deutsch ist damit
+  überflüssig.
+
 ## [0.6.0]
 
 ### Added

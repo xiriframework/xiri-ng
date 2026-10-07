@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
@@ -170,6 +170,25 @@ describe( 'XiriDateComponent', () => {
 			host.field.set( { id: 'd', type: 'date', subtype: 'date', disabled: false, required: false } );
 			fixture.detectChanges();
 			expect( dateComponent.parts.disabled ).toBe( false );
+		} );
+	} );
+
+	describe( 'Material-Intl-Texte', () => {
+		// setLanguage('en') darf nicht über localStorage in andere Tests leaken; der Service fängt den Fehler ab.
+		beforeEach( () => vi.stubGlobal( 'localStorage', undefined ) );
+		afterEach( () => vi.unstubAllGlobals() );
+
+		it( 'Kalender-Toggle trägt das aria-label der aktiven Sprache und folgt dem Wechsel', () => {
+			const { fixture, dateService } = setupWithTimezone( 'Europe/Vienna' );
+			TestBed.tick();
+			fixture.detectChanges();
+			const button = (): HTMLButtonElement => fixture.nativeElement.querySelector( 'mat-datepicker-toggle button' );
+			expect( button().getAttribute( 'aria-label' ) ).toBe( 'Kalender öffnen' );
+
+			dateService.setLanguage( 'en' );
+			TestBed.tick();
+			fixture.detectChanges();
+			expect( button().getAttribute( 'aria-label' ) ).toBe( 'Open calendar' );
 		} );
 	} );
 } );

@@ -212,7 +212,8 @@ validationMessagesFor(): XiriValidationMessages
 
 // Beliebige weitere Sprachen registrieren (vor setLanguage / erstem Formular, im App-Init):
 registerLanguage(code: XiriLanguage, def: XiriLanguageDefinition): void
-// XiriLanguageDefinition = { localeString: string; dateFnsLocale?: Locale; validationMessages: XiriValidationMessages }
+// XiriLanguageDefinition = { localeString: string; dateFnsLocale?: Locale; validationMessages: XiriValidationMessages;
+//                           materialLabels?: XiriMaterialLabels }  // { datepicker?, paginator? } — Texte von MatDatepickerIntl/MatPaginatorIntl
 
 // Timezone + Datum (war XiriDateService)
 setTimezone(tz: string): void
@@ -227,7 +228,7 @@ formatNumber(value: number, webformat?: string): string
   // webformat: 'integer' | 'float1' | 'float2' | 'float3' | 'float4'
 ```
 
-Das Backend liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App ruft beim Login `setLanguage()` / `setTimezone()`. Der Material-Datepicker-Locale wird per `effect` automatisch angeglichen. Für zusätzliche Sprachen liefert der Client date-fns-Locale + Validierungstexte via `registerLanguage()`.
+Das Backend liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App ruft beim Login `setLanguage()` / `setTimezone()`. Der Material-Datepicker-Locale wird per `effect` automatisch angeglichen, ebenso die Texte von `MatDatepickerIntl` und `MatPaginatorIntl` („Kalender öffnen“, „Einträge pro Seite“; `de` eingebaut, weitere Sprachen über `materialLabels`, ohne sie gelten die englischen Material-Defaults). Eine App-eigene Intl-Klasse ist dafür nicht nötig. Für zusätzliche Sprachen liefert der Client date-fns-Locale + Validierungstexte via `registerLanguage()`.
 
 ## XiriLocalStorageService / XiriSessionStorageService
 

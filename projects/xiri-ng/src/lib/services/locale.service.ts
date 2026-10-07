@@ -1,6 +1,8 @@
 import { Service, signal, computed, effect, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { DateAdapter } from '@angular/material/core';
+import { MatDatepickerIntl } from '@angular/material/datepicker';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { Locale, format, fromUnixTime, transpose } from 'date-fns';
 import { tz } from '@date-fns/tz';
 import { de } from 'date-fns/locale/de';
@@ -26,12 +28,21 @@ export interface XiriValidationMessages {
 	maxSelection: ( max: number ) => string;
 }
 
+// Texte der Material-Intl-Singletons (aria-labels, Tooltips, Paginator-Beschriftung). Fehlende Keys = Material-Default.
+// formatYearRange* bleiben draußen: als Own-Property überschrieben, würden sie beim Rückfall nicht zurückgesetzt.
+export interface XiriMaterialLabels {
+	datepicker?: Partial<Omit<MatDatepickerIntl, 'changes' | 'formatYearRange' | 'formatYearRangeLabel'>>;
+	paginator?: Partial<Omit<MatPaginatorIntl, 'changes'>>;
+}
+
 export interface XiriLanguageDefinition {
 	// BCP-47-Locale für Intl (Zahlen/Datumsformatierung), z. B. 'de-DE', 'fr-FR'.
 	localeString: string;
 	// date-fns-Locale für Material-Datepicker + Monatsnamen. Weglassen bei Text-only-Apps ohne Datepicker.
 	dateFnsLocale?: Locale;
 	validationMessages: XiriValidationMessages;
+	// Material-Datepicker-/Paginator-Texte. Weglassen = englische Material-Defaults.
+	materialLabels?: XiriMaterialLabels;
 }
 
 const deValidationMessages: XiriValidationMessages = {
@@ -49,6 +60,40 @@ const deValidationMessages: XiriValidationMessages = {
 	maxDateRange: date => `Enddatum muss vor ${ date } liegen`,
 	minSelection: min => `Mindestens ${ min } Einträge auswählen`,
 	maxSelection: max => `Maximal ${ max } Einträge auswählen`,
+};
+
+const deMaterialLabels: XiriMaterialLabels = {
+	datepicker: {
+		calendarLabel: 'Kalender',
+		openCalendarLabel: 'Kalender öffnen',
+		closeCalendarLabel: 'Kalender schließen',
+		prevMonthLabel: 'Vorheriger Monat',
+		nextMonthLabel: 'Nächster Monat',
+		prevYearLabel: 'Vorheriges Jahr',
+		nextYearLabel: 'Nächstes Jahr',
+		prevMultiYearLabel: 'Vorherige 24 Jahre',
+		nextMultiYearLabel: 'Nächste 24 Jahre',
+		switchToMonthViewLabel: 'Datum auswählen',
+		switchToMultiYearViewLabel: 'Monat und Jahr auswählen',
+		startDateLabel: 'Startdatum',
+		endDateLabel: 'Enddatum',
+		comparisonDateLabel: 'Vergleichszeitraum',
+	},
+	paginator: {
+		itemsPerPageLabel: 'Einträge pro Seite:',
+		nextPageLabel: 'Nächste Seite',
+		previousPageLabel: 'Vorherige Seite',
+		firstPageLabel: 'Erste Seite',
+		lastPageLabel: 'Letzte Seite',
+		// Logik wie Material-Default, nur „von“ statt „of“.
+		getRangeLabel: ( page, pageSize, length ) => {
+			if ( length === 0 || pageSize === 0 )
+				return `0 von ${ length }`;
+			const start = page * pageSize;
+			const end = start < length ? Math.min( start + pageSize, length ) : start + pageSize;
+			return `${ start + 1 } – ${ end } von ${ length }`;
+		},
+	},
 };
 
 const enValidationMessages: XiriValidationMessages = {
@@ -73,10 +118,15 @@ export class XiriLocaleService {
 	private readonly platformId = inject( PLATFORM_ID );
 	private readonly isBrowser = isPlatformBrowser( this.platformId );
 	private readonly dateAdapter = inject<DateAdapter<unknown>>( DateAdapter, { optional: true } );
+	private readonly datepickerIntl = inject( MatDatepickerIntl );
+	private readonly paginatorIntl = inject( MatPaginatorIntl );
+	// Startwerte (Material-Default oder App-eigene Intl-Subklasse) als Rückfall für Sprachen ohne materialLabels.
+	private readonly datepickerDefaults = { ...this.datepickerIntl };
+	private readonly paginatorDefaults = { ...this.paginatorIntl };
 
 	// Registry aller bekannten Sprachen — de/en eingebaut, weitere per registerLanguage().
 	private readonly registry = new Map<XiriLanguage, XiriLanguageDefinition>( [
-		[ 'de', { localeString: 'de-DE', dateFnsLocale: de, validationMessages: deValidationMessages } ],
+		[ 'de', { localeString: 'de-DE', dateFnsLocale: de, validationMessages: deValidationMessages, materialLabels: deMaterialLabels } ],
 		[ 'en', { localeString: 'en-GB', dateFnsLocale: enGB, validationMessages: enValidationMessages } ],
 	] );
 
@@ -100,6 +150,14 @@ export class XiriLocaleService {
 			const locale = this.dateFnsLocale();
 			if ( locale )
 				this.dateAdapter?.setLocale( locale );
+		} );
+		// Material-Intl-Texte (Datepicker-aria-labels, Paginator) an die Sprache angleichen; changes triggert das Re-Render.
+		effect( () => {
+			const labels = this.registry.get( this._language() )?.materialLabels;
+			Object.assign( this.datepickerIntl, this.datepickerDefaults, labels?.datepicker );
+			this.datepickerIntl.changes.next();
+			Object.assign( this.paginatorIntl, this.paginatorDefaults, labels?.paginator );
+			this.paginatorIntl.changes.next();
 		} );
 	}
 

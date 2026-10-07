@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { DateAdapter } from '@angular/material/core';
+import { MatDatepickerIntl } from '@angular/material/datepicker';
+import { MatPaginatorIntl } from '@angular/material/paginator';
 import { de } from 'date-fns/locale/de';
 import { enGB } from 'date-fns/locale/en-GB';
 import { fr } from 'date-fns/locale/fr';
@@ -208,5 +210,43 @@ describe( 'XiriLocaleService', () => {
 			noAdapterService.setLanguage( 'en' );
 			TestBed.tick();
 		} ).not.toThrow();
+	} );
+
+	describe( 'Material-Intl-Texte', () => {
+		it( 'setzt Datepicker- und Paginator-Texte für de', () => {
+			TestBed.tick();
+			expect( TestBed.inject( MatDatepickerIntl ).openCalendarLabel ).toBe( 'Kalender öffnen' );
+			const paginator = TestBed.inject( MatPaginatorIntl );
+			expect( paginator.itemsPerPageLabel ).toBe( 'Einträge pro Seite:' );
+			expect( paginator.getRangeLabel( 1, 10, 25 ) ).toBe( '11 – 20 von 25' );
+			expect( paginator.getRangeLabel( 0, 10, 0 ) ).toBe( '0 von 0' );
+		} );
+
+		it( 'fällt bei Sprache ohne materialLabels auf Defaults zurück', () => {
+			TestBed.tick();
+			service.setLanguage( 'en' );
+			TestBed.tick();
+			expect( TestBed.inject( MatDatepickerIntl ).openCalendarLabel ).toBe( 'Open calendar' );
+			expect( TestBed.inject( MatPaginatorIntl ).getRangeLabel( 0, 10, 25 ) ).toBe( '1 – 10 of 25' );
+		} );
+
+		it( 'teilweise materialLabels: fehlende Keys kommen aus den Defaults, nicht aus der Vorgänger-Sprache', () => {
+			service.registerLanguage( 'fr', { ...frDef, materialLabels: { datepicker: { openCalendarLabel: 'Ouvrir le calendrier' } } } );
+			TestBed.tick();
+			service.setLanguage( 'fr' );
+			TestBed.tick();
+			const intl = TestBed.inject( MatDatepickerIntl );
+			expect( intl.openCalendarLabel ).toBe( 'Ouvrir le calendrier' );
+			expect( intl.nextMonthLabel ).toBe( 'Next month' );
+		} );
+
+		it( 'meldet Änderungen über changes', () => {
+			const intl = TestBed.inject( MatDatepickerIntl );
+			let count = 0;
+			intl.changes.subscribe( () => count++ );
+			service.setLanguage( 'en' );
+			TestBed.tick();
+			expect( count ).toBeGreaterThan( 0 );
+		} );
 	} );
 } );
