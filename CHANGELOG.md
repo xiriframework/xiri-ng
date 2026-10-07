@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.1]
+
 ### Fixed
 
 - **Material-Datepicker und -Paginator folgen der xiri-Sprache.** `MatDatepickerIntl` („Open calendar“, „Next month“ …)
