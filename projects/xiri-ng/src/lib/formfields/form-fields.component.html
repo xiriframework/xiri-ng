@@ -337,6 +337,18 @@
 						<mat-label>{{ field.name }}</mat-label>
 					}
 					<textarea matInput [formControlName]="field.id" [required]="!!field.required" [rows]="field.rows || 5"></textarea>
+					@if (field.textPrefix) {
+						<span matTextPrefix="">{{ field.textPrefix }}</span>
+					}
+					@if (field.textSuffix) {
+						<span matTextSuffix="">{{ field.textSuffix }}</span>
+					}
+					@if (field.iconPrefix) {
+						<mat-icon matPrefix>{{ field.iconPrefix }}</mat-icon>
+					}
+					@if (field.iconSuffix) {
+						<mat-icon matSuffix>{{ field.iconSuffix }}</mat-icon>
+					}
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}

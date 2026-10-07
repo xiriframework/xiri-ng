@@ -18,6 +18,7 @@ import {
 import { Subject } from "rxjs";
 import { FocusMonitor } from "@angular/cdk/a11y";
 import { XiriFormField } from "../field.interface";
+import { XiriLocaleService } from '../../services/locale.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
@@ -68,6 +69,7 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 	ngControl = inject( NgControl, { optional: true, self: true } );
 	private _elementRef = inject<ElementRef<HTMLElement>>( ElementRef );
 	private cdr = inject( ChangeDetectorRef );
+	private localeService = inject( XiriLocaleService );
 	
 	
 	static nextId = 0;
@@ -123,6 +125,8 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 
 	private _field!: XiriFormField;
 	currentFiles: FileData[] = [];
+	// Byte-Grenze, an der die letzte Auswahl gescheitert ist; null = keine Abweisung.
+	private rejectedMax: number | null = null;
 	
 	constructor() {
 		if ( this.ngControl != null )
@@ -130,7 +134,10 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		
 		this.parts = new FormGroup<FileForm>( {
 			                                      files: new FormControl<File[] | null>( null ),
-			                                      text: new FormControl<string | null>( null )
+			                                      text: new FormControl<string | null>(
+				                                      null,
+				                                      () => this.rejectedMax === null ? null : { maxSize: { max: this.rejectedMax } },
+			                                      ),
 		                                      } );
 		
 		this.focusMonitor.monitor( this._elementRef, true ).subscribe( origin => {
@@ -254,21 +261,32 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 
 		const fieldFiles = this.parts.get( 'files' );
 		const fieldText = this.parts.get( 'text' );
-		const files = [];
+		const files = Array.from( { length: fileList.length }, ( _, i ) => fileList.item( i ) )
+		                   .filter( ( file ): file is File => file !== null );
+		// Eine neue Auswahl ersetzt die vorige ganz, auch wenn sie abgewiesen wird.
+		this.currentFiles = [];
 
-		for ( let i = 0; i < fileList.length; i++ ) {
-			const file = fileList.item( i );
-			if ( file === null || file.size > ( this._field.max ?? Infinity ) ) {
-				console.log( 'file too large or null', file, this._field );
-				this.currentFiles = [];
-				fieldFiles?.setValue( null );
-				fieldText?.setValue( null );
-				
-				this.onChange( this.value );
-				this.stateChanges.next();
-				return;
-			}
-			
+		// Alle Größen prüfen, bevor ein Reader startet: Sonst übernimmt der Reader einer gültigen Datei sie trotz der
+		// Abweisung. Den Fehler setzt der Validator am text-Control, damit er auch ein disable/enable übersteht.
+		const max = this._field.max ?? Infinity;
+		this.rejectedMax = files.some( file => file.size > max ) ? max : null;
+		if ( this.rejectedMax !== null ) {
+			fieldFiles?.setValue( null );
+			fieldText?.setValue( null );
+			// touched innen, damit mat-form-field die mat-error zeigt, und außen, damit errorState greift
+			// (value ist dann undefined, das Formular gesperrt).
+			fieldText?.markAsTouched();
+			this.ngControl?.control?.markAsTouched();
+			this.onChange( this.value );
+			this.stateChanges.next();
+			this.cdr.markForCheck();
+			return;
+		}
+
+		// Bis alle Reader fertig sind, gilt das Feld als offen (undefined sperrt das Formular): Weder die vorige noch
+		// eine halb gelesene Auswahl darf abgeschickt werden.
+		this.onChange( undefined );
+		for ( const file of files ) {
 			const reader = new FileReader();
 			
 			reader.addEventListener( "load", () => {
@@ -281,13 +299,13 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 					                        data: reader.result as string
 				                        } );
 
-				this.onChange( this.value );
+				if ( this.currentFiles.length === files.length )
+					this.onChange( this.value );
 				this.stateChanges.next();
 				this.cdr.markForCheck();
 			}, false );
 			
 			reader.readAsDataURL( file );
-			files.push( file );
 		}
 		
 		fieldFiles?.setValue( files );
@@ -298,8 +316,10 @@ export class XiriFileComponent implements ControlValueAccessor, MatFormFieldCont
 		
 		const errors = this.parts.get( 'text' )?.errors;
 
+		if ( errors?.maxSize )
+			return this.localeService.maxFileSizeMessage( errors.maxSize.max );
 		if ( errors?.required )
-			return 'required';
+			return this.localeService.validationMessagesFor().required;
 		
 		console.log( 'unknown error file', errors );
 		

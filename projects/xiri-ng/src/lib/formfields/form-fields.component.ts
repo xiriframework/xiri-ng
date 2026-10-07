@@ -787,7 +787,8 @@ export class XiriFormFieldsComponent implements OnInit {
 						                        validator: validatorArrayMax( max ),
 						                        get message() { return messagesFor().maxSelection( max ); }
 					                        } );
-				else
+				// Beim Datei-Feld ist max eine Byte-Grenze pro Datei, die xiri-file selbst prüft.
+				else if ( field.type != 'file' )
 					field.validations.push( {
 						                        id: 'maxlength',
 						                        validator: Validators.maxLength( max ),

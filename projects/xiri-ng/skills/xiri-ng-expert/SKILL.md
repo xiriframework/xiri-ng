@@ -321,7 +321,7 @@ buttons: XiriButton[] = [
 
 `hide?: boolean` — der Button wird **gar nicht** gerendert (nicht im DOM) und feuert auch kein `autoLoad`. Gilt in allen Renderpfaden: freistehend, Form, Dialog, Alert, Stepper, Tabelle (Bulk/Zelle/Selection) und Links. Backend: `button.WithHide(true)`. Kein Berechtigungs-Contract — der Endpoint muss ohnehin abgesichert sein.
 
-`target?: string` — bei `action: 'href'` das Link-Target; bei `action: 'download'` bedeutet `'_blank'`, dass die Datei **im Tab angezeigt** statt gespeichert wird. Backend: `button.WithTarget("_blank")`.
+`target?: string` — bei `action: 'link'` und `'href'` das Link-Target (`'_blank'` öffnet einen neuen Tab, `link` routet dann nicht per SPA); bei `action: 'download'` bedeutet `'_blank'`, dass die Datei **im Tab angezeigt** statt gespeichert wird. Backend: `button.WithTarget("_blank")`.
 
 **Icon-Buttons brauchen `hint`.** Bei `type: 'icon' | 'fab' | 'minifab'` liefert `xiri-go` kein `text`, der Accessible Name kommt also nur aus `hint`. Fehlt er, ist der Button für Screenreader namenlos — xiri-go warnt beim Rendern.
 

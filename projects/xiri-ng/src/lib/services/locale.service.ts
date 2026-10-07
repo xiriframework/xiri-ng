@@ -26,6 +26,9 @@ export interface XiriValidationMessages {
 	maxDateRange: ( date: string ) => string;
 	minSelection: ( min: number ) => string;
 	maxSelection: ( max: number ) => string;
+	// Optional, damit per registerLanguage registrierte Sprachen ohne ihn weiter kompilieren; fehlt er, gilt der
+	// eingebaute deutsche Text. `size` ist schon lesbar formatiert (z. B. „10 MB“).
+	maxFileSize?: ( size: string ) => string;
 }
 
 // Texte der Material-Intl-Singletons (aria-labels, Tooltips, Paginator-Beschriftung). Fehlende Keys = Material-Default.
@@ -45,7 +48,7 @@ export interface XiriLanguageDefinition {
 	materialLabels?: XiriMaterialLabels;
 }
 
-const deValidationMessages: XiriValidationMessages = {
+const deValidationMessages: Required<XiriValidationMessages> = {
 	required: 'Pflichtfeld – bitte ausfüllen',
 	invalidFormat: 'Bitte ein gültiges Format eingeben',
 	invalidEmail: 'Bitte eine gültige E-Mail-Adresse eingeben',
@@ -60,6 +63,7 @@ const deValidationMessages: XiriValidationMessages = {
 	maxDateRange: date => `Enddatum muss vor ${ date } liegen`,
 	minSelection: min => `Mindestens ${ min } Einträge auswählen`,
 	maxSelection: max => `Maximal ${ max } Einträge auswählen`,
+	maxFileSize: size => `Datei zu groß, maximal ${ size }`,
 };
 
 const deMaterialLabels: XiriMaterialLabels = {
@@ -96,7 +100,7 @@ const deMaterialLabels: XiriMaterialLabels = {
 	},
 };
 
-const enValidationMessages: XiriValidationMessages = {
+const enValidationMessages: Required<XiriValidationMessages> = {
 	required: 'Required field',
 	invalidFormat: 'Please enter a valid format',
 	invalidEmail: 'Please enter a valid email address',
@@ -111,6 +115,7 @@ const enValidationMessages: XiriValidationMessages = {
 	maxDateRange: date => `End date must be before ${ date }`,
 	minSelection: min => `Select at least ${ min } items`,
 	maxSelection: max => `Select at most ${ max } items`,
+	maxFileSize: size => `File too large, maximum ${ size }`,
 };
 
 @Service()
@@ -183,6 +188,21 @@ export class XiriLocaleService {
 	validationMessagesFor(): XiriValidationMessages {
 		return this.registry.get( this._language() )?.validationMessages
 			?? this.registry.get( 'de' )!.validationMessages;
+	}
+
+	// Fehlertext für eine Datei über der Größengrenze, die Grenze lesbar (Byte/kB/MB/GB) in der aktiven Sprache.
+	maxFileSizeMessage( bytes: number ): string {
+		const units = [ 'byte', 'kilobyte', 'megabyte', 'gigabyte' ];
+		let value = bytes;
+		let unit = 0;
+		while ( value >= 1024 && unit < units.length - 1 ) {
+			value /= 1024;
+			unit++;
+		}
+		const size = new Intl.NumberFormat( this.localeString(), {
+			style: 'unit', unit: units[ unit ], unitDisplay: 'short', maximumFractionDigits: 1,
+		} ).format( value );
+		return ( this.validationMessagesFor().maxFileSize ?? deValidationMessages.maxFileSize )( size );
 	}
 
 	// ── Zeitzone + Datums-/Zahlen-Formatierung (locale-abhängig) ─────────────────────────────

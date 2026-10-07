@@ -120,7 +120,7 @@ import { fr } from 'date-fns/locale/fr';
 this.locale.registerLanguage('fr', {
   localeString: 'fr-FR',
   dateFnsLocale: fr,                       // optional (Datepicker + Monatsnamen)
-  validationMessages: { required: 'Champ requis', /* … alle 14 Keys */ },
+  validationMessages: { required: 'Champ requis', /* … alle 14 Pflicht-Keys */ },  // optional maxFileSize(size), sonst deutscher Text
   // optional: Material-Datepicker-/Paginator-Texte; fehlende Keys = englische Material-Defaults
   materialLabels: { datepicker: { openCalendarLabel: 'Ouvrir le calendrier' /* … */ }, paginator: { itemsPerPageLabel: 'Par page :' } },
 });

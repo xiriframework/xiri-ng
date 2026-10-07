@@ -242,7 +242,7 @@ interface XiriButtonResult {
 
 **Selbst-pollender Button (`poll` / `pollUrl` / `text`):** Verarbeitet der Button eine Antwort (von `action:'api'` **oder** dem `afterClosed`-Ergebnis eines `action:'dialog'`), die `poll` (ms) enthält, beginnt er selbsttätig, im Intervall `pollUrl` per **GET** abzufragen — bis eine Antwort **ohne** `poll` kommt. Währenddessen ist der Button disabled und zeigt Spinner + Countdown bzw. den optionalen `text` (überschreibt den Countdown, pro Tick aktualisierbar → Fortschritt). Die **finale** Antwort (ohne `poll`) läuft normal durch den `responseHandler` (Snackbar/Refresh/Goto). `pollUrl` ist optional (Fallback: `button.url`); bei Dialog-Buttons Pflicht. Backend: `response.NewReturnPoll(pollUrl, ms).WithText("läuft… 50 %")` (siehe xiri-go-expert).
 
-**Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
+**Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). `icon` zeigt nur ein Button vom Typ `icon`/`icontext`/`fab`/`minifab`; bei `raised`/`basic`/`stroked`/`flat` fällt es weg, dann zusätzlich `type:'icontext'` patchen. Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
 
 **Auto-Load (`button.autoLoad`):** Mit `autoLoad: true` löst der Button seine Aktion **einmalig automatisch beim Laden** aus, sobald er nicht mehr disabled ist — d. h. `filterData !== null` **und** nicht via `disabled` gesperrt (in einer `xiri-query` bindet die Query `disabled = !formValid`, also feuert es erst bei gültigem Filter). Typischer Fall: ein Filter mit „Suchen"-Button (`action:'api'`), dessen Ergebnisse ohne initialen Klick erscheinen sollen. Feuert **genau einmal** (One-shot, per `effect` intern); spätere `filterData`-Änderungen lösen kein erneutes Auto-Load aus — dann klickt der Nutzer wie gewohnt. Backend-Setter: `button.WithAutoLoad(true)` (siehe xiri-go-expert). Alternative ohne Button: `XiriQuerySettings.url` setzen → die Query lädt selbst automatisch beim ersten gültigen Filter-Zustand.
 
@@ -305,7 +305,7 @@ interface XiriButton {
   autoLoad?: boolean;   // Aktion einmalig automatisch beim Laden auslösen (siehe unten)
 
   data?: any;
-  target?: string;      // 'href': Link-Target. 'download': '_blank' = im Tab anzeigen statt speichern
+  target?: string;      // 'link'/'href': Link-Target. 'download': '_blank' = im Tab anzeigen statt speichern
   loading?: boolean;
   filename?: string;
 

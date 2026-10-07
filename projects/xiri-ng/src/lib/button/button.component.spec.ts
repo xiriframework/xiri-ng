@@ -6,7 +6,7 @@ import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, provideRouter } from '@angular/router';
 import { Location } from '@angular/common';
 import { of, throwError, Subject } from 'rxjs';
 
@@ -777,5 +777,52 @@ describe('XiriButtonComponent im Panel', () => {
 		vi.advanceTimersByTime(150);
 		expect(mockDataService.get).toHaveBeenCalledWith('/panel/status');
 		expect(panelHost.reloadPanel).toHaveBeenCalledTimes(1);
+	});
+});
+
+// Echter Router statt Mock: Nur RouterLink selbst entscheidet, ob ein Klick SPA-Routing wird oder beim Browser bleibt.
+describe('XiriButtonComponent link target (echter RouterLink)', () => {
+	let fixture: ComponentFixture<TestHostComponent>;
+	let host: TestHostComponent;
+
+	beforeEach(async () => {
+		await TestBed.configureTestingModule({
+			imports: [TestHostComponent],
+			providers: [
+				provideRouter([]),
+				{ provide: XiriDataService, useValue: {} },
+				{ provide: XiriDownloadService, useValue: {} },
+				{ provide: MatDialog, useValue: {} },
+			],
+		}).compileComponents();
+		fixture = TestBed.createComponent(TestHostComponent);
+		host = fixture.componentInstance;
+	});
+
+	function click(a: HTMLAnchorElement): MouseEvent {
+		const event = new MouseEvent('click', { cancelable: true, bubbles: true, button: 0 });
+		a.dispatchEvent(event);
+		return event;
+	}
+
+	it('überlässt den Klick bei target _blank dem Browser', () => {
+		host.btn.set(makeButton({ action: 'link', url: '/ziel', target: '_blank' }));
+		fixture.detectChanges();
+		const a: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
+		expect(a.getAttribute('target')).toBe('_blank');
+		expect(a.getAttribute('href')).toContain('/ziel');
+		const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+		expect(click(a).defaultPrevented).toBe(false);
+		expect(navigate).not.toHaveBeenCalled();
+	});
+
+	it('routet ohne target weiter per SPA', () => {
+		host.btn.set(makeButton({ action: 'link', url: '/ziel' }));
+		fixture.detectChanges();
+		const a: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
+		expect(a.hasAttribute('target')).toBe(false);
+		const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+		expect(click(a).defaultPrevented).toBe(true);
+		expect(navigate).toHaveBeenCalled();
 	});
 });

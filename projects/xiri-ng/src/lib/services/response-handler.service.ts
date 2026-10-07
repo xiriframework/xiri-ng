@@ -39,7 +39,10 @@ export class XiriResponseHandlerService {
 		if ( !result )
 			return;
 		const res = result as XiriHandlerResponse;
-		if ( res.page == 'refresh' || res.refresh == 'page' )
+		// goto zuerst: Eine InlineEdit-Antwort kann refresh und goto tragen, ein Refresh vor dem Verlassen wäre verschwendet.
+		if ( res.goto )
+			this.router.navigate( [ res.goto ] ).then();
+		else if ( res.page == 'refresh' || res.refresh == 'page' )
 			this.router.navigate( [ this.router.url ] ).then();
 		else if ( res.table == 'refresh' || res.refresh == 'table' ) {
 			if ( callbacks?.onTableRefresh )
@@ -49,8 +52,6 @@ export class XiriResponseHandlerService {
 		}
 		else if ( res.refresh == 'panel' )
 			callbacks?.onPanelRefresh?.();
-		else if ( res.goto )
-			this.router.navigate( [ res.goto ] ).then();
 		else if ( res.table == 'update' || res.update == 'table' )
 			callbacks?.onTableUpdate?.( res.id, res.field as string, res.content );
 	}

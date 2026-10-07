@@ -153,7 +153,7 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 | `text`         | Mat-Input, mit `list`/`url` plus mat-autocomplete | `subtype` (email/url), `pattern`, `list`, `url`, `searchWith` (Vorschläge) |
 | `email`         | Mat-Input type=email                              |                                    |
 | `password`      | Mat-Input type=password                           | `pwdhide`                          |
-| `textarea`      | Mat-Textarea                                      | `rows`                             |
+| `textarea`      | Mat-Textarea (ohne Vorschläge)                    | `rows`, `textPrefix`/`textSuffix`, `iconPrefix`/`iconSuffix` |
 | `number`        | Mat-Input type=number                             | `min`, `max`, `textSuffix`         |
 | `bool`          | Mat-Checkbox / Slide-Toggle                       | `placeholder` für Begleittext      |
 | `select`        | Mat-Select mit `list`                             | `multiple`, `search`, `selectAll`  |
@@ -166,7 +166,7 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 | `daterange`     | Start- + End-Date                                 | `min`, `max`                       |
 | `datetimerange` | Start- + End-DateTime                             |                                    |
 | `yearmonth`     | Monats-Picker (Multi-Year-View, MM.yyyy)          | `min`, `max` (Unix), `required`    |
-| `file`          | File-Upload Button                                | `accept`                           |
+| `file`          | File-Upload Button                                | `accept`, `multiple`, `max` (Bytes pro Datei; größere Datei → Meldung, Formular gesperrt) |
 | `volume`        | Volume-Slider (mit Einheit via `textSuffix`)      | `min`, `max`                       |
 | `timelimit`     | Time-Limit Auswahl                                | `texts` (Label-Overrides)          |
 | `chips`         | Mat-Chip-List                                     | `list`, `validations`              |

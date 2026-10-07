@@ -55,6 +55,19 @@ describe( 'XiriResponseHandlerService', () => {
 		expect( router.navigate ).toHaveBeenCalledWith( [ '/other' ] );
 	} );
 
+	// Nur ReturnInlineEdit kann refresh und goto zugleich tragen: Die Navigation verlässt die Seite ohnehin.
+	it( 'goto hat Vorrang vor refresh:table', () => {
+		const onTableRefresh = vi.fn();
+		service.handle( { refresh: 'table', goto: '/x' }, { onTableRefresh } );
+		expect( router.navigate ).toHaveBeenCalledExactlyOnceWith( [ '/x' ] );
+		expect( onTableRefresh ).not.toHaveBeenCalled();
+	} );
+
+	it( 'goto hat Vorrang vor refresh:page', () => {
+		service.handle( { refresh: 'page', goto: '/x' } );
+		expect( router.navigate ).toHaveBeenCalledExactlyOnceWith( [ '/x' ] );
+	} );
+
 	it( 'calls onTableUpdate with id/field/content', () => {
 		const onTableUpdate = vi.fn();
 		service.handle( { update: 'table', id: 7, field: 'name', content: 'X' }, { onTableUpdate } );

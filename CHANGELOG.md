@@ -14,6 +14,22 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Sprache; `de` ist eingebaut, eigene Sprachen geben sie über `registerLanguage(code, { …, materialLabels: { datepicker,
   paginator } })` mit (fehlende Keys = Material-Default). Ein App-eigener `MatDatepickerIntl` für Deutsch sollte
   entfernt werden: Seine Texte gelten sonst als Rückfall, und `en` bliebe deutsch.
+- **`goto` gewinnt gegen `refresh`.** Eine InlineEdit-Antwort mit `WithRefreshTable()`/`WithRefreshPage()` und
+  `WithGoto(url)` lud bisher nur neu, die Navigation ging verloren. `XiriResponseHandlerService` prüft `goto` jetzt
+  zuerst.
+- **Link-Button mit `target`.** `action: 'link'` ignorierte `target`; mit `'_blank'` öffnet der Link jetzt einen
+  neuen Tab statt per Router zu navigieren.
+- **Textarea zeigt Präfix und Suffix** (`textPrefix`/`textSuffix`/`iconPrefix`/`iconSuffix`) wie das Textfeld.
+  Vorschläge (`list`/`url`) gibt es an der Textarea weiterhin nicht.
+- **Datei über `max` bekommt eine Meldung.** Das Datei-Feld verwarf eine zu große Datei bisher stumm. Jetzt zeigt es
+  „Datei zu groß, maximal 10 MB“ und sperrt das Formular, bis eine passende Datei gewählt ist. Eigene Sprachen können
+  den Text über den neuen, optionalen Key `maxFileSize(size)` in `validationMessages` liefern, sonst gilt der deutsche.
+  Auch „Pflichtfeld“ am Datei-Feld folgt jetzt der Sprache statt `required` auszugeben.
+- **Datei-Feld: Eine neue Auswahl ersetzt die vorige.** Bisher wurde sie an die schon gelesenen Dateien angehängt,
+  eine zweite Auswahl schickte die erste mit, auch ohne `multiple`. Bis alle Dateien gelesen sind, ist das Feld jetzt
+  ungültig, vorher ließ sich in diesem Moment die alte oder eine halb gelesene Auswahl absenden.
+- **Kein `maxLength` mehr am Datei-Feld.** `max` (Bytes pro Datei) erzeugte zusätzlich einen `maxlength`-Validator
+  auf die Anzahl der Dateien.
 
 ## [0.6.0]
 

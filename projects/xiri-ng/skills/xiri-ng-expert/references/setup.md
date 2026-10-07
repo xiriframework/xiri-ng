@@ -89,7 +89,7 @@ handle(result: unknown, callbacks?: {
 ```
 
 Verhalten je nach Response:
-- `goto: url` → `router.navigate([url])`
+- `goto: url` → `router.navigate([url])`; hat Vorrang vor jedem `refresh` (eine InlineEdit-Antwort kann beides tragen)
 - `refresh: "page"` → `router.navigate([router.url])` — braucht `onSameUrlNavigation: 'reload'` (siehe dyncomponent.md)
 - `refresh: "table"` → `onTableRefresh()` wenn gesetzt, sonst wie `refresh: "page"`
 - `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback im Handler; `xiri-button` und

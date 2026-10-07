@@ -39,8 +39,9 @@ export interface XiriButton {
 	autoLoad?: boolean
 
 	data?: Record<string, unknown>
-	// Link target for action "href". For action "download", "_blank" displays the file in a new
-	// tab instead of saving it — needs a Content-Type the browser can render (e.g. application/pdf).
+	// Link target for actions "link" and "href" (RouterLink leaves a non-_self target to the browser).
+	// For action "download", "_blank" displays the file in a new tab instead of saving it — needs a
+	// Content-Type the browser can render (e.g. application/pdf).
 	target?: string
 	loading?: boolean
 	filename?: string

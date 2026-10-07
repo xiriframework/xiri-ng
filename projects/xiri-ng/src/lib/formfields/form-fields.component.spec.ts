@@ -132,6 +132,22 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'desc' )!.value ).toBe( '' );
 		} );
 
+		// Go sendet Präfix/Suffix für jeden Text-Subtyp, auch für textarea/html.
+		it( 'textarea zeigt Text- und Icon-Präfix/-Suffix', () => {
+			host.fields.set( [ {
+				id: 'desc', type: 'textarea',
+				textPrefix: 'vor', textSuffix: 'nach', iconPrefix: 'notes', iconSuffix: 'edit',
+			} ] );
+			fixture.detectChanges();
+
+			const formField: HTMLElement = fixture.nativeElement.querySelector( 'mat-form-field' );
+			expect( formField.querySelector( 'textarea' ) ).toBeTruthy();
+			expect( formField.querySelector( '[matTextPrefix]' )?.textContent?.trim() ).toBe( 'vor' );
+			expect( formField.querySelector( '[matTextSuffix]' )?.textContent?.trim() ).toBe( 'nach' );
+			expect( formField.querySelector( 'mat-icon[matPrefix]' )?.textContent?.trim() ).toBe( 'notes' );
+			expect( formField.querySelector( 'mat-icon[matSuffix]' )?.textContent?.trim() ).toBe( 'edit' );
+		} );
+
 		it( 'should default bool value to false', () => {
 			host.fields.set( [ { id: 'active', type: 'bool' } ] );
 			fixture.detectChanges();
@@ -1738,6 +1754,140 @@ describe( 'XiriFormFieldsComponent', () => {
 
 			const err = fixture.nativeElement.querySelector( 'mat-error' )?.textContent ?? '';
 			expect( err ).toContain( 'Champ requis' );
+		} );
+
+		describe( 'Datei über field.max', () => {
+			function fileChild( f: ComponentFixture<TestHostComponent> ): XiriFileComponent {
+				return f.debugElement.query( By.directive( XiriFileComponent ) ).componentInstance as XiriFileComponent;
+			}
+
+			function selectFile( f: ComponentFixture<TestHostComponent>, ...sizes: number[] ) {
+				const files = sizes.map( ( size, i ) =>
+					new File( [ 'x'.repeat( size ) ], `${ i }-${ size }.txt`, { type: 'text/plain' } ) );
+				const fileList = { length: files.length, item: ( i: number ) => files[ i ] };
+				fileChild( f ).fileChange( { currentTarget: { files: fileList } } as never );
+				f.detectChanges();
+			}
+
+			function fileError( f: ComponentFixture<TestHostComponent> ): string | undefined {
+				return f.nativeElement.querySelector( 'xiri-file mat-error' )?.textContent?.trim();
+			}
+
+			it( 'zeigt eine Meldung, sperrt das Formular und gibt es mit einer passenden Datei wieder frei', async () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file', max: 10 } as XiriFormField ] );
+				f.detectChanges();
+
+				selectFile( f, 11 );
+				expect( fileError( f ) ).toBe( 'Datei zu groß, maximal 10 Byte' );
+				expect( c.formGroup.get( 'f' )!.invalid ).toBe( true );
+
+				selectFile( f, 10 );
+				expect( fileError( f ) ).toBeUndefined();
+				await vi.waitFor( () => expect( c.formGroup.get( 'f' )!.value ).toHaveLength( 1 ) );
+				expect( c.formGroup.get( 'f' )!.valid ).toBe( true );
+			} );
+
+			// Der Reader der gültigen Datei darf nicht schon laufen, sonst übernimmt er sie trotz der Abweisung.
+			it( 'weist eine Mehrfachauswahl mit einer zu großen Datei ganz ab', async () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file', max: 10, multiple: true } as XiriFormField ] );
+				f.detectChanges();
+
+				const read = vi.spyOn( FileReader.prototype, 'readAsDataURL' );
+				selectFile( f, 1, 11 );
+
+				expect( read ).not.toHaveBeenCalled();
+				read.mockRestore();
+				expect( fileChild( f ).currentFiles ).toEqual( [] );
+				expect( fileError( f ) ).toBe( 'Datei zu groß, maximal 10 Byte' );
+				expect( c.formGroup.get( 'f' )!.invalid ).toBe( true );
+			} );
+
+			it( 'behält die Meldung über disable/enable', () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file', max: 10 } as XiriFormField ] );
+				f.detectChanges();
+
+				selectFile( f, 11 );
+				c.formGroup.get( 'f' )!.disable();
+				f.detectChanges();
+				c.formGroup.get( 'f' )!.enable();
+				f.detectChanges();
+
+				expect( fileError( f ) ).toBe( 'Datei zu groß, maximal 10 Byte' );
+				expect( c.formGroup.get( 'f' )!.invalid ).toBe( true );
+			} );
+
+			// Vorbestehend: currentFiles wurde nie geleert, eine zweite Auswahl schickte die erste mit.
+			it( 'ersetzt bei neuer Auswahl die vorige Datei', async () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file' } as XiriFormField ] );
+				f.detectChanges();
+
+				selectFile( f, 1 );
+				await vi.waitFor( () => expect( c.formGroup.get( 'f' )!.value ).toHaveLength( 1 ) );
+				selectFile( f, 2 );
+				await vi.waitFor( () => expect( c.formGroup.get( 'f' )!.value?.[ 0 ]?.name ).toBe( '0-2.txt' ) );
+				expect( c.formGroup.get( 'f' )!.value ).toHaveLength( 1 );
+			} );
+
+			// Die Reader laufen asynchron: Bis alle fertig sind, darf weder die alte noch eine halbe Auswahl gültig sein.
+			it( 'sperrt das Formular, bis alle Dateien der neuen Auswahl gelesen sind', async () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file', multiple: true } as XiriFormField ] );
+				f.detectChanges();
+				const control = c.formGroup.get( 'f' )!;
+
+				selectFile( f, 1 );
+				await vi.waitFor( () => expect( control.value ).toHaveLength( 1 ) );
+
+				const lengths: unknown[] = [];
+				control.valueChanges.subscribe( v => lengths.push( v?.length ) );
+				selectFile( f, 1, 1 );
+				expect( control.value ).toBeUndefined();
+				expect( control.invalid ).toBe( true );
+
+				await vi.waitFor( () => expect( control.value ).toHaveLength( 2 ) );
+				expect( lengths ).not.toContain( 1 );
+				expect( control.valid ).toBe( true );
+			} );
+
+			it( 'formatiert die Grenze lesbar in der aktiven Sprache', () => {
+				const { fixture: f, host: h } = createLocalizedFixture( 'en' );
+				h.fields.set( [ { id: 'f', type: 'file', max: 1536 } as XiriFormField ] );
+				f.detectChanges();
+
+				selectFile( f, 1537 );
+				expect( fileError( f ) ).toBe( 'File too large, maximum 1.5 kB' );
+			} );
+
+			// field.max ist beim Datei-Feld eine Byte-Grenze pro Datei, kein maxLength auf die Anzahl der Dateien.
+			it( 'hängt keinen maxlength-Validator an', async () => {
+				const { fixture: f, host: h, component: c } = createLocalizedFixture( 'de' );
+				h.fields.set( [ { id: 'f', type: 'file', max: 2, multiple: true } as XiriFormField ] );
+				f.detectChanges();
+				expect( c.fields()![ 0 ].validations!.map( v => v.id ) ).not.toContain( 'maxlength' );
+
+				selectFile( f, 1, 1, 1 );
+				await vi.waitFor( () => expect( c.formGroup.get( 'f' )!.value ).toHaveLength( 3 ) );
+				expect( c.formGroup.get( 'f' )!.valid ).toBe( true );
+			} );
+
+			// maxFileSize ist optional, damit per registerLanguage registrierte Sprachen ohne ihn weiter kompilieren.
+			it( 'fällt bei einer Sprache ohne maxFileSize auf den deutschen Text zurück', () => {
+				const locale = TestBed.inject( XiriLocaleService );
+				locale.registerLanguage( 'xx', {
+					localeString: 'de-DE',
+					validationMessages: { ...locale.validationMessagesFor(), maxFileSize: undefined },
+				} );
+				locale.setLanguage( 'xx' );
+				host.fields.set( [ { id: 'f', type: 'file', max: 10 } as XiriFormField ] );
+				fixture.detectChanges();
+
+				selectFile( fixture, 11 );
+				expect( fileError( fixture ) ).toBe( 'Datei zu groß, maximal 10 Byte' );
+			} );
 		} );
 	} );
 
