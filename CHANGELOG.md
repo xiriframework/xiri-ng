@@ -13,12 +13,19 @@ versioning follows [Semantic Versioning](https://semver.org/).
   „Hinzufügen“ mit Dialog) mit `ReturnRefreshTable` lud bisher die ganze Seite und danach noch einmal die Tabelle;
   `refresh: 'page'` und `goto` navigierten doppelt. Die Tabelle stellt sich jetzt als `XIRI_TABLE_HOST` bereit, und
   nur der Button wertet die Antwort aus. Das gilt auch für den Button im Empty-State, der bei `refresh: 'table'` jetzt
-  die Tabelle statt der Seite lädt. Eine statische Tabelle (Daten eingebettet statt `url`) und ein Button außerhalb
-  einer Tabelle laden weiterhin die Seite. `XiriTableComponent.buttonReturn()` entfällt.
-- **`refresh: 'table'` in einer statischen Tabelle lädt die Seite.** Zeilen- und Bulk-Aktionen, Inline-Edit
-  (`WithRefreshTable()`) und `saveInput` einer Tabelle mit eingebetteten Daten (ohne `url`) taten bei
-  `ReturnRefreshTable` bisher nichts, weil die Tabelle nichts nachladen kann. Jetzt laden sie wie ein Button außerhalb
-  einer Tabelle die Seite. Wer nach einem Inline-Edit nur die Zeile aktualisieren will, antwortet mit `WithUpdates`.
+  die Tabelle statt der Seite lädt. Ein Button außerhalb einer Tabelle lädt weiterhin die Seite.
+  `XiriTableComponent.buttonReturn()` entfällt.
+- **`refresh: 'table'` in einer statischen Tabelle lädt Panel oder Seite.** Eine Tabelle mit eingebetteten Daten
+  (ohne `url`) kann sich nicht selbst nachladen; Zeilen- und Bulk-Aktionen, Inline-Edit (`WithRefreshTable()`) und
+  `saveInput` taten bei `ReturnRefreshTable` deshalb bisher nichts. Jetzt lädt sie wie bei `refresh: 'panel'` den
+  nächsten Panel-Host (Card mit `url`, Expansion-Panel, Query mit `url`), ohne einen die Seite. Wer nach einem
+  Inline-Edit nur die Zeile aktualisieren will, antwortet mit `WithUpdates`.
+- **`refresh: 'table'` während eines laufenden Ladevorgangs wird nachgeholt.** Bisher wurde er verworfen, und die
+  Tabelle zeigte die Antwort eines Requests, der vor der Änderung gestartet war.
+- **`xiri-query` mit `url` ist ein Panel-Host.** `refresh: 'panel'` aus dem Ergebnis (und `refresh: 'table'` einer
+  statischen Ergebnistabelle) führt die Abfrage mit dem aktuellen Filter neu aus, statt die umschließende Card oder
+  die Seite zu laden – das Ergebnis bleibt erhalten. Ohne `url` (Ergebnis kommt vom Button) gilt der äußere Host.
+- **`XiriTableEmptyState.button`** ergänzt; xiri-go sendet ihn mit `EmptyState.WithButton`, der Typ kannte ihn nicht.
 - **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
   `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte
   mit „missing required“. Jetzt sind sie unsichtbar, ihr Wert geht aber mit, wie xiri-go es beschreibt. `hide` blendet

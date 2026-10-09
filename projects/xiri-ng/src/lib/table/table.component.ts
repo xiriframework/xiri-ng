@@ -12,6 +12,7 @@ import {
 	output,
 	signal,
 	TemplateRef,
+	untracked,
 	viewChild,
 	ViewEncapsulation
 } from '@angular/core';
@@ -124,6 +125,7 @@ export interface XiriTableEmptyState {
 	iconColor?: XiriColor
 	title?: string
 	description?: string
+	button?: XiriButton
 }
 
 export interface XiriTableOptions {
@@ -242,6 +244,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	sort = viewChild.required<MatSort>( MatSort );
 	table = viewChild.required<MatTable<XiriTableRow>>( MatTable );
 	loading = signal<boolean>( true );
+	// refresh:'table' während eines Loads: Der laufende Request kann vor der Änderung gestartet sein – nachholen.
+	private refreshPending = signal( false );
 	private _totalCount = signal<number>( 0 );
 
 	displayedColumns: XiriTableField[] = [];
@@ -377,6 +381,13 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 				this.refreshTree();
 			} else {
 				this.dataSource.data = all;
+			}
+		} );
+
+		effect( () => {
+			if ( this.refreshPending() && !this.loading() ) {
+				this.refreshPending.set( false );
+				untracked( () => this.reload() );
 			}
 		} );
 	}
@@ -1076,12 +1087,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	}
 	
 	// refresh:'table' – eigene Aktionen (callReturn) und XIRI_TABLE_HOST (Kopf-, Empty-State-Button). Eine statische
-	// Tabelle (data statt url) kann nichts nachladen, ihre Daten kommen mit der Seite.
+	// Tabelle (data statt url) kann nichts nachladen, ihre Daten kommen mit dem Panel bzw. der Seite.
 	refreshTable(): void {
-		if ( this.settings().url )
-			this.reload();
+		if ( !this.settings().url )
+			this.refreshPanel();
+		else if ( this.loading() )
+			this.refreshPending.set( true );
 		else
-			this.responseHandler.handle( { refresh: 'page' } );
+			this.reload();
 	}
 
 	private callReturn( result: unknown ) {

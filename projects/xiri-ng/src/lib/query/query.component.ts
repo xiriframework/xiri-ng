@@ -3,7 +3,9 @@ import {
 	Component,
 	computed,
 	DestroyRef,
+	forwardRef,
 	inject,
+	Injector,
 	input,
 	OnInit,
 	output,
@@ -20,6 +22,7 @@ import { emptyValueForField } from '../formfields/helper/empty-value';
 import { XiriDataService } from "../services/data.service";
 import { XiriFormService } from "../services/form.service";
 import { XiriSessionStorageService } from "../services/sessionStorage.service";
+import { XiriPanelHost, XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { XiriButtonlineComponent } from "../buttonline/buttonline.component";
 import { XiriButtonResult } from "../button/button.component";
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from "@angular/material/expansion";
@@ -73,14 +76,19 @@ export interface XiriQueryFormChangeEvent {
 	            templateUrl: './query.component.html',
 	            styleUrl: './query.component.scss',
 	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatButton, MatProgressSpinner, MatChipSet, MatChip, MatChipRemove ],
+	            providers: [ { provide: XIRI_PANEL_HOST, useExisting: forwardRef( () => XiriQueryComponent ) } ],
             } )
-export class XiriQueryComponent implements OnInit {
+export class XiriQueryComponent implements OnInit, XiriPanelHost {
 
 	private dataService: XiriDataService = inject( XiriDataService );
 	private formService = inject( XiriFormService );
 	private storageService: XiriSessionStorageService = inject( XiriSessionStorageService );
 	private cdr = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
+	private responseHandler = inject( XiriResponseHandlerService );
+	private parentPanel = inject( XIRI_PANEL_HOST, { optional: true, skipSelf: true } );
+	// Element-Injector der Query: Das Ergebnis-Template ist außerhalb deklariert und fände den Panel-Host sonst nicht.
+	injector = inject( Injector );
 
 	settings = input.required<XiriQuerySettings>();
 	dyncomponent = input<TemplateRef<unknown>>();
@@ -233,6 +241,18 @@ export class XiriQueryComponent implements OnInit {
 		}
 	}
 	
+	// XIRI_PANEL_HOST (refresh:'panel' bzw. refresh:'table' einer statischen Tabelle im Ergebnis): Mit url lädt die
+	// Query ihr Ergebnis mit dem aktuellen Filter neu. Ohne url kommt das Ergebnis vom Button, nichts nachzuladen –
+	// weiter an den äußeren Panel-Host bzw. die Seite.
+	reloadPanel(): void {
+		if ( this.settings().url )
+			this.load();
+		else if ( this.parentPanel )
+			this.parentPanel.reloadPanel();
+		else
+			this.responseHandler.handle( { refresh: 'page' } );
+	}
+
 	// Re-runs the last URL load after an error; filter payload is retained in dynData.filterData.
 	public retry() {
 		if ( this.settings().url )

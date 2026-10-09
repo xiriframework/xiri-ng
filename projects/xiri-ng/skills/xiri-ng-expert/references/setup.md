@@ -102,8 +102,9 @@ Verhalten je nach Response:
 onTableUpdate(id, field, content): void; }`). Ein `xiri-button` in der Tabelle (Kopf-Buttons aus `options.buttons`,
 Empty-State-Button) injiziert den Token optional und gibt beides als Callback an den Handler; nur der Button wertet
 die Antwort aus, die Tabelle hört dem `(result)` der Kopf-Buttons nicht zu. `refreshTable()` lädt eine
-Tabelle mit `url` neu; eine statische Tabelle (`data` statt `url`) kann nichts nachladen und macht `refresh: "page"`.
-Das gilt auch für die eigenen Aktionen der Tabelle (Zeilen-, Bulk-Aktionen, Inline-Edit, `saveInput`).
+Tabelle mit `url` neu (läuft gerade ein Load, wird der Reload danach nachgeholt); eine statische Tabelle (`data`
+statt `url`) kann nichts nachladen und verhält sich wie `refresh: "panel"` (nächster Panel-Host, sonst Seite). Das gilt
+auch für die eigenen Aktionen der Tabelle (Zeilen-, Bulk-Aktionen, Inline-Edit, `saveInput`).
 
 ### Nachladbare Panels: `XIRI_PANEL_HOST`
 
@@ -117,6 +118,8 @@ export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
 
 - `xiri-card` und jedes `mat-expansion-panel` in `xiri-expansion` (Directive `xiriExpansionPanel`) stellen sich als
   `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
+- `xiri-query` ist ebenfalls Panel-Host: Mit `url` führt `reloadPanel()` die Abfrage mit dem aktuellen Filter neu aus,
+  ohne `url` (Ergebnis vom Button) reicht sie an den äußeren Host bzw. `refresh: "page"` weiter.
 - `xiri-button` und `xiri-table` injizieren den Token optional und rufen bei `refresh: "panel"` `reloadPanel()` der
   nächstgelegenen Card — egal ob der Button im Card-Header, unten oder in einer verschachtelten Komponente liegt.
   Ohne umschließende Card: `refresh: "page"` (ab 0.4.11; 0.4.10 warnte nur in der Konsole) — braucht wie

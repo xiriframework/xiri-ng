@@ -1721,10 +1721,15 @@ describe( 'XiriTableComponent', () => {
 			let reload: ReturnType<typeof vi.spyOn>;
 
 			const rows = [ { id: 1, name: 'A' } ];
+			let tableRows: XiriTableRow[] = rows;
+
+			beforeEach( () => {
+				tableRows = rows;
+			} );
 
 			// source: { url } = Ajax-Tabelle (Default, lädt über mockDataService.post), { data } = statische Tabelle.
 			function createTable( response: Record<string, unknown>, source: Partial<XiriTableSettings> = { url: '/rows' },
-			                      action: 'api' | 'dialog' = 'api' ) {
+			                      action: 'api' | 'dialog' = 'api', panelHost?: { reloadPanel: ReturnType<typeof vi.fn> } ) {
 				fixture?.destroy();
 				TestBed.resetTestingModule();
 				TestBed.configureTestingModule( {
@@ -1736,17 +1741,18 @@ describe( 'XiriTableComponent', () => {
 						{ provide: XiriSnackbarService, useValue: mockSnackbar },
 						{ provide: MatDialog, useValue: mockDialog },
 						{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
+						...( panelHost ? [ { provide: XIRI_PANEL_HOST, useValue: panelHost } ] : [] ),
 					],
 				} );
 				navigate = vi.spyOn( TestBed.inject( Router ), 'navigate' ).mockResolvedValue( true );
-				mockDataService.post.mockImplementation( ( url: string ) => of( url === '/rows' ? { data: rows } : response ) );
+				mockDataService.post.mockImplementation( ( url: string ) => of( url === '/rows' ? { data: tableRows } : response ) );
 				mockDialog.open.mockReturnValue( { afterClosed: () => of( response ), close: vi.fn() } );
 				fixture = TestBed.createComponent( TestHostComponent );
 				host = fixture.componentInstance;
 				host.settings.set( {
 					fields:  [ { id: 'name', name: 'Name' } ],
 					...source,
-					options: { buttons: { class: '', buttons: [ { text: 'Hinzufügen', type: 'raised', action, url: '/add' } ] } },
+					options: { buttons: { class: '', buttons: [ { text: 'Hinzufügen', type: 'raised', action, url: '/add' } ] }, ...source.options },
 				} );
 				fixture.detectChanges();
 				component = host.table();
@@ -1781,6 +1787,43 @@ describe( 'XiriTableComponent', () => {
 				clickHeaderButton( 'api', { done: true, refresh: 'table' }, { data: rows } );
 				expect( navigate ).toHaveBeenCalledTimes( 1 );
 				expect( reload ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt bei refresh:table einer statischen Tabelle in einem Panel das Panel statt der Seite', () => {
+				const panelHost = { reloadPanel: vi.fn() };
+				createTable( { done: true, refresh: 'table' }, { data: rows }, 'api', panelHost );
+				fixture.nativeElement.querySelector( 'xiri-buttonline xiri-buttonstyle' )?.click();
+				expect( panelHost.reloadPanel ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
+				expect( reload ).not.toHaveBeenCalled();
+			} );
+
+			// Der laufende Request kann vor der Änderung gestartet sein; ein verworfener Refresh zeigte alte Daten.
+			it( 'holt refresh:table nach, wenn die Tabelle gerade lädt', () => {
+				createTable( { done: true, refresh: 'table' } );
+				reload.mockRestore();
+				const rowLoads = () => mockDataService.post.mock.calls.filter( c => c[ 0 ] === '/rows' ).length;
+				const pending = new Subject<unknown>();
+				mockDataService.post.mockImplementation( ( url: string ) => url === '/rows' ? pending : of( { done: true, refresh: 'table' } ) );
+				component.reload();
+				const before = rowLoads();
+
+				fixture.nativeElement.querySelector( 'xiri-buttonline xiri-buttonstyle' )?.click();
+				expect( rowLoads() ).toBe( before );
+
+				pending.next( { data: rows } );
+				fixture.detectChanges();
+				expect( rowLoads() ).toBe( before + 1 );
+			} );
+
+			it( 'lädt bei refresh:table aus dem Empty-State-Button die Tabelle und navigiert nicht', () => {
+				tableRows = [];
+				createTable( { done: true, refresh: 'table' }, { url: '/rows', options: {
+					emptyState: { title: 'Leer', button: { text: 'Anlegen', type: 'raised', action: 'api', url: '/add' } },
+				} } );
+				fixture.nativeElement.querySelector( 'xiri-empty-state xiri-buttonstyle' )?.click();
+				expect( reload ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
 			} );
 
 			it( 'lädt bei refresh:page genau einmal die Seite und nicht die Tabelle', () => {

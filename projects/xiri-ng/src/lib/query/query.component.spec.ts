@@ -3,12 +3,13 @@ import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { of, throwError, Subject } from 'rxjs';
 import { XiriQueryComponent, XiriQueryResultCount, XiriQuerySettings } from './query.component';
-import { XiriButton } from '../button/button.component';
+import { XiriButton, XiriButtonComponent } from '../button/button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriFormService } from '../services/form.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { By } from '@angular/platform-browser';
+import { provideRouter, Router } from '@angular/router';
 
 function stubLocalStorage(): void {
 	const store: Record<string, string> = {};
@@ -767,5 +768,77 @@ describe( 'XiriQueryComponent', () => {
 		it( 'should not be loading initially', () => {
 			expect( component.loading() ).toBe( false );
 		} );
+	} );
+} );
+
+// Integrationsebene: echter xiri-button im Query-Ergebnis, echter Handler und Router. Das Ergebnis-Template ist wie
+// beim dyncomponent außerhalb der Query deklariert; die Query reicht ihren Injector durch und ist so Panel-Host.
+@Component( {
+	selector: 'xiri-query-result-host',
+	template: `<xiri-query [settings]="settings()" [dyncomponent]="result" />
+		<ng-template #result><xiri-button [button]="button" /></ng-template>`,
+	imports: [ XiriQueryComponent, XiriButtonComponent ],
+} )
+class ResultHostComponent {
+	settings = signal<XiriQuerySettings>( { fields: [ { id: 'f', type: 'text', value: '' } ], url: 'search/results' } );
+	button: XiriButton = { text: 'Erledigt', type: 'raised', action: 'api', url: '/row/done' };
+	query = viewChild.required( XiriQueryComponent );
+}
+
+describe( 'XiriQueryComponent als Panel-Host (echter xiri-button im Ergebnis)', () => {
+	let fixture: ComponentFixture<ResultHostComponent>;
+	let post: ReturnType<typeof vi.fn>;
+	let navigate: ReturnType<typeof vi.spyOn>;
+
+	function setup( settings?: XiriQuerySettings ) {
+		TestBed.resetTestingModule();
+		stubLocalStorage();
+		post = vi.fn().mockImplementation( ( url: string ) =>
+			of( url === '/row/done' ? { done: true, refresh: 'panel' } : { data: [ { type: 'card' } ] } ) );
+		TestBed.configureTestingModule( {
+			imports: [ ResultHostComponent ],
+			providers: [
+				provideRouter( [] ),
+				{ provide: XiriDataService, useValue: { get: vi.fn(), post } },
+				{ provide: XiriFormService, useValue: { loadState: ( _id: string | null, fields: unknown ) => fields, saveState: vi.fn() } },
+				{ provide: XiriSessionStorageService, useValue: { set: vi.fn(), getTimeout: vi.fn().mockReturnValue( null ) } },
+			],
+		} );
+		navigate = vi.spyOn( TestBed.inject( Router ), 'navigate' ).mockResolvedValue( true );
+		fixture = TestBed.createComponent( ResultHostComponent );
+		if ( settings )
+			fixture.componentInstance.settings.set( settings );
+		fixture.detectChanges();
+	}
+
+	const queryLoads = () => post.mock.calls.filter( c => c[ 0 ] === 'search/results' ).length;
+
+	afterEach( () => {
+		vi.unstubAllGlobals();
+	} );
+
+	it( 'führt bei refresh:panel aus dem Ergebnis die Query neu aus und navigiert nicht', () => {
+		setup();
+		fixture.componentInstance.query().formChanged( { valid: true, value: { f: 'a' } } );
+		fixture.detectChanges();
+		expect( queryLoads() ).toBe( 1 );
+
+		fixture.nativeElement.querySelector( 'xiri-button xiri-buttonstyle' )?.click();
+
+		expect( queryLoads() ).toBe( 2 );
+		expect( post.mock.calls[ post.mock.calls.length - 1 ][ 1 ] ).toEqual( { f: 'a' } );
+		expect( navigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'lädt ohne url (Ergebnis kommt vom Button) bei refresh:panel die Seite', () => {
+		setup( { fields: [ { id: 'f', type: 'text', value: '' } ] } );
+		fixture.componentInstance.query().clickedButton( {
+			button: { text: 'Suchen', type: 'raised', action: 'api', url: '/search' }, result: [ { type: 'card' } ], done: true, loading: false,
+		} );
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector( 'xiri-button xiri-buttonstyle' )?.click();
+
+		expect( navigate ).toHaveBeenCalledTimes( 1 );
 	} );
 } );
