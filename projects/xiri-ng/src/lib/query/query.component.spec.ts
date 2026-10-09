@@ -498,6 +498,29 @@ describe( 'XiriQueryComponent', () => {
 		} );
 	} );
 
+	// Wird der Filter ungültig, leert der Debounce das Ergebnis; ein noch laufender Load (Tippen, Retry, reloadPanel)
+	// darf es danach nicht zurückbringen.
+	describe( 'ungültiger Filter während eines Loads', () => {
+		it( 'verwirft die Antwort eines laufenden Loads, sobald der Filter ungültig geworden ist', () => {
+			vi.useFakeTimers();
+			const pending = new Subject<unknown>();
+			mockDataService.post.mockReturnValue( pending.asObservable() );
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+			component.formChanged( { valid: true, value: { f: 'a' } } );
+			expect( component.loading() ).toBe( true );
+
+			component.formChanged( { valid: false, value: null } );
+			vi.advanceTimersByTime( 350 );
+			pending.next( { data: [ { type: 'card', data: {} } ] } );
+
+			expect( component.data() ).toBeNull();
+			expect( component.loading() ).toBe( false );
+		} );
+	} );
+
 	describe( 'retry', () => {
 		it( 'should show a retry button on error and re-load on click', () => {
 			mockDataService.post.mockReturnValue( throwError( () => ( { status: 500 } ) ) );

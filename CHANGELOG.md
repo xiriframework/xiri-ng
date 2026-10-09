@@ -22,6 +22,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Inline-Edit nur die Zeile aktualisieren will, antwortet mit `WithUpdates`.
 - **`refresh: 'table'` während eines laufenden Ladevorgangs wird nachgeholt.** Bisher wurde er verworfen, und die
   Tabelle zeigte die Antwort eines Requests, der vor der Änderung gestartet war.
+- **`xiri-query`: Ein ungültig gewordener Filter bricht den laufenden Load ab.** Wurde der Filter ungültig, während
+  noch ein Request lief, leerte die Query das Ergebnis, und die späte Antwort setzte es danach wieder – unter einem
+  ungültigen Filter. Jetzt wird der Request verworfen und der Ladezustand beendet.
 - **`XiriTableEmptyState.button`** ergänzt; xiri-go sendet ihn mit `EmptyState.WithButton`, der Typ kannte ihn nicht.
 - **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
   `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte

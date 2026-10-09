@@ -44,7 +44,7 @@ interface ResponseCallbacks {
 
 @Component( {
 	selector: 'xiri-table-test-host',
-	template: `<xiri-table [settings]="settings()" />`,
+	template: `<xiri-table [settings]="settings()" [filterData]="filterData()" />`,
 	imports: [ XiriTableComponent ],
 } )
 class TestHostComponent {
@@ -58,6 +58,7 @@ class TestHostComponent {
 			{ id: 2, name: 'Bob', age: 25 },
 		],
 	} );
+	filterData = signal<Record<string, unknown> | null | undefined>( undefined );
 	table = viewChild.required( XiriTableComponent );
 }
 
@@ -1813,6 +1814,26 @@ describe( 'XiriTableComponent', () => {
 
 				pending.next( { data: rows } );
 				fixture.detectChanges();
+				expect( rowLoads() ).toBe( before + 1 );
+			} );
+
+			// Fehlt der Filter (null), bleibt die Tabelle ohne Load im Ladezustand (Kopf-Buttons sind dann deaktiviert, die
+			// Zeilen bleiben stehen). Der Load nach gültigem Filter bedient einen vorgemerkten Refresh mit.
+			it( 'lädt nach refresh:table aus einer Zeilen-Aktion bei fehlendem Filter nur einmal, sobald der Filter gültig ist', () => {
+				createTable( { done: true, refresh: 'table' } );
+				reload.mockRestore();
+				const rowLoads = () => mockDataService.post.mock.calls.filter( c => c[ 0 ] === '/rows' ).length;
+				host.filterData.set( null );
+				fixture.detectChanges();
+
+				mockDataService.get.mockReturnValue( of( { done: true, refresh: 'table' } ) );
+				component.apiCall( new MouseEvent( 'click' ), '/row/1' );
+				const before = rowLoads();
+				host.filterData.set( { status: 'offen' } );
+				fixture.detectChanges();
+				// Ein nachgeholter Reload liefe erst im nächsten Durchlauf.
+				fixture.detectChanges();
+
 				expect( rowLoads() ).toBe( before + 1 );
 			} );
 

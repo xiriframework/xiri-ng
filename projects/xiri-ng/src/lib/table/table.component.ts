@@ -361,6 +361,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		effect( () => {
 			const filterData = this._filterData();
 
+			// Der Load nach einem Filterwechsel bedient einen vorgemerkten refresh:'table' mit.
+			this.refreshPending.set( false );
 			this.loading.set( true );
 			this.reloadAbort$.next();
 			this.clearAutoRefresh();

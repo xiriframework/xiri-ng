@@ -12,7 +12,7 @@ import {
 	TemplateRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, debounceTime, of, Subject, switchMap } from "rxjs";
+import { catchError, debounceTime, EMPTY, of, Subject, switchMap } from "rxjs";
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDynData } from "../dyncomponent/dyndata.interface";
 import { NgTemplateOutlet } from '@angular/common';
@@ -100,7 +100,8 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 	filterChange = output<Record<string, unknown> | null>();
 
 	private waiter: Subject<XiriQueryFormChangeEvent> = new Subject<XiriQueryFormChangeEvent>();
-	private loader: Subject<void> = new Subject<void>();
+	// true startet einen Load, false bricht den laufenden ab (Filter ungültig geworden).
+	private loader: Subject<boolean> = new Subject<boolean>();
 
 	public dynData: {
 		data: XiriDynData[] | null,
@@ -180,6 +181,9 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 				if ( this.settings().url )
 					this.load();
 			} else {
+				// Ein noch laufender Load (Tippen, Retry, reloadPanel) brächte das Ergebnis sonst zurück.
+				this.loader.next( false );
+				this.loading.set( false );
 				this.data.set( null );
 				this.dynData.filterData = null;
 				this.filterChange.emit( null );
@@ -296,7 +300,7 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 		this.error.set( null );
 		this.loading.set( true );
 
-		this.loader.next();
+		this.loader.next( true );
 	}
 
 	// Alle Loads laufen über einen switchMap: ein noch offener Request wird abgebrochen, sobald
@@ -306,7 +310,7 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 	private startLoader() {
 
 		this.loader.pipe(
-			switchMap( () => this.dataService.post( this.settings().url ?? '', this.dynData.filterData )
+			switchMap( run => !run ? EMPTY : this.dataService.post( this.settings().url ?? '', this.dynData.filterData )
 				.pipe( catchError( ( err: HttpErrorResponse ) => of( { __error: err } ) ) ) ),
 			takeUntilDestroyed( this.destroyRef ),
 		).subscribe( ( res: unknown ) => {
