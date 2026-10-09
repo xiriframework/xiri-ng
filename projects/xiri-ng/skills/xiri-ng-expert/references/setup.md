@@ -118,14 +118,15 @@ export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
 
 - `xiri-card` und jedes `mat-expansion-panel` in `xiri-expansion` (Directive `xiriExpansionPanel`) stellen sich als
   `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
-- `xiri-query` ist ebenfalls Panel-Host: Mit `url` führt `reloadPanel()` die Abfrage mit dem aktuellen Filter neu aus,
-  ohne `url` (Ergebnis vom Button) reicht sie an den äußeren Host bzw. `refresh: "page"` weiter.
-- `xiri-button` und `xiri-table` injizieren den Token optional und rufen bei `refresh: "panel"` `reloadPanel()` der
-  nächstgelegenen Card — egal ob der Button im Card-Header, unten oder in einer verschachtelten Komponente liegt.
-  Ohne umschließende Card: `refresh: "page"` (ab 0.4.11; 0.4.10 warnte nur in der Konsole) — braucht wie
-  `refresh: "page"` `onSameUrlNavigation: 'reload'`. Nur diese beiden Auslöser kennen `refresh: "panel"`;
-  `xiri-links` und der `addUrl`-Dialog der Formularfelder ignorieren es.
-- Eine Card ohne `url` reicht per `skipSelf` an die nächste äußere Card weiter; ohne solche → `refresh: "page"`.
+- `xiri-query` ist ebenfalls Panel-Host: Mit `url` führt `reloadPanel()` die Abfrage mit dem aktuellen Filter neu aus
+  (nur das Ergebnis, Filterfelder und ihre Optionen bleiben), ohne `url` (Ergebnis vom Button) reicht sie an den
+  äußeren Host bzw. `refresh: "page"` weiter. Das gilt für Buttons im Ergebnis und in der Filterleiste.
+- `xiri-button`, `xiri-table` und `xiri-links` (Dialog-Antworten) injizieren den Token optional und rufen bei
+  `refresh: "panel"` `reloadPanel()` des nächstgelegenen Panel-Hosts — egal ob der Button im Card-Header, unten oder
+  in einer verschachtelten Komponente liegt. Ohne Panel-Host: `refresh: "page"` (ab 0.4.11; 0.4.10 warnte nur in der
+  Konsole) — braucht wie `refresh: "page"` `onSameUrlNavigation: 'reload'`. Der `addUrl`-Dialog der Formularfelder
+  ignoriert `refresh: "panel"`.
+- Eine Card ohne `url` reicht per `skipSelf` an den nächsten äußeren Panel-Host weiter; ohne solchen → `refresh: "page"`.
 - Eigene Komponenten, die als Panel gelten sollen, implementieren `XiriPanelHost` und providen den Token genauso;
   `createPanelLoader({ url, key })` aus `services/panel-loader.ts` liefert Laden, Envelope-Auspacken, Puffer und
   Reload-Queue fertig (so nutzen es Card und Expansion-Panel).

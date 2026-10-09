@@ -22,9 +22,6 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Inline-Edit nur die Zeile aktualisieren will, antwortet mit `WithUpdates`.
 - **`refresh: 'table'` während eines laufenden Ladevorgangs wird nachgeholt.** Bisher wurde er verworfen, und die
   Tabelle zeigte die Antwort eines Requests, der vor der Änderung gestartet war.
-- **`xiri-query` mit `url` ist ein Panel-Host.** `refresh: 'panel'` aus dem Ergebnis (und `refresh: 'table'` einer
-  statischen Ergebnistabelle) führt die Abfrage mit dem aktuellen Filter neu aus, statt die umschließende Card oder
-  die Seite zu laden – das Ergebnis bleibt erhalten. Ohne `url` (Ergebnis kommt vom Button) gilt der äußere Host.
 - **`XiriTableEmptyState.button`** ergänzt; xiri-go sendet ihn mit `EmptyState.WithButton`, der Typ kannte ihn nicht.
 - **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
   `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte
@@ -36,6 +33,15 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Seite neu) und `refresh: 'panel'` (lädt die umschließende Card/Expansion neu) greifen.
 - **Skill-Doku `xiri-ng-expert`:** `form-fields.md` beschreibt versteckte Felder (`hide`) und ihre Wirkung auf
   einklappbare Sektionen, `components.md` und `setup.md` die Dialog-Auswertung von `xiri-links`.
+
+### Changed
+
+- **`xiri-query` mit `url` ist ein Panel-Host.** `refresh: 'panel'` aus einem Button im Ergebnis oder in der
+  Filterleiste (und `refresh: 'table'` einer statischen Ergebnistabelle) führt jetzt die Abfrage mit dem aktuellen
+  Filter neu aus, statt die umschließende Card oder die Seite zu laden – Filter und Ergebnis bleiben stehen. Dafür
+  werden Card-Kopf/-Inhalt außerhalb der Query und die Optionen der Filterfelder nicht mehr neu geladen; wer das
+  braucht (z. B. ein „Neu“-Button legt eine Kategorie an, die ein Filter-Select listet), antwortet mit
+  `refresh: 'page'`. Ohne `url` (Ergebnis kommt vom Button) gilt wie bisher der äußere Panel-Host.
 
 ## [0.6.1]
 
