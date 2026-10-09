@@ -521,6 +521,30 @@ describe( 'XiriQueryComponent', () => {
 		} );
 	} );
 
+	describe( 'ungültiger Filter nach einem Fehler', () => {
+		it( 'blendet den Fehler aus und lädt per Retry nicht mit ungültigem Filter', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue( throwError( () => ( { status: 500 } ) ) );
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+			component.formChanged( { valid: true, value: { f: 'a' } } );
+			expect( component.error() ).toBeTruthy();
+
+			component.formChanged( { valid: false, value: null } );
+			vi.advanceTimersByTime( 350 );
+			fixture.detectChanges();
+			expect( fixture.nativeElement.querySelector( '[data-testid="query-retry"]' ) ).toBeNull();
+
+			const calls = mockDataService.post.mock.calls.length;
+			mockDataService.post.mockReturnValue( of( { data: [ { type: 'card', data: {} } ] } ) );
+			component.retry();
+			expect( mockDataService.post.mock.calls.length ).toBe( calls );
+			expect( component.data() ).toBeNull();
+		} );
+	} );
+
 	describe( 'retry', () => {
 		it( 'should show a retry button on error and re-load on click', () => {
 			mockDataService.post.mockReturnValue( throwError( () => ( { status: 500 } ) ) );

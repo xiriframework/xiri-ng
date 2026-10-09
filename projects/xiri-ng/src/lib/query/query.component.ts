@@ -184,6 +184,7 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 				// Ein noch laufender Load (Tippen, Retry, reloadPanel) brächte das Ergebnis sonst zurück.
 				this.loader.next( false );
 				this.loading.set( false );
+				this.error.set( null );
 				this.data.set( null );
 				this.dynData.filterData = null;
 				this.filterChange.emit( null );
@@ -294,6 +295,10 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 	}
 
 	private load() {
+
+		// Ungültiger Filter: nichts laden (Retry, reloadPanel im Debounce-Fenster), das Ergebnis wird geleert.
+		if ( !this.formValid() )
+			return;
 
 		// Stale-while-revalidate: keep the previous data() visible (dimmed via loading())
 		// instead of flashing empty on every navigation/filter change.

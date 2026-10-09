@@ -24,7 +24,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Tabelle zeigte die Antwort eines Requests, der vor der Änderung gestartet war.
 - **`xiri-query`: Ein ungültig gewordener Filter bricht den laufenden Load ab.** Wurde der Filter ungültig, während
   noch ein Request lief, leerte die Query das Ergebnis, und die späte Antwort setzte es danach wieder – unter einem
-  ungültigen Filter. Jetzt wird der Request verworfen und der Ladezustand beendet.
+  ungültigen Filter. Jetzt wird der Request verworfen und der Ladezustand beendet; ein alter Fehler samt Retry-Button
+  verschwindet, und Retry lädt bei ungültigem Filter nicht.
 - **Skill-Doku `xiri-ng-expert`:** `table.md` beschreibt `refresh: 'table'` aus Buttons der Tabelle (`refreshTable`,
   statische Tabelle, Nachholen), `components.md` und `SKILL.md` die Query als Panel-Host für ihr Ergebnis,
   `setup.md` `XIRI_TABLE_HOST` und den Kind-Injector am `ngTemplateOutlet`.

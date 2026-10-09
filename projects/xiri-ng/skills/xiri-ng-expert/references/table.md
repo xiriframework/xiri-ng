@@ -54,7 +54,8 @@ Kein Sorting, kein Paging, kein Editing. Nur Daten rendern.
 ### Öffentliche Methoden
 
 ```typescript
-reload(): void                         // lädt neu; no-op, solange schon geladen wird oder ohne url
+reload(): void                         // lädt neu (no-op, solange schon geladen wird); statisch: settings.data neu
+                                       // einlesen, setzt Auswahl zurück, holt nichts vom Server
 refreshTable(): void                   // refresh:'table': url → reload (läuft ein Load → danach), statisch → Panel/Seite
 searchDo(text: string): void
 selection: SelectionModel<any>         // Checkbox-Selection (wenn options.select)
