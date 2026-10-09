@@ -9,6 +9,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **Kopf-Buttons einer Tabelle werten ihre Antwort nur einmal aus.** Ein Button aus `SetButtonsTop` (z. B.
+  „Hinzufügen“ mit Dialog) mit `ReturnRefreshTable` lud bisher die ganze Seite und danach noch einmal die Tabelle;
+  `refresh: 'page'` und `goto` navigierten doppelt. Die Tabelle stellt sich jetzt als `XIRI_TABLE_HOST` bereit, und
+  nur der Button wertet die Antwort aus. Das gilt auch für den Button im Empty-State, der bei `refresh: 'table'` jetzt
+  die Tabelle statt der Seite lädt. Eine statische Tabelle (Daten eingebettet statt `url`) und ein Button außerhalb
+  einer Tabelle laden weiterhin die Seite. `XiriTableComponent.buttonReturn()` entfällt.
+- **`refresh: 'table'` in einer statischen Tabelle lädt die Seite.** Zeilen- und Bulk-Aktionen, Inline-Edit
+  (`WithRefreshTable()`) und `saveInput` einer Tabelle mit eingebetteten Daten (ohne `url`) taten bei
+  `ReturnRefreshTable` bisher nichts, weil die Tabelle nichts nachladen kann. Jetzt laden sie wie ein Button außerhalb
+  einer Tabelle die Seite. Wer nach einem Inline-Edit nur die Zeile aktualisieren will, antwortet mit `WithUpdates`.
 - **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
   `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte
   mit „missing required“. Jetzt sind sie unsichtbar, ihr Wert geht aber mit, wie xiri-go es beschreibt. `hide` blendet

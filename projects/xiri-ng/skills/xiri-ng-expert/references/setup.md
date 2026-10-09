@@ -96,6 +96,15 @@ Verhalten je nach Response:
   `xiri-table` und `xiri-links` liefern ohne Panel-Host selbst `{ refresh: "page" }` nach, siehe unten)
 - `update: "table"` → `onTableUpdate(id, field, content)` wenn gesetzt
 
+### Umschließende Tabelle: `XIRI_TABLE_HOST`
+
+`xiri-table` stellt sich als `XIRI_TABLE_HOST` bereit (`interface XiriTableHost { refreshTable(): void;
+onTableUpdate(id, field, content): void; }`). Ein `xiri-button` in der Tabelle (Kopf-Buttons aus `options.buttons`,
+Empty-State-Button) injiziert den Token optional und gibt beides als Callback an den Handler; nur der Button wertet
+die Antwort aus, die Tabelle hört dem `(result)` der Kopf-Buttons nicht zu. `refreshTable()` lädt eine
+Tabelle mit `url` neu; eine statische Tabelle (`data` statt `url`) kann nichts nachladen und macht `refresh: "page"`.
+Das gilt auch für die eigenen Aktionen der Tabelle (Zeilen-, Bulk-Aktionen, Inline-Edit, `saveInput`).
+
 ### Nachladbare Panels: `XIRI_PANEL_HOST`
 
 `refresh: "panel"` lädt genau eine `xiri-card` mit `url` neu (Titel, Buttons, Inhalt), die restliche Seite bleibt

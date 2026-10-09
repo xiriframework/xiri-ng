@@ -4,6 +4,7 @@ import {
 	computed,
 	DestroyRef,
 	effect,
+	forwardRef,
 	inject,
 	input,
 	OnDestroy,
@@ -33,9 +34,9 @@ import { takeUntil } from "rxjs/operators";
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { XiriDataService } from '../services/data.service';
-import { XiriButton, XiriButtonComponent, XiriButtonResult } from "../button/button.component";
+import { XiriButton, XiriButtonComponent } from "../button/button.component";
 import { XiriSnackbarService } from '../services/snackbar.service';
-import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
+import { XiriResponseHandlerService, XIRI_PANEL_HOST, XIRI_TABLE_HOST } from '../services/response-handler.service';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
@@ -180,7 +181,8 @@ export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './
 	            templateUrl: './table.component.html',
 	            styleUrl: './table.component.scss',
 	            encapsulation: ViewEncapsulation.None,
-	            providers: [ XiriTableInlineEditService, XiriTableTreeService ],
+	            providers: [ XiriTableInlineEditService, XiriTableTreeService,
+	                         { provide: XIRI_TABLE_HOST, useExisting: forwardRef( () => XiriTableComponent ) } ],
 	            imports: [ MatCard,
 	                       MatIconButton,
 	                       MatIcon,
@@ -1073,24 +1075,26 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		} );
 	}
 	
-	public buttonReturn( event: XiriButtonResult ) {
-		
-		if ( !event.done )
-			return;
-		
-		// xiri-button hat refresh:'panel' schon behandelt (Panel-Host oder Page-Fallback) – hier nicht noch einmal.
-		this.callReturn( event.result, true );
+	// refresh:'table' – eigene Aktionen (callReturn) und XIRI_TABLE_HOST (Kopf-, Empty-State-Button). Eine statische
+	// Tabelle (data statt url) kann nichts nachladen, ihre Daten kommen mit der Seite.
+	refreshTable(): void {
+		if ( this.settings().url )
+			this.reload();
+		else
+			this.responseHandler.handle( { refresh: 'page' } );
 	}
-	
-	private callReturn( result: unknown, fromButton = false ) {
+
+	private callReturn( result: unknown ) {
 		this.responseHandler.handle( result, {
-			onTableRefresh: () => this.reload(),
-			onTableUpdate: ( id, field, content ) => this.onTableUpdate( id, field, content as XiriTableCellValue ),
-			onPanelRefresh: fromButton ? undefined : () => this.refreshPanel(),
+			onTableRefresh: () => this.refreshTable(),
+			onTableUpdate: ( id, field, content ) => this.onTableUpdate( id, field, content ),
+			onPanelRefresh: () => this.refreshPanel(),
 		} );
 	}
 
-	private onTableUpdate( id: unknown, field: string, content: XiriTableCellValue ): void {
+	// Auch XIRI_TABLE_HOST: table:'update' aus einem Kopf-Button.
+	onTableUpdate( id: unknown, field: string, value: unknown ): void {
+		const content = value as XiriTableCellValue;
 		const i = this.dataSource.data.findIndex( ( x: XiriTableRow ) => x.id === id );
 		if ( i == -1 )
 			return;

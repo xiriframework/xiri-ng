@@ -24,6 +24,17 @@ export interface XiriPanelHost {
 
 export const XIRI_PANEL_HOST = new InjectionToken<XiriPanelHost>( 'XIRI_PANEL_HOST' );
 
+/**
+ * Umschließende xiri-table eines xiri-button (Kopf-Buttons, Empty-State). Der Button gibt refreshTable() und
+ * onTableUpdate() als Callbacks an den Handler; ohne Tabelle fällt refresh:'table' auf einen Page-Reload zurück.
+ */
+export interface XiriTableHost {
+	refreshTable(): void;
+	onTableUpdate( id: unknown, field: string, content: unknown ): void;
+}
+
+export const XIRI_TABLE_HOST = new InjectionToken<XiriTableHost>( 'XIRI_TABLE_HOST' );
+
 @Injectable( {
 	             providedIn: 'root',
              } )

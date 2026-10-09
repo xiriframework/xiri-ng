@@ -71,7 +71,7 @@
 					}
 					<div class="middle" [class.hasButtons]="options.buttons">{{ options.title }}</div>
 					@if (options.buttons) {
-						<xiri-buttonline [settings]="options.buttons" (result)="buttonReturn($event)"
+						<xiri-buttonline [settings]="options.buttons"
 						                 [filterData]="_filterData()"></xiri-buttonline>
 					}
 					@if (options.search) {

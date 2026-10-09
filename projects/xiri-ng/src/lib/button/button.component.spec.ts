@@ -690,6 +690,17 @@ describe('XiriButtonComponent', () => {
 		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
 	});
 
+	it('lädt bei refresh:table ohne umschließende Tabelle die Seite genau einmal neu', () => {
+		mockDataService.post.mockReturnValue(of({ done: true, refresh: 'table' }));
+		host.btn.set(makeButton({ action: 'api', url: '/lonely/save' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
+	});
+
 	it('navigiert nicht, wenn der Dialog ohne Ergebnis geschlossen wird', () => {
 		const afterClosedSubject: AfterClosedSubject = new Subject();
 		mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });

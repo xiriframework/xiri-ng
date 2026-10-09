@@ -1656,14 +1656,6 @@ describe( 'XiriTableComponent', () => {
 			expect( panelHost.reloadPanel ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		it( 'reicht von xiri-button weitergereichte Ergebnisse nicht noch einmal als Panel-Refresh weiter', () => {
-			const btn: XiriButton = { text: 'x', type: 'basic', action: 'api', url: '/x' };
-			component.buttonReturn( { button: btn, result: { done: true, refresh: 'panel' }, done: true, loading: false } );
-
-			const callbacks = mockResponseHandler.handle.mock.calls[ 0 ][ 1 ] as { onPanelRefresh?: () => void };
-			expect( callbacks.onPanelRefresh ).toBeUndefined();
-		} );
-
 		it( 'gibt refresh:panel ohne umschließende Card als refresh:page an den Handler weiter statt zu warnen', () => {
 			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => undefined );
 			internals( component ).callReturn( { done: true, refresh: 'panel' } );
@@ -1722,6 +1714,106 @@ describe( 'XiriTableComponent', () => {
 			} );
 		} );
 
+		// Integrationsebene: echter Handler, echter Router, echter xiri-button im Tabellenkopf.
+		// Jede Antwort wird genau einmal ausgewertet; refresh:'table' lädt die Tabelle, bei statischer Tabelle die Seite.
+		describe( 'Antworten von Kopf-Button und Zeilen-Aktion (echter Handler)', () => {
+			let navigate: ReturnType<typeof vi.spyOn>;
+			let reload: ReturnType<typeof vi.spyOn>;
+
+			const rows = [ { id: 1, name: 'A' } ];
+
+			// source: { url } = Ajax-Tabelle (Default, lädt über mockDataService.post), { data } = statische Tabelle.
+			function createTable( response: Record<string, unknown>, source: Partial<XiriTableSettings> = { url: '/rows' },
+			                      action: 'api' | 'dialog' = 'api' ) {
+				fixture?.destroy();
+				TestBed.resetTestingModule();
+				TestBed.configureTestingModule( {
+					imports: [ TestHostComponent ],
+					providers: [
+						provideRouter( [] ),
+						{ provide: XiriDataService, useValue: mockDataService },
+						{ provide: XiriDownloadService, useValue: mockDownloadService },
+						{ provide: XiriSnackbarService, useValue: mockSnackbar },
+						{ provide: MatDialog, useValue: mockDialog },
+						{ provide: XiriSessionStorageService, useValue: mockSessionStorage },
+					],
+				} );
+				navigate = vi.spyOn( TestBed.inject( Router ), 'navigate' ).mockResolvedValue( true );
+				mockDataService.post.mockImplementation( ( url: string ) => of( url === '/rows' ? { data: rows } : response ) );
+				mockDialog.open.mockReturnValue( { afterClosed: () => of( response ), close: vi.fn() } );
+				fixture = TestBed.createComponent( TestHostComponent );
+				host = fixture.componentInstance;
+				host.settings.set( {
+					fields:  [ { id: 'name', name: 'Name' } ],
+					...source,
+					options: { buttons: { class: '', buttons: [ { text: 'Hinzufügen', type: 'raised', action, url: '/add' } ] } },
+				} );
+				fixture.detectChanges();
+				component = host.table();
+				reload = vi.spyOn( component, 'reload' ).mockImplementation( () => undefined );
+			}
+
+			function clickHeaderButton( action: 'api' | 'dialog', response: Record<string, unknown>,
+			                            source?: Partial<XiriTableSettings> ) {
+				createTable( response, source, action );
+				fixture.nativeElement.querySelector( 'xiri-buttonline xiri-buttonstyle' )?.click();
+			}
+
+			function rowApiCall( response: Record<string, unknown>, source?: Partial<XiriTableSettings> ) {
+				createTable( response, source );
+				mockDataService.get.mockReturnValue( of( response ) );
+				component.apiCall( new MouseEvent( 'click' ), '/row/1' );
+			}
+
+			it( 'lädt bei refresh:table aus einer Api-Aktion genau einmal die Tabelle und navigiert nicht', () => {
+				clickHeaderButton( 'api', { done: true, refresh: 'table' } );
+				expect( reload ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt bei refresh:table aus einem Dialog genau einmal die Tabelle und navigiert nicht', () => {
+				clickHeaderButton( 'dialog', { done: true, refresh: 'table' } );
+				expect( reload ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt bei refresh:table einer statischen Tabelle genau einmal die Seite und nicht die Tabelle', () => {
+				clickHeaderButton( 'api', { done: true, refresh: 'table' }, { data: rows } );
+				expect( navigate ).toHaveBeenCalledTimes( 1 );
+				expect( reload ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt bei refresh:page genau einmal die Seite und nicht die Tabelle', () => {
+				clickHeaderButton( 'api', { done: true, refresh: 'page' } );
+				expect( navigate ).toHaveBeenCalledTimes( 1 );
+				expect( reload ).not.toHaveBeenCalled();
+			} );
+
+			it( 'navigiert bei goto genau einmal', () => {
+				clickHeaderButton( 'api', { done: true, goto: '/next' } );
+				expect( navigate ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).toHaveBeenCalledWith( [ '/next' ] );
+			} );
+
+			it( 'lädt bei refresh:table aus einer Zeilen-Aktion einer statischen Tabelle genau einmal die Seite', () => {
+				rowApiCall( { done: true, refresh: 'table' }, { data: rows } );
+				expect( navigate ).toHaveBeenCalledTimes( 1 );
+				expect( reload ).not.toHaveBeenCalled();
+			} );
+
+			it( 'lädt bei refresh:table aus einer Zeilen-Aktion einer Ajax-Tabelle genau einmal die Tabelle', () => {
+				rowApiCall( { done: true, refresh: 'table' } );
+				expect( reload ).toHaveBeenCalledTimes( 1 );
+				expect( navigate ).not.toHaveBeenCalled();
+			} );
+
+			it( 'aktualisiert bei table:update die Zelle', () => {
+				clickHeaderButton( 'api', { done: true, table: 'update', id: 1, field: 'name', content: 'B' } );
+				expect( component.dataSource.data[ 0 ].name ).toBe( 'B' );
+				expect( navigate ).not.toHaveBeenCalled();
+			} );
+		} );
+
 		it( 'should not fail on undefined result', () => {
 			expect( () => internals( component ).callReturn( undefined ) ).not.toThrow();
 		} );
@@ -1733,19 +1825,6 @@ describe( 'XiriTableComponent', () => {
 			} );
 			internals( component ).callReturn( { table: 'update', id: 5, field: 'name', content: 'New' } );
 			expect( component.dataSource.data[ 0 ].name ).toBe( 'New' );
-		} );
-	} );
-
-	describe( 'buttonReturn', () => {
-		it( 'should do nothing when event.done is false', () => {
-			component.buttonReturn( { done: false, result: { page: 'refresh' }, button: {} as XiriButton, loading: false } );
-			expect( mockResponseHandler.handle ).not.toHaveBeenCalled();
-		} );
-
-		it( 'should call callReturn when event.done is true', () => {
-			const result = { goto: '/page' };
-			component.buttonReturn( { done: true, result, button: {} as XiriButton, loading: false } );
-			expect( mockResponseHandler.handle ).toHaveBeenCalledWith( result, expect.anything() );
 		} );
 	} );
 
