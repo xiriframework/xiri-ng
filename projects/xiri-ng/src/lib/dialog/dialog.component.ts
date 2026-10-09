@@ -221,8 +221,6 @@ export class XiriDialogComponent implements OnDestroy {
 
 			if ( this.type() == 'form' ) {
 				( inFields as XiriFormField[] ).forEach( ( origField: XiriFormField ) => {
-					if ( origField.hide == true )
-						return;
 					const field = { ...origField };
 					if ( model[ field.id ] !== undefined )
 						field.value = model[ field.id ];

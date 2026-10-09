@@ -165,22 +165,28 @@ describe( 'XiriDialogComponent', () => {
 			expect( component.formFields()![ 0 ].value ).toBe( 'test@test.com' );
 		} );
 
-		it( 'should hide fields with hide=true', () => {
+		// hide-Felder sind unsichtbar, ihr Wert wird aber mitgesendet (xiri-go SetHide).
+		it( 'sendet hide-Felder unsichtbar mit', async () => {
 			const response = {
-				buttons: [ { text: 'OK', action: 'close', type: 'raised' } ],
+				buttons: [ { text: 'OK', action: 'submit', type: 'raised', default: true } ],
 				fields: [
-					{ id: 'visible', type: 'text' },
-					{ id: 'hidden', type: 'text', hide: true },
+					{ id: 'visible', type: 'text', value: 'a' },
+					{ id: 'hidden', type: 'text', hide: true, required: true },
 				],
+				model: { hidden: 'token-1' },
 				header: 'Form',
 			};
 			mockDataService.get.mockReturnValue( of( response ) );
 
 			createComponent( { type: 'load', url: 'test' } );
 			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
 
-			expect( component.formFields()!.length ).toBe( 1 );
-			expect( component.formFields()![ 0 ].id ).toBe( 'visible' );
+			const inputs: HTMLInputElement[] = Array.from( fixture.nativeElement.querySelectorAll( 'input' ) );
+			expect( inputs.map( i => !!i.closest( '[hidden]' ) ) ).toEqual( [ false, true ] );
+			expect( component.formValid() ).toBe( true );
+			expect( component[ 'formValues' ] ).toEqual( { visible: 'a', hidden: 'token-1' } );
 		} );
 
 		it( 'should set question type', () => {

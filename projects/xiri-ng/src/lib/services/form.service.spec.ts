@@ -184,19 +184,21 @@ describe( 'XiriFormService', () => {
 			expect( emailField!.value ).toBeUndefined();
 		} );
 
-		it( 'should filter out hidden fields', () => {
+		// hide-Felder blendet das Template per [hidden] aus; ihr Wert muss trotzdem mitgesendet werden (xiri-go SetHide).
+		it( 'should keep hidden fields with their model value', () => {
 			const res = {
 				buttons: [{ label: 'Save' }],
 				fields: [
 					{ id: 'visible', type: 'text' },
 					{ id: 'hidden', type: 'text', hide: true },
 				],
+				model: { hidden: 'token-1' },
 			};
 
 			const result = service.parse( res as unknown as XiriFormServiceReturn );
 
-			expect( result.fields!.length ).toBe( 1 );
-			expect( result.fields![0].id ).toBe( 'visible' );
+			expect( result.fields!.map( f => f.id ) ).toEqual( [ 'visible', 'hidden' ] );
+			expect( result.fields![1].value ).toBe( 'token-1' );
 		} );
 
 		it( 'should handle question type', () => {

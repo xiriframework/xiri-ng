@@ -370,29 +370,29 @@
 				</div>
 			}
 			@case ('info') {
-				<div class="info" [class]="field.class">{{ field.value }}</div>
+				<div class="info" [class]="field.class" [hidden]="field.hide">{{ field.value }}</div>
 			}
 			@case ('header') {
 				@if (field.collapsible) {
-					<div class="header collapsible" [class]="field.class" role="button" tabindex="0"
+					<div class="header collapsible" [class]="field.class" [hidden]="field.hide" role="button" tabindex="0"
 					     [attr.aria-expanded]="!isSectionCollapsed(field.id)"
 					     (click)="toggleSection(field)" (keydown.enter)="toggleSection(field)" (keydown.space)="toggleSection(field); $event.preventDefault()">
 						<mat-icon class="collapse-icon" [class.collapsed]="isSectionCollapsed(field.id)">expand_more</mat-icon>
 						{{ field.value }}
 					</div>
 				} @else {
-					<div class="header" [class]="field.class">{{ field.value }}</div>
+					<div class="header" [class]="field.class" [hidden]="field.hide">{{ field.value }}</div>
 				}
 			}
 			@case ('divider') {
-				<div class="divider" [class]="field.class">
+				<div class="divider" [class]="field.class" [hidden]="field.hide">
 					@if (field.value) {
 						<span class="divider-text">{{ field.value }}</span>
 					}
 				</div>
 			}
 			@case ('html') {
-				<div class="html" [class]="field.class" [innerHtml]="$any(field.value) | safeHtml"></div>
+				<div class="html" [class]="field.class" [hidden]="field.hide" [innerHtml]="$any(field.value) | safeHtml"></div>
 			}
 			@case ('question') {
 				<div class="xcol question" [class]="field.class" [hidden]="field.hide">

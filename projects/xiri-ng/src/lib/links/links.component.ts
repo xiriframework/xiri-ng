@@ -4,8 +4,9 @@ import { XiriButton } from "../button/button.component";
 import { XiriColor } from '../types/color.type';
 import { XiriDialogComponent } from "../dialog/dialog.component";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { Router, RouterLink } from "@angular/router";
+import { RouterLink } from "@angular/router";
 import { XiriUrlPipe } from "../pipes/url.pipe";
+import { XiriResponseHandlerService, XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatListItem, MatListItemIcon, MatListItemTitle, MatNavList } from '@angular/material/list';
 import { MatIcon } from '@angular/material/icon';
 import {
@@ -51,7 +52,8 @@ export class XiriLinksComponent implements OnDestroy {
 	settings = input.required<XiriLinksSettings>();
 	compact = computed<boolean>( () => !!this.settings().compact );
 	private dialog = inject( MatDialog );
-	private router = inject( Router );
+	private responseHandler = inject( XiriResponseHandlerService );
+	private panelHost = inject( XIRI_PANEL_HOST, { optional: true } );
 	
 	private dialogRef?: MatDialogRef<unknown>;
 
@@ -71,14 +73,17 @@ export class XiriLinksComponent implements OnDestroy {
 			data: data,
 		} );
 		
-		this.dialogRef.afterClosed().subscribe( ( result: { page?: string; refresh?: string } | null ) => {
-			if ( !result )
-				return;
-			if ( result.page == 'refresh' || result.refresh == 'page' )
-				this.router.navigate( [ this.router.url ] ).then();
-		} );
+		this.dialogRef.afterClosed().subscribe( result => this.responseHandler.handle( result, { onPanelRefresh: () => this.refreshPanel() } ) );
 		
 		return true;
 	}
-	
+
+	// Ohne umschließende Card: wie eine Card ohne url → Page-Reload.
+	private refreshPanel() {
+		if ( this.panelHost )
+			this.panelHost.reloadPanel();
+		else
+			this.responseHandler.handle( { refresh: 'page' } );
+	}
+
 }

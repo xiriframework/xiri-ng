@@ -908,9 +908,12 @@ export class XiriFormFieldsComponent implements OnInit {
 		const idx = fields.findIndex( f => f.id === field.id );
 		if ( idx <= 0 ) return false;
 
-		// Walk backwards to find the nearest header or divider
+		// Walk backwards to find the nearest header or divider. Versteckte (hide) grenzen nichts ab:
+		// ihr Schalter ist nicht bedienbar, und vor ihrem Mitsenden kamen sie gar nicht erst an.
 		for ( let i = idx - 1; i >= 0; i-- ) {
 			const f = fields[ i ];
+			if ( f.hide )
+				continue;
 			if ( f.type === 'header' ) {
 				return !!f.collapsible && this.collapsedSections().has( f.id );
 			}

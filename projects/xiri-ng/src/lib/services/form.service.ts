@@ -78,8 +78,6 @@ export class XiriFormService {
 
 			if ( type == 'form' ) {
 				res.fields?.forEach( ( field: XiriFormField ) => {
-					if ( field.hide == true )
-						return;
 					if ( model[ field.id ] !== undefined )
 						field.value = model[ field.id ];
 

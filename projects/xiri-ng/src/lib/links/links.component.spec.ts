@@ -6,6 +6,7 @@ import { XiriButton } from '../button/button.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
+import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 
 function makeLink(overrides: Partial<XiriButton> = {}): XiriButton {
 	return {
@@ -148,6 +149,60 @@ describe('XiriLinksComponent', () => {
 		afterClosedSubject.complete();
 
 		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
+	});
+
+	// Dialog-Antworten laufen wie beim Button durch den ResponseHandler, nicht nur refresh page.
+	it('should navigate to goto target on dialog close', () => {
+		const afterClosedSubject = new Subject();
+		const dialogRefMock = { afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() };
+		mockDialog.open.mockReturnValue(dialogRefMock);
+
+		const comp = fixture.debugElement.children[0].componentInstance as XiriLinksComponent;
+		comp.openDialog(makeLink());
+
+		afterClosedSubject.next({ goto: '/neu/42' });
+		afterClosedSubject.complete();
+
+		expect(mockRouter.navigate).toHaveBeenCalledWith(['/neu/42']);
+	});
+
+	it('should reload the page on dialog close with refresh table', () => {
+		const afterClosedSubject = new Subject();
+		const dialogRefMock = { afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() };
+		mockDialog.open.mockReturnValue(dialogRefMock);
+
+		const comp = fixture.debugElement.children[0].componentInstance as XiriLinksComponent;
+		comp.openDialog(makeLink());
+
+		afterClosedSubject.next({ refresh: 'table' });
+		afterClosedSubject.complete();
+
+		expect(mockRouter.navigate).toHaveBeenCalledWith(['/current']);
+	});
+
+	it('should reload the surrounding panel on dialog close with refresh panel', () => {
+		const panelHost = { reloadPanel: vi.fn() };
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule({
+			imports: [TestHostComponent],
+			providers: [
+				{ provide: MatDialog, useValue: mockDialog },
+				{ provide: Router, useValue: mockRouter },
+				{ provide: ActivatedRoute, useValue: {} },
+				{ provide: XIRI_PANEL_HOST, useValue: panelHost },
+			],
+		});
+		fixture = TestBed.createComponent(TestHostComponent);
+		fixture.detectChanges();
+		const afterClosedSubject = new Subject();
+		mockDialog.open.mockReturnValue({ afterClosed: () => afterClosedSubject.asObservable(), close: vi.fn() });
+
+		const comp = fixture.debugElement.children[0].componentInstance as XiriLinksComponent;
+		comp.openDialog(makeLink());
+		afterClosedSubject.next({ refresh: 'panel' });
+
+		expect(panelHost.reloadPanel).toHaveBeenCalledTimes(1);
+		expect(mockRouter.navigate).not.toHaveBeenCalled();
 	});
 
 	it('should not navigate on dialog close with null result', () => {

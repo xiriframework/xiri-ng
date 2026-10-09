@@ -7,6 +7,17 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
+  `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte
+  mit „missing required“. Jetzt sind sie unsichtbar, ihr Wert geht aber mit, wie xiri-go es beschreibt. `hide` blendet
+  auch `info`, `header`, `divider` und `html` aus, und versteckte Header und Divider grenzen keine
+  einklappbaren Sektionen ab.
+- **Links-Dialog wertet die ganze Antwort aus.** `xiri-links` reagierte nach einem Dialog nur auf einen Seiten-Reload.
+  Jetzt läuft das Ergebnis wie beim Button durch `XiriResponseHandlerService`: `goto`, `refresh: 'table'` (lädt die
+  Seite neu) und `refresh: 'panel'` (lädt die umschließende Card/Expansion neu) greifen.
+
 ## [0.6.1]
 
 ### Fixed

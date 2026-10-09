@@ -196,6 +196,46 @@ describe( 'XiriFormFieldsComponent', () => {
 	} );
 
 	describe( 'redundant placeholder', () => {
+		// hide gilt für jeden Feldtyp, auch für reine Anzeigefelder (xiri-go SetHide).
+		it( 'blendet auch Anzeigefelder mit hide aus', () => {
+			host.fields.set( [
+				{ id: 'i', type: 'info', value: 'geheim', hide: true },
+				{ id: 'h', type: 'header', value: 'Kopf', hide: true },
+				{ id: 'hc', type: 'header', value: 'Kopf', collapsible: true, hide: true },
+				{ id: 'd', type: 'divider', value: 'Trenner', hide: true },
+				{ id: 'x', type: 'html', value: '<b>roh</b>', hide: true },
+			] );
+			fixture.detectChanges();
+
+			const els: HTMLElement[] = Array.from( fixture.nativeElement.querySelectorAll( '.info, .header, .divider, .html' ) );
+			expect( els.length ).toBe( 5 );
+			expect( els.every( el => el.hidden ) ).toBe( true );
+		} );
+
+		// Ein versteckter Header hat keinen bedienbaren Schalter: seine Sektion darf nicht zugeklappt starten.
+		it( 'klappt die Sektion eines versteckten Headers nicht zu', () => {
+			host.fields.set( [
+				{ id: 'h', type: 'header', value: 'Kopf', collapsible: true, collapsed: true, hide: true },
+				{ id: 'name', type: 'text' },
+			] );
+			fixture.detectChanges();
+
+			expect( fixture.nativeElement.querySelectorAll( 'input' ).length ).toBe( 1 );
+		} );
+
+		it( 'lässt versteckte Header und Divider eine zugeklappte Sektion nicht beenden', () => {
+			host.fields.set( [
+				{ id: 'a', type: 'header', value: 'A', collapsible: true, collapsed: true },
+				{ id: 'b', type: 'header', value: 'B', hide: true },
+				{ id: 'c', type: 'text' },
+				{ id: 'd', type: 'divider', hide: true },
+				{ id: 'e', type: 'text' },
+			] );
+			fixture.detectChanges();
+
+			expect( fixture.nativeElement.querySelectorAll( 'input' ).length ).toBe( 0 );
+		} );
+
 		it( 'should not repeat the label as a placeholder on a text field', () => {
 			host.fields.set( [ { id: 'name', type: 'text', name: 'Full Name', value: '' } ] );
 			fixture.detectChanges();
