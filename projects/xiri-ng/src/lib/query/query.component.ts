@@ -3,7 +3,6 @@ import {
 	Component,
 	computed,
 	DestroyRef,
-	forwardRef,
 	inject,
 	Injector,
 	input,
@@ -76,7 +75,6 @@ export interface XiriQueryFormChangeEvent {
 	            templateUrl: './query.component.html',
 	            styleUrl: './query.component.scss',
 	            imports: [ XiriFormFieldsComponent, NgTemplateOutlet, XiriButtonlineComponent, MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle, MatIcon, MatButton, MatProgressSpinner, MatChipSet, MatChip, MatChipRemove ],
-	            providers: [ { provide: XIRI_PANEL_HOST, useExisting: forwardRef( () => XiriQueryComponent ) } ],
             } )
 export class XiriQueryComponent implements OnInit, XiriPanelHost {
 
@@ -86,9 +84,14 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 	private cdr = inject( ChangeDetectorRef );
 	private destroyRef = inject( DestroyRef );
 	private responseHandler = inject( XiriResponseHandlerService );
-	private parentPanel = inject( XIRI_PANEL_HOST, { optional: true, skipSelf: true } );
-	// Element-Injector der Query: Das Ergebnis-Template ist außerhalb deklariert und fände den Panel-Host sonst nicht.
-	injector = inject( Injector );
+	private parentPanel = inject( XIRI_PANEL_HOST, { optional: true } );
+	// Panel-Host nur für das Ergebnis, nicht für die eigene View: Antworten der Filterleiste gehen zusätzlich an
+	// clickedButton() und würden ein neu geladenes Ergebnis überschreiben. Das Ergebnis-Template ist außerhalb
+	// deklariert und bekommt den Injector deshalb per ngTemplateOutlet.
+	protected readonly resultInjector = Injector.create( {
+		providers: [ { provide: XIRI_PANEL_HOST, useValue: this } ],
+		parent:    inject( Injector ),
+	} );
 
 	settings = input.required<XiriQuerySettings>();
 	dyncomponent = input<TemplateRef<unknown>>();

@@ -36,12 +36,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- **`xiri-query` mit `url` ist ein Panel-Host.** `refresh: 'panel'` aus einem Button im Ergebnis oder in der
-  Filterleiste (und `refresh: 'table'` einer statischen Ergebnistabelle) führt jetzt die Abfrage mit dem aktuellen
-  Filter neu aus, statt die umschließende Card oder die Seite zu laden – Filter und Ergebnis bleiben stehen. Dafür
-  werden Card-Kopf/-Inhalt außerhalb der Query und die Optionen der Filterfelder nicht mehr neu geladen; wer das
-  braucht (z. B. ein „Neu“-Button legt eine Kategorie an, die ein Filter-Select listet), antwortet mit
-  `refresh: 'page'`. Ohne `url` (Ergebnis kommt vom Button) gilt wie bisher der äußere Panel-Host.
+- **`xiri-query` mit `url` ist Panel-Host für ihr Ergebnis.** `refresh: 'panel'` aus einem Button im Ergebnis (und
+  `refresh: 'table'` einer statischen Ergebnistabelle) führt jetzt die Abfrage mit dem aktuellen Filter neu aus,
+  statt die umschließende Card oder die Seite zu laden – der Filter bleibt stehen. Card-Kopf und -Inhalt außerhalb
+  der Query laden dabei nicht mehr mit; wer das braucht, antwortet mit `refresh: 'page'`. Buttons in der
+  Filterleiste und in `dyn` sowie eine Query ohne `url` (Ergebnis kommt vom Button) nutzen wie bisher den äußeren
+  Panel-Host.
 
 ## [0.6.1]
 

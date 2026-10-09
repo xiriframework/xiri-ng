@@ -53,7 +53,7 @@
 	}
 	@if (data()) {
 		<div class="xcol" [class.is-loading]="loading()">
-			<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: data() }; injector: injector"></ng-container>
+			<ng-container *ngTemplateOutlet="dyncomponent(); context: { $implicit: data() }; injector: resultInjector"></ng-container>
 		</div>
 	}
 </div>

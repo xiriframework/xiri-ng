@@ -118,9 +118,11 @@ export const XIRI_PANEL_HOST: InjectionToken<XiriPanelHost>;
 
 - `xiri-card` und jedes `mat-expansion-panel` in `xiri-expansion` (Directive `xiriExpansionPanel`) stellen sich als
   `XIRI_PANEL_HOST` bereit (`providers: [{ provide: XIRI_PANEL_HOST, useExisting: … }]`).
-- `xiri-query` ist ebenfalls Panel-Host: Mit `url` führt `reloadPanel()` die Abfrage mit dem aktuellen Filter neu aus
-  (nur das Ergebnis, Filterfelder und ihre Optionen bleiben), ohne `url` (Ergebnis vom Button) reicht sie an den
-  äußeren Host bzw. `refresh: "page"` weiter. Das gilt für Buttons im Ergebnis und in der Filterleiste.
+- `xiri-query` ist Panel-Host für ihr Ergebnis (Kind-Injector am Ergebnis-Template, kein Komponenten-Provider): Mit
+  `url` führt `reloadPanel()` die Abfrage mit dem aktuellen Filter neu aus, ohne `url` (Ergebnis vom Button) reicht
+  sie an den äußeren Host bzw. `refresh: "page"` weiter. Filterleiste und `dyn`-Inhalte sehen den äußeren Host: Die
+  Filterleiste gibt ihre Antworten zusätzlich an `clickedButton()` (würde ein neu geladenes Ergebnis überschreiben),
+  und `dyn` lädt `load()` ohnehin nicht neu.
 - `xiri-button`, `xiri-table` und `xiri-links` (Dialog-Antworten) injizieren den Token optional und rufen bei
   `refresh: "panel"` `reloadPanel()` des nächstgelegenen Panel-Hosts — egal ob der Button im Card-Header, unten oder
   in einer verschachtelten Komponente liegt. Ohne Panel-Host: `refresh: "page"` (ab 0.4.11; 0.4.10 warnte nur in der

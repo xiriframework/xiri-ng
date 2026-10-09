@@ -10,6 +10,7 @@ import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
+import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 
 function stubLocalStorage(): void {
 	const store: Record<string, string> = {};
@@ -790,7 +791,8 @@ describe( 'XiriQueryComponent als Panel-Host (echter xiri-button im Ergebnis)', 
 	let post: ReturnType<typeof vi.fn>;
 	let navigate: ReturnType<typeof vi.spyOn>;
 
-	function setup( settings?: XiriQuerySettings ) {
+	// outer: Panel-Host um die Query herum (wie eine umschließende Card), am Host-Element der Test-Komponente.
+	function setup( settings?: XiriQuerySettings, outer?: { reloadPanel: ReturnType<typeof vi.fn> } ) {
 		TestBed.resetTestingModule();
 		stubLocalStorage();
 		post = vi.fn().mockImplementation( ( url: string ) =>
@@ -804,6 +806,8 @@ describe( 'XiriQueryComponent als Panel-Host (echter xiri-button im Ergebnis)', 
 				{ provide: XiriSessionStorageService, useValue: { set: vi.fn(), getTimeout: vi.fn().mockReturnValue( null ) } },
 			],
 		} );
+		if ( outer )
+			TestBed.overrideComponent( ResultHostComponent, { set: { providers: [ { provide: XIRI_PANEL_HOST, useValue: outer } ] } } );
 		navigate = vi.spyOn( TestBed.inject( Router ), 'navigate' ).mockResolvedValue( true );
 		fixture = TestBed.createComponent( ResultHostComponent );
 		if ( settings )
@@ -828,6 +832,50 @@ describe( 'XiriQueryComponent als Panel-Host (echter xiri-button im Ergebnis)', 
 		expect( queryLoads() ).toBe( 2 );
 		expect( post.mock.calls[ post.mock.calls.length - 1 ][ 1 ] ).toEqual( { f: 'a' } );
 		expect( navigate ).not.toHaveBeenCalled();
+	} );
+
+	// Die Filterleiste liegt in der eigenen View der Query: Ihre Antworten gehen zusätzlich an clickedButton() und würden
+	// ein neu geladenes Ergebnis überschreiben. Panel-Host ist die Query deshalb nur für ihr Ergebnis.
+	it( 'hat für das Ergebnis Vorrang vor einem äußeren Panel-Host', () => {
+		const outer = { reloadPanel: vi.fn() };
+		setup( undefined, outer );
+		fixture.componentInstance.query().formChanged( { valid: true, value: { f: 'a' } } );
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector( 'xiri-button xiri-buttonstyle' )?.click();
+
+		expect( queryLoads() ).toBe( 2 );
+		expect( outer.reloadPanel ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reicht ohne url (Ergebnis kommt vom Button) refresh:panel an den äußeren Panel-Host weiter', () => {
+		const outer = { reloadPanel: vi.fn() };
+		setup( { fields: [ { id: 'f', type: 'text', value: '' } ] }, outer );
+		fixture.componentInstance.query().clickedButton( {
+			button: { text: 'Suchen', type: 'raised', action: 'api', url: '/search' }, result: [ { type: 'card' } ], done: true, loading: false,
+		} );
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector( 'xiri-button xiri-buttonstyle' )?.click();
+
+		expect( outer.reloadPanel ).toHaveBeenCalledTimes( 1 );
+		expect( navigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'lädt bei refresh:panel aus der Filterleiste nicht die Query, sondern wie bisher die Seite', () => {
+		setup( {
+			fields:     [ { id: 'f', type: 'text', value: '' } ],
+			url:        'search/results',
+			buttonline: { type: 'buttonline', data: { class: '', buttons: [ { text: 'Neu', type: 'raised', action: 'api', url: '/row/done' } ] } },
+		} );
+		fixture.componentInstance.query().formChanged( { valid: true, value: { f: 'a' } } );
+		fixture.detectChanges();
+		expect( queryLoads() ).toBe( 1 );
+
+		fixture.nativeElement.querySelector( '.formbtnline xiri-buttonstyle' )?.click();
+
+		expect( queryLoads() ).toBe( 1 );
+		expect( navigate ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'lädt ohne url (Ergebnis kommt vom Button) bei refresh:panel die Seite', () => {
