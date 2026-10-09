@@ -75,6 +75,13 @@ interface XiriQuerySettings {
 @output change: EventEmitter<any>;  // debounced 300ms
 ```
 
+**Panel-Host für das Ergebnis.** Mit `url` stellt die Query dem Ergebnis-Template per Kind-Injector
+`XIRI_PANEL_HOST` bereit: `refresh: 'panel'` aus dem Ergebnis (auch über eine Card ohne `url` oder
+`refresh: 'table'` einer statischen Tabelle) führt die Abfrage mit dem aktuellen Filter neu aus. Filterleiste
+(`buttonline`) und `dyn` sehen den äußeren Host — die Filterleiste gibt ihre Antwort zusätzlich an das Ergebnis
+weiter. Ohne `url` reicht `reloadPanel()` an den äußeren Host bzw. die Seite weiter. Wird der Filter ungültig,
+leert die Query das Ergebnis und bricht einen laufenden Load ab.
+
 **`collapsed` — drei Zustände.** Fehlt das Feld, wird gar kein Expansion-Panel gerendert und der
 Filter ist immer offen (Default). `false` rendert das Panel aufgeklappt, `true` eingeklappt.
 
@@ -745,6 +752,9 @@ interface XiriEmptyStateSettings {
 
 @output buttonResult: EventEmitter<XiriButtonResult>;
 ```
+
+In einer `xiri-table` (`options.emptyState`, Typ `XiriTableEmptyState` mit demselben `button`) gilt der Button als
+Tabellen-Button: `refresh: 'table'` lädt die Tabelle (statisch: Panel bzw. Seite), nicht die Seite.
 
 ## Stats & Timeline & Description-List
 

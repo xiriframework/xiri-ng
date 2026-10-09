@@ -25,6 +25,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **`xiri-query`: Ein ungültig gewordener Filter bricht den laufenden Load ab.** Wurde der Filter ungültig, während
   noch ein Request lief, leerte die Query das Ergebnis, und die späte Antwort setzte es danach wieder – unter einem
   ungültigen Filter. Jetzt wird der Request verworfen und der Ladezustand beendet.
+- **Skill-Doku `xiri-ng-expert`:** `table.md` beschreibt `refresh: 'table'` aus Buttons der Tabelle (`refreshTable`,
+  statische Tabelle, Nachholen), `components.md` und `SKILL.md` die Query als Panel-Host für ihr Ergebnis,
+  `setup.md` `XIRI_TABLE_HOST` und den Kind-Injector am `ngTemplateOutlet`.
 - **`XiriTableEmptyState.button`** ergänzt; xiri-go sendet ihn mit `EmptyState.WithButton`, der Typ kannte ihn nicht.
 - **Formularfelder mit `hide` werden mitgesendet.** Dialog und Formular verwarfen Felder mit `hide: true` (xiri-go
   `SetHide(true)`) beim Laden. Der Server bekam dann stumm seinen Default, und ein verstecktes Pflichtfeld scheiterte

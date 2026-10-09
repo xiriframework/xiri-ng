@@ -54,7 +54,8 @@ Kein Sorting, kein Paging, kein Editing. Nur Daten rendern.
 ### Öffentliche Methoden
 
 ```typescript
-reload(): void
+reload(): void                         // lädt neu; no-op, solange schon geladen wird oder ohne url
+refreshTable(): void                   // refresh:'table': url → reload (läuft ein Load → danach), statisch → Panel/Seite
 searchDo(text: string): void
 selection: SelectionModel<any>         // Checkbox-Selection (wenn options.select)
 isAllSelected(): boolean
@@ -100,7 +101,7 @@ export interface XiriTableOptions {
 
   title?: string;
   textNoData?: string = 'no data found';
-  emptyState?: XiriTableEmptyState;
+  emptyState?: XiriTableEmptyState;    // icon, iconColor, title, description, button
 
   buttons?: XiriButtonlineSettings;    // Action-Buttons über der Tabelle
 
@@ -402,7 +403,20 @@ tableSettings: XiriTableSettings = {
 };
 ```
 
-## Reload nach Edit
+## `refresh: 'table'` aus Buttons der Tabelle
+
+Kopf-Buttons (`options.buttons`), der Empty-State-Button und die Zeilen-, Bulk-, Inline-Edit- und `saveInput`-Aktionen
+werten ihre Antwort genau einmal aus. Die Tabelle stellt sich dafür als `XIRI_TABLE_HOST` bereit (`refreshTable`,
+`onTableUpdate`), siehe setup.md; einen `(result)`-Handler braucht es nicht.
+
+- Tabelle mit `url`: neu laden. Läuft gerade ein Load, wird der Reload danach nachgeholt (der laufende Request kann
+  vor der Änderung gestartet sein); ein Filterwechsel-Load bedient ihn mit.
+- Statische Tabelle (`data` statt `url`): kann sich nicht selbst nachladen → wie `refresh: 'panel'`, also Card oder
+  Expansion-Panel mit `url`, Query-Ergebnis mit `url`, sonst die Seite. Für „nur die Zeile ändern“ nach Inline-Edit
+  ist `updates` (xiri-go `WithUpdates`) der Weg.
+- `table: 'update'` (`id`, `field`, `content`) patcht eine Zelle, auch aus einem Kopf-Button.
+
+## Reload nach Edit (Button außerhalb der Tabelle)
 
 ```typescript
 @ViewChild(XiriTableComponent) table!: XiriTableComponent;

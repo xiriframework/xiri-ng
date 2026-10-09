@@ -59,7 +59,10 @@ snackbar.handleResponse(response): boolean   // parst response.message + respons
 
 // Backend-Response-Handler (navigation / page-refresh / table-refresh / panel-refresh)
 responseHandler.handle(result, { onTableRefresh?, onTableUpdate?, onPanelRefresh? })
-// refresh:"panel" lädt die nächstgelegene xiri-card mit url neu (DI-Token XIRI_PANEL_HOST, s. setup.md)
+// refresh:"panel" lädt den nächsten Panel-Host neu: xiri-card/Expansion-Panel mit url oder das Ergebnis einer
+//   xiri-query mit url (DI-Token XIRI_PANEL_HOST, s. setup.md)
+// refresh:"table" aus Buttons einer xiri-table (Kopf, Empty-State, Zeilen): Tabelle mit url lädt neu (läuft gerade
+//   ein Load, danach); statische Tabelle (data statt url) verhält sich wie refresh:"panel" (XIRI_TABLE_HOST)
 
 // File-Download (tab = Handle aus openTab() → im Tab anzeigen, null → speichern)
 download.openTab(): Window | null            // synchron im Click, sonst blockt der Browser
@@ -269,6 +272,11 @@ Debounce 300ms, ergebnis unter dem Filter als `XiriDynData[]`.
 `true` = Panel zu. Mit `saveStateId` merkt sich die Query den vom User geklappten Zustand
 (Session-Storage, 1 h) und stellt ihn beim nächsten Laden wieder her — er gewinnt über den Wert
 aus den Settings.
+
+**Refresh aus dem Ergebnis:** Mit `url` ist die Query Panel-Host für ihr Ergebnis: `refresh: 'panel'` aus einem
+Button darin (auch aus einer Card ohne `url` oder einer statischen Tabelle mit `refresh: 'table'`) führt die Abfrage
+mit dem aktuellen Filter neu aus, statt Card oder Seite zu laden. Filterleiste, `dyn` und eine Query ohne `url` nutzen
+den äußeren Host. Wird der Filter ungültig, bricht die Query einen laufenden Load ab.
 
 **Auto-Load beim Öffnen:** Mit gesetzter `url` lädt die Query automatisch beim ersten gültigen Filter-Zustand. Nutzt der Filter stattdessen einen `buttonline`-Button zum Nachladen, setze `autoLoad: true` an diesem Button (`action:'api'`) → er feuert einmalig automatisch beim Laden, sobald der Filter gültig ist (siehe xiri-button unten).
 
