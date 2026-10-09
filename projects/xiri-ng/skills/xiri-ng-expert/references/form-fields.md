@@ -84,7 +84,7 @@ export interface XiriFormField {
   texts?: object;                        // für timelimit
 
   // --- State ---
-  hide?: boolean;           // unsichtbar ([hidden]), Wert geht trotzdem mit (ab 0.6.2, s.u.)
+  hide?: boolean;           // unsichtbar ([hidden]), Wert geht trotzdem mit (ab 0.7.0, s.u.)
   required?: boolean;
   disabled?: boolean;        // Control beim Aufbau disabled, Feld fällt aus formGroup.value (s.u.)
   collapsible?: boolean;     // header
@@ -189,7 +189,7 @@ Es gibt **keine** explizite Section-Grenze im Datenmodell — das Frontend grupp
 ein collapsible Header beginnt eine Section, die für **alle Folgefelder bis zum nächsten Header**
 gilt (`isInCollapsedSection()` läuft vom Feld rückwärts zum nächsten Header; ein `divider` bricht
 die Section ab). Initial eingeklappt via `collapsed: true`. Header und Divider mit `hide: true` grenzen
-nichts ab und werden bei der Suche übersprungen (ab 0.6.2), ihr Schalter wäre ja nicht bedienbar.
+nichts ab und werden bei der Suche übersprungen (ab 0.7.0), ihr Schalter wäre ja nicht bedienbar.
 
 **Mehrere collapsible Header stapeln als unabhängige Geschwister** — jeder Header startet seine
 eigene Section und wird nie von einer vorherigen, eingeklappten Section versteckt. Beispiel:
