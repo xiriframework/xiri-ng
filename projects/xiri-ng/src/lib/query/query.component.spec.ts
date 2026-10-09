@@ -11,6 +11,7 @@ import { MatExpansionPanel } from '@angular/material/expansion';
 import { By } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 import { XIRI_PANEL_HOST } from '../services/response-handler.service';
+import { XiriCardComponent } from '../card/card.component';
 
 function stubLocalStorage(): void {
 	const store: Record<string, string> = {};
@@ -777,10 +778,18 @@ describe( 'XiriQueryComponent', () => {
 @Component( {
 	selector: 'xiri-query-result-host',
 	template: `<xiri-query [settings]="settings()" [dyncomponent]="result" />
-		<ng-template #result><xiri-button [button]="button" /></ng-template>`,
-	imports: [ XiriQueryComponent, XiriButtonComponent ],
+		<ng-template #result>
+			@if (inCard()) {
+				<xiri-card [settings]="{ header: 'Karte', buttonsTop: { class: '', buttons: [ button ] } }" />
+			} @else {
+				<xiri-button [button]="button" />
+			}
+		</ng-template>`,
+	imports: [ XiriQueryComponent, XiriButtonComponent, XiriCardComponent ],
 } )
 class ResultHostComponent {
+	// Ergebnis = Card ohne url mit dem Button im Kopf: Die Card reicht refresh:'panel' per skipSelf weiter.
+	inCard = signal( false );
 	settings = signal<XiriQuerySettings>( { fields: [ { id: 'f', type: 'text', value: '' } ], url: 'search/results' } );
 	button: XiriButton = { text: 'Erledigt', type: 'raised', action: 'api', url: '/row/done' };
 	query = viewChild.required( XiriQueryComponent );
@@ -846,6 +855,20 @@ describe( 'XiriQueryComponent als Panel-Host (echter xiri-button im Ergebnis)', 
 
 		expect( queryLoads() ).toBe( 2 );
 		expect( outer.reloadPanel ).not.toHaveBeenCalled();
+	} );
+
+	it( 'führt bei refresh:panel aus einer Card ohne url im Ergebnis die Query neu aus', () => {
+		const outer = { reloadPanel: vi.fn() };
+		setup( undefined, outer );
+		fixture.componentInstance.inCard.set( true );
+		fixture.componentInstance.query().formChanged( { valid: true, value: { f: 'a' } } );
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector( 'xiri-card xiri-buttonstyle' )?.click();
+
+		expect( queryLoads() ).toBe( 2 );
+		expect( outer.reloadPanel ).not.toHaveBeenCalled();
+		expect( navigate ).not.toHaveBeenCalled();
 	} );
 
 	it( 'reicht ohne url (Ergebnis kommt vom Button) refresh:panel an den äußeren Panel-Host weiter', () => {
