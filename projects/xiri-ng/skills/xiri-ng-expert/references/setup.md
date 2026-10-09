@@ -92,8 +92,8 @@ Verhalten je nach Response:
 - `goto: url` → `router.navigate([url])`; hat Vorrang vor jedem `refresh` (eine InlineEdit-Antwort kann beides tragen)
 - `refresh: "page"` → `router.navigate([router.url])` — braucht `onSameUrlNavigation: 'reload'` (siehe dyncomponent.md)
 - `refresh: "table"` → `onTableRefresh()` wenn gesetzt, sonst wie `refresh: "page"`
-- `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback im Handler; `xiri-button` und
-  `xiri-table` liefern ohne Panel-Host selbst `{ refresh: "page" }` nach, siehe unten)
+- `refresh: "panel"` → `onPanelRefresh()` wenn gesetzt, sonst nichts (kein Router-Fallback im Handler; `xiri-button`,
+  `xiri-table` und `xiri-links` liefern ohne Panel-Host selbst `{ refresh: "page" }` nach, siehe unten)
 - `update: "table"` → `onTableUpdate(id, field, content)` wenn gesetzt
 
 ### Nachladbare Panels: `XIRI_PANEL_HOST`

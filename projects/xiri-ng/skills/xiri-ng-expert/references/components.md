@@ -216,6 +216,10 @@ interface XiriLinksSettings {
 }
 ```
 
+Items mit `action: 'dialog'` öffnen `XiriDialogComponent`; das `afterClosed`-Ergebnis läuft wie beim Button
+durch `XiriResponseHandlerService` (`goto`, `refresh: 'page' | 'table' | 'panel'`). `refresh: 'panel'` lädt den
+umschließenden Panel-Host neu, ohne Host die Seite. Bis 0.6.1 wirkte nur `refresh: 'page'`.
+
 ## Buttons
 
 ### xiri-button

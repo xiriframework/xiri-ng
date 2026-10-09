@@ -17,6 +17,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Links-Dialog wertet die ganze Antwort aus.** `xiri-links` reagierte nach einem Dialog nur auf einen Seiten-Reload.
   Jetzt läuft das Ergebnis wie beim Button durch `XiriResponseHandlerService`: `goto`, `refresh: 'table'` (lädt die
   Seite neu) und `refresh: 'panel'` (lädt die umschließende Card/Expansion neu) greifen.
+- **Skill-Doku `xiri-ng-expert`:** `form-fields.md` beschreibt versteckte Felder (`hide`) und ihre Wirkung auf
+  einklappbare Sektionen, `components.md` und `setup.md` die Dialog-Auswertung von `xiri-links`.
 
 ## [0.6.1]
 

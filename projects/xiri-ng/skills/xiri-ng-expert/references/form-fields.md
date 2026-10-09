@@ -84,7 +84,7 @@ export interface XiriFormField {
   texts?: object;                        // für timelimit
 
   // --- State ---
-  hide?: boolean;
+  hide?: boolean;           // unsichtbar ([hidden]), Wert geht trotzdem mit (ab 0.6.2, s.u.)
   required?: boolean;
   disabled?: boolean;        // Control beim Aufbau disabled, Feld fällt aus formGroup.value (s.u.)
   collapsible?: boolean;     // header
@@ -174,12 +174,22 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 | `waiting`       | Loading-Spinner                                   |                                    |
 | `header`        | Sektions-Header (mit optional Collapse)           | `collapsible`, `collapsed`         |
 
+#### Versteckte Felder (`hide: true`)
+
+`hide: true` (xiri-go `SetHide(true)`) blendet das Feld per `[hidden]` aus, das Control bleibt aber aktiv:
+der Wert steht in `formGroup.value`, geht mit dem Submit zum Server und läuft durch die Validierung. Gilt
+für alle Feldtypen, auch `info`/`header`/`divider`/`html`. Anders als `showWhen` (Control disabled, Wert
+fehlt) und `disabled` (Control gesperrt, Wert fehlt). Bis 0.6.1 verwarfen Dialog und `XiriFormService` solche
+Felder komplett, der Server bekam dann stumm seinen Default. Ein verstecktes Pflichtfeld braucht deshalb
+einen Wert vom Server, sonst sperrt es den Submit unsichtbar.
+
 #### Collapsible Sections (`header` mit `collapsible: true`)
 
 Es gibt **keine** explizite Section-Grenze im Datenmodell — das Frontend gruppiert heuristisch:
 ein collapsible Header beginnt eine Section, die für **alle Folgefelder bis zum nächsten Header**
 gilt (`isInCollapsedSection()` läuft vom Feld rückwärts zum nächsten Header; ein `divider` bricht
-die Section ab). Initial eingeklappt via `collapsed: true`.
+die Section ab). Initial eingeklappt via `collapsed: true`. Header und Divider mit `hide: true` grenzen
+nichts ab und werden bei der Suche übersprungen (ab 0.6.2), ihr Schalter wäre ja nicht bedienbar.
 
 **Mehrere collapsible Header stapeln als unabhängige Geschwister** — jeder Header startet seine
 eigene Section und wird nie von einer vorherigen, eingeklappten Section versteckt. Beispiel:
