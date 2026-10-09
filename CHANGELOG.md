@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0]
+
 ### Fixed
 
 - **Kopf-Buttons einer Tabelle werten ihre Antwort nur einmal aus.** Ein Button aus `SetButtonsTop` (z. B.
