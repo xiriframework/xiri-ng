@@ -3,7 +3,7 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
-import { MatCard } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
@@ -11,7 +11,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 	            selector: 'app-dates',
 	            templateUrl: './dates.component.html',
 	            styleUrls: [ './dates.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, MatCardContent, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
             } )
 export class DatesComponent {
 

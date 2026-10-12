@@ -33,6 +33,8 @@ describe( 'every demo page', () => {
 		// The fallback output itself; the Cards subtitle mentions "unknown type" too.
 		expect( /unknown type( OUT)?:/.test( text ) ).toBe( showsUnknownType.includes( path ) );
 		expect( text.includes( 'Page not found' ) ).toBe( showsNotFound.includes( path ) );
+		// Without mat-card-content the form fields sit on the card edge.
+		expect( fixture.nativeElement.querySelectorAll( 'mat-card > xiri-form' ).length ).toBe( 0 );
 	} );
 } );
 
