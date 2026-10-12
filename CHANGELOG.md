@@ -7,6 +7,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`linkrow`-Zellen behalten ihr Padding.** Die Zelle trägt das Format als Klasse, und `.linkrow { display: table-row }`
+  traf dadurch auch das `td`: Icon und Text klebten am Rand, etwa in einer Card. Icon und Text fluchten jetzt mit Icon
+  und Titel des Card-Headers.
+
 ## [0.7.0]
 
 ### Fixed
