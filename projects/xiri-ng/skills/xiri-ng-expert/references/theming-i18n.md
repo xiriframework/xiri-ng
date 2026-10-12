@@ -103,7 +103,7 @@ empfohlene Weg, weil nur damit alle Variablen gesetzt sind.
 
 ## Locale & Sprache
 
-Alles läuft über den zentralen `XiriLocaleService` (ab v0.3.0; früher getrennte `XiriDateService`/`XiriNumberService`). Backend (`xiri-go`) liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App setzt beim Login nur Sprache + Timezone:
+Alles läuft über den zentralen `XiriLocaleService` (ab v0.3.0; früher getrennte `XiriDateService`/`XiriNumberService`). Backend (`xiri-go`) liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App setzt beim Login Sprache + Timezone (und `setLocale()`, wenn Sprache und Format getrennt geführt werden, siehe unten):
 
 ```typescript
 // z.B. in einem auth-response-handler:
@@ -149,7 +149,7 @@ locale.dateToUnix(new Date())             // number
 ### Number-Format-Helper
 
 ```typescript
-locale.formatNumber(1234.567, 'integer')  // '1.235'   (folgt der aktiven Sprache)
+locale.formatNumber(1234.567, 'integer')  // '1.235'   (folgt dem Format-Locale, ohne setLocale der Sprache)
 locale.formatNumber(1234.567, 'float2')   // '1.234,57'
 locale.formatNumber(1234.567, 'float4')   // '1.234,5670'
 ```

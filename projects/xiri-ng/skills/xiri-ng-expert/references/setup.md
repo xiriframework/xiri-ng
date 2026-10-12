@@ -247,7 +247,7 @@ formatNumber(value: number, webformat?: string): string
   // webformat: 'integer' | 'float1' | 'float2' | 'float3' | 'float4'
 ```
 
-Das Backend liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App ruft beim Login `setLanguage()` / `setTimezone()`. Der Material-Datepicker-Locale wird per `effect` automatisch angeglichen, ebenso die Texte von `MatDatepickerIntl` und `MatPaginatorIntl` („Kalender öffnen“, „Einträge pro Seite“; `de` eingebaut, weitere Sprachen über `materialLabels`, ohne sie gelten die englischen Material-Defaults). Eine App-eigene Intl-Klasse entfernen: Ihre Werte dienen sonst als Rückfall für Sprachen ohne `materialLabels` (z. B. bliebe `en` mit einer deutschen Subklasse deutsch). Für zusätzliche Sprachen liefert der Client date-fns-Locale + Validierungstexte via `registerLanguage()`.
+Das Backend liefert sichtbare Texte + Zahlen/Datum bereits sprachrichtig; die App ruft beim Login `setLanguage()` / `setTimezone()`, bei getrennt geführtem Zahlen-/Datumsformat zusätzlich `setLocale()`: an der Sprache hängen die Texte, am Locale `localeString`, `formatNumber`, Monatsnamen und der Datepicker-`DateAdapter`. Der Material-Datepicker-Locale wird per `effect` automatisch angeglichen, ebenso die Texte von `MatDatepickerIntl` und `MatPaginatorIntl` („Kalender öffnen“, „Einträge pro Seite“; `de` eingebaut, weitere Sprachen über `materialLabels`, ohne sie gelten die englischen Material-Defaults). Eine App-eigene Intl-Klasse entfernen: Ihre Werte dienen sonst als Rückfall für Sprachen ohne `materialLabels` (z. B. bliebe `en` mit einer deutschen Subklasse deutsch). Für zusätzliche Sprachen liefert der Client date-fns-Locale + Validierungstexte via `registerLanguage()`.
 
 ## XiriLocalStorageService / XiriSessionStorageService
 

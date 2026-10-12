@@ -192,11 +192,13 @@ describe( 'XiriLocaleService', () => {
 			expect( reloaded.language() ).toBe( 'fr' );
 			expect( reloaded.localeString() ).toBe( 'en-GB' );
 
+			localStorageStore[ 'xiri-language' ] = 'en';
 			localStorageStore[ 'xiri-locale' ] = 'fr';
 			TestBed.resetTestingModule();
 			TestBed.configureTestingModule( {} );
 			const reloaded2 = TestBed.inject( XiriLocaleService );
 			reloaded2.registerLanguage( 'fr', frDef );
+			expect( reloaded2.locale() ).toBe( 'fr' );
 			expect( reloaded2.localeString() ).toBe( 'fr-FR' );
 		} );
 	} );
