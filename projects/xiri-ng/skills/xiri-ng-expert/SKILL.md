@@ -478,7 +478,7 @@ edit(row: any) {
 | `references/form-fields.md` | Jeder Feldtyp im Detail, alle Validator-Keys, select-Directive, `reloadOn` |
 | `references/table.md`       | Table-Options-Felder, Inline-Edit, Selection, Footer-Aggregation |
 | `references/components.md`  | Kompakte Signatur-Liste aller 30+ Komponenten                    |
-| `references/theming-i18n.md`| ThemeService, Colors, Date/Number-Locale-Propagation             |
+| `references/theming-i18n.md`| ThemeService, Colors, Sprache (`setLanguage`) vs. Format-Locale (`setLocale`) |
 
 ## Was NICHT tun
 

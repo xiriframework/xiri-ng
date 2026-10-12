@@ -22,6 +22,7 @@
 					<mat-card-content>
 						<p>
 							Aktive Sprache: <strong>{{ localeService.language() }}</strong>
+							&nbsp;·&nbsp; Format-Locale: <strong>{{ localeService.locale() ?? 'wie Sprache' }}</strong>
 							&nbsp;·&nbsp; localeString: <strong>{{ localeService.localeString() }}</strong>
 						</p>
 						<div class="locale-buttons">
@@ -35,6 +36,23 @@
 								<button mat-raised-button
 								        [color]="localeService.language() === 'fr' ? 'primary' : undefined"
 								        (click)="setLang( 'fr' )">Français</button>
+							}
+						</div>
+						<p class="locale-hint">Format-Locale (setLocale) — Zahlen, Datum, Monatsnamen und Datepicker; Texte bleiben bei der Sprache:</p>
+						<div class="locale-buttons locale-format-buttons">
+							<button mat-raised-button
+							        [color]="localeService.locale() === null ? 'primary' : undefined"
+							        (click)="setFormat( null )">wie Sprache</button>
+							<button mat-raised-button
+							        [color]="localeService.locale() === 'de' ? 'primary' : undefined"
+							        (click)="setFormat( 'de' )">Deutsch</button>
+							<button mat-raised-button
+							        [color]="localeService.locale() === 'en' ? 'primary' : undefined"
+							        (click)="setFormat( 'en' )">English</button>
+							@if ( frRegistered() ) {
+								<button mat-raised-button
+								        [color]="localeService.locale() === 'fr' ? 'primary' : undefined"
+								        (click)="setFormat( 'fr' )">Français</button>
 							}
 						</div>
 					</mat-card-content>

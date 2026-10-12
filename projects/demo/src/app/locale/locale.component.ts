@@ -32,7 +32,7 @@ export class LocaleComponent {
 
 	private nowUnix = Math.floor( Date.now() / 1000 );
 
-	// computed liest localeService.language()/dateFnsLocale()/localeString() intern → aktualisiert bei Sprachwechsel.
+	// computed liest localeService.dateFnsLocale()/localeString() intern → aktualisiert bei Sprach- und Locale-Wechsel.
 	dateTime = computed( () => this.localeService.unixToStringDateTime( this.nowUnix ) );
 	dateShort = computed( () => this.localeService.unixToStringDate( this.nowUnix ) );
 	dateYear = computed( () => this.localeService.unixToStringDateYear( this.nowUnix ) );
@@ -68,14 +68,14 @@ export class LocaleComponent {
 
 	sectionSwitch: XiriSectionSettings = {
 		title: 'Sprache umschalten',
-		subtitle: 'setLanguage() — Datepicker-Locale, Formate und Validierungstexte folgen sofort (ohne Reload).',
+		subtitle: 'setLanguage() für Texte, optional setLocale() für Zahlen/Datum — beides wirkt sofort (ohne Reload).',
 		icon: 'language',
 		iconColor: 'primary',
 	};
 
 	sectionFormats: XiriSectionSettings = {
 		title: 'Datum & Zahlen',
-		subtitle: 'unixToString* + formatNumber folgen der aktiven Sprache.',
+		subtitle: 'unixToString* + formatNumber folgen dem Format-Locale (ohne setLocale: der Sprache).',
 		icon: 'calendar_today',
 		iconColor: 'accent',
 	};
@@ -96,6 +96,10 @@ export class LocaleComponent {
 
 	setLang( lang: string ): void {
 		this.localeService.setLanguage( lang );
+	}
+
+	setFormat( code: string | null ): void {
+		this.localeService.setLocale( code );
 	}
 
 	triggerValidation(): void {
