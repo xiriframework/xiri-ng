@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.2]
+
 ### Added
 
 - **`XiriLocaleService.setLocale(code | null)`: Format-Locale getrennt von der Textsprache.** `setLanguage` bestimmt
