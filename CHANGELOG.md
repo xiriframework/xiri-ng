@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.1]
+
 ### Fixed
 
 - **`linkrow`-Zellen behalten ihr Padding.** Die Zelle trägt das Format als Klasse, und `.linkrow { display: table-row }`
