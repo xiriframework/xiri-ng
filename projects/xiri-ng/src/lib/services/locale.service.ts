@@ -137,18 +137,25 @@ export class XiriLocaleService {
 
 	private readonly _language = signal<XiriLanguage>( 'de' );
 	readonly language = this._language.asReadonly();
-	readonly localeString = computed( () => this.registry.get( this._language() )?.localeString ?? 'de-DE' );
+	// Format-Locale (Zahlen, Datum, Datepicker); null = wie die Sprache. Texte hängen immer an der Sprache.
+	private readonly _locale = signal<XiriLanguage | null>( null );
+	readonly locale = this._locale.asReadonly();
+	private readonly formatDef = computed( () => this.registry.get( this._locale() ?? this._language() ) );
+	readonly localeString = computed( () => this.formatDef()?.localeString ?? 'de-DE' );
 	// Aktives date-fns-Locale (für Datums-Formatierung + Datepicker). Undefined bei Text-only-Sprache.
-	readonly dateFnsLocale = computed( () => this.registry.get( this._language() )?.dateFnsLocale );
+	readonly dateFnsLocale = computed( () => this.formatDef()?.dateFnsLocale );
 
 	// Zeitzone für alle Unix<->Local-Umrechnungen (locale-nahe Präsentations-Info, analog Go-uicontext).
 	private currentTimezone = 'Europe/Vienna';
 
 	constructor() {
-		const stored = this.readStoredLanguage();
+		const stored = this.readStored( 'xiri-language' );
 		// Nur wiederherstellen, wenn die Sprache bekannt ist (de/en oder bereits registriert).
 		if ( stored && this.registry.has( stored ) )
 			this._language.set( stored );
+		const storedLocale = this.readStored( 'xiri-locale' );
+		if ( storedLocale && this.registry.has( storedLocale ) )
+			this._locale.set( storedLocale );
 		// Material-Datepicker-Locale (Picker-UI) an die Sprache angleichen — reine Frontend-Interaktion.
 		// Ohne bereitgestellten DateAdapter (Text-only-Formular) oder ohne date-fns-Locale wird übersprungen.
 		effect( () => {
@@ -169,10 +176,12 @@ export class XiriLocaleService {
 	// Sprache registrieren/überschreiben. Vor setLanguage() bzw. dem ersten Formular-Render aufrufen (App-Init).
 	registerLanguage( code: XiriLanguage, def: XiriLanguageDefinition ): void {
 		this.registry.set( code, def );
-		// Über Reload persistierte Custom-Sprache einklinken, sobald sie (nach)registriert wird —
+		// Über Reload persistierte Custom-Sprache/-Locale einklinken, sobald sie (nach)registriert wird —
 		// der Konstruktor kennt beim Restore nur de/en.
-		if ( this.readStoredLanguage() === code )
+		if ( this.readStored( 'xiri-language' ) === code )
 			this._language.set( code );
+		if ( this.readStored( 'xiri-locale' ) === code )
+			this._locale.set( code );
 	}
 
 	setLanguage( lang: XiriLanguage ): void {
@@ -181,7 +190,18 @@ export class XiriLocaleService {
 			return;
 		}
 		this._language.set( lang );
-		this.storeLanguage( lang );
+		this.store( 'xiri-language', lang );
+	}
+
+	// Format-Locale (localeString, dateFnsLocale samt Monatsnamen und DateAdapter) unabhängig von der Textsprache
+	// setzen. Code aus derselben Registry wie setLanguage; null = wieder der Sprache folgen.
+	setLocale( code: XiriLanguage | null ): void {
+		if ( code !== null && !this.registry.has( code ) ) {
+			console.warn( `XiriLocaleService: unbekanntes Locale '${ code }' – zuerst registerLanguage() aufrufen.` );
+			return;
+		}
+		this._locale.set( code );
+		this.store( 'xiri-locale', code );
 	}
 
 	// Validierungs-Fehlertexte der aktiven Sprache; Fallback de, falls (unerwartet) nicht vorhanden.
@@ -259,21 +279,25 @@ export class XiriLocaleService {
 
 	// localStorage-Zugriff abgesichert: im SSR nicht vorhanden, in jsdom-Tests ggf. undefined,
 	// im Private-Mode wirft es SecurityError. In all diesen Fällen still ohne Persistenz weiterlaufen.
-	private readStoredLanguage(): string | null {
+	private readStored( key: string ): string | null {
 		if ( !this.isBrowser )
 			return null;
 		try {
-			return localStorage.getItem( 'xiri-language' );
+			return localStorage.getItem( key );
 		} catch {
 			return null;
 		}
 	}
 
-	private storeLanguage( lang: XiriLanguage ): void {
+	// null entfernt den Schlüssel.
+	private store( key: string, value: string | null ): void {
 		if ( !this.isBrowser )
 			return;
 		try {
-			localStorage.setItem( 'xiri-language', lang );
+			if ( value === null )
+				localStorage.removeItem( key );
+			else
+				localStorage.setItem( key, value );
 		} catch {
 			// Persistenz nicht verfügbar (Private-Mode o. Ä.) — Sprachwechsel gilt trotzdem für die Session.
 		}

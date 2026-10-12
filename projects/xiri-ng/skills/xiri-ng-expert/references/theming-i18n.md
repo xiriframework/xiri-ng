@@ -112,6 +112,15 @@ this.locale.setTimezone('Europe/Vienna');
 // Datepicker-Locale + Validierungstexte + Zahlen/Datumsformate folgen automatisch.
 ```
 
+Führt die App Sprache und Format getrennt (z. B. Texte Englisch, Zahlen/Datum Deutsch), setzt sie zusätzlich das
+Format-Locale. An der Sprache hängen die Texte (Validierung, Datepicker-/Paginator-Labels), am Locale `localeString`,
+`formatNumber`, Monatsnamen und der Datepicker (Wochenbeginn, Eingabeformat). Codes kommen aus derselben Registry:
+
+```typescript
+this.locale.setLanguage('en');
+this.locale.setLocale('de');               // null = wieder der Sprache folgen; gemerkt unter 'xiri-locale'
+```
+
 ### Weitere Sprachen registrieren (Client-erweiterbar)
 
 ```typescript
@@ -131,7 +140,7 @@ this.locale.setLanguage('fr');
 
 ```typescript
 locale.unixToStringDateTime(1708800000)   // '2024-02-24 18:00'
-locale.unixToStringDate(1708800000)       // '24. Feb.'  (Monatsnamen folgen der Sprache)
+locale.unixToStringDate(1708800000)       // '24. Feb.'  (Monatsnamen folgen dem Locale)
 locale.unixToStringDateYear(1708800000)   // '24. Feb. 24'
 locale.unixToLocal(1708800000)            // Date-Objekt oder null
 locale.dateToUnix(new Date())             // number

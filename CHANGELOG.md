@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`XiriLocaleService.setLocale(code | null)`: Format-Locale getrennt von der Textsprache.** `setLanguage` bestimmt
+  die Texte (Validierungsmeldungen, Datepicker- und Paginator-Labels), `setLocale` das Format: `localeString`,
+  `formatNumber`, `dateFnsLocale` samt Monatsnamen und dem `DateAdapter` des Datepickers. Der Code kommt aus derselben
+  Registry wie `setLanguage`; `null` oder nie gesetzt heißt wie die Sprache, bestehende Apps ändern sich also nicht.
+  Gemerkt wird das Locale unter `xiri-locale` im `localStorage`.
+
 ## [0.7.1]
 
 ### Fixed

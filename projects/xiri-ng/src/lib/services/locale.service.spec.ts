@@ -46,7 +46,9 @@ describe( 'XiriLocaleService', () => {
 		vi.stubGlobal( 'localStorage', {
 			getItem: getItemSpy,
 			setItem: setItemSpy,
-			removeItem: vi.fn(),
+			removeItem: vi.fn( ( key: string ) => {
+				delete localStorageStore[key];
+			} ),
 			clear: vi.fn(),
 			length: 0,
 			key: vi.fn(),
@@ -124,6 +126,78 @@ describe( 'XiriLocaleService', () => {
 
 			service.registerLanguage( 'fr', frDef );
 			expect( service.language() ).toBe( 'fr' );
+		} );
+	} );
+
+	describe( 'Format-Locale getrennt von der Sprache (setLocale)', () => {
+		const frWithLabels: XiriLanguageDefinition = {
+			...frDef,
+			materialLabels: { paginator: { itemsPerPageLabel: 'Éléments par page :' } },
+		};
+
+		it( 'Sprache fr + Locale de: Texte fr, Zahlen/Datum/DateAdapter de', () => {
+			service.registerLanguage( 'fr', frWithLabels );
+			service.setLanguage( 'fr' );
+			service.setLocale( 'de' );
+			TestBed.tick();
+
+			expect( service.validationMessagesFor().required ).toBe( 'Champ requis' );
+			expect( TestBed.inject( MatPaginatorIntl ).itemsPerPageLabel ).toBe( 'Éléments par page :' );
+			expect( service.localeString() ).toBe( 'de-DE' );
+			expect( service.formatNumber( 1234.5 ) ).toBe( '1.234,5' );
+			expect( service.dateFnsLocale() ).toBe( de );
+			expect( dateAdapterSetLocale ).toHaveBeenLastCalledWith( de );
+			service.setTimezone( 'UTC' );
+			expect( service.unixToStringDate( 1760227200 ) ).toBe( '12. Okt' ); // 2025-10-12, fr gäbe '12 oct.'
+		} );
+
+		it( 'Sprache de + Locale en: Texte de, Format en', () => {
+			service.setLocale( 'en' );
+			TestBed.tick();
+			expect( service.validationMessagesFor().required ).toBe( 'Pflichtfeld – bitte ausfüllen' );
+			expect( TestBed.inject( MatPaginatorIntl ).itemsPerPageLabel ).toBe( 'Einträge pro Seite:' );
+			expect( service.localeString() ).toBe( 'en-GB' );
+			expect( service.formatNumber( 1234.5 ) ).toBe( '1,234.5' );
+			expect( service.maxFileSizeMessage( 1.5 * 1024 * 1024 ) ).toBe( 'Datei zu groß, maximal 1.5 MB' );
+		} );
+
+		it( 'setLocale(null) folgt wieder der Sprache und entfernt xiri-locale', () => {
+			service.setLocale( 'en' );
+			expect( localStorageStore[ 'xiri-locale' ] ).toBe( 'en' );
+			service.setLocale( null );
+			expect( service.localeString() ).toBe( 'de-DE' );
+			expect( localStorageStore[ 'xiri-locale' ] ).toBeUndefined();
+			service.setLanguage( 'en' );
+			expect( service.localeString() ).toBe( 'en-GB' );
+		} );
+
+		it( 'unbekanntes Locale warnt und ändert nichts', () => {
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			service.setLocale( 'en' );
+			service.setLocale( 'xx' );
+			expect( service.localeString() ).toBe( 'en-GB' );
+			expect( localStorageStore[ 'xiri-locale' ] ).toBe( 'en' );
+			expect( warn ).toHaveBeenCalled();
+			warn.mockRestore();
+		} );
+
+		it( 'stellt Sprache und Locale nach Reload wieder her, auch nachregistrierte', () => {
+			localStorageStore[ 'xiri-language' ] = 'fr';
+			localStorageStore[ 'xiri-locale' ] = 'en';
+			TestBed.resetTestingModule();
+			TestBed.configureTestingModule( {} );
+			const reloaded = TestBed.inject( XiriLocaleService );
+			expect( reloaded.localeString() ).toBe( 'en-GB' ); // en eingebaut → sofort
+			reloaded.registerLanguage( 'fr', frDef );
+			expect( reloaded.language() ).toBe( 'fr' );
+			expect( reloaded.localeString() ).toBe( 'en-GB' );
+
+			localStorageStore[ 'xiri-locale' ] = 'fr';
+			TestBed.resetTestingModule();
+			TestBed.configureTestingModule( {} );
+			const reloaded2 = TestBed.inject( XiriLocaleService );
+			reloaded2.registerLanguage( 'fr', frDef );
+			expect( reloaded2.localeString() ).toBe( 'fr-FR' );
 		} );
 	} );
 

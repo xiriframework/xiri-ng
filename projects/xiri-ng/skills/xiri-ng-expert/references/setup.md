@@ -221,10 +221,12 @@ Zentraler i18n-/Kontext-Dienst: aktive Sprache, Locale, Timezone, Datums- und Za
 
 ```typescript
 // Sprache / Locale
-language: Signal<XiriLanguage>              // 'de' | 'en' | (string & {})
-localeString: Signal<string>                // z.B. 'de-DE', 'en-GB'
-dateFnsLocale: Signal<Locale | undefined>   // aktives date-fns-Locale
+language: Signal<XiriLanguage>              // 'de' | 'en' | (string & {}) — bestimmt die Texte
+locale: Signal<XiriLanguage | null>         // Format-Locale; null = wie language
+localeString: Signal<string>                // z.B. 'de-DE', 'en-GB' (aus locale ?? language)
+dateFnsLocale: Signal<Locale | undefined>   // aktives date-fns-Locale (aus locale ?? language)
 setLanguage(lang: XiriLanguage): void       // unbekannt → console.warn, kein Wechsel
+setLocale(code: XiriLanguage | null): void  // Zahlen, Datum, Monatsnamen, Datepicker; Code aus der Registry, null = wie Sprache
 validationMessagesFor(): XiriValidationMessages
 
 // Beliebige weitere Sprachen registrieren (vor setLanguage / erstem Formular, im App-Init):
@@ -236,11 +238,11 @@ registerLanguage(code: XiriLanguage, def: XiriLanguageDefinition): void
 setTimezone(tz: string): void
 unixToLocal(stime: number): Date | null
 unixToStringDateTime(stime: number): string   // 'yyyy-MM-dd HH:mm'
-unixToStringDate(stime: number): string       // 'd. LLL.'  (Monatsnamen folgen der Sprache)
+unixToStringDate(stime: number): string       // 'd. LLL.'  (Monatsnamen folgen dem Locale)
 unixToStringDateYear(stime: number): string   // 'd. LLL. yy'
 dateToUnix(date: Date): number
 
-// Zahlen (war XiriNumberService) — folgt der aktiven Sprache
+// Zahlen (war XiriNumberService) — folgt dem Format-Locale
 formatNumber(value: number, webformat?: string): string
   // webformat: 'integer' | 'float1' | 'float2' | 'float3' | 'float4'
 ```
