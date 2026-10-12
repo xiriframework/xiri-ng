@@ -61,14 +61,14 @@ table {
 		text-decoration: underline;
 	}
 
-	.linkrow {
+	// div: das td trägt das Format ebenfalls als Klasse (.linkrow) und darf keine table-row werden.
+	div.linkrow {
 
 		display: table-row;
 
 		mat-icon {
 			display:       table-cell;
-			width:         30px;
-			text-align:    center;
+			width:         24px; // Icon und Text fluchten mit Icon und Titel im Card-Header
 			padding-right: 1rem;
 			line-height:   31px; // tr.mat-row - 1px
 			color:         var(--xiri-linkrow-icon-color);

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { XiriRawTableComponent, XiriRawTableSettings } from './xiri-raw-table.component';
 
 @Component( {
@@ -30,7 +31,7 @@ describe( 'XiriRawTableComponent', () => {
 	beforeEach( () => {
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
-			providers: [],
+			providers: [ provideRouter( [] ) ],
 		} );
 
 		fixture = TestBed.createComponent( TestHostComponent );
@@ -197,6 +198,19 @@ describe( 'XiriRawTableComponent', () => {
 
 		const col = component.displayedColumns.find( c => c.id === 'n' );
 		expect( col!.display ).toContain( 'number' );
+	} );
+
+	it( 'linkrow-Zelle bleibt table-cell mit Padding, nur der Inhalt ist table-row', () => {
+		host.settings.set( {
+			data: [ { text: 'Lane 1', textLink: 'test', icon: 'home' } ],
+			fields: [ { id: 'text', name: 'Link', format: 'linkrow' } ],
+		} );
+		fixture.detectChanges();
+
+		const td: HTMLElement = fixture.nativeElement.querySelector( 'td' );
+		expect( td.classList ).toContain( 'linkrow' );
+		expect( getComputedStyle( td ).display ).not.toBe( 'table-row' );
+		expect( getComputedStyle( td.querySelector( 'div.linkrow' )! ).display ).toBe( 'table-row' );
 	} );
 
 	it( 'mappt density regular auf table-density -2', () => {
