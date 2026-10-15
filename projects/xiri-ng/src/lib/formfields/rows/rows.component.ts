@@ -4,6 +4,8 @@ import {
 	Component,
 	computed,
 	DestroyRef,
+	Directive,
+	effect,
 	ElementRef,
 	forwardRef,
 	inject,
@@ -34,7 +36,7 @@ import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autoc
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatOption } from '@angular/material/core';
-import { MatError, MatFormField } from '@angular/material/form-field';
+import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
@@ -43,6 +45,18 @@ import { buildValidations } from '../helper/validations';
 import { XiriSuggestDirective } from '../suggest/suggest.directive';
 import { XiriLocaleService } from '../../services/locale.service';
 import { cellDefault, isEmptyRow, uniqueKey } from './rows.util';
+
+// Pflicht-Markierung ohne Validator: `[required]` würde Angulars RequiredValidator anhängen und die Ausnahme für leere
+// Zeilen umgehen. Material liest aria-required und den Stern am Label aus `required` des Controls.
+@Directive( { selector: '[xiriCellRequired]' } )
+export class XiriCellRequiredDirective {
+	xiriCellRequired = input( false );
+	private control = inject( MatFormFieldControl, { self: true } ) as { required: boolean };
+
+	constructor() {
+		effect( () => this.control.required = this.xiriCellRequired() );
+	}
+}
 
 export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
 
@@ -59,6 +73,7 @@ export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
 		            ReactiveFormsModule,
 		            MatFormField,
 		            MatError,
+		            MatLabel,
 		            MatInput,
 		            MatSelect,
 		            MatOption,
@@ -69,6 +84,7 @@ export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
 		            MatAutocomplete,
 		            MatAutocompleteTrigger,
 		            XiriSuggestDirective,
+		            XiriCellRequiredDirective,
 		            CdkDropList,
 		            CdkDrag,
 		            CdkDragHandle,
@@ -114,6 +130,22 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		const hidden = new Set( this.subs().filter( s => s.hide ).map( s => s.id ) );
 		return ids.find( id => !hidden.has( id ) ) ?? ids[ 0 ];
 	} );
+	readonly width = signal( 0 );
+	// ponytail: feste Schätzung von 140 px je Spalte plus Aktionen statt Messen der Inhalte; reicht für Handy und
+	// schmalen Dialog. Genauer erst, wenn Felder mit sehr unterschiedlichen Breiten falsch umschalten.
+	readonly cards = computed( () => this.width() > 0 && this.width() < this.visible().length * 140 + this.actionsWidth() + 32 );
+
+	// Jede Zeile ist ein eigenes Grid: alle Spalten deshalb ohne inhaltsabhängige Breiten, sonst stehen Kopf und
+	// Zeilen versetzt.
+	private actionsWidth = computed( () =>
+		( ( this.sortable() ? 2 : 0 ) + ( this.copyable() ? 1 : 0 ) + ( this.removable() ? 1 : 0 ) ) * 40 );
+
+	readonly gridColumns = computed( () => [
+		...( this.sortable() ? [ '32px' ] : [] ),
+		...this.visible().map( s => typeof s.cols === 'number' ? `minmax(0, ${ s.cols }fr)`
+		                            : s.type === 'bool' ? 'minmax(56px, .5fr)' : 'minmax(0, 1fr)' ),
+		`${ this.actionsWidth() }px`,
+	].join( ' ' ) );
 	readonly addLabel = 'Hinzufügen';
 	// Letztes bedienbares Textfeld einer Zeile: Enter dort legt in der letzten Zeile die nächste an.
 	readonly lastTextSub = computed( () =>
@@ -124,6 +156,12 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 
 	constructor() {
 		this.array.valueChanges.pipe( takeUntilDestroyed() ).subscribe( () => this.sync() );
+		// Breite der Komponente selbst, nicht des Fensters: greift auch im schmalen Dialog.
+		if ( typeof ResizeObserver !== 'undefined' ) {
+			const observer = new ResizeObserver( entries => this.width.set( entries[ 0 ].contentRect.width ) );
+			observer.observe( this.host.nativeElement );
+			this.destroyRef.onDestroy( () => observer.disconnect() );
+		}
 	}
 
 	ngAfterViewInit(): void {

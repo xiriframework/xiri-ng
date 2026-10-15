@@ -1,11 +1,11 @@
-<div class="rows">
-	@if (rows().length) {
+<div class="rows" [class.cards]="cards()" [style.--xiri-rows-grid]="gridColumns()">
+	@if (rows().length && !cards()) {
 		<div class="grid head" aria-hidden="true">
 			@if (sortable()) {
 				<span></span>
 			}
 			@for (sub of visible(); track sub.id) {
-				<span class="head-cell" [class.bool]="sub.type === 'bool'">{{ sub.name }}</span>
+				<span class="head-cell" [class.bool]="sub.type === 'bool'">{{ sub.name }}@if (sub.required) {<span class="req" aria-hidden="true"> *</span>}</span>
 			}
 			<span></span>
 		</div>
@@ -21,12 +21,15 @@
 					@switch (sub.type) {
 						@case ('bool') {
 							<div class="cell bool">
-								<mat-checkbox [formControlName]="sub.id" [aria-label]="sub.name ?? sub.id"></mat-checkbox>
+								<mat-checkbox [formControlName]="sub.id" [aria-label]="sub.name ?? sub.id">@if (cards()) {{{ sub.name }}@if (sub.required) {<span class="req" aria-hidden="true"> *</span>}}</mat-checkbox>
 							</div>
 						}
 						@case ('select') {
 							<mat-form-field class="cell" subscriptSizing="dynamic">
-								<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple"
+							@if (cards()) {
+								<mat-label>{{ sub.name }}</mat-label>
+							}
+	<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple" [xiriCellRequired]="!!sub.required"
 								            [aria-label]="sub.name ?? sub.id">
 									@for (o of sub.list ?? []; track o.id) {
 										<mat-option [value]="o.id" [disabled]="o.disabled">{{ o.name }}</mat-option>
@@ -44,10 +47,13 @@
 						}
 						@default {
 							<mat-form-field class="cell" subscriptSizing="dynamic">
-								@if (sub.list) {
+							@if (cards()) {
+								<mat-label>{{ sub.name }}</mat-label>
+							}
+	@if (sub.list) {
 									<!-- Vorschläge wie in form-fields: Freitext bleibt, nie überschreiben. -->
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
-									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id"
+									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
 									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto"
 									       (keydown.enter)="onEnter($event, i, sub, auto.isOpen)">
 									<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
@@ -58,7 +64,7 @@
 									</mat-autocomplete>
 								} @else {
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
-									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id"
+									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
 									       (keydown.enter)="onEnter($event, i, sub, false)">
 								}
 								@for (v of sub.validations; track v.id) {

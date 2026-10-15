@@ -47,6 +47,7 @@ export function positions( n: number ): Record<string, unknown>[] {
 describe( 'XiriRowsComponent', () => {
 	let fixture: ComponentFixture<HostComponent>;
 	let host: HostComponent;
+	let resize: ( width: number ) => void = () => undefined;
 
 	const el = () => fixture.nativeElement as HTMLElement;
 	const rowEls = () => Array.from( el().querySelectorAll<HTMLElement>( 'xiri-rows .row-item' ) );
@@ -76,6 +77,15 @@ describe( 'XiriRowsComponent', () => {
 
 	beforeEach( () => {
 		localStorage.clear();
+		resize = () => undefined;
+		vi.stubGlobal( 'ResizeObserver', class {
+			constructor( cb: ResizeObserverCallback ) {
+				resize = width => cb( [ { contentRect: { width } } as ResizeObserverEntry ], this as unknown as ResizeObserver );
+			}
+			observe(): void { return undefined; }
+			unobserve(): void { return undefined; }
+			disconnect(): void { return undefined; }
+		} );
 		TestBed.configureTestingModule( {
 			imports: [ HostComponent ],
 			providers: [
@@ -98,7 +108,7 @@ describe( 'XiriRowsComponent', () => {
 
 		expect( rowEls().length ).toBe( 12 );
 		const heads = Array.from( el().querySelectorAll( 'xiri-rows .head .head-cell' ) ).map( h => h.textContent!.trim() );
-		expect( heads ).toEqual( [ 'Kategorie', 'Bezeichnung', 'Pflicht', 'Foto bei Mangel' ] );
+		expect( heads ).toEqual( [ 'Kategorie', 'Bezeichnung *', 'Pflicht', 'Foto bei Mangel' ] );
 		expect( el().querySelectorAll( 'xiri-rows mat-label' ).length ).toBe( 0 );
 		expect( Array.from( el().querySelectorAll( 'input' ) ).some( i => i.value === 'k1' ) ).toBe( false );
 		expect( textInputs( 0 ).map( i => i.value ) ).toEqual( [ 'Technik', 'Position 1' ] );
@@ -328,5 +338,41 @@ describe( 'XiriRowsComponent', () => {
 		expect( errors( 1 ) ).toEqual( [ 'Eintrag ist doppelt' ] );
 		expect( errors( 0 ) ).toEqual( [] );
 		expect( control().valid ).toBe( false );
+	} );
+
+	it( 'Pflicht-Unterfeld: Stern im Kopf, aria-required nur an der Pflichtzelle', () => {
+		render( checklist( { value: positions( 1 ) } ) );
+
+		const heads = Array.from( el().querySelectorAll( 'xiri-rows .head .head-cell' ) ).map( h => h.textContent!.trim() );
+		expect( heads[ 1 ] ).toContain( '*' );
+		expect( heads[ 0 ] ).not.toContain( '*' );
+		expect( textInputs( 0 )[ 1 ].getAttribute( 'aria-required' ) ).toBe( 'true' );
+		expect( textInputs( 0 )[ 0 ].getAttribute( 'aria-required' ) ).not.toBe( 'true' ); // Material schreibt hier 'false'
+	} );
+
+	it( 'Spalten: cols als fr, bool schmal, Aktionen fest', () => {
+		const field = checklist( { value: positions( 1 ) } );
+		field.fields![ 2 ] = { ...field.fields![ 2 ], cols: 3 };
+		render( field );
+		const grid = el().querySelector<HTMLElement>( 'xiri-rows .rows' )!.style.getPropertyValue( '--xiri-rows-grid' );
+		expect( grid ).toBe( '32px minmax(0, 1fr) minmax(0, 3fr) minmax(56px, .5fr) minmax(56px, .5fr) 120px' );
+	} );
+
+	it( 'schmal (375 px): Karten mit Labels, ohne Kopfzeile, Aktionen erreichbar', () => {
+		render( checklist( { value: positions( 2 ) } ) );
+		resize( 375 );
+		fixture.detectChanges();
+
+		expect( el().querySelector( 'xiri-rows .rows.cards' ) ).not.toBeNull();
+		expect( el().querySelector( 'xiri-rows .head' ) ).toBeNull();
+		const labels = Array.from( rowEls()[ 0 ].querySelectorAll( 'mat-label, mat-checkbox label' ) ).map( l => l.textContent!.trim() );
+		expect( labels ).toEqual( [ 'Kategorie', 'Bezeichnung', 'Pflicht', 'Foto bei Mangel' ] );
+		// Material setzt den Stern am Label per CSS-Klasse, nicht als Text.
+		expect( rowEls()[ 0 ].querySelectorAll( 'mat-label.mat-form-field-required-marker, .mat-mdc-form-field-required-marker' ).length ).toBe( 1 );
+		expect( rowEls()[ 0 ].querySelector( 'button[aria-label="Zeile löschen"]' ) ).not.toBeNull();
+
+		resize( 1200 );
+		fixture.detectChanges();
+		expect( el().querySelector( 'xiri-rows .rows.cards' ) ).toBeNull();
 	} );
 } );

@@ -4,8 +4,7 @@
 
 .grid {
 	display:               grid;
-	grid-template-columns: var(--xiri-rows-grid, repeat(auto-fit, minmax(0, 1fr)));
-	grid-auto-flow:        column;
+	grid-template-columns: var(--xiri-rows-grid);
 	column-gap:            8px;
 	align-items:           start;
 }
@@ -41,4 +40,29 @@
 
 .cdk-drag-placeholder {
 	opacity: .3;
+}
+
+.cards {
+	.grid {
+		display:        flex;
+		flex-direction: column;
+		align-items:    stretch;
+		margin-bottom:  8px;
+		padding:        8px;
+		border:         1px solid var(--mat-sys-outline-variant);
+		border-radius:  8px;
+	}
+
+	.cell.bool {
+		justify-content: flex-start;
+		padding-top:     0;
+	}
+
+	.actions {
+		justify-content: flex-end;
+	}
+
+	.handle {
+		margin-top: 0;
+	}
 }
