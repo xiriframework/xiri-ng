@@ -124,6 +124,16 @@ export interface XiriFormField {
   reloadUrl?: string;        // Endpoint für den Reload (beides oder keins)
   addUrl?: string;           // „+“-Button: Dialog (GET) legt eine neue Option an, POST → {done, created:{id,name}}
 
+  // --- Zeilen-Feld (type 'rows') ---
+  fields?: XiriFormField[];  // beschreibt eine Zeile; Wert = Array von Objekten (Schlüssel = Unterfeld-id)
+  addText?: string;          // Text des Hinzufügen-Buttons
+  sortable?: boolean;        // Default true: Ziehgriff und Pfeile
+  addable?: boolean;         // Default true
+  removable?: boolean;       // Default true
+  copy?: boolean;            // Default false: Kopieren-Icon je Zeile
+  unique?: string[];         // Unterfeld-IDs, deren Kombination eindeutig sein muss
+  // min/max zählen hier Zeilen, required = mindestens eine Zeile
+
   // --- Weitere ---
   rows?: number;             // textarea
   array?: any[];             // alt zu list
@@ -173,6 +183,7 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 | `question`      | Read-Only Frage + Icon (z.B. Confirmation-Dialog) | `icon`, `iconColor`, `done`        |
 | `waiting`       | Loading-Spinner                                   |                                    |
 | `header`        | Sektions-Header (mit optional Collapse)           | `collapsible`, `collapsed`         |
+| `rows`          | Tabelle gleich aufgebauter Zeilen (Karten auf schmalen Breiten) | `fields`, `min`/`max` (Zeilen), `addText`, `sortable`, `addable`, `removable`, `copy`, `unique` |
 
 #### Versteckte Felder (`hide: true`)
 
@@ -411,6 +422,36 @@ Grenzen:
   der Wert verworfen. Serverseitig validieren `SelectField` und Chips beim Submit gegen ihre
   Optionsliste — die neue Entität muss dort enthalten sein; `ModelField`/`ModelListField` prüfen nur
   Typ und Anzahl.
+
+### rows — wiederholbare Zeilen
+
+```ts
+{
+	id: 'items', type: 'rows', name: 'Positionen', required: true, max: 50, addText: 'Position hinzufügen',
+	copy: true, unique: [ 'label' ],
+	fields: [
+		{ id: 'key', type: 'text', hide: true },                                   // läuft mit, nicht sichtbar
+		{ id: 'category', type: 'text', name: 'Kategorie', list: [ { id: 'Technik', name: 'Technik' } ] },
+		{ id: 'label', type: 'text', name: 'Bezeichnung', required: true, cols: 3 }, // 3fr breit
+		{ id: 'required', type: 'bool', name: 'Pflicht', value: true },            // Default neuer Zeilen
+		{ id: 'photo', type: 'bool', name: 'Foto bei Mangel' },
+	],
+	value: [ { key: 'brakes', category: 'Technik', label: 'Bremsen', required: true, photo: true } ],
+}
+```
+
+- Wert: Array von Objekten, nur nicht-leere Zeilen. Leer = alle sichtbaren, nicht-`disabled` Zellen leer oder Default
+  (Text getrimmt verglichen, auch gegen den Default) und alle versteckten leer. Leere Zeilen bleiben sichtbar, bis der
+  Benutzer sie löscht.
+- Unterfelder werten `id`, `type`, `name`, `required`, `pattern`, `min`, `max`, `list`, `multiple`, `value`, `hide`,
+  `disabled`, `cols` aus; `showWhen`/`reloadOn` in Zeilen gibt es nicht.
+- `required` am Unterfeld: kein `[required]`-Validator an der Zelle, der Spaltenkopf zeigt ` *`, die Zelle trägt
+  `aria-required` (`XiriCellRequiredDirective`).
+- `unique`: der Duplikat-Fehler erscheint am ersten nicht versteckten Unterfeld aus `unique` (sonst am ersten).
+- `disabled` am Feld: nur Anzeige, keine Buttons. `disabled` am Unterfeld: Spalte schreibgeschützt.
+- Server-Fehler: `fields: { "items.2.label": "…" }`, Index = Position im gesendeten Wert. `items` selbst = Fehler auf
+  Feldebene. Funktioniert in `xiri-form` und `xiri-dialog`.
+- Backend: xiri-go `field.NewRowsField`.
 
 ### Select-Optionen
 
