@@ -28,6 +28,16 @@ describe( 'rows.util', () => {
 		expect( isEmptyRow( subs, { key: 'brakes' } ) ).toBe( false );
 	} );
 
+	it( 'isEmptyRow: Text wird getrimmt wie in xiri-go, auch gegen den Default', () => {
+		const withDefault: XiriFormField[] = [ { id: 'label', type: 'text', value: 'abc' } ];
+		expect( isEmptyRow( withDefault, { label: ' abc ' } ) ).toBe( true );
+	} );
+
+	it( 'isEmptyRow: gesperrte Zellen zählen nicht, auch mit Nicht-Default-Wert', () => {
+		const disabledSubs: XiriFormField[] = [ { id: 'label', type: 'text', disabled: true }, { id: 'qty', type: 'number' } ];
+		expect( isEmptyRow( disabledSubs, { label: 'x', qty: null } ) ).toBe( true );
+	} );
+
 	it( 'uniqueKey: getrimmt, ohne Groß-/Kleinschreibung, null wenn alles leer', () => {
 		expect( uniqueKey( [ 'label' ], { label: ' Bremsen ' } ) ).toBe( uniqueKey( [ 'label' ], { label: 'bremsen' } ) );
 		expect( uniqueKey( [ 'key' ], { key: '' } ) ).toBeNull();
