@@ -29,7 +29,7 @@
 							@if (cards()) {
 								<mat-label>{{ sub.name }}</mat-label>
 							}
-	<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple" [xiriCellRequired]="!!sub.required"
+	<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple" [xiriCellRequired]="!!sub.required" [errorStateMatcher]="cellErrors"
 								            [aria-label]="sub.name ?? sub.id">
 									@for (o of sub.list ?? []; track o.id) {
 										<mat-option [value]="o.id" [disabled]="o.disabled">{{ o.name }}</mat-option>
@@ -57,6 +57,7 @@
 									<!-- Vorschläge wie in form-fields: Freitext bleibt, nie überschreiben. -->
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
 									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
+								       [errorStateMatcher]="cellErrors"
 									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto"
 									       (keydown.enter)="onEnter($event, i, sub, auto.isOpen)">
 									<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
@@ -68,6 +69,7 @@
 								} @else {
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
 									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
+								       [errorStateMatcher]="cellErrors"
 									       (keydown.enter)="onEnter($event, i, sub, false)">
 								}
 								@for (v of sub.validations; track v.id) {

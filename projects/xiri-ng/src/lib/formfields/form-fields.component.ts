@@ -727,6 +727,9 @@ export class XiriFormFieldsComponent implements OnInit {
 	private validateAllFormFields() {
 
 		this.formGroup.markAsDirty();
+		// Vorher still zurücksetzen: TouchedChangeEvent kommt nur bei einem Wechsel, xiri-rows braucht es aber bei
+		// jedem Absenden, um später angelegte Zeilen mitzumarkieren. emitEvent: false - den Zwischenstand sieht niemand.
+		this.formGroup.markAsUntouched( { emitEvent: false } );
 		this.formGroup.markAllAsTouched();
 		this.formGroup.updateValueAndValidity();
 	}

@@ -35,7 +35,7 @@ import {
 import { MatAutocomplete, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { MatOption } from '@angular/material/core';
+import { ErrorStateMatcher, MatOption } from '@angular/material/core';
 import { MatError, MatFormField, MatFormFieldControl, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -59,6 +59,12 @@ export class XiriCellRequiredDirective {
 }
 
 export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
+
+// Zellfehler zeigen, sobald die Zelle oder ihre Zeile berührt ist: Verlassen einer Zelle markiert über
+// markAsTouched auch die Zeilen-Gruppe, die übrigen Zellen der Zeile zeigen ihre Fehler dann mit.
+const cellErrors: ErrorStateMatcher = {
+	isErrorState: control => !!control?.invalid && ( control.touched || !!control.parent?.touched ),
+};
 
 @Component( {
 	            selector: 'xiri-rows',
@@ -151,12 +157,14 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		`${ this.actionsWidth() }px`,
 	].join( ' ' ) );
 	readonly addLabel = 'Hinzufügen';
+	readonly cellErrors = cellErrors;
 	// Letztes bedienbares Textfeld einer Zeile: Enter dort legt in der letzten Zeile die nächste an.
 	readonly lastTextSub = computed( () =>
 		this.visible().filter( s => ( s.type === 'text' || s.type === 'number' ) && !s.disabled ).at( -1 ) );
 
 	private onChange: ( value: Record<string, unknown>[] ) => void = () => { /* intentionally empty */ };
 	private onTouched: () => void = () => { /* intentionally empty */ };
+	private onValidatorChange: () => void = () => { /* intentionally empty */ };
 
 	constructor() {
 		this.array.valueChanges.pipe( takeUntilDestroyed() ).subscribe( () => this.sync() );
@@ -208,6 +216,10 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		this.onTouched = fn;
 	}
 
+	registerOnValidatorChange( fn: () => void ): void {
+		this.onValidatorChange = fn;
+	}
+
 	setDisabledState( isDisabled: boolean ): void {
 		untracked( () => {
 			this.controlDisabled.set( isDisabled );
@@ -219,6 +231,10 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 			}
 			this.bump();
 		} );
+		// enable() prüft das Control, bevor Angular setDisabledState aufruft - da war das FormArray noch gesperrt
+		// und validate() lieferte null. Deshalb jetzt erneut prüfen lassen.
+		if ( !isDisabled )
+			this.onValidatorChange();
 	}
 
 	// Feldebene (required/min/max) prüft form-fields über buildValidations am Wert; hier nur die Zellen.
@@ -273,8 +289,11 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	insertRow( at: number, values: Record<string, unknown> ): void {
 		if ( !this.canAdd() )
 			return;
+		// Vorher berühren: das TouchedChangeEvent markiert alle Zeilen (ngAfterViewInit) - die neue soll nicht
+		// dazugehören, sonst zeigt sie Pflichtfehler, bevor der Nutzer ihre Zellen erreicht.
+		this.onTouched();
 		this.array.insert( at, this.createRow( values ) );
-		this.touched();
+		this.bump();
 		this.focusRow( at );
 	}
 
@@ -325,9 +344,9 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		this.serverCells.clear();
 		const filled = this.filled();
 		for ( const [ key, message ] of Object.entries( errors ?? {} ) ) {
-			const dot = key.indexOf( '.' );
-			const display = filled[ Number( key.slice( 0, dot ) ) ];
-			const cell = display === undefined ? null : this.array.at( display ).get( key.slice( dot + 1 ) );
+			const match = /^(\d+)\.(.+)$/.exec( key );
+			const display = match ? filled[ Number( match[ 1 ] ) ] : undefined;
+			const cell = display === undefined ? null : this.array.at( display ).get( match![ 2 ] );
 			if ( !cell )
 				continue; // unbekannte Zeile/Spalte: ignorieren wie form-fields bei unbekannten IDs
 			this.serverCells.set( cell, { message, value: cell.value } );

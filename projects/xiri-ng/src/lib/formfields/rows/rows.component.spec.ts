@@ -14,12 +14,13 @@ import { XiriSnackbarService } from '../../services/snackbar.service';
 
 @Component( {
 	selector: 'xiri-rows-test-host',
-	template: `<xiri-form-fields [form]="fields()" [check]="checkSubject" [serverErrors]="serverErrors()" />`,
+	template: `<xiri-form-fields [form]="fields()" [check]="checkSubject" [serverErrors]="serverErrors()" [disabled]="disabled()" />`,
 	imports: [ XiriFormFieldsComponent ],
 } )
 class HostComponent {
 	fields = signal<XiriFormField[] | null>( null );
 	serverErrors = signal<Record<string, string> | null>( null );
+	disabled = signal( false );
 	checkSubject = new Subject<void>();
 	formFields = viewChild.required( XiriFormFieldsComponent );
 }
@@ -401,5 +402,52 @@ describe( 'XiriRowsComponent', () => {
 		type( textInputs( 2 )[ 1 ], 'Licht' );
 		expect( errors( 2 ) ).toEqual( [] );
 		expect( control().valid ).toBe( true );
+	} );
+
+	it( 'erste neue Zeile: Eingabe in Kategorie zeigt noch keinen Fehler an Bezeichnung', () => {
+		render( checklist( { value: [] } ) );
+		click( addButton()! );
+		type( textInputs( 0 )[ 0 ], 'Technik' );
+		expect( control().valid ).toBe( false );
+		expect( errors( 0 ) ).toEqual( [] );
+	} );
+
+	it( 'Verlassen einer Zelle zeigt die Fehler ihrer Zeile', () => {
+		render( checklist( { value: [] } ) );
+		click( addButton()! );
+		type( textInputs( 0 )[ 0 ], 'Technik' );
+		textInputs( 0 )[ 0 ].dispatchEvent( new Event( 'blur' ) );
+		fixture.detectChanges();
+		expect( errors( 0 ) ).toEqual( [ 'Pflichtfeld – bitte ausfüllen' ] );
+	} );
+
+	it( 'zweite neue Zeile: Absenden zeigt ihre Zellfehler', () => {
+		render( checklist( { value: [] } ) );
+		click( addButton()! );
+		type( textInputs( 0 )[ 1 ], 'Licht' );
+		click( addButton()! );
+		type( textInputs( 1 )[ 0 ], 'Technik' );
+
+		host.checkSubject.next();
+		fixture.detectChanges();
+		expect( control().valid ).toBe( false );
+		expect( errors( 1 ) ).toEqual( [ 'Pflichtfeld – bitte ausfüllen' ] );
+	} );
+
+	it( 'wieder freigegeben: ungültige Zeile macht das Feld wieder ungültig', () => {
+		host.disabled.set( true );
+		render( checklist( { value: [ { key: 'k1', category: 'Technik', label: '', required: true, photo: false } ] } ) );
+		host.disabled.set( false );
+		fixture.detectChanges();
+		expect( control().enabled ).toBe( true );
+		expect( control().valid ).toBe( false );
+	} );
+
+	it( 'Server-Fehler mit kaputtem Schlüssel wird ignoriert', () => {
+		render( checklist( { value: positions( 2 ) } ) );
+		host.serverErrors.set( { 'items..label': 'kaputt', 'items.x.label': 'kaputt', 'items.1.label': 'gibt es schon' } );
+		fixture.detectChanges();
+		expect( errors( 0 ) ).toEqual( [] );
+		expect( errors( 1 ) ).toEqual( [ 'gibt es schon' ] );
 	} );
 } );
