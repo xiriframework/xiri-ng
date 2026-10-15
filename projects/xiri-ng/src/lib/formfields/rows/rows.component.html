@@ -37,6 +37,9 @@
 										<mat-error>{{ v.message }}</mat-error>
 									}
 								}
+								@if (cell.hasError('duplicate')) {
+									<mat-error>{{ duplicateMessage() }}</mat-error>
+								}
 							</mat-form-field>
 						}
 						@default {
@@ -62,6 +65,9 @@
 									@if (cell.hasError(v.id)) {
 										<mat-error>{{ v.message }}</mat-error>
 									}
+								}
+								@if (cell.hasError('duplicate')) {
+									<mat-error>{{ duplicateMessage() }}</mat-error>
 								}
 							</mat-form-field>
 						}

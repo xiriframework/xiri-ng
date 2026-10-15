@@ -42,7 +42,7 @@ import { XiriFormField } from '../field.interface';
 import { buildValidations } from '../helper/validations';
 import { XiriSuggestDirective } from '../suggest/suggest.directive';
 import { XiriLocaleService } from '../../services/locale.service';
-import { cellDefault, isEmptyRow } from './rows.util';
+import { cellDefault, isEmptyRow, uniqueKey } from './rows.util';
 
 export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
 
@@ -106,6 +106,13 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	readonly canAdd = computed( () => {
 		const max = this.field().max;
 		return max === undefined || this.rows().length < max;
+	} );
+	readonly duplicateMessage = computed( () => this.localeService.rowsMessages().duplicate );
+	// Zelle, die den Duplikat-Fehler trägt: erstes sichtbares unique-Unterfeld (wie checkUnique in xiri-go), sonst das erste.
+	private readonly duplicateSub = computed( () => {
+		const ids = this.field().unique ?? [];
+		const hidden = new Set( this.subs().filter( s => s.hide ).map( s => s.id ) );
+		return ids.find( id => !hidden.has( id ) ) ?? ids[ 0 ];
 	} );
 	readonly addLabel = 'Hinzufügen';
 	// Letztes bedienbares Textfeld einer Zeile: Enter dort legt in der letzten Zeile die nächste an.
@@ -257,11 +264,25 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 			const row = c.parent as XiriRow | null;
 			if ( !row || isEmptyRow( this.subs(), row.getRawValue() ) )
 				return null;
-			return base?.( c ) ?? null;
+			const errors: ValidationErrors = { ...( base?.( c ) ?? {} ) };
+			if ( this.duplicateSub() === sub.id && this.isDuplicate( row ) )
+				errors[ 'duplicate' ] = true;
+			return Object.keys( errors ).length ? errors : null;
 		};
 	}
 
-	// Nach jeder Änderung alle Zellen neu prüfen - ob eine Zeile leer ist (und später: ob sie doppelt ist), hängt
+	// Doppelt = eine frühere, nicht-leere Zeile hat denselben unique-Schlüssel.
+	private isDuplicate( row: XiriRow ): boolean {
+		const ids = this.field().unique ?? [];
+		const key = uniqueKey( ids, row.getRawValue() );
+		if ( key === null )
+			return false;
+		const subs = this.subs();
+		const before = this.array.controls.slice( 0, this.array.controls.indexOf( row ) );
+		return before.some( r => !isEmptyRow( subs, r.getRawValue() ) && uniqueKey( ids, r.getRawValue() ) === key );
+	}
+
+	// Nach jeder Änderung alle Zellen neu prüfen - ob eine Zeile leer ist (und ob sie doppelt ist), hängt
 	// von anderen Zellen ab -, dann den Wert ohne leere Zeilen melden.
 	private sync(): void {
 		this.revalidate();

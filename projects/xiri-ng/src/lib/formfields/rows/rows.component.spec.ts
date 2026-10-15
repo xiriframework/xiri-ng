@@ -292,4 +292,41 @@ describe( 'XiriRowsComponent', () => {
 		click( rowButton( 1, 'Zeile löschen' )! );
 		expect( keys() ).toEqual( [ 'k1', 'k3', 'k5', 'k4', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12' ] );
 	} );
+
+	it( 'unique: Duplikat markiert die spätere Zeile, Korrektur einer anderen Zeile räumt auf', () => {
+		render( checklist( { unique: [ 'label' ], value: positions( 3 ) } ) );
+		type( textInputs( 2 )[ 1 ], ' position 1 ' );
+		host.checkSubject.next();
+		fixture.detectChanges();
+
+		expect( errors( 2 ) ).toEqual( [ 'Eintrag ist doppelt' ] );
+		expect( errors( 0 ) ).toEqual( [] );
+		expect( control().valid ).toBe( false );
+
+		type( textInputs( 0 )[ 1 ], 'Bremsen' ); // die frühere Zeile ändert sich
+		expect( errors( 2 ) ).toEqual( [] );
+		expect( control().valid ).toBe( true );
+	} );
+
+	it( 'unique: leere Werte kollidieren nicht', () => {
+		render( checklist( { unique: [ 'key' ], value: [] } ) );
+		click( addButton()! );
+		type( textInputs( 0 )[ 1 ], 'A' );
+		click( addButton()! );
+		type( textInputs( 1 )[ 1 ], 'B' );
+		expect( control().valid ).toBe( true );
+	} );
+
+	it( 'unique: Fehler landet auf dem ersten sichtbaren Unterfeld (wie xiri-go), nicht auf dem versteckten', () => {
+		render( checklist( {
+			unique: [ 'key', 'label' ],
+			value: [ { key: '', label: 'A', required: true }, { key: '', label: 'a', required: true } ],
+		} ) );
+		host.checkSubject.next();
+		fixture.detectChanges();
+
+		expect( errors( 1 ) ).toEqual( [ 'Eintrag ist doppelt' ] );
+		expect( errors( 0 ) ).toEqual( [] );
+		expect( control().valid ).toBe( false );
+	} );
 } );
