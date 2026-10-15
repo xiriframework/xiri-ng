@@ -22,11 +22,15 @@ export function isBlank( value: unknown ): boolean {
 // Leere Zeile: jede sichtbare Zelle leer oder auf ihrem Default, jede versteckte leer. Gegenstück:
 // RowsField.rowIsEmpty in xiri-go - weichen beide ab, verrutschen die Zeilenindizes der Server-Fehler.
 export function isEmptyRow( subs: XiriFormField[], row: Record<string, unknown> ): boolean {
+	const norm = ( v: unknown ) => typeof v === 'string' ? v.trim() : v;
 	return subs.every( sub => {
+		// Gesperrte Zellen zählen nicht: xiri-go ignoriert den Client-Wert und nimmt den Default.
+		if ( sub.disabled )
+			return true;
 		const value = row[ sub.id ];
 		if ( isBlank( value ) )
 			return true;
-		return !sub.hide && String( value ) === String( cellDefault( sub ) );
+		return !sub.hide && String( norm( value ) ) === String( norm( cellDefault( sub ) ) );
 	} );
 }
 
