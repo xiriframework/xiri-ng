@@ -89,6 +89,19 @@ describe( 'XiriLocaleService', () => {
 		expect( dateAdapterSetLocale ).toHaveBeenCalledWith( de );
 	} );
 
+	it( 'rowsMessages: fehlende Keys einer registrierten Sprache fallen auf Deutsch zurück', () => {
+		service.registerLanguage( 'xx', {
+			localeString: 'de-AT',
+			validationMessages: { ...service.validationMessagesFor(), minRows: undefined, maxRows: undefined, duplicate: undefined },
+		} );
+		service.setLanguage( 'xx' );
+		expect( service.rowsMessages().minRows( 2 ) ).toBe( 'Mindestens 2 Zeilen erforderlich' );
+		expect( service.rowsMessages().duplicate ).toBe( 'Eintrag ist doppelt' );
+
+		service.setLanguage( 'en' );
+		expect( service.rowsMessages().maxRows( 5 ) ).toBe( 'At most 5 rows allowed' );
+	} );
+
 	describe( 'client-erweiterbare Sprachen', () => {
 		it( 'registerLanguage + setLanguage schaltet auf eine Custom-Sprache', () => {
 			service.registerLanguage( 'fr', frDef );

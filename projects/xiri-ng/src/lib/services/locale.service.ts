@@ -29,6 +29,10 @@ export interface XiriValidationMessages {
 	// Optional, damit per registerLanguage registrierte Sprachen ohne ihn weiter kompilieren; fehlt er, gilt der
 	// eingebaute deutsche Text. `size` ist schon lesbar formatiert (z. B. „10 MB“).
 	maxFileSize?: ( size: string ) => string;
+	// Zeilen-Feld (rows). Optional wie maxFileSize: fehlt einer, gilt der eingebaute deutsche Text.
+	minRows?: ( min: number ) => string;
+	maxRows?: ( max: number ) => string;
+	duplicate?: string;
 }
 
 // Texte der Material-Intl-Singletons (aria-labels, Tooltips, Paginator-Beschriftung). Fehlende Keys = Material-Default.
@@ -64,6 +68,9 @@ const deValidationMessages: Required<XiriValidationMessages> = {
 	minSelection: min => `Mindestens ${ min } Einträge auswählen`,
 	maxSelection: max => `Maximal ${ max } Einträge auswählen`,
 	maxFileSize: size => `Datei zu groß, maximal ${ size }`,
+	minRows: min => `Mindestens ${ min } Zeilen erforderlich`,
+	maxRows: max => `Maximal ${ max } Zeilen erlaubt`,
+	duplicate: 'Eintrag ist doppelt',
 };
 
 const deMaterialLabels: XiriMaterialLabels = {
@@ -116,6 +123,9 @@ const enValidationMessages: Required<XiriValidationMessages> = {
 	minSelection: min => `Select at least ${ min } items`,
 	maxSelection: max => `Select at most ${ max } items`,
 	maxFileSize: size => `File too large, maximum ${ size }`,
+	minRows: min => `At least ${ min } rows required`,
+	maxRows: max => `At most ${ max } rows allowed`,
+	duplicate: 'Duplicate entry',
 };
 
 @Service()
@@ -223,6 +233,16 @@ export class XiriLocaleService {
 			style: 'unit', unit: units[ unit ], unitDisplay: 'short', maximumFractionDigits: 1,
 		} ).format( value );
 		return ( this.validationMessagesFor().maxFileSize ?? deValidationMessages.maxFileSize )( size );
+	}
+
+	// Texte des Zeilen-Felds in der aktiven Sprache; fehlende Keys (registerLanguage ohne sie) aus Deutsch.
+	rowsMessages(): { minRows( min: number ): string; maxRows( max: number ): string; duplicate: string } {
+		const m = this.validationMessagesFor();
+		return {
+			minRows: m.minRows ?? deValidationMessages.minRows,
+			maxRows: m.maxRows ?? deValidationMessages.maxRows,
+			duplicate: m.duplicate ?? deValidationMessages.duplicate,
+		};
 	}
 
 	// ── Zeitzone + Datums-/Zahlen-Formatierung (locale-abhängig) ─────────────────────────────
