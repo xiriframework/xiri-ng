@@ -33,3 +33,12 @@
 .add {
 	margin-top: 4px;
 }
+
+.handle {
+	margin-top: 16px;
+	cursor:     grab;
+}
+
+.cdk-drag-placeholder {
+	opacity: .3;
+}

@@ -1,15 +1,21 @@
 <div class="rows">
 	@if (rows().length) {
 		<div class="grid head" aria-hidden="true">
+			@if (sortable()) {
+				<span></span>
+			}
 			@for (sub of visible(); track sub.id) {
 				<span class="head-cell" [class.bool]="sub.type === 'bool'">{{ sub.name }}</span>
 			}
 			<span></span>
 		</div>
 	}
-	<div class="list">
-		@for (row of rows(); track row; let i = $index) {
-			<div class="grid row-item" [formGroup]="row">
+	<div class="list" cdkDropList [cdkDropListDisabled]="!sortable()" (cdkDropListDropped)="drop($event)">
+		@for (row of rows(); track row; let i = $index, first = $first, last = $last) {
+			<div class="grid row-item" cdkDrag [cdkDragDisabled]="!sortable()" [formGroup]="row">
+				@if (sortable()) {
+					<mat-icon class="handle" cdkDragHandle aria-hidden="true">drag_indicator</mat-icon>
+				}
 				@for (sub of visible(); track sub.id) {
 					@let cell = row.controls[sub.id];
 					@switch (sub.type) {
@@ -62,6 +68,19 @@
 					}
 				}
 				<div class="actions">
+					@if (sortable()) {
+						<button mat-icon-button type="button" aria-label="Nach oben" [disabled]="first" (click)="move(i, i - 1)">
+							<mat-icon>arrow_upward</mat-icon>
+						</button>
+						<button mat-icon-button type="button" aria-label="Nach unten" [disabled]="last" (click)="move(i, i + 1)">
+							<mat-icon>arrow_downward</mat-icon>
+						</button>
+					}
+					@if (copyable()) {
+						<button mat-icon-button type="button" aria-label="Zeile kopieren" [disabled]="!canAdd()" (click)="copy(i)">
+							<mat-icon>content_copy</mat-icon>
+						</button>
+					}
 					@if (removable()) {
 						<button mat-icon-button type="button" aria-label="Zeile löschen" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
 					}

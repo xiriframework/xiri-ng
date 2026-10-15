@@ -14,6 +14,7 @@ import {
 	untracked
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
 import {
 	AbstractControl,
 	ControlValueAccessor,
@@ -68,6 +69,9 @@ export type XiriRow = FormGroup<Record<string, FormControl<unknown>>>;
 		            MatAutocomplete,
 		            MatAutocompleteTrigger,
 		            XiriSuggestDirective,
+		            CdkDropList,
+		            CdkDrag,
+		            CdkDragHandle,
 	            ]
             } )
 export class XiriRowsComponent implements ControlValueAccessor, Validator, AfterViewInit {
@@ -97,6 +101,8 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	readonly visible = computed( () => this.subs().filter( s => !s.hide ) );
 	readonly addable = computed( () => this.field().addable !== false && !this.disabled() );
 	readonly removable = computed( () => this.field().removable !== false && !this.disabled() );
+	readonly sortable = computed( () => this.field().sortable !== false && !this.disabled() );
+	readonly copyable = computed( () => !!this.field().copy && !this.disabled() );
 	readonly canAdd = computed( () => {
 		const max = this.field().max;
 		return max === undefined || this.rows().length < max;
@@ -181,6 +187,28 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 			return;
 		event.preventDefault();
 		this.add();
+	}
+
+	move( from: number, to: number ): void {
+		if ( from === to || to < 0 || to >= this.array.length )
+			return;
+		const row = this.array.at( from );
+		this.array.removeAt( from, { emitEvent: false } );
+		this.array.insert( to, row );
+		this.touched();
+	}
+
+	drop( e: CdkDragDrop<unknown> ): void {
+		this.move( e.previousIndex, e.currentIndex );
+	}
+
+	// Kopie direkt unter das Original; versteckte Unterfelder (interne IDs wie key) starten leer.
+	copy( i: number ): void {
+		const values = { ...this.array.at( i ).getRawValue() };
+		for ( const sub of this.subs() )
+			if ( sub.hide )
+				delete values[ sub.id ];
+		this.insertRow( i + 1, values );
 	}
 
 	remove( i: number ): void {

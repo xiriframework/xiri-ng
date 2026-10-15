@@ -5,6 +5,7 @@ import { of, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
+import { CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { XiriRowsComponent } from './rows.component';
 import { XiriFormFieldsComponent } from '../form-fields.component';
 import { XiriFormField } from '../field.interface';
@@ -246,5 +247,49 @@ describe( 'XiriRowsComponent', () => {
 		fixture.detectChanges();
 
 		expect( rowEls().length ).toBe( 1 );
+	} );
+
+	const keys = () => value().map( r => r[ 'key' ] );
+	const rowButton = ( row: number, label: string ) => rowEls()[ row ].querySelector<HTMLButtonElement>( `button[aria-label="${ label }"]` );
+
+	it( 'Pfeile verschieben, am Rand gesperrt', () => {
+		render( checklist( { value: positions( 5 ) } ) );
+		click( rowButton( 4, 'Nach oben' )! );
+		expect( keys() ).toEqual( [ 'k1', 'k2', 'k3', 'k5', 'k4' ] );
+		click( rowButton( 0, 'Nach unten' )! );
+		expect( keys() ).toEqual( [ 'k2', 'k1', 'k3', 'k5', 'k4' ] );
+		expect( rowButton( 0, 'Nach oben' )!.disabled ).toBe( true );
+		expect( rowButton( 4, 'Nach unten' )!.disabled ).toBe( true );
+	} );
+
+	it( 'Drag & Drop verschiebt über cdkDropListDropped', () => {
+		render( checklist( { value: positions( 5 ) } ) );
+		const list = fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList );
+		list.dropped.emit( { previousIndex: 4, currentIndex: 1 } as CdkDragDrop<unknown> );
+		fixture.detectChanges();
+		expect( keys() ).toEqual( [ 'k1', 'k5', 'k2', 'k3', 'k4' ] );
+	} );
+
+	it( 'sortable: false blendet Ziehgriff und Pfeile aus', () => {
+		render( checklist( { sortable: false, value: positions( 2 ) } ) );
+		expect( el().querySelector( 'xiri-rows .handle' ) ).toBeNull();
+		expect( rowButton( 1, 'Nach oben' ) ).toBeNull();
+	} );
+
+	it( 'copy: Kopie unter dem Original, versteckte Werte leer; ohne copy kein Button', () => {
+		render( checklist( { copy: true, value: positions( 2 ) } ) );
+		click( rowButton( 0, 'Zeile kopieren' )! );
+		expect( value().map( r => [ r[ 'key' ], r[ 'label' ] ] ) ).toEqual( [ [ 'k1', 'Position 1' ], [ '', 'Position 1' ], [ 'k2', 'Position 2' ] ] );
+
+		host.fields.set( [ checklist( { value: positions( 1 ) } ) ] );
+		fixture.detectChanges();
+		expect( rowButton( 0, 'Zeile kopieren' ) ).toBeNull();
+	} );
+
+	it( 'Abnahme: 12 Zeilen, Zeile 5 hoch, Zeile 2 löschen → 11 Objekte in neuer Reihenfolge, keys unverändert', () => {
+		render( checklist( { value: positions( 12 ) } ) );
+		click( rowButton( 4, 'Nach oben' )! );
+		click( rowButton( 1, 'Zeile löschen' )! );
+		expect( keys() ).toEqual( [ 'k1', 'k3', 'k5', 'k4', 'k6', 'k7', 'k8', 'k9', 'k10', 'k11', 'k12' ] );
 	} );
 } );
