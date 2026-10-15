@@ -43,6 +43,9 @@
 								@if (cell.hasError('duplicate')) {
 									<mat-error>{{ duplicateMessage() }}</mat-error>
 								}
+								@if (cell.hasError('server')) {
+									<mat-error>{{ serverMessage(cell) }}</mat-error>
+								}
 							</mat-form-field>
 						}
 						@default {
@@ -74,6 +77,9 @@
 								}
 								@if (cell.hasError('duplicate')) {
 									<mat-error>{{ duplicateMessage() }}</mat-error>
+								}
+								@if (cell.hasError('server')) {
+									<mat-error>{{ serverMessage(cell) }}</mat-error>
 								}
 							</mat-form-field>
 						}

@@ -25,7 +25,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { XiriFormField } from "../formfields/field.interface";
 import { XiriDownloadService } from "../services/download.service";
-import { parseHttpError } from '../services/error.util';
+import { parseFieldErrors, parseHttpError } from '../services/error.util';
 import { isSafeHref } from '../services/url.util';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -113,6 +113,8 @@ export class XiriDialogComponent implements OnDestroy {
 	public loading = signal<boolean>( true );
 	public done = signal<boolean>( false );
 	public error = signal<string>( '' );
+	// Validierungsfehler pro Feld-ID aus einer 400-Antwort, geht wie in xiri-form als serverErrors an xiri-form-fields.
+	public fieldErrors = signal<Record<string, string> | null>( null );
 	
 	private formValues: Record<string, unknown> | null = null;
 	public formValid = signal<boolean>(false);
@@ -154,6 +156,7 @@ export class XiriDialogComponent implements OnDestroy {
 
 		this.loading.set( true );
 		this.error.set( '' );
+		this.fieldErrors.set( null );
 
 		const req = data === null ?
 		            this.dataService.get( this.url ) :
@@ -178,6 +181,7 @@ export class XiriDialogComponent implements OnDestroy {
 	private showError( err: unknown ) {
 		this.loading.set( false );
 		this.error.set( parseHttpError( err as HttpErrorResponse ) );
+		this.fieldErrors.set( parseFieldErrors( err as HttpErrorResponse ) ?? null );
 		
 		// this.header = 'Error';
 		if ( this.buttons().length == 0 ) {

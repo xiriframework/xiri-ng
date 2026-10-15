@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { XiriDialogComponent } from './dialog.component';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { XiriDataService } from '../services/data.service';
@@ -276,6 +277,27 @@ describe( 'XiriDialogComponent', () => {
 	} );
 
 	describe( 'error handling', () => {
+		it( 'zeigt Feldfehler einer 400-Antwort am Feld', async () => {
+			mockDataService.get.mockReturnValue( of( {
+				header: 'Form', url: 'save',
+				fields: [ { id: 'name', type: 'text', name: 'Name', value: 'x' } ],
+				buttons: [ { text: 'OK', action: 'save', type: 'raised', default: true } ],
+			} ) );
+			mockDataService.post.mockReturnValue( throwError( () =>
+				new HttpErrorResponse( { status: 400, error: { error: 'name: reserviert', fields: { name: 'reserviert' } } } ) ) );
+
+			createComponent( { type: 'load', url: 'test' } );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			fixture.detectChanges();
+
+			component.clickButton( { text: 'OK', action: 'save', type: 'raised', default: true } );
+			await new Promise( r => setTimeout( r, 20 ) ); // startSend wartet 10 ms
+			fixture.detectChanges();
+
+			expect( fixture.nativeElement.querySelector( 'mat-error' )?.textContent?.trim() ).toBe( 'reserviert' );
+		} );
+
 		it( 'should show error on API failure', () => {
 			mockDataService.get.mockReturnValue(
 				throwError( () => ( { status: 500 } ) )

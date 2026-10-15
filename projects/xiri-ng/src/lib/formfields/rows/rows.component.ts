@@ -101,6 +101,10 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	private injector = inject( Injector );
 	private destroyRef = inject( DestroyRef );
 
+	// Server-Fehler je Zelle samt dem Wert, zu dem er kam: gilt, bis genau diese Zelle geändert wird. Als Teil
+	// des Validators, damit revalidate() ihn nicht wegräumt, wenn eine andere Zelle sich ändert.
+	private serverCells = new Map<AbstractControl, { message: string; value: unknown }>();
+
 	readonly array = new FormArray<XiriRow>( [] );
 	// Strukturänderungen am FormArray (add/remove/move/writeValue) als Signal, damit OnPush und computed sie sehen.
 	private version = signal( 0 );
@@ -156,6 +160,10 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 
 	constructor() {
 		this.array.valueChanges.pipe( takeUntilDestroyed() ).subscribe( () => this.sync() );
+		effect( () => {
+			const errors = this.serverErrors();
+			untracked( () => this.applyServerErrors( errors ) );
+		} );
 		// Breite der Komponente selbst, nicht des Fensters: greift auch im schmalen Dialog.
 		if ( typeof ResizeObserver !== 'undefined' ) {
 			const observer = new ResizeObserver( entries => this.width.set( entries[ 0 ].contentRect.width ) );
@@ -186,6 +194,7 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 				                 { emitEvent: false } );
 			if ( this.disabled() )
 				this.array.disable( { emitEvent: false } );
+			this.serverCells.clear();
 			this.revalidate();
 			this.bump();
 		} );
@@ -305,8 +314,34 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 			const errors: ValidationErrors = { ...( base?.( c ) ?? {} ) };
 			if ( this.duplicateSub() === sub.id && this.isDuplicate( row ) )
 				errors[ 'duplicate' ] = true;
+			const server = this.serverCells.get( c );
+			if ( server && server.value === c.value )
+				errors[ 'server' ] = true;
 			return Object.keys( errors ).length ? errors : null;
 		};
+	}
+
+	private applyServerErrors( errors: Record<string, string> | null ): void {
+		this.serverCells.clear();
+		const filled = this.filled();
+		for ( const [ key, message ] of Object.entries( errors ?? {} ) ) {
+			const dot = key.indexOf( '.' );
+			const display = filled[ Number( key.slice( 0, dot ) ) ];
+			const cell = display === undefined ? null : this.array.at( display ).get( key.slice( dot + 1 ) );
+			if ( !cell )
+				continue; // unbekannte Zeile/Spalte: ignorieren wie form-fields bei unbekannten IDs
+			this.serverCells.set( cell, { message, value: cell.value } );
+			cell.markAsTouched();
+		}
+		// ponytail: kein registerOnValidatorChange-Rückruf - das Neuprüfen des Controls würde den Feldfehler
+		// "<feld>" löschen, den form-fields per setErrors gesetzt hat. Das Feld wird erst bei der nächsten Eingabe
+		// ungültig; ein erneutes Absenden ohne Änderung liefert denselben 400.
+		this.revalidate();
+		this.bump();
+	}
+
+	serverMessage( cell: AbstractControl ): string {
+		return this.serverCells.get( cell )?.message ?? '';
 	}
 
 	// Doppelt = eine frühere, nicht-leere Zeile hat denselben unique-Schlüssel.

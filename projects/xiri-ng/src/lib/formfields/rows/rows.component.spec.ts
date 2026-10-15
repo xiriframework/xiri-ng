@@ -375,4 +375,31 @@ describe( 'XiriRowsComponent', () => {
 		fixture.detectChanges();
 		expect( el().querySelector( 'xiri-rows .rows.cards' ) ).toBeNull();
 	} );
+
+	it( 'Server-Fehler items.2.label landet an der richtigen Zelle, auch mit leerer Zeile davor', () => {
+		render( checklist( { value: positions( 3 ) } ) );
+		click( addButton()! );                              // leere Zeile unten …
+		click( rowButton( 3, 'Nach oben' )! );              // … nach oben: angezeigt k1, k2, leer, k3
+		click( rowButton( 2, 'Nach oben' )! );              // angezeigt k1, leer, k2, k3
+
+		host.serverErrors.set( { 'items.2.label': 'gibt es schon', items: 'Bitte prüfen' } );
+		fixture.detectChanges();
+
+		expect( errors( 3 ) ).toEqual( [ 'gibt es schon' ] ); // gesendeter Index 2 = k3 = angezeigt 3
+		expect( errors( 2 ) ).toEqual( [] );
+		expect( el().querySelector( '.rows-field > mat-error' )?.textContent?.trim() ).toBe( 'Bitte prüfen' );
+	} );
+
+	it( 'Server-Fehler bleibt, bis genau diese Zelle geändert wird', () => {
+		render( checklist( { value: positions( 3 ) } ) );
+		host.serverErrors.set( { 'items.2.label': 'gibt es schon' } );
+		fixture.detectChanges();
+
+		type( textInputs( 0 )[ 1 ], 'Bremsen' ); // andere Zeile
+		expect( errors( 2 ) ).toEqual( [ 'gibt es schon' ] );
+
+		type( textInputs( 2 )[ 1 ], 'Licht' );
+		expect( errors( 2 ) ).toEqual( [] );
+		expect( control().valid ).toBe( true );
+	} );
 } );

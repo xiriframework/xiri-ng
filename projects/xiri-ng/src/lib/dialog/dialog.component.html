@@ -14,7 +14,7 @@
 				<xiri-raw-table [settings]="rawTable"></xiri-raw-table>
 			} @else {
 				<xiri-form-fields [form]="formFields()" (formChange)="formChanged($event)" [disabled]="loading()"
-				                  [check]="checkSubject.asObservable()"></xiri-form-fields>
+				                  [check]="checkSubject.asObservable()" [serverErrors]="fieldErrors()"></xiri-form-fields>
 			}
 		}
 		@if (componentData() !== null && dynComponentType() !== null) {

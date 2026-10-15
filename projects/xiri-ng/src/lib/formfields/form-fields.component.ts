@@ -134,6 +134,17 @@ export class XiriFormFieldsComponent implements OnInit {
 	check = input<Observable<void> | null>( null );
 	// Validierungsfehler pro Feld-ID vom Server (400 mit fields), siehe applyServerError().
 	serverErrors = input<Record<string, string> | null>( null );
+	// Server-Fehler "<feld>.<rest>" von Zeilen-Feldern, nach Feld-ID gruppiert und ohne Präfix (siehe xiri-rows).
+	// "<feld>" selbst läuft wie bei jedem Feld über applyServerError.
+	protected rowErrors = computed( () => {
+		const out: Record<string, Record<string, string>> = {};
+		for ( const [ key, message ] of Object.entries( this.serverErrors() ?? {} ) ) {
+			const dot = key.indexOf( '.' );
+			if ( dot > 0 )
+				( out[ key.slice( 0, dot ) ] ??= {} )[ key.slice( dot + 1 ) ] = message;
+		}
+		return out;
+	} );
 
 	// fields: XiriFormField[] = [];
 	formGroup: UntypedFormGroup;

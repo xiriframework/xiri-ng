@@ -429,7 +429,7 @@
 					@if (field.name) {
 						<div class="rows-label">{{ field.name }}</div>
 					}
-					<xiri-rows [field]="field" [formControlName]="field.id"></xiri-rows>
+					<xiri-rows [field]="field" [formControlName]="field.id" [serverErrors]="rowErrors()[field.id] ?? null"></xiri-rows>
 					@if (field.hint) {
 						<mat-hint>{{ field.hint }}</mat-hint>
 					}
