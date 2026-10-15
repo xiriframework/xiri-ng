@@ -483,4 +483,12 @@ describe( 'XiriRowsComponent', () => {
 		expect( errors( 0 ) ).toEqual( [] );
 		expect( errors( 1 ) ).toEqual( [ 'gibt es schon' ] );
 	} );
+
+	it( 'Feld-Label benennt die Tabelle als Gruppe', () => {
+		render( checklist( { value: positions( 1 ) } ) );
+		const group = el().querySelector<HTMLElement>( '.rows-field' )!;
+		expect( group.getAttribute( 'role' ) ).toBe( 'group' );
+		const label = el().querySelector( '#' + group.getAttribute( 'aria-labelledby' ) );
+		expect( label?.textContent?.trim() ).toBe( 'Positionen' );
+	} );
 } );

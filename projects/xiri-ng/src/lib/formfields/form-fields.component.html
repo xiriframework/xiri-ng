@@ -425,9 +425,10 @@
 				</div>
 			}
 			@case ('rows') {
-				<div class="rows-field" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+				<div class="rows-field" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide" role="group"
+				     [attr.aria-labelledby]="field.name ? field.id + '-label' : null">
 					@if (field.name) {
-						<div class="rows-label">{{ field.name }}</div>
+						<div class="rows-label" [id]="field.id + '-label'">{{ field.name }}</div>
 					}
 					<xiri-rows [field]="field" [formControlName]="field.id" [serverErrors]="rowErrors()[field.id] ?? null"></xiri-rows>
 					@if (field.hint) {
