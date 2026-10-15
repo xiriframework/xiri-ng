@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
-import { checklistDemoFields } from '../forms/checklist-demo';
 import { delay, of, switchMap, throwError, timer } from 'rxjs';
+import { checklistDemoFields } from '../forms/checklist-demo';
 
 // Shape of the (optional) request bodies the mock handlers read. All fields are optional because
 // the same body type is shared across the different mock endpoints.
@@ -538,8 +538,7 @@ function getDialogComponentResponse(): unknown {
 	};
 }
 
-// Dialog content for the 'form' dialog type: a typical edit form. The submit button uses an
-// unhandled action ('save'), so clickButton() POSTs the form values to the dialog url.
+// Zeilen-Feld im Dialog: Checkliste bearbeiten, Speichern geht an Test/Rows/Dialog.
 function getRowsDialogResponse(): unknown {
 	return {
 		header: 'Checkliste bearbeiten',
@@ -553,6 +552,8 @@ function getRowsDialogResponse(): unknown {
 	};
 }
 
+// Dialog content for the 'form' dialog type: a typical edit form. The submit button uses an
+// unhandled action ('save'), so clickButton() POSTs the form values to the dialog url.
 function getDialogFormResponse(): unknown {
 	return {
 		header: 'Kontakt bearbeiten',
