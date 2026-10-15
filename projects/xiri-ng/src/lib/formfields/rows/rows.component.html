@@ -1,0 +1,75 @@
+<div class="rows">
+	@if (rows().length) {
+		<div class="grid head" aria-hidden="true">
+			@for (sub of visible(); track sub.id) {
+				<span class="head-cell" [class.bool]="sub.type === 'bool'">{{ sub.name }}</span>
+			}
+			<span></span>
+		</div>
+	}
+	<div class="list">
+		@for (row of rows(); track row; let i = $index) {
+			<div class="grid row-item" [formGroup]="row">
+				@for (sub of visible(); track sub.id) {
+					@let cell = row.controls[sub.id];
+					@switch (sub.type) {
+						@case ('bool') {
+							<div class="cell bool">
+								<mat-checkbox [formControlName]="sub.id" [aria-label]="sub.name ?? sub.id"></mat-checkbox>
+							</div>
+						}
+						@case ('select') {
+							<mat-form-field class="cell" subscriptSizing="dynamic">
+								<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple"
+								            [aria-label]="sub.name ?? sub.id">
+									@for (o of sub.list ?? []; track o.id) {
+										<mat-option [value]="o.id" [disabled]="o.disabled">{{ o.name }}</mat-option>
+									}
+								</mat-select>
+								@for (v of sub.validations; track v.id) {
+									@if (cell.hasError(v.id)) {
+										<mat-error>{{ v.message }}</mat-error>
+									}
+								}
+							</mat-form-field>
+						}
+						@default {
+							<mat-form-field class="cell" subscriptSizing="dynamic">
+								@if (sub.list) {
+									<!-- Vorschläge wie in form-fields: Freitext bleibt, nie überschreiben. -->
+									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
+									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id"
+									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto">
+									<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
+									                  [autoSelectActiveOption]="false">
+										@for (opt of suggest.options(); track opt.name) {
+											<mat-option [value]="opt.name">{{ opt.name }}</mat-option>
+										}
+									</mat-autocomplete>
+								} @else {
+									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
+									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id">
+								}
+								@for (v of sub.validations; track v.id) {
+									@if (cell.hasError(v.id)) {
+										<mat-error>{{ v.message }}</mat-error>
+									}
+								}
+							</mat-form-field>
+						}
+					}
+				}
+				<div class="actions">
+					@if (removable()) {
+						<button mat-icon-button type="button" aria-label="Zeile löschen" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
+					}
+				</div>
+			</div>
+		}
+	</div>
+	@if (addable()) {
+		<button mat-stroked-button type="button" class="add" [disabled]="!canAdd()" (click)="add()">
+			<mat-icon>add</mat-icon>{{ field().addText || addLabel }}
+		</button>
+	}
+</div>

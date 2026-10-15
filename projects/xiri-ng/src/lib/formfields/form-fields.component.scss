@@ -23,6 +23,15 @@
 		align-self: start;
 	}
 
+	> .rows-field {
+		align-self: start;
+
+		.rows-label {
+			margin-bottom: 4px;
+			font:          var(--mat-sys-title-small);
+		}
+	}
+
 	// Control plus optionaler "+"-Button (addUrl) nebeneinander; der Button bleibt oben am Feld.
 	.add-wrap {
 		display:     flex;

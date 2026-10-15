@@ -90,6 +90,15 @@ export interface XiriFormField {
 	// "+"-Button neben dem Feld: GET addUrl liefert einen Formular-Dialog, dessen POST mit
 	// {done, created: {id, name}} antwortet; die Option wird angehängt und selektiert.
 	addUrl?: string
+	// Zeilen-Feld (type 'rows'): fields beschreibt eine Zeile, der Wert ist ein Array von Objekten
+	// (Schlüssel = id der Unterfelder). min/max zählen Zeilen, required = mindestens eine Zeile.
+	fields?: XiriFormField[]
+	addText?: string
+	sortable?: boolean // Default true: Ziehgriff und Pfeile
+	addable?: boolean // Default true
+	removable?: boolean // Default true
+	copy?: boolean // Default false: Kopieren-Icon je Zeile
+	unique?: string[] // Unterfeld-IDs, deren Kombination eindeutig sein muss
 
 	control?: FormControl
 

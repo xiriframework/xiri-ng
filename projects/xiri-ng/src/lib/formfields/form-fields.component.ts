@@ -66,6 +66,7 @@ import { AsyncPipe } from '@angular/common';
 import { MatError, MatFormField, MatHint, MatLabel, MatPrefix, MatSuffix } from '@angular/material/form-field';
 import { SafehtmlPipe } from "../pipes/safehtml.pipe";
 import { XiriChipsComponent } from './chips/chips.component';
+import { XiriRowsComponent } from './rows/rows.component';
 import { XiriLocaleService } from '../services/locale.service';
 import { buildValidations } from './helper/validations';
 
@@ -108,6 +109,7 @@ export type XiriFormFieldDisplay = 'full' | 'line' | 'small';
 		            AsyncPipe,
 		            SafehtmlPipe,
 		            XiriChipsComponent,
+		            XiriRowsComponent,
 		            XiriSuggestDirective,
 		            MatAutocomplete,
 		            MatAutocompleteTrigger,

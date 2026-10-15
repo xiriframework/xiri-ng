@@ -424,6 +424,22 @@
 					}
 				</div>
 			}
+			@case ('rows') {
+				<div class="rows-field" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+					@if (field.name) {
+						<div class="rows-label">{{ field.name }}</div>
+					}
+					<xiri-rows [field]="field" [formControlName]="field.id"></xiri-rows>
+					@if (field.hint) {
+						<mat-hint>{{ field.hint }}</mat-hint>
+					}
+					@for (vali of field.validations; track vali.id) {
+						@if (formGroup.get(field.id)?.touched && formGroup.get(field.id)?.hasError(vali.id)) {
+							<mat-error>{{ vali.message }}</mat-error>
+						}
+					}
+				</div>
+			}
 			@default {
 				<div>default: {{ field.type }}</div>
 			}
