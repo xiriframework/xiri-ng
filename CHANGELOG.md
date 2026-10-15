@@ -12,7 +12,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Feldtyp `rows`: Liste gleich aufgebauter Zeilen in einem Formular.** `fields` beschreibt eine Zeile
   (Unterfelder `text` mit Vorschlägen über `list`, `number`, `bool`, `select`; `hide` für interne IDs), der Wert ist
   ein Array von Objekten. Darstellung als kompakte Tabelle mit Spaltenköpfen, auf schmalen Breiten (auch im Dialog)
-  als Karten. Hinzufügen (`addText`, Fokus in die neue Zeile, Enter im letzten Textfeld der letzten Zeile),
+  als Karten. Hinzufügen (`addText`, Fokus in die neue Zeile, Enter im letzten Text- oder Zahlenfeld der letzten Zeile),
   Löschen, Verschieben per Ziehgriff und Pfeilen, Kopieren (`copy`), Schalter `sortable`/`addable`/`removable`,
   Spaltenbreite über `cols` der Unterfelder. Validierung je Zelle mit denselben Regeln wie als Einzelfeld (Pflichtzellen
   zeigen ` *` im Spaltenkopf und `aria-required`), `min`/`max` = Zeilenanzahl, `required` = mindestens eine Zeile,

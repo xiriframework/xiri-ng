@@ -445,8 +445,9 @@ Grenzen:
   Benutzer sie löscht.
 - Unterfelder werten `id`, `type`, `name`, `required`, `pattern`, `min`, `max`, `list`, `multiple`, `value`, `hide`,
   `disabled`, `cols` aus; `showWhen`/`reloadOn` in Zeilen gibt es nicht.
-- `required` am Unterfeld: kein `[required]`-Validator an der Zelle, der Spaltenkopf zeigt ` *`, die Zelle trägt
-  `aria-required` (`XiriCellRequiredDirective`).
+- `required` am Unterfeld: Pflicht wird je Zelle geprüft, außer in leeren Zeilen. Spaltenkopf ` *` und `aria-required`
+  kommen aus einer Direktive (`XiriCellRequiredDirective`) statt aus dem `[required]`-Attribut (das würde die
+  Leerzeilen-Ausnahme umgehen). `required` am Feld `rows` = mindestens eine nicht-leere Zeile.
 - `unique`: der Duplikat-Fehler erscheint am ersten nicht versteckten Unterfeld aus `unique` (sonst am ersten).
 - `disabled` am Feld: nur Anzeige, keine Buttons. `disabled` am Unterfeld: Spalte schreibgeschützt.
 - Server-Fehler: `fields: { "items.2.label": "…" }`, Index = Position im gesendeten Wert. `items` selbst = Fehler auf
