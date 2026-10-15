@@ -51,4 +51,19 @@ describe( 'Forms demo page', () => {
 		const note = ( await ( await field( loader, 'Begründung' ) )!.getControl( MatInputHarness ) )!;
 		expect( await note.isRequired() ).toBe( true );
 	} );
+
+	it( 'rows: zeigt die Checkliste, Server-Fehler landet an der Zelle', async () => {
+		await open();
+		const rows = () => Array.from( ( fixture.nativeElement as HTMLElement ).querySelectorAll<HTMLElement>( 'xiri-rows .row-item' ) );
+		expect( rows().length ).toBe( 12 );
+
+		const label = rows()[ 2 ].querySelectorAll<HTMLInputElement>( 'input:not([type=checkbox])' )[ 1 ];
+		label.value = 'fehler';
+		label.dispatchEvent( new Event( 'input' ) );
+		const save = Array.from( ( fixture.nativeElement as HTMLElement ).querySelectorAll<HTMLButtonElement>( 'button' ) )
+			.find( b => b.textContent?.trim() === 'Checkliste speichern' )!;
+		save.click();
+
+		await waitFor( fixture, () => rows()[ 2 ].querySelector( 'mat-error' )?.textContent?.includes( 'reserviert' ) ?? false );
+	} );
 } );

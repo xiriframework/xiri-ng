@@ -4,6 +4,7 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { checklistDemoFields } from './checklist-demo';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
@@ -56,6 +57,35 @@ export class FormsComponent {
 		icon: 'cloud_sync',
 		iconColor: 'accent',
 	};
+
+	sectionRows: XiriSectionSettings = {
+		title: 'Repeatable Rows (rows)',
+		subtitle: 'Eine Liste gleich aufgebauter Zeilen in einem Formular: hinzufügen (auch Enter in der letzten '
+		          + '„Bezeichnung“), löschen, verschieben, kopieren. „fehler“ als Bezeichnung zeigt einen Server-Fehler an der Zelle.',
+		icon: 'table_rows',
+		iconColor: 'accent',
+	};
+
+	rowsData: XiriFormSettings = {
+		url: 'Test/Rows/Checklist',
+		fields: checklistDemoFields(),
+		buttons: [ { text: 'Checkliste speichern', type: 'raised', action: 'next', default: true, color: 'primary' } ],
+	};
+
+	goRowsCode = `items := field.NewRowsField("items", "Positionen", true, []field.FormField{
+    key,                                                   // NewTextField + BaseField.SetHide(true)
+    field.NewTextField("category", "Kategorie", false, "").SetSuggestions("Technik", "Ladung"),
+    field.NewTextField("label", "Bezeichnung", true, ""),
+    field.NewBoolField("required", "Pflicht", false, true),
+    field.NewBoolField("photo", "Foto bei Mangel", false, false),
+}).SetMaxRows(50).SetAddText("Position hinzufügen").SetCopy(true).
+    SetUnique("label").SetColumnWidth("label", 3)
+
+// Speichern: Zellfehler kommen als fields["items.2.label"]
+if err := builder.BindAndValidate(c, fg); err != nil {
+    return c.JSON(http.StatusBadRequest, response.NewErrorResponseFromError(err))
+}
+for _, row := range items.Value { /* row["key"], row["label"], … */ }`;
 
 	public data: XiriFormSettings = {
 		load: false,

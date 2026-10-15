@@ -1,4 +1,5 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
+import { checklistDemoFields } from '../forms/checklist-demo';
 import { delay, of, switchMap, throwError, timer } from 'rxjs';
 
 // Shape of the (optional) request bodies the mock handlers read. All fields are optional because
@@ -153,6 +154,23 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	if ( req.url.includes( 'Test/Group/GroupData' ) ) {
 		return of( new HttpResponse( { status: 200, body: getGroupTableData( req.body as MockRequestBody ) } ) );
+	}
+
+	// Zeilen-Feld (rows): Bezeichnung "fehler" liefert 400 mit Zellfehler items.<zeile>.label - wie xiri-go.
+	if ( req.url.includes( 'Test/Rows/' ) && req.method === 'POST' ) {
+		const items = ( req.body as { items?: { label?: unknown }[] } | null )?.items ?? [];
+		const fields: Record<string, string> = {};
+		items.forEach( ( item, i ) => {
+			if ( String( item.label ?? '' ).trim().toLowerCase() === 'fehler' )
+				fields[ `items.${ i }.label` ] = 'Bezeichnung „fehler“ ist reserviert';
+		} );
+		if ( Object.keys( fields ).length )
+			return failAfter( 200, { status: 400, error: { error: 'Positionen: Bezeichnung ist reserviert', fields } } );
+		return of( new HttpResponse( { status: 200, body: { done: true } } ) ).pipe( delay( 300 ) );
+	}
+
+	if ( req.url.includes( 'Test/Rows/Dialog' ) ) {
+		return of( new HttpResponse( { status: 200, body: getRowsDialogResponse() } ) );
 	}
 
 	// Feldgenaue Server-Validierung (xiri-go FieldErrors): Name "fehler" liefert 400 mit fields.
@@ -458,7 +476,8 @@ function getDialogsPage(): unknown {
 						{ text: 'DialogWaiting (xl)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogWaiting/0', size: 'xl' },
 						{ text: 'DialogDelete (full)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogDelete', size: 'full' },
 						{ text: 'DialogComponent (lg)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogComponent', size: 'lg' },
-						{ text: 'DialogLoading (15s)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogLoading', size: 'md' }
+						{ text: 'DialogLoading (15s)', type: 'raised', action: 'dialog', url: 'Test/Test/DialogLoading', size: 'md' },
+						{ text: 'DialogRows (lg)', type: 'raised', action: 'dialog', url: 'Test/Rows/Dialog', size: 'lg' }
 					]
 				}
 			}
@@ -521,6 +540,19 @@ function getDialogComponentResponse(): unknown {
 
 // Dialog content for the 'form' dialog type: a typical edit form. The submit button uses an
 // unhandled action ('save'), so clickButton() POSTs the form values to the dialog url.
+function getRowsDialogResponse(): unknown {
+	return {
+		header: 'Checkliste bearbeiten',
+		type: 'form',
+		url: 'Test/Rows/Dialog',
+		fields: checklistDemoFields(),
+		buttons: [
+			{ text: 'Abbrechen', type: 'basic', action: 'close' },
+			{ text: 'Speichern', type: 'raised', action: 'save', default: true, color: 'primary' },
+		],
+	};
+}
+
 function getDialogFormResponse(): unknown {
 	return {
 		header: 'Kontakt bearbeiten',
