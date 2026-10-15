@@ -25,8 +25,10 @@
 	padding-top:     8px;
 }
 
+// Tabelle: Buttons (36 px) mittig zum Eingabefeld (50 px) statt bündig mit dessen Oberkante.
 .actions {
-	display: flex;
+	display:    flex;
+	margin-top: 7px;
 }
 
 .add {
@@ -60,6 +62,7 @@
 
 	.actions {
 		justify-content: flex-end;
+		margin-top:      0;
 	}
 
 	.handle {

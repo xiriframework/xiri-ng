@@ -5,7 +5,11 @@
 				<span></span>
 			}
 			@for (sub of visible(); track sub.id) {
-				<span class="head-cell" [class.bool]="sub.type === 'bool'">{{ sub.name }}@if (sub.required) {<span class="req" aria-hidden="true"> *</span>}</span>
+				<span class="head-cell" [class.bool]="sub.type === 'bool'">
+					{{ sub.name }}@if (sub.required) {
+						<span class="req" aria-hidden="true"> *</span>
+					}
+				</span>
 			}
 			<span></span>
 		</div>
@@ -21,16 +25,22 @@
 					@switch (sub.type) {
 						@case ('bool') {
 							<div class="cell bool">
-								<mat-checkbox [formControlName]="sub.id" [aria-label]="sub.name ?? sub.id">@if (cards()) {{{ sub.name }}@if (sub.required) {<span class="req" aria-hidden="true"> *</span>}}</mat-checkbox>
+								<mat-checkbox [formControlName]="sub.id" [aria-label]="sub.name ?? sub.id">
+									@if (cards()) {
+										{{ sub.name }}@if (sub.required) {
+											<span class="req" aria-hidden="true"> *</span>
+										}
+									}
+								</mat-checkbox>
 							</div>
 						}
 						@case ('select') {
 							<mat-form-field class="cell" subscriptSizing="dynamic">
-							@if (cards()) {
-								<mat-label>{{ sub.name }}</mat-label>
-							}
-	<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple" [xiriCellRequired]="!!sub.required" [errorStateMatcher]="cellErrors"
-								            [aria-label]="sub.name ?? sub.id">
+								@if (cards()) {
+									<mat-label>{{ sub.name }}</mat-label>
+								}
+								<mat-select [formControlName]="sub.id" [multiple]="!!sub.multiple" [xiriCellRequired]="!!sub.required"
+								            [errorStateMatcher]="cellErrors" [aria-label]="sub.name ?? sub.id">
 									@for (o of sub.list ?? []; track o.id) {
 										<mat-option [value]="o.id" [disabled]="o.disabled">{{ o.name }}</mat-option>
 									}
@@ -50,14 +60,14 @@
 						}
 						@default {
 							<mat-form-field class="cell" subscriptSizing="dynamic">
-							@if (cards()) {
-								<mat-label>{{ sub.name }}</mat-label>
-							}
-	@if (sub.list) {
+								@if (cards()) {
+									<mat-label>{{ sub.name }}</mat-label>
+								}
+								@if (sub.list) {
 									<!-- Vorschläge wie in form-fields: Freitext bleibt, nie überschreiben. -->
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
 									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
-								       [errorStateMatcher]="cellErrors"
+									       [errorStateMatcher]="cellErrors"
 									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto"
 									       (keydown.enter)="onEnter($event, i, sub, auto.isOpen)">
 									<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
@@ -69,7 +79,7 @@
 								} @else {
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
 									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id" [xiriCellRequired]="!!sub.required"
-								       [errorStateMatcher]="cellErrors"
+									       [errorStateMatcher]="cellErrors"
 									       (keydown.enter)="onEnter($event, i, sub, false)">
 								}
 								@for (v of sub.validations; track v.id) {
@@ -89,10 +99,12 @@
 				}
 				<div class="actions">
 					@if (sortable()) {
-						<button mat-icon-button type="button" class="up" aria-label="Nach oben" [disabled]="first" (click)="moveByKey(i, i - 1, 'up')">
+						<button mat-icon-button type="button" class="up" aria-label="Nach oben" [disabled]="first"
+						        (click)="moveByKey(i, i - 1, 'up')">
 							<mat-icon>arrow_upward</mat-icon>
 						</button>
-						<button mat-icon-button type="button" class="down" aria-label="Nach unten" [disabled]="last" (click)="moveByKey(i, i + 1, 'down')">
+						<button mat-icon-button type="button" class="down" aria-label="Nach unten" [disabled]="last"
+						        (click)="moveByKey(i, i + 1, 'down')">
 							<mat-icon>arrow_downward</mat-icon>
 						</button>
 					}
@@ -102,7 +114,9 @@
 						</button>
 					}
 					@if (removable()) {
-						<button mat-icon-button type="button" class="remove" aria-label="Zeile löschen" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
+						<button mat-icon-button type="button" class="remove" aria-label="Zeile löschen" (click)="remove(i)">
+							<mat-icon>delete</mat-icon>
+						</button>
 					}
 				</div>
 			</div>
