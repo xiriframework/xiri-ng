@@ -404,6 +404,39 @@ describe( 'XiriRowsComponent', () => {
 		expect( control().valid ).toBe( true );
 	} );
 
+	it( 'Pfeil: Fokus bleibt am selben Pfeil der verschobenen Zeile, am Rand auf dem anderen Pfeil', async () => {
+		render( checklist( { value: positions( 3 ) } ) );
+		const up = rowButton( 2, 'Nach oben' )!;
+		up.focus();
+		click( up );
+		await fixture.whenStable();
+		expect( keys() ).toEqual( [ 'k1', 'k3', 'k2' ] );
+		expect( document.activeElement ).toBe( rowButton( 1, 'Nach oben' ) );
+
+		click( rowButton( 1, 'Nach oben' )! ); // jetzt erste Zeile: „Nach oben“ gesperrt
+		await fixture.whenStable();
+		expect( keys() ).toEqual( [ 'k3', 'k1', 'k2' ] );
+		expect( document.activeElement ).toBe( rowButton( 0, 'Nach unten' ) );
+	} );
+
+	it( 'Löschen: Fokus auf den Löschen-Button der nachrückenden Zeile, zuletzt auf Hinzufügen', async () => {
+		render( checklist( { value: positions( 2 ) } ) );
+		click( rowButton( 0, 'Zeile löschen' )! );
+		await fixture.whenStable();
+		expect( document.activeElement ).toBe( rowButton( 0, 'Zeile löschen' ) );
+
+		click( rowButton( 0, 'Zeile löschen' )! );
+		await fixture.whenStable();
+		expect( document.activeElement ).toBe( addButton() );
+	} );
+
+	it( 'Löschen der letzten Zeile: Fokus auf den Löschen-Button der neuen letzten', async () => {
+		render( checklist( { value: positions( 3 ) } ) );
+		click( rowButton( 2, 'Zeile löschen' )! );
+		await fixture.whenStable();
+		expect( document.activeElement ).toBe( rowButton( 1, 'Zeile löschen' ) );
+	} );
+
 	it( 'erste neue Zeile: Eingabe in Kategorie zeigt noch keinen Fehler an Bezeichnung', () => {
 		render( checklist( { value: [] } ) );
 		click( addButton()! );

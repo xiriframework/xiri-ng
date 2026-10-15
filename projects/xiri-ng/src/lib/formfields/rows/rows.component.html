@@ -89,10 +89,10 @@
 				}
 				<div class="actions">
 					@if (sortable()) {
-						<button mat-icon-button type="button" aria-label="Nach oben" [disabled]="first" (click)="move(i, i - 1)">
+						<button mat-icon-button type="button" class="up" aria-label="Nach oben" [disabled]="first" (click)="moveByKey(i, i - 1, 'up')">
 							<mat-icon>arrow_upward</mat-icon>
 						</button>
-						<button mat-icon-button type="button" aria-label="Nach unten" [disabled]="last" (click)="move(i, i + 1)">
+						<button mat-icon-button type="button" class="down" aria-label="Nach unten" [disabled]="last" (click)="moveByKey(i, i + 1, 'down')">
 							<mat-icon>arrow_downward</mat-icon>
 						</button>
 					}
@@ -102,7 +102,7 @@
 						</button>
 					}
 					@if (removable()) {
-						<button mat-icon-button type="button" aria-label="Zeile löschen" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
+						<button mat-icon-button type="button" class="remove" aria-label="Zeile löschen" (click)="remove(i)"><mat-icon>delete</mat-icon></button>
 					}
 				</div>
 			</div>

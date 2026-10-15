@@ -268,6 +268,14 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		this.touched();
 	}
 
+	// Pfeil-Buttons: @for hängt die Zeile neu ein, der Fokus fiele auf body. Er bleibt am selben Pfeil der
+	// verschobenen Zeile, oder am anderen, wenn dieser am Rand gesperrt ist. Drag & Drop ruft move() direkt.
+	moveByKey( from: number, to: number, arrow: 'up' | 'down' ): void {
+		this.move( from, to );
+		const row = `.row-item:nth-child(${ to + 1 })`;
+		this.focusFirst( `${ row } button.${ arrow }:not([disabled])`, `${ row } button.${ arrow === 'up' ? 'down' : 'up' }` );
+	}
+
 	drop( e: CdkDragDrop<unknown> ): void {
 		this.move( e.previousIndex, e.currentIndex );
 	}
@@ -284,6 +292,8 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	remove( i: number ): void {
 		this.array.removeAt( i );
 		this.touched();
+		const n = this.array.length;
+		this.focusFirst( n ? `.row-item:nth-child(${ Math.min( i, n - 1 ) + 1 }) button.remove` : 'button.add' );
 	}
 
 	insertRow( at: number, values: Record<string, unknown> ): void {
@@ -400,6 +410,14 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		afterNextRender( () => {
 			const row = this.host.nativeElement.querySelectorAll<HTMLElement>( '.row-item' )[ i ];
 			row?.querySelector<HTMLElement>( 'input:not([disabled]), mat-select:not(.mat-mdc-select-disabled)' )?.focus();
+		}, { injector: this.injector } );
+	}
+
+	// Nach dem nächsten Render das erste vorhandene Ziel fokussieren, in der Reihenfolge der Selektoren.
+	private focusFirst( ...selectors: string[] ): void {
+		afterNextRender( () => {
+			const root = this.host.nativeElement;
+			selectors.map( s => root.querySelector<HTMLElement>( s ) ).find( e => !!e )?.focus();
 		}, { injector: this.injector } );
 	}
 }
