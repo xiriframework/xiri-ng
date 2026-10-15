@@ -4,6 +4,8 @@ import { Component, signal, viewChild } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
+import { XiriRowsComponent } from './rows.component';
 import { XiriFormFieldsComponent } from '../form-fields.component';
 import { XiriFormField } from '../field.interface';
 import { XiriDataServiceConfig } from '../../services/data.service';
@@ -206,5 +208,43 @@ describe( 'XiriRowsComponent', () => {
 		] );
 		fixture.detectChanges();
 		expect( el().querySelector( 'xiri-rows' ) ).toBeNull();
+	} );
+
+	function enter( input: HTMLInputElement ): KeyboardEvent {
+		const event = new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true, cancelable: true } );
+		input.dispatchEvent( event );
+		fixture.detectChanges();
+		return event;
+	}
+
+	it( 'Enter in „Bezeichnung“ der letzten Zeile legt eine Zeile an und springt hinein', async () => {
+		render( checklist( { value: positions( 2 ) } ) );
+		const event = enter( textInputs( 1 )[ 1 ] );
+		await fixture.whenStable();
+
+		expect( event.defaultPrevented ).toBe( true );
+		expect( rowEls().length ).toBe( 3 );
+		expect( document.activeElement ).toBe( textInputs( 2 )[ 0 ] );
+	} );
+
+	it( 'Enter woanders legt keine Zeile an', () => {
+		render( checklist( { value: positions( 2 ) } ) );
+		expect( enter( textInputs( 0 )[ 1 ] ).defaultPrevented ).toBe( false ); // nicht letzte Zeile
+		expect( enter( textInputs( 1 )[ 0 ] ).defaultPrevented ).toBe( false ); // nicht letztes Textfeld
+		expect( rowEls().length ).toBe( 2 );
+	} );
+
+	it( 'Enter bei offenem Vorschlags-Panel übernimmt nur den Vorschlag', () => {
+		render( checklist( { value: positions( 1 ) } ) );
+		const rows = fixture.debugElement.query( By.directive( XiriRowsComponent ) ).componentInstance as XiriRowsComponent;
+		const label = rows.visible().find( s => s.id === 'label' )!;
+		const event = new KeyboardEvent( 'keydown', { key: 'Enter', cancelable: true } );
+
+		rows.onEnter( event, 0, label, true );
+		event.preventDefault(); // so wie MatAutocompleteTrigger beim Übernehmen einer Option
+		rows.onEnter( event, 0, label, false );
+		fixture.detectChanges();
+
+		expect( rowEls().length ).toBe( 1 );
 	} );
 } );

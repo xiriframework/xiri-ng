@@ -102,6 +102,9 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 		return max === undefined || this.rows().length < max;
 	} );
 	readonly addLabel = 'Hinzufügen';
+	// Letztes bedienbares Textfeld einer Zeile: Enter dort legt in der letzten Zeile die nächste an.
+	readonly lastTextSub = computed( () =>
+		this.visible().filter( s => ( s.type === 'text' || s.type === 'number' ) && !s.disabled ).at( -1 ) );
 
 	private onChange: ( value: Record<string, unknown>[] ) => void = () => { /* intentionally empty */ };
 	private onTouched: () => void = () => { /* intentionally empty */ };
@@ -166,6 +169,18 @@ export class XiriRowsComponent implements ControlValueAccessor, Validator, After
 	add(): void {
 		if ( this.addable() )
 			this.insertRow( this.array.length, {} );
+	}
+
+	// Schnelle Eingabe: Enter im letzten Textfeld der letzten Zeile legt eine Zeile an statt abzusenden. Ein
+	// offenes Vorschlags-Panel hat Vorrang - je nach Listener-Reihenfolge ist es dann noch offen oder hat das
+	// Event schon mit preventDefault übernommen.
+	onEnter( event: Event, i: number, sub: XiriFormField, panelOpen: boolean ): void {
+		if ( event.defaultPrevented || panelOpen || i !== this.array.length - 1 || sub !== this.lastTextSub() )
+			return;
+		if ( !this.addable() || !this.canAdd() )
+			return;
+		event.preventDefault();
+		this.add();
 	}
 
 	remove( i: number ): void {

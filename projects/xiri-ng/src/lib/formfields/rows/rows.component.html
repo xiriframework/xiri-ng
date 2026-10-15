@@ -39,7 +39,8 @@
 									<!-- Vorschläge wie in form-fields: Freitext bleibt, nie überschreiben. -->
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
 									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id"
-									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto">
+									       [xiriSuggest]="sub" #suggest="xiriSuggest" [matAutocomplete]="auto"
+									       (keydown.enter)="onEnter($event, i, sub, auto.isOpen)">
 									<mat-autocomplete #auto="matAutocomplete" [requireSelection]="false" [autoActiveFirstOption]="false"
 									                  [autoSelectActiveOption]="false">
 										@for (opt of suggest.options(); track opt.name) {
@@ -48,7 +49,8 @@
 									</mat-autocomplete>
 								} @else {
 									<input matInput [formControlName]="sub.id" [type]="sub.type === 'number' ? 'number' : 'text'"
-									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id">
+									       autocomplete="off" [attr.aria-label]="sub.name ?? sub.id"
+									       (keydown.enter)="onEnter($event, i, sub, false)">
 								}
 								@for (v of sub.validations; track v.id) {
 									@if (cell.hasError(v.id)) {
