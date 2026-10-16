@@ -29,6 +29,11 @@ describe( 'AppComponent', () => {
 		await fixture.whenStable();
 	} );
 
+	// The menu button touched the title ("XIRI Demo") — 0px between button and text.
+	it( 'keeps a gap between the menu button and the title', () => {
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.nav-logo' ) ).marginLeft ).toBe( 'var(--xiri-spacing-sm, 8px)' );
+	} );
+
 	function sidenav(): MatSidenav {
 		return fixture.debugElement.query( By.directive( MatSidenav ) ).componentInstance;
 	}

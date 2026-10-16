@@ -21,7 +21,7 @@ mat-toolbar.nav-toolbar {
 	z-index:  1000;
 
 	.nav-logo {
-		// margin-left: 1rem;
+		margin-left: var(--xiri-spacing-sm, 8px); // sonst klebt der Titel am Menü-Button
 		user-select: none;
 	}
 
