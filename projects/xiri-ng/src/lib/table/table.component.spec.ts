@@ -2080,6 +2080,19 @@ describe( 'XiriTableComponent', () => {
 		} );
 	} );
 
+	// The tree toggle was taken out of the tab order: keyboard users could not open a node.
+	it( 'keeps the tree toggle reachable by keyboard', () => {
+		createFixture( {
+			fields: [ { id: 'name', name: 'Name' } ],
+			tree: { idField: 'id', parentIdField: 'parentId', treeColumn: 'name' },
+			data: [ { id: 1, parentId: 0, name: 'Root' }, { id: 2, parentId: 1, name: 'Child' } ],
+		} );
+		fixture.detectChanges();
+		const toggle: HTMLElement | null = fixture.nativeElement.querySelector( 'button.xiri-tree-toggle' );
+		expect( toggle ).toBeTruthy();
+		expect( toggle!.getAttribute( 'tabindex' ) ).not.toBe( '-1' );
+	} );
+
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();

@@ -136,6 +136,26 @@ describe('XiriCardComponent', () => {
 		expect(comp.isCollapsed()).toBe(false);
 	});
 
+	// The collapse button states whether the card is open and which region it controls; collapsed content
+	// leaves the tab order (it is only hidden visually otherwise).
+	it('wires the collapse button to the card content', () => {
+		host.settings.set({ header: 'Test', collapsible: true, data: { a: 'b' } });
+		fixture.detectChanges();
+		const btn: HTMLElement = fixture.nativeElement.querySelector('.collapse-btn');
+		const content: HTMLElement = fixture.nativeElement.querySelector('.collapse-wrapper');
+
+		expect(content.id).toBeTruthy();
+		expect(btn.getAttribute('aria-controls')).toBe(content.id);
+		expect(btn.getAttribute('aria-expanded')).toBe('true');
+		expect(content.hasAttribute('inert')).toBe(false);
+
+		btn.click();
+		fixture.detectChanges();
+
+		expect(btn.getAttribute('aria-expanded')).toBe('false');
+		expect(content.hasAttribute('inert')).toBe(true);
+	});
+
 	it('should initialize collapsed from settings', () => {
 		host.settings.set({ header: 'Test', collapsible: true, collapsed: true });
 		fixture.detectChanges();

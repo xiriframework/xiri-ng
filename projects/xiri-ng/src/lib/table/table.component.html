@@ -492,7 +492,7 @@
 	<span class="xiri-tree-prefix" [style.padding-left.px]="(row._tree?.level || 0) * 24">
 		@if (row._tree?.hasChildren) {
 			<button type="button" class="xiri-tree-iconbtn xiri-tree-toggle" (click)="toggleNode($event, row)"
-			        tabindex="-1" [attr.aria-label]="row._tree.expanded ? 'einklappen' : 'ausklappen'">
+			        [attr.aria-label]="row._tree.expanded ? 'einklappen' : 'ausklappen'">
 				<mat-icon color="primary">{{ row._tree.expanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
 			</button>
 		} @else {
@@ -508,7 +508,7 @@
 	}
 	@if (treeHasAddSub && treeCanAddSub(row)) {
 		<button type="button" class="xiri-tree-iconbtn xiri-tree-addsub" (click)="addSub($event, row)"
-		        tabindex="-1" matTooltip="Sub-Eintrag hinzufügen" aria-label="Sub-Eintrag hinzufügen">
+		        matTooltip="Sub-Eintrag hinzufügen" aria-label="Sub-Eintrag hinzufügen">
 			<mat-icon color="primary">add</mat-icon>
 		</button>
 	}

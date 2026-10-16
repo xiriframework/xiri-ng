@@ -16,7 +16,8 @@
 			<xiri-buttonline [settings]="card().buttonsTop!"></xiri-buttonline>
 		}
 		@if (card().collapsible) {
-			<button mat-icon-button (click)="toggleCollapse()" class="collapse-btn" aria-label="Auf-/Zuklappen">
+			<button mat-icon-button (click)="toggleCollapse()" class="collapse-btn" aria-label="Auf-/Zuklappen"
+			        [attr.aria-expanded]="!isCollapsed()" [attr.aria-controls]="contentId">
 				<mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
 			</button>
 		}
@@ -27,7 +28,7 @@
 		}
 	</mat-card-header>
 	}
-	<div class="collapse-wrapper" [class.collapsed]="isCollapsed()">
+	<div class="collapse-wrapper" [class.collapsed]="isCollapsed()" [id]="contentId" [attr.inert]="isCollapsed() ? '' : null">
 		<div class="collapse-inner">
 			@if (showSkeleton()) {
 				<mat-card-content>

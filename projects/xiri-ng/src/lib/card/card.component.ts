@@ -44,6 +44,8 @@ export interface XiriCardSettings {
 	                  // Auf xs-Viewport (<576px) immer 8px.
 }
 
+let nextUniqueIdXiriCard = 0;
+
 @Component( {
 	            selector: 'xiri-card',
 	            templateUrl: './card.component.html',
@@ -80,6 +82,9 @@ export class XiriCardComponent implements XiriPanelHost {
 		return !s.flat || !!( s.header || s.headerSub || s.headerIcon || s.buttonsTop?.buttons?.length
 			|| s.collapsible || ( s.reload && s.url ) );
 	} );
+
+	// Ziel von aria-controls am Auf-/Zuklapp-Button.
+	protected readonly contentId = `xiri-card-${ nextUniqueIdXiriCard++ }`;
 
 	isCollapsed = linkedSignal<boolean | undefined, boolean>( {
 		source: () => this.card().collapsed,
