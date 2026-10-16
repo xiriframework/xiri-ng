@@ -6,7 +6,7 @@ import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
-import { MatDrawerContainer, MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
 
 @Component({
 	selector: 'test-host',
@@ -445,12 +445,18 @@ describe('XiriSidenavComponent inside a drawer', () => {
 	// The drawer is width: auto, so a scrollbar appearing in it (submenu expanded) widens it.
 	// MatDrawerContainer only recomputes the content margin on open/mode change, so the
 	// drawer would cover the content's left padding.
-	it('updates the content margin when the drawer changes size', () => {
-		const container = fixture.debugElement.query(By.directive(MatDrawerContainer)).componentInstance as MatDrawerContainer;
-		const update = vi.spyOn(container, 'updateContentMargins');
+	it('updates the content margin when a side drawer changes size', async () => {
+		fixture.componentInstance.mode.set('side');
+		fixture.detectChanges();
+		await fixture.whenStable();
 
-		expect(observed).toContain(fixture.nativeElement.querySelector('mat-sidenav'));
+		// jsdom has no layout: fake the drawer growing by a scrollbar's width.
+		const drawerEl: HTMLElement = fixture.nativeElement.querySelector('mat-sidenav');
+		expect(observed).toContain(drawerEl);
+		Object.defineProperty(drawerEl, 'offsetWidth', { value: 272 });
 		resize();
-		expect(update).toHaveBeenCalled();
+		fixture.detectChanges();
+
+		expect((fixture.nativeElement.querySelector('mat-sidenav-content') as HTMLElement).style.marginLeft).toBe('272px');
 	});
 });
