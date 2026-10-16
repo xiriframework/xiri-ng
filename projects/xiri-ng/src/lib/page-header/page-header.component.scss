@@ -3,8 +3,9 @@
 	align-items:     flex-start;
 	justify-content: space-between;
 	gap:             var(--xiri-spacing-md, 1rem);
-	padding:         var(--xiri-spacing-lg, 1.5rem) 0 var(--xiri-spacing-sm, 0.5rem);
-	border-bottom:   3px solid var(--primary);
+	// M3: keine Primärlinie, die Section-Trenner darunter reichen. Alte Linie: --xiri-page-header-border: 3px solid var(--primary).
+	padding:         var(--xiri-spacing-md, 1rem) 0 var(--xiri-spacing-sm, 0.5rem);
+	border-bottom:   var(--xiri-page-header-border, none);
 	margin-bottom:   var(--xiri-spacing-lg, 1.5rem);
 
 	h1 {

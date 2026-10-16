@@ -39,6 +39,15 @@ describe( 'XiriPageHeaderComponent', () => {
 		expect( el ).toBeTruthy();
 	} );
 
+	// M3: no primary rule under the title; the section dividers below are the only separators.
+	it( 'draws no primary line under the header by default', () => {
+		// jsdom cannot resolve a border shorthand with var(); check the shipped component rule instead.
+		const rule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) )
+		                  .map( r => r.cssText ).find( t => /\.page-header\[/.test( t ) && t.includes( 'border-bottom' ) ) ?? '';
+		expect( rule ).toContain( 'border-bottom: var(--xiri-page-header-border, none)' );
+		expect( rule ).toContain( 'padding: var(--xiri-spacing-md, 1rem) 0' );
+	} );
+
 	it( 'should render title', () => {
 		const h1 = fixture.nativeElement.querySelector( 'h1' );
 		expect( h1 ).toBeTruthy();
