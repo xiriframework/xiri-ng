@@ -56,6 +56,8 @@ export class XiriChatComponent implements OnInit {
 	// true nach dem ersten Scroll nach unten; erst dann darf der Wächter oben nachladen.
 	protected readonly ready = signal( false );
 	protected cursor = '';
+	// true, sobald eine Startseite übernommen wurde; danach zählen Poll/SSE als Update, auch ohne Cursor.
+	private started = false;
 	protected readonly loadingOlder = signal( false );
 	private readonly sentinel = viewChild<ElementRef<HTMLElement>>( 'sentinel' );
 
@@ -102,7 +104,7 @@ export class XiriChatComponent implements OnInit {
 	}
 
 	protected onKeydown( event: KeyboardEvent ): void {
-		if ( event.key === 'Enter' && !event.shiftKey && !event.isComposing ) {
+		if ( event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229 ) {
 			event.preventDefault();
 			this.submit();
 		}
@@ -130,6 +132,8 @@ export class XiriChatComponent implements OnInit {
 
 	protected applyPage( page: XiriChatPage, kind: PageKind ): void {
 		const atBottom = kind === 'initial' || this.isAtBottom();
+		if ( kind === 'initial' )
+			this.started = true;
 		const before = this.byId().size;
 		this.upsert( page.messages ?? [] );
 		if ( kind !== 'older' && page.cursor !== undefined )
@@ -171,9 +175,9 @@ export class XiriChatComponent implements OnInit {
 			this.startPolling( s.url, s.poll );
 	}
 
-	// Leerer Cursor = es kam noch keine Startseite an, die Antwort zählt dann als Startseite.
+	// Kam noch keine Startseite an (Start-GET gescheitert), zählt die erste Antwort als Startseite.
 	private pageKind(): PageKind {
-		return this.cursor ? 'update' : 'initial';
+		return this.started ? 'update' : 'initial';
 	}
 
 	private startPolling( url: string, seconds: number ): void {
@@ -213,7 +217,11 @@ export class XiriChatComponent implements OnInit {
 				// Erst jetzt messen: Der Nutzer kann während des Requests gescrollt haben.
 				const el = this.scroller().nativeElement;
 				const fromBottom = el.scrollHeight - el.scrollTop;
+				const size = this.byId().size;
 				this.applyPage( res as XiriChatPage, 'older' );
+				// Nichts Neues trotz hasOlder: sonst fragt der Observer sofort wieder dieselbe Seite an.
+				if ( this.byId().size === size )
+					this.hasOlder.set( false );
 				// Scrollposition halten: Der Inhalt wächst oben, der Abstand zum unteren Rand bleibt gleich.
 				afterNextRender( {
 					write: () => {

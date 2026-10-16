@@ -117,6 +117,18 @@ describe( 'XiriChatComponent', () => {
 		http.expectNone( r => r.method === 'POST' );
 	} );
 
+	it( 'Enter nach Safari-IME-Komposition (keyCode 229) sendet nicht', async () => {
+		const f = await render( { url: 'Chat', messages: [] } );
+		type( f, 'にほん' );
+		enter( f, { keyCode: 229 } as KeyboardEventInit );
+		http.expectNone( r => r.method === 'POST' );
+	} );
+
+	it( 'hat ohne height eine eigene Höhe, damit der Verlauf selbst scrollt', async () => {
+		const f = await render( { url: 'Chat', messages: [] } );
+		expect( ( el( f ).querySelector( '.xiri-chat' ) as HTMLElement ).style.height ).toBe( '60vh' );
+	} );
+
 	it( 'readonly blendet die Eingabe aus', async () => {
 		const f = await render( { url: 'Chat', messages: [], readonly: true } );
 		expect( textarea( f ) ).toBeNull();
@@ -219,6 +231,16 @@ describe( 'XiriChatComponent', () => {
 				expect( el( f ).querySelector( '.sentinel' ) ).toBeNull();
 			} );
 
+			it( 'stellt das Nachladen ein, wenn before nichts Neues liefert', async () => {
+				const f = await render( { url: 'Chat', hasOlder: true, messages: [ { id: 'm5', text: 'neu', time: T } ] } );
+				await f.whenStable();
+				trigger( true );
+				http.expectOne( '/api/Chat?before=m5' ).flush( { messages: [], hasOlder: true } );
+				await f.whenStable();
+				trigger( true );
+				http.expectNone( r => r.url.includes( 'before=' ) );
+			} );
+
 			it( 'stellt das Nachladen nach einem Fehler ein (keine Endlosschleife)', async () => {
 				const f = await render( { url: 'Chat', hasOlder: true, messages: [ { id: 'm5', text: 'neu', time: T } ] } );
 				await f.whenStable(); // ready wird erst nach dem ersten Rendern (afterNextRender) gesetzt
@@ -229,6 +251,21 @@ describe( 'XiriChatComponent', () => {
 				http.expectNone( r => r.url.includes( 'before=' ) );
 				expect( el( f ).querySelector( '.sentinel' ) ).toBeNull();
 			} );
+		} );
+
+		it( 'Backend ohne Cursor: Poll-Antworten zählen nicht als Startseite', async () => {
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', poll: 1, messages: [ { id: 'm1', text: 'a', time: T } ] } );
+			const scroller = el( f ).querySelector( '.messages' ) as HTMLElement;
+			Object.defineProperty( scroller, 'scrollHeight', { value: 1000, configurable: true } );
+			Object.defineProperty( scroller, 'clientHeight', { value: 300, configurable: true } );
+			Object.defineProperty( scroller, 'scrollTop', { get: () => 0, set: () => undefined, configurable: true } );
+
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=' ).flush( { messages: [ { id: 'm2', text: 'b', time: T + 1 } ], hasOlder: true } );
+			f.detectChanges();
+			expect( el( f ).querySelector( '.unseen' ) ).toBeTruthy();
+			expect( el( f ).querySelector( '.sentinel' ) ).toBeNull();
 		} );
 
 		it( 'zeigt den Chip „Neue Nachrichten“, wenn der Nutzer nicht unten ist', async () => {

@@ -1,4 +1,4 @@
-<div class="xiri-chat" [style.height]="settings().height">
+<div class="xiri-chat" [style.height]="settings().height ?? '60vh'">
 	<div #scroller class="messages" role="log" aria-live="polite" (scroll)="onScroll()">
 		@if ( hasOlder() ) {
 			<div #sentinel class="sentinel">
