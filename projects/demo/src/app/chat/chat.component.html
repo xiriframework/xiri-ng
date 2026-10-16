@@ -1,0 +1,31 @@
+<div class="xcontainer-fluid">
+
+	<!-- Breadcrumb -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
+		</div>
+	</div>
+
+	<!-- Seitenkopf -->
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+	</div>
+
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-section [settings]="section">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-chat [settings]="chat"></xiri-chat>
+					</div>
+					<div class="xcol-md-6">
+						<app-go-code [code]="goCode" title="Go: chat"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+	</div>
+</div>

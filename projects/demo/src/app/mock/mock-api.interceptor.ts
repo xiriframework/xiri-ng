@@ -1,6 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpResponse } from '@angular/common/http';
 import { delay, of, switchMap, throwError, timer } from 'rxjs';
 import { checklistDemoFields } from '../forms/checklist-demo';
+import { chatMockResponse } from './chat-mock';
 
 // Shape of the (optional) request bodies the mock handlers read. All fields are optional because
 // the same body type is shared across the different mock endpoints.
@@ -44,6 +45,11 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 			error: { error: 'Server konnte die Daten nicht laden' },
 			statusText: 'Internal Server Error',
 		} );
+	}
+
+	// Chat-Demo: In-memory-Gegenseite mit Antworten und Statuswechseln (mock/chat-mock.ts).
+	if ( req.url.includes( 'Demo/Chat' ) ) {
+		return of( new HttpResponse( { status: 200, body: chatMockResponse( req ) } ) ).pipe( delay( 200 ) );
 	}
 
 	// Stepper API

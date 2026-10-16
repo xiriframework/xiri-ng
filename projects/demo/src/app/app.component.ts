@@ -140,7 +140,7 @@ export const demoNavFields: XiriNavigationField[] = [ {
 	name: 'Data Display',
 	icon: 'visibility',
 	menu: true,
-	regex: /^(Display|Stats|MultiStat|Timeline|BarCharts|EntitySummary)/,
+	regex: /^(Display|Stats|MultiStat|Timeline|Chat|BarCharts|EntitySummary)/,
 	sub: [ {
 		name: 'Components',
 		icon: 'visibility',
@@ -161,6 +161,10 @@ export const demoNavFields: XiriNavigationField[] = [ {
 		name: 'Timeline',
 		icon: 'timeline',
 		link: 'Timeline'
+	}, {
+		name: 'Chat',
+		icon: 'chat',
+		link: 'Chat'
 	}, {
 		name: 'Entity Summary',
 		icon: 'badge',
