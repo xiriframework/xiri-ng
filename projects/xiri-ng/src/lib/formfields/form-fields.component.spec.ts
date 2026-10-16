@@ -359,6 +359,33 @@ describe( 'XiriFormFieldsComponent', () => {
 		} );
 	} );
 
+	// Fixed subscript height clips a two-line hint, and the clipped text overlaps the next field row.
+	it( 'gives every form field a dynamically sized subscript', () => {
+		const hint = 'Liste kommt mit dem Formular, freie Eingabe möglich';
+		host.fields.set( [
+			{ id: 'text', type: 'text', hint },
+			{ id: 'number', type: 'number', hint },
+			{ id: 'password', type: 'password', hint },
+			{ id: 'select', type: 'select', array: [ 'a', 'b' ], hint },
+			{ id: 'date', type: 'date', hint },
+			{ id: 'yearmonth', type: 'yearmonth', hint },
+			{ id: 'daterange', type: 'daterange', hint },
+			{ id: 'datetimerange', type: 'datetimerange', hint },
+			{ id: 'textarea', type: 'textarea', hint },
+			{ id: 'volume', type: 'volume', value: [ 0, 0, 0 ], hint },
+			{ id: 'file', type: 'file', hint },
+			{ id: 'timelimit', type: 'timelimit', hint },
+			{ id: 'chips', type: 'chips', value: [ 'Alpha' ], list: [ { id: 'Alpha', name: 'Alpha' } ], hint },
+		] as XiriFormField[] );
+		fixture.detectChanges();
+
+		const wrappers: HTMLElement[] = Array.from( fixture.nativeElement.querySelectorAll( '.mat-mdc-form-field-subscript-wrapper' ) );
+		expect( wrappers.length ).toBeGreaterThanOrEqual( 13 );
+		const fixed = wrappers.filter( w => !w.classList.contains( 'mat-mdc-form-field-subscript-dynamic-size' ) )
+		                      .map( w => w.closest( 'mat-form-field' )?.className );
+		expect( fixed ).toEqual( [] );
+	} );
+
 	describe( 'select field handling', () => {
 		it( 'should transform array into list for select', () => {
 			host.fields.set( [ {

@@ -19,14 +19,14 @@
 			<div class="xcol-md-6">
 				<mat-label>{{ _texts.from }}</mat-label>
 				<div class="form-group">
-					<mat-form-field class="time">
+					<mat-form-field subscriptSizing="dynamic" class="time">
 						<mat-select formControlName="fromhour" panelWidth="auto">
 							@for (h of hours; track h; let i = $index) {
 								<mat-option [value]="i">{{ h }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>
-					<mat-form-field class="time">
+					<mat-form-field subscriptSizing="dynamic" class="time">
 						<mat-select formControlName="frommin" panelWidth="auto">
 							@for (m of minutes; track m) {
 								<mat-option [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>
@@ -38,14 +38,14 @@
 			<div class="xcol-md-6">
 				<mat-label>{{ _texts.to }}</mat-label>
 				<div class="form-group">
-					<mat-form-field class="time">
+					<mat-form-field subscriptSizing="dynamic" class="time">
 						<mat-select formControlName="tohour" panelWidth="auto">
 							@for (h of hours; track h; let i = $index) {
 								<mat-option [value]="i">{{ h }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>
-					<mat-form-field class="time">
+					<mat-form-field subscriptSizing="dynamic" class="time">
 						<mat-select formControlName="tomin" panelWidth="auto">
 							@for (m of minutes; track m) {
 								<mat-option [value]="m">{{ m < 10 ? '0' + m : m }}</mat-option>

@@ -6,7 +6,7 @@
 		@if (isFieldVisible(field)) {
 		@switch (field.type) {
 			@case ('text') {
-				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
@@ -69,7 +69,7 @@
 				</mat-form-field>
 			}
 			@case ('number') {
-				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
@@ -106,7 +106,7 @@
 				</mat-form-field>
 			}
 			@case ('password') {
-				<mat-form-field [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [class]="field.class" [formGroup]="formGroup" floatLabel="auto" [hidden]="field.hide">
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}
@@ -138,7 +138,7 @@
 			}
 			@case ('select') {
 				<div class="add-wrap" [class]="field.class" [hidden]="field.hide">
-				<mat-form-field class="add-wrap-control" [formGroup]="formGroup" floatLabel="auto">
+				<mat-form-field subscriptSizing="dynamic" class="add-wrap-control" [formGroup]="formGroup" floatLabel="auto">
 					<mat-label>{{ field.name }}</mat-label>
 					@if (field.search === false && !field.selectAll) {
 						<mat-select [formControlName]="field.id" [multiple]="field.multiple" [required]="!!field.required" panelClass="selectPanel">
@@ -208,7 +208,7 @@
 				</div>
 			}
 			@case ('date') {
-				<mat-form-field [formGroup]="formGroup" class="date" [class]="field.class" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [formGroup]="formGroup" class="date" [class]="field.class" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
 					<xiri-date [field]="field" [formControlName]="field.id"></xiri-date>
 					@if (field.hint) {
@@ -224,7 +224,7 @@
 				</mat-form-field>
 			}
 			@case ('yearmonth') {
-				<mat-form-field [formGroup]="formGroup" class="yearmonth" [class]="field.class" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [formGroup]="formGroup" class="yearmonth" [class]="field.class" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
 					<xiri-yearmonth [field]="field" [formControlName]="field.id"></xiri-yearmonth>
 					@if (field.hint) {
@@ -240,7 +240,7 @@
 				</mat-form-field>
 			}
 			@case ('daterange') {
-				<mat-form-field [formGroup]="formGroup" class="daterange" [class]="field.class" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [formGroup]="formGroup" class="daterange" [class]="field.class" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
 					<xiri-date-range [field]="field" [formControlName]="field.id"></xiri-date-range>
 					@if (field.hint) {
@@ -256,7 +256,7 @@
 				</mat-form-field>
 			}
 			@case ('datetimerange') {
-				<mat-form-field [formGroup]="formGroup" class="datetimerange" [class]="field.class" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [formGroup]="formGroup" class="datetimerange" [class]="field.class" [hidden]="field.hide">
 					<mat-label>{{ field.name }}</mat-label>
 					<xiri-date-time-range [field]="field" [formControlName]="field.id"></xiri-date-time-range>
 					@if (field.hint) {
@@ -332,7 +332,7 @@
 				</div>
 			}
 			@case ('textarea') {
-				<mat-form-field [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
+				<mat-form-field subscriptSizing="dynamic" [class]="field.class" [formGroup]="formGroup" [hidden]="field.hide">
 					@if (field.name) {
 						<mat-label>{{ field.name }}</mat-label>
 					}

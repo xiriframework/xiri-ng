@@ -114,6 +114,12 @@ describe( 'theming mixins', () => {
 		expect( css ).toMatch( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"/ );
 	} );
 
+	// Form fields use subscriptSizing="dynamic" so long hints grow; a field without hint must still keep
+	// the 20px the fixed subscript reserved, or every form row moves up. Rows cells (.cell) stay compact.
+	it( 'reserves the former fixed subscript height for form fields without hint', () => {
+		expect( css ).toMatch( /xiri-form-fields mat-form-field:not\(\.cell\) > \.mat-mdc-form-field-subscript-dynamic-size \{\s*min-height: 20px;/ );
+	} );
+
 	it( 'gives every snackbar variant at least 4.5:1 text contrast', () => {
 		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
 			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );

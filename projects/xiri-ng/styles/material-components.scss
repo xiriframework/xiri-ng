@@ -182,6 +182,16 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
+// Form field subscript
+// Form fields use subscriptSizing="dynamic" so a two-line hint grows instead of being clipped. A field
+// without hint keeps the 20px the fixed subscript reserved, so form rows do not move up. Global, because
+// the subscript lives in MatFormField's own view. Rows cells (.cell) are meant to stay compact.
+// ============================================
+xiri-form-fields mat-form-field:not(.cell) > .mat-mdc-form-field-subscript-dynamic-size {
+	min-height: 20px;
+}
+
+// ============================================
 // Tabular Numbers Utility
 // ============================================
 .xiri-tabular-nums {

@@ -1,4 +1,4 @@
-<mat-form-field [formGroup]="parts" floatLabel="auto" class="fileselect" (click)="openFileDialog(fileInput)">
+<mat-form-field subscriptSizing="dynamic" [formGroup]="parts" floatLabel="auto" class="fileselect" (click)="openFileDialog(fileInput)">
 	<mat-label>{{ field.name }}</mat-label>
 
 	<input matInput formControlName="text" type="text" [required]="required" readonly>

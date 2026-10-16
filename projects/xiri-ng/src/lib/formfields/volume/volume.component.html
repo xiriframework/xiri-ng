@@ -1,4 +1,4 @@
-<mat-form-field [formGroup]="parts" floatLabel="auto">
+<mat-form-field subscriptSizing="dynamic" [formGroup]="parts" floatLabel="auto">
 	<mat-label>{{ field.name }}</mat-label>
 	<div role="group" [formGroup]="parts">
 		<input matInput id="voll" formControlName="voll" type="number" [attr.min]="min" [attr.max]="max" [required]="required">
