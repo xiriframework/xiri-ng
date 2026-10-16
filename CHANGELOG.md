@@ -7,7 +7,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Changed
+### ⚠️ Breaking Changes
 
 - **Vertikale Abstände im Grid: der row-gap liefert den Abstand (Breaking).**
   - page-header, section, table, links, imagetext und cardlink verlieren ihre margin-bottom, wenn sie neben anderen im

@@ -144,7 +144,7 @@ Screens entstehen damit rein im Backend. Standard-Implementierung (= Demo-App):
   template: `
     @if (loading) { <mat-spinner diameter="30" /> }
     @if (error) { <h1>Page not found</h1> }
-    <xiri-dyncomponent [data]="data()" />`,
+    <xiri-dyncomponent class="xrow" [data]="data()" />`,
 })
 export class DynpageComponent implements OnInit, OnDestroy {
   private dataService = inject(XiriDataService);

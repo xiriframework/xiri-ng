@@ -262,7 +262,7 @@ import { XiriDataService, XiriDynComponentComponent, XiriDynData } from '@xirifr
   template: `
     @if (loading) { <mat-spinner diameter="30" /> }
     @if (error) { <h1>Page not found</h1> }
-    <xiri-dyncomponent [data]="data()" />
+    <xiri-dyncomponent class="xrow" [data]="data()" />
   `,
 })
 export class DynpageComponent implements OnInit, OnDestroy {
