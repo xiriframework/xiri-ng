@@ -99,9 +99,13 @@
 	font-size: var(--xiri-font-size-label);
 	color: var(--on-surface-variant, #44474F);
 	margin-top: 2px;
+	// Zwei Zeilen statt unsichtbar abgeschnitten; der volle Text steht im title.
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
 }
 
 .stat-reference {

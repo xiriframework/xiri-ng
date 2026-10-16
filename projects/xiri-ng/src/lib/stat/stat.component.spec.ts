@@ -30,6 +30,17 @@ describe( 'XiriStatComponent', () => {
 		expect( el ).toBeTruthy();
 	} );
 
+	// A long label used to be cut off on one line with no way to read it: now two lines, full text as tooltip.
+	it( 'shows a long label on two lines with the full text as tooltip', () => {
+		const label: HTMLElement = fixture.nativeElement.querySelector( '.stat-label' );
+		expect( label.getAttribute( 'title' ) ).toBe( 'Total Users' );
+
+		const rule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText )
+		                  .find( t => /^\.stat-label\[[^\]]*\]\s*\{/.test( t ) ) ?? '';
+		expect( rule ).toContain( 'white-space: normal' );
+		expect( rule ).toContain( 'line-clamp: 2' );
+	} );
+
 	it( 'should render value and label', () => {
 		const value = fixture.nativeElement.querySelector( '.stat-value' );
 		expect( value.textContent ).toContain( '1,234' );
