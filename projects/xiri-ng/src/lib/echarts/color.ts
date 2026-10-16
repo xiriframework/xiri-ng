@@ -91,15 +91,19 @@ export function resolveColor( color: XiriColor | string | undefined, fallback?: 
  */
 export const FALLBACK_COLORS = [ '#8b5cf6', '#10b981', '#1e88e5', '#fb8c00', '#e53935', '#fbc02d', '#43a047', '#616161' ];
 
-/** Theme variables a series takes in turn when it has no explicit colour. */
-const SERIES_VARS = [ '--primary', '--tertiary', '--color-success', '--color-warning', '--error', '--color-info', '--secondary' ];
+/**
+ * Theme variables a series takes in turn when it has no explicit colour. Deliberately no semantic colours
+ * (success/warning/error): a slice in error red would read as "something is wrong".
+ */
+const SERIES_VARS = [ '--primary', '--tertiary', '--secondary', '--color-info' ];
 
 /**
- * Default colour of the series at `index` when no colour is given: the theme's colours in turn,
- * so charts match the app. Without a theme (variable unset, SSR) the fixed `FALLBACK_COLORS` take over.
+ * Default colour of the series at `index` when no colour is given: first the neutral theme colours, then the
+ * fixed `FALLBACK_COLORS`. Without a theme (variable unset, SSR) the fixed palette takes over from the start.
  */
 export function seriesColor( index: number ): string {
 	themeEpoch(); // track theme changes, see notifyThemeChanged()
-	const name = SERIES_VARS[ index % SERIES_VARS.length ];
-	return readCssVar( `var(${ name })` ) ?? FALLBACK_COLORS[ index % FALLBACK_COLORS.length ];
+	if ( index < SERIES_VARS.length )
+		return readCssVar( `var(${ SERIES_VARS[ index ] })` ) ?? FALLBACK_COLORS[ index % FALLBACK_COLORS.length ];
+	return FALLBACK_COLORS[ ( index - SERIES_VARS.length ) % FALLBACK_COLORS.length ];
 }

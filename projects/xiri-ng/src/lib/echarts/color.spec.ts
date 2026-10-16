@@ -71,6 +71,21 @@ describe( 'echarts color resolution', () => {
 		expect( seriesColor( 1 ) ).toBe( '#9B8AAF' );
 	} );
 
+	// A pie slice in error red or warning amber reads as "something is wrong": the categorical palette
+	// uses the neutral theme colours and then the fixed palette, never the semantic ones.
+	it( 'keeps semantic colours out of the categorical series palette', () => {
+		document.documentElement.style.setProperty( '--color-info', '#17A2B8' );
+		document.documentElement.style.setProperty( '--color-warning', '#B07700' );
+		document.documentElement.style.setProperty( '--color-success', '#2ECC71' );
+		const palette = [ 0, 1, 2, 3, 4, 5, 6, 7 ].map( seriesColor );
+
+		expect( palette.slice( 0, 4 ) ).toEqual( [ '#2892D9', '#9B8AAF', '#4CAF50', '#17A2B8' ] );
+		for ( const semantic of [ '#FF5449', '#B07700', '#2ECC71' ] )
+			expect( palette ).not.toContain( semantic );
+		for ( const v of [ '--color-info', '--color-warning', '--color-success' ] )
+			document.documentElement.style.removeProperty( v );
+	} );
+
 	it( 'falls back to the fixed palette when the theme sets no variable (no xirimat.theming())', () => {
 		document.documentElement.style.removeProperty( '--primary' );
 		expect( seriesColor( 0 ) ).toBe( FALLBACK_COLORS[ 0 ] );
