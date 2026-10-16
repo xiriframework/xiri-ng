@@ -70,7 +70,9 @@ describe( 'theming mixins', () => {
 
 	it( 'emits both dark selectors, matching the classes XiriThemeService sets', () => {
 		expect( css ).toContain( '@media (prefers-color-scheme: dark)' );
-		expect( css ).toContain( ':root:not(.light-theme)' );
+		// :where() keeps the auto selector at :root specificity, like .dark-theme — an app's own :root override
+		// (included after the library) then wins in 'auto' exactly as in 'dark'.
+		expect( css ).toContain( ':root:not(:where(.light-theme))' );
 		expect( css ).toContain( '.dark-theme' );
 	} );
 

@@ -180,7 +180,8 @@
 // Dark theme, matching what XiriThemeService puts on <html>:
 // 'dark' -> .dark-theme, 'light' -> .light-theme, 'auto' -> no class, so the
 // media query decides. Include AFTER theming(); both selectors have the same
-// specificity, source order breaks the tie.
+// specificity as :root (:where() adds none), source order breaks the tie — so an
+// app's own :root override after the include wins in 'auto' as well as in 'dark'.
 //
 // Example:
 //
@@ -188,7 +189,7 @@
 //	@include xirimat.theming-dark($dark-theme);
 @mixin theming-dark($theme) {
 	@media (prefers-color-scheme: dark) {
-		:root:not(.light-theme) {
+		:root:not(:where(.light-theme)) {
 			@include _dark-vars($theme);
 		}
 	}
