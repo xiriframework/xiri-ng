@@ -101,13 +101,16 @@ describe('XiriSidenavComponent', () => {
 		expect(fields[1].active).toBe(false);
 	});
 
-	it('draws the active entry as a pill', () => {
+	// Square bar across the full width, as before the M3 change (decision 2026-10-16); a pill is opt-in via token.
+	it('draws the active entry as a square full-width bar', () => {
 		mockRouter.url = '/app/dashboard';
 		host.settings.set({ prefix: '/app', fields: [ { name: 'Dashboard', icon: 'dashboard', link: '/dashboard' } ] });
 		fixture.detectChanges();
 
-		const active: HTMLElement = fixture.nativeElement.querySelector('a.active');
-		expect(getComputedStyle(active).borderRadius).toBe('var(--xiri-sidenav-active-radius, var(--xiri-radius-full))');
+		const active = getComputedStyle(fixture.nativeElement.querySelector('a.active'));
+		expect(active.borderRadius).toBe('var(--xiri-sidenav-active-radius, 0)');
+		expect(active.marginLeft).toMatch(/^0(px)?$/);
+		expect(active.width).toBe('100%');
 	});
 
 	it('should update active field on navigation', () => {

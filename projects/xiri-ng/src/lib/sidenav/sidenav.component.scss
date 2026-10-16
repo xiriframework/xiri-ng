@@ -8,11 +8,10 @@
 }
 
 .mat-mdc-list-item {
-	// M3: alle Einträge als Pille mit Abstand zum Rand (aktiv und Hover). Eckig wie früher: --xiri-sidenav-active-radius: 0.
-	// calc statt auto: Gruppen-Schalter sind <button>, die bei auto auf ihren Inhalt schrumpfen.
-	width:         calc(100% - 2 * var(--xiri-spacing-sm));
-	margin-inline: var(--xiri-spacing-sm);
-	border-radius: var(--xiri-sidenav-active-radius, var(--xiri-radius-full));
+	// Eckiger Balken über die volle Breite; als Pille: --xiri-sidenav-active-radius: var(--xiri-radius-full).
+	// width: Gruppen-Schalter sind <button>, die sonst auf ihren Inhalt schrumpfen.
+	width:         100%;
+	border-radius: var(--xiri-sidenav-active-radius, 0);
 
 	--mat-list-list-item-label-text-size: 0.9rem;
 	--mat-list-list-item-label-text-weight: 400;
