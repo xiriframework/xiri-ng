@@ -1,6 +1,20 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import * as sass from 'sass';
 
+// WCAG contrast ratio of two CSS colours given as #rgb, #rrggbb or a few keywords.
+function contrast( a: string, b: string ): number {
+	const keywords: Record<string, string> = { white: '#ffffff', black: '#000000' };
+	const luminance = ( color: string ) => {
+		let hex = ( keywords[ color.trim() ] ?? color.trim() ).slice( 1 );
+		if ( hex.length === 3 ) hex = [ ...hex ].map( c => c + c ).join( '' );
+		const [ r, g, b ] = [ 0, 2, 4 ].map( i => parseInt( hex.slice( i, i + 2 ), 16 ) / 255 )
+			.map( v => v <= 0.03928 ? v / 12.92 : ( ( v + 0.055 ) / 1.055 ) ** 2.4 );
+		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+	};
+	const [ hi, lo ] = [ luminance( a ), luminance( b ) ].sort( ( x, y ) => y - x );
+	return ( hi + 0.05 ) / ( lo + 0.05 );
+}
+
 /**
  * Compiles the library theme the way a consumer does. Nothing else covers this:
  * `ng build xiri-ng` ships material.scss as an asset without compiling it, so a
@@ -98,6 +112,15 @@ describe( 'theming mixins', () => {
 		expect( css ).not.toContain( '--mdc-snackbar-' );
 		expect( css ).not.toMatch( /font-family: "?Material Icons/ );
 		expect( css ).toMatch( /\.mdc-snackbar__label::before \{[^}]*font-family: "Material Symbols Outlined"/ );
+	} );
+
+	it( 'gives every snackbar variant at least 4.5:1 text contrast', () => {
+		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
+			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );
+			const bg = block.match( /--mat-snack-bar-container-color:\s*([^;]+);/ )![ 1 ];
+			const fg = block.match( /--mat-snack-bar-supporting-text-color:\s*([^;]+);/ )![ 1 ];
+			expect( contrast( bg, fg ), type ).toBeGreaterThanOrEqual( 4.5 );
+		}
 	} );
 
 	// Same hardening as .material-symbols-outlined: inherited tracking or text-transform would break the ligature into plain text.
