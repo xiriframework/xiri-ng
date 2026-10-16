@@ -149,6 +149,29 @@ describe('XiriSidenavComponent', () => {
 		expect(fields[0].regex!.test('/users/42')).toBe(true);
 	});
 
+	// A collapsed group is only visually closed (max-height 0): without inert its links stayed in the tab order.
+	it('takes a collapsed group out of the tab order and wires the toggle to it', () => {
+		host.settings.set({ prefix: '/app', fields: [ {
+			name: 'Admin', icon: 'admin_panel_settings', menu: true,
+			sub: [ { name: 'Users', icon: 'people', link: '/admin/users' } ],
+		} ] });
+		fixture.detectChanges();
+
+		const toggle: HTMLElement = fixture.nativeElement.querySelector('.parent');
+		const submenu: HTMLElement = fixture.nativeElement.querySelector('.submenu');
+		expect(toggle.getAttribute('role')).toBe('button');
+		expect(submenu.id).toBeTruthy();
+		expect(toggle.getAttribute('aria-controls')).toBe(submenu.id);
+		expect(toggle.getAttribute('aria-expanded')).toBe('false');
+		expect(submenu.hasAttribute('inert')).toBe(true);
+
+		toggle.click();
+		fixture.detectChanges();
+
+		expect(toggle.getAttribute('aria-expanded')).toBe('true');
+		expect(submenu.hasAttribute('inert')).toBe(false);
+	});
+
 	it('should handle menu items with submenus', () => {
 		const fields: XiriNavigationField[] = [
 			{

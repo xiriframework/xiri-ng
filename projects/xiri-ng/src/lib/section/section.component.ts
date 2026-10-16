@@ -16,6 +16,8 @@ export interface XiriSectionSettings {
 	components?: XiriDynData[]
 }
 
+let nextUniqueIdXiriSection = 0;
+
 @Component( {
 	            selector: 'xiri-section',
 	            templateUrl: './section.component.html',
@@ -28,6 +30,8 @@ export class XiriSectionComponent implements OnInit {
 	dyncomponent = input<TemplateRef<unknown>>();
 
 	collapsed = signal<boolean>( false );
+	// Ziel von aria-controls am klappbaren Header.
+	protected readonly contentId = `xiri-section-${ nextUniqueIdXiriSection++ }`;
 
 	ngOnInit() {
 		if ( this.settings().collapsed ) {

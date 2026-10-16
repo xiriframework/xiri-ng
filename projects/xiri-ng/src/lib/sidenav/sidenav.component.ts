@@ -34,6 +34,8 @@ export interface XiriNavigationField {
 	sub?: XiriNavigationField[]
 }
 
+let nextUniqueIdXiriSidenav = 0;
+
 @Component( {
 	            selector: 'xiri-sidenav',
 	            templateUrl: './sidenav.component.html',
@@ -51,6 +53,9 @@ export interface XiriNavigationField {
 	            host: { '(click)': 'onClick( $event )' },
             } )
 export class XiriSidenavComponent {
+
+	// Verknüpft Gruppen-Schalter und Untermenü (aria-controls), eindeutig auch bei mehreren Sidenavs.
+	protected readonly uid = `xiri-sidenav-${ nextUniqueIdXiriSidenav++ }`;
 	
 	private router: Router = inject( Router );
 	private cdr: ChangeDetectorRef = inject( ChangeDetectorRef );

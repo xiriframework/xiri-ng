@@ -3,6 +3,8 @@
 		<div class="section-header"
 		     [class.collapsible]="settings().collapsible"
 		     [attr.role]="settings().collapsible ? 'button' : null"
+		     [attr.aria-expanded]="settings().collapsible ? !collapsed() : null"
+		     [attr.aria-controls]="settings().collapsible ? contentId : null"
 		     [attr.tabindex]="settings().collapsible ? 0 : null"
 		     (click)="settings().collapsible && toggle()"
 		     (keydown.enter)="settings().collapsible && toggle()"
@@ -29,7 +31,7 @@
 		</div>
 		<mat-divider></mat-divider>
 	}
-	<div class="collapse-wrapper" [class.collapsed]="collapsed()">
+	<div class="collapse-wrapper" [class.collapsed]="collapsed()" [id]="contentId" [attr.inert]="collapsed() ? '' : null">
 		<div class="collapse-inner">
 			<div class="section-content">
 				<ng-content></ng-content>

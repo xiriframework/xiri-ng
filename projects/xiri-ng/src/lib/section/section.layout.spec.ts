@@ -70,13 +70,20 @@ class QueryOnlyHost {
 } )
 class IconSectionHost {}
 
+@Component( {
+	selector: 'test-section-collapsible',
+	template: `<xiri-section [settings]="{ title: 'Details', collapsible: true }"><a href="#x">Link</a></xiri-section>`,
+	imports: [ XiriSectionComponent ],
+} )
+class CollapsibleSectionHost {}
+
 describe( 'Abstand Filter → Tabelle', () => {
 	afterAll( removeGridStyles );
 
 	beforeEach( async () => {
 		injectGridStyles();
 		await TestBed.configureTestingModule( {
-			imports: [ SectionHost, GridHost, SharedColumnHost, QueryOnlyHost, IconSectionHost ],
+			imports: [ SectionHost, GridHost, SharedColumnHost, QueryOnlyHost, IconSectionHost, CollapsibleSectionHost ],
 			providers: [
 				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: { post: vi.fn().mockReturnValue( of( {} ) ), get: vi.fn().mockReturnValue( of( {} ) ) } },
@@ -110,6 +117,26 @@ describe( 'Abstand Filter → Tabelle', () => {
 		const fixture = TestBed.createComponent( IconSectionHost );
 		fixture.detectChanges();
 		expect( getComputedStyle( fixture.nativeElement.querySelector( '.section-header-left mat-icon' ) ).flexShrink ).toBe( '0' );
+	} );
+
+	// Disclosure semantics: the header button says whether it is open and which region it controls,
+	// and the collapsed content leaves the tab order.
+	it( 'exposes a collapsible section as a disclosure', () => {
+		const fixture = TestBed.createComponent( CollapsibleSectionHost );
+		fixture.detectChanges();
+		const header: HTMLElement = fixture.nativeElement.querySelector( '.section-header' );
+		const content: HTMLElement = fixture.nativeElement.querySelector( '.collapse-wrapper' );
+
+		expect( content.id ).toBeTruthy();
+		expect( header.getAttribute( 'aria-controls' ) ).toBe( content.id );
+		expect( header.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		expect( content.hasAttribute( 'inert' ) ).toBe( false );
+
+		header.click();
+		fixture.detectChanges();
+
+		expect( header.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+		expect( content.hasAttribute( 'inert' ) ).toBe( true );
 	} );
 
 	it( 'puts the grid row gap between a projected query and the table below', () => {
