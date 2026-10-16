@@ -42,6 +42,22 @@ export interface XiriMaterialLabels {
 	paginator?: Partial<Omit<MatPaginatorIntl, 'changes'>>;
 }
 
+// Feste Texte der Chat-Komponente (aria-Labels, Trenner, Knöpfe). Fehlende Keys = Deutsch.
+export interface XiriChatLabels {
+	input: string;
+	send: string;
+	newMessages: string;
+	retry: string;
+	loadingOlder: string;
+	today: string;
+	yesterday: string;
+	sending: string;
+	sent: string;
+	delivered: string;
+	read: string;
+	failed: string;
+}
+
 export interface XiriLanguageDefinition {
 	// BCP-47-Locale für Intl (Zahlen/Datumsformatierung), z. B. 'de-DE', 'fr-FR'.
 	localeString: string;
@@ -50,6 +66,8 @@ export interface XiriLanguageDefinition {
 	validationMessages: XiriValidationMessages;
 	// Material-Datepicker-/Paginator-Texte. Weglassen = englische Material-Defaults.
 	materialLabels?: XiriMaterialLabels;
+	// Chat-Texte. Weglassen oder einzelne Keys weglassen = Deutsch.
+	chatLabels?: Partial<XiriChatLabels>;
 }
 
 const deValidationMessages: Required<XiriValidationMessages> = {
@@ -107,6 +125,18 @@ const deMaterialLabels: XiriMaterialLabels = {
 	},
 };
 
+const deChatLabels: XiriChatLabels = {
+	input: 'Nachricht', send: 'Senden', newMessages: 'Neue Nachrichten', retry: 'Erneut senden',
+	loadingOlder: 'Ältere Nachrichten werden geladen', today: 'Heute', yesterday: 'Gestern',
+	sending: 'Wird gesendet', sent: 'Gesendet', delivered: 'Zugestellt', read: 'Gelesen', failed: 'Nicht gesendet',
+};
+
+const enChatLabels: XiriChatLabels = {
+	input: 'Message', send: 'Send', newMessages: 'New messages', retry: 'Send again',
+	loadingOlder: 'Loading older messages', today: 'Today', yesterday: 'Yesterday',
+	sending: 'Sending', sent: 'Sent', delivered: 'Delivered', read: 'Read', failed: 'Not sent',
+};
+
 const enValidationMessages: Required<XiriValidationMessages> = {
 	required: 'Required field',
 	invalidFormat: 'Please enter a valid format',
@@ -141,8 +171,11 @@ export class XiriLocaleService {
 
 	// Registry aller bekannten Sprachen — de/en eingebaut, weitere per registerLanguage().
 	private readonly registry = new Map<XiriLanguage, XiriLanguageDefinition>( [
-		[ 'de', { localeString: 'de-DE', dateFnsLocale: de, validationMessages: deValidationMessages, materialLabels: deMaterialLabels } ],
-		[ 'en', { localeString: 'en-GB', dateFnsLocale: enGB, validationMessages: enValidationMessages } ],
+		[ 'de', {
+			localeString: 'de-DE', dateFnsLocale: de, validationMessages: deValidationMessages, materialLabels: deMaterialLabels,
+			chatLabels: deChatLabels,
+		} ],
+		[ 'en', { localeString: 'en-GB', dateFnsLocale: enGB, validationMessages: enValidationMessages, chatLabels: enChatLabels } ],
 	] );
 
 	private readonly _language = signal<XiriLanguage>( 'de' );
@@ -243,6 +276,11 @@ export class XiriLocaleService {
 			maxRows: m.maxRows ?? deValidationMessages.maxRows,
 			duplicate: m.duplicate ?? deValidationMessages.duplicate,
 		};
+	}
+
+	// Chat-Texte in der aktiven Sprache; fehlende Keys aus Deutsch. Liest die Sprache als Signal (reaktiv in computed).
+	chatLabels(): XiriChatLabels {
+		return { ...deChatLabels, ...this.registry.get( this._language() )?.chatLabels };
 	}
 
 	// ── Zeitzone + Datums-/Zahlen-Formatierung (locale-abhängig) ─────────────────────────────
