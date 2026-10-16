@@ -1,8 +1,22 @@
 :host {
 	display:       flex;
 	align-items:   center;
+	// Schmale Spalte (~260px): Zeiten brechen in eine zweite Zeile um, statt das Datum zu überdecken.
+	flex-wrap:     wrap;
+	row-gap:       var(--xiri-spacing-xs);
 	margin-top:    -2px;
 	margin-bottom: -8px;
+}
+
+input {
+	flex:      1 0 10ch;
+	min-width: 10ch;
+}
+
+.time-part {
+	display:     inline-flex;
+	align-items: center;
+	white-space: nowrap;
 }
 
 mat-datepicker-toggle {
