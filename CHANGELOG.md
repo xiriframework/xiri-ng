@@ -17,13 +17,18 @@ versioning follows [Semantic Versioning](https://semver.org/).
     Tabellen-Kopf ohne eigene Füllung — `--xiri-surface-border: transparent`,
     `--xiri-surface-shadow: var(--mat-app-elevation-shadow-level-2)`, `--xiri-surface-background`.
     Die Klassen `mat-elevation-z2`/`z3` an den Lib-Karten entfallen; eigenes CSS, das darauf zielt, greift nicht mehr.
-  - **Sidenav:** Einträge als Pille mit Randabstand, aktiv in `secondary-container`, Icons in `on-surface-variant` —
+  - **Sidenav:** Gruppen-Schalter sind jetzt `<button mat-list-item>` statt `<mat-list-item>` (CSS auf
+    `mat-list-item.parent` greift nicht mehr). Einträge als Pille mit Randabstand, aktiv in `secondary-container`, Icons in `on-surface-variant` —
     `--xiri-sidenav-active-radius: 0`, `--xiri-sidenav-active-color`, `--xiri-sidenav-icon-color`. Die Sidebar wird
     durch den Randabstand 16 px breiter.
   - **Page-Header ohne Primärlinie**, kompakter — `--xiri-page-header-border: 3px solid var(--primary)`.
   - **Tags und Formular-Chips tonal** (getönte Fläche, Theme-Textfarbe) statt gesättigt mit weißem Text.
-  - **Charts:** Serien ohne Farbe nehmen die Theme-Farben (`seriesColor()`), `warn`/`success` lesen
-    `--color-warning`/`--color-success`; die Schrift ist die der App. Ohne Theme gilt weiter `FALLBACK_COLORS`.
+  - **Charts:** Serien ohne Farbe nehmen reihum `--primary`, `--tertiary`, `--secondary`, `--color-info`, danach
+    `FALLBACK_COLORS` (neu: `seriesColor(index)`); `warn`/`success` lesen `--color-warning`/`--color-success`; die
+    Schrift ist die der App. **API:** `resolveColor(color)` ohne zweites Argument liefert als Default jetzt
+    `seriesColor(0)` (Theme-Primärfarbe) statt fest `#8b5cf6`.
+  - **Ohne Token zum Zurückdrehen:** tonale Tags/Chips, der Randabstand der Sidenav-Einträge, der 480-px-Umbruch der
+    Description-List und die Wertgröße des Infopoints (`clamp()`); hier hilft nur eigenes CSS.
 - **Layout:**
   - Treeselect-/Multiselect-Listen wachsen mit dem Inhalt bis 300 px (`--xiri-treeselect-max-height`) statt fest 300 px.
   - Description-List wird nach eigener Breite (480 px) einspaltig, nicht mehr nach Viewport (768 px).
