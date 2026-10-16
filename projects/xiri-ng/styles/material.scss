@@ -95,6 +95,7 @@
 		--color-secondary:      var(--secondary);
 		--color-warning:        #{$color-warning};
 		--color-success:        #{$color-success};
+		--on-success:           #002110;
 		--color-info:           #{$color-info};
 
 		// Gray Scale Variables
@@ -137,8 +138,12 @@
 	--surface-container-low:     #{map.get($system, surface-container-low)};
 	--surface-container-high:    #{map.get($system, surface-container-high)};
 	--surface-container-highest: #{map.get($system, surface-container-highest)};
+	--primary-container:      #{map.get($system, primary-container)};
+	--on-primary-container:   #{map.get($system, on-primary-container)};
 	--secondary-container:    #{map.get($system, secondary-container)};
 	--on-secondary-container: #{map.get($system, on-secondary-container)};
+	--error-container:        #{map.get($system, error-container)};
+	--on-error-container:     #{map.get($system, on-error-container)};
 	--outline:                #{map.get($system, outline)};
 	--outline-variant:        #{map.get($system, outline-variant)};
 	--background:             #{map.get($system, background)};
@@ -150,6 +155,7 @@
 	--primary-dark:           #C6C6C9;
 	--ripple:                 rgba(206, 229, 255, 0.12);
 	--color-success:          #66E093;
+	--on-success:             #003919;
 	--color-info:             #56C8E0;
 	--color-warning:          #FFC94D;
 

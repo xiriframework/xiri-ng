@@ -41,6 +41,19 @@ describe( 'theming mixins', () => {
 		expect( dark ).toMatch( /--color-warning:\s*#FFC94D/i );
 	} );
 
+	// Without these the error box and chat bubbles keep their light colours in dark mode.
+	it( 'overrides the container pairs in dark mode', () => {
+		for ( const v of [ '--primary-container', '--on-primary-container', '--error-container',
+			'--on-error-container', '--on-success' ] ) {
+			expect( root, v ).toMatch( new RegExp( `${ v }:` ) );
+			expect( dark, v ).toMatch( new RegExp( `${ v }:` ) );
+		}
+		const light = root.match( /--error-container:\s*([^;]+);/ )?.[ 1 ];
+		const darkVal = dark.match( /--error-container:\s*([^;]+);/ )?.[ 1 ];
+		expect( darkVal ).toBeDefined();
+		expect( darkVal ).not.toBe( light );
+	} );
+
 	it( 'emits both dark selectors, matching the classes XiriThemeService sets', () => {
 		expect( css ).toContain( '@media (prefers-color-scheme: dark)' );
 		expect( css ).toContain( ':root:not(.light-theme)' );
