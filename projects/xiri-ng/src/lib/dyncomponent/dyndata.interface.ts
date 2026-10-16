@@ -11,7 +11,7 @@ export const XIRI_COMPONENT_TYPES = [
 	'empty-state', 'timeline', 'page-header', 'section', 'divider', 'stat-grid', 'multi-stat',
 	'toolbar', 'description-list', 'barchart', 'linechart', 'piechart', 'gaugechart',
 	'bulletchart', 'heatmap', 'calendar', 'tree', 'sankey', 'gantt',
-	'status', 'callout',
+	'status', 'callout', 'chat',
 ] as const;
 
 export type XiriDynDataType = typeof XIRI_COMPONENT_TYPES[number];

@@ -23,6 +23,7 @@ import { XiriExpansionComponent } from '../expansion/expansion.component';
 import { XiriStatComponent } from '../stat/stat.component';
 import { XiriEmptyStateComponent } from '../empty-state/empty-state.component';
 import { XiriTimelineComponent } from '../timeline/timeline.component';
+import { XiriChatComponent } from '../chat/chat.component';
 import { XiriPageHeaderComponent } from '../page-header/page-header.component';
 import { XiriSectionComponent } from '../section/section.component';
 import { XiriDividerComponent } from '../divider/divider.component';
@@ -76,6 +77,7 @@ import { XiriCalloutComponent } from '../callout/callout.component';
 	                       XiriStatusComponent,
 	                       XiriCalloutComponent,
 	                       XiriTimelineComponent,
+	                       XiriChatComponent,
 	                       XiriPageHeaderComponent,
 	                       XiriSectionComponent,
 	                       XiriDividerComponent,

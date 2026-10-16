@@ -141,6 +141,11 @@
 				@defer (on viewport) { <xiri-timeline [settings]="$any(obj.data)"></xiri-timeline> } @placeholder { <xiri-skeleton type="rect" height="96px" /> }
 			</div>
 		}
+		@case ('chat') {
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
+				<xiri-chat [settings]="$any(obj.data)"></xiri-chat>
+			</div>
+		}
 		@case ('page-header') {
 			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				@defer (on viewport) { <xiri-page-header [settings]="$any(obj.data)"></xiri-page-header> } @placeholder { <xiri-skeleton type="rect" height="64px" /> }

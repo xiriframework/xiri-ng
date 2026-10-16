@@ -46,6 +46,7 @@ export const COMPONENT_CATALOG: readonly XiriCatalogEntry[] = [
 	{ type: 'multi-stat', name: 'Multi Stat', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/MultiStat', keywords: [ 'multi-stat', 'stat', 'kpi', 'metric', 'kennzahl' ] },
 	{ type: 'description-list', name: 'Description List', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Layout', keywords: [ 'description-list', 'definition', 'key value', 'metadaten' ] },
 	{ type: 'timeline', name: 'Timeline', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Timeline', keywords: [ 'timeline', 'verlauf', 'history', 'events' ] },
+	{ type: 'chat', name: 'Chat', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Chat', keywords: [ 'chat', 'nachrichten', 'messenger', 'konversation', 'kommentare' ] },
 
 	// Layout & Navigation
 	{ type: 'header', name: 'Header', category: 'Layout & Navigation', angular: true, dyncomponent: true, goBuilder: true, route: '/Navigation', keywords: [ 'header', 'kopf', 'title' ] },
