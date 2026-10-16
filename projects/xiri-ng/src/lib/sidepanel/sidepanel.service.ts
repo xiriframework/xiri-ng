@@ -29,6 +29,7 @@ export class XiriSidepanelService {
 			positionStrategy: this.overlay.position().global().right( '0' ).top( '0' ),
 			height: '100%',
 			width: config.width ?? '420px',
+			maxWidth: '100vw', // schmale Phones: Panel nie breiter als der Viewport
 			hasBackdrop: true,
 			panelClass: 'xiri-sidepanel-overlay'
 		} );

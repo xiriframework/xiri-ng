@@ -23,6 +23,17 @@ describe( 'XiriSidepanelService', () => {
 		expect( await closed ).toBe( 'ok' );
 	} );
 
+	// 420px Standardbreite ragt auf einem 390px-Phone über den Rand; auch eine eigene Breite bleibt im Viewport.
+	for ( const width of [ undefined, '800px' ] ) {
+		it( `begrenzt das Panel auf den Viewport (width: ${ width ?? 'Standard' })`, () => {
+			const ref = service.open( { title: 'Detail', width } );
+			const pane = document.querySelector<HTMLElement>( '.xiri-sidepanel-overlay' )!;
+
+			expect( pane.style.maxWidth ).toBe( '100vw' );
+			ref.close();
+		} );
+	}
+
 	it( 'Escape-Taste schließt das Panel (CDK keydown dispatcher)', async () => {
 		const ref = service.open( { title: 'Detail', data: { x: 1 } } );
 		const closed = firstValueFrom( ref.afterClosed() );
