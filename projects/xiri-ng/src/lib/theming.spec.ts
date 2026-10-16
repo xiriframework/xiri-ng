@@ -140,6 +140,21 @@ describe( 'theming mixins', () => {
 		expect( block ).toContain( 'background-color: var(--xiri-surface-background, var(--surface))' );
 	} );
 
+	// Tags tonal like the status badge: tinted surface, theme text colour, works in light and dark.
+	it( 'renders coloured display chips tonal instead of saturated', () => {
+		const block = css.match( /\.xiri-chip-display\.blue \{[^}]*\}/ )?.[ 0 ] ?? '';
+		expect( block ).toContain( 'color-mix(in srgb,' );
+		expect( block ).toContain( 'color: var(--on-surface)' );
+	} );
+
+	// Material 22 reads --mat-chip-*; the old --mdc-chip-* names silently did nothing.
+	it( 'colours form chips with tokens Material 22 reads', () => {
+		expect( css ).not.toContain( '--mdc-chip-' );
+		const block = css.match( /mat-chip-row\.chip-blue \{[^}]*\}/ )?.[ 0 ] ?? '';
+		expect( block ).toContain( '--mat-chip-elevated-container-color:' );
+		expect( block ).toContain( '--mat-chip-label-text-color:' );
+	} );
+
 	it( 'gives every snackbar variant at least 4.5:1 text contrast', () => {
 		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
 			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );

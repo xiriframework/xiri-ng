@@ -66,18 +66,31 @@
 }
 
 // Chip color variant - form chips and display chips
+// Tonal wie die Status-Badge: getönte Fläche über --surface, Text in Theme-Farbe — trägt hell wie dunkel.
+// inherit/white/black haben keinen Farbton zum Abtönen und bleiben wie definiert.
 @mixin chip-color-variant($name, $bg-color, $text-color) {
+	$plain: $name == 'inherit' or $name == 'white' or $name == 'black';
+	$fill: $bg-color;
+	$ink:  $text-color;
+	@if not $plain {
+		$fill: color-mix(in srgb, #{$bg-color} 18%, var(--surface));
+		$ink:  var(--on-surface);
+	}
+
 	mat-chip-row.chip-#{$name} {
-		--mdc-chip-elevated-container-color:                    #{$bg-color};
-		--mdc-chip-label-text-color:                            #{$text-color};
-		--mdc-chip-with-icon-icon-color:                        #{$text-color};
-		--mdc-chip-with-trailing-icon-trailing-icon-color:      #{$text-color};
-		--mat-chip-trailing-action-state-layer-color:           #{$text-color};
+		--mat-chip-elevated-container-color:                   #{$fill};
+		--mat-chip-label-text-color:                           #{$ink};
+		--mat-chip-with-icon-icon-color:                       #{$ink};
+		--mat-chip-with-trailing-icon-trailing-icon-color:     #{$ink};
+		--mat-chip-trailing-action-state-layer-color:          #{$ink};
 	}
 
 	.xiri-chip-display.#{$name} {
-		background-color: #{$bg-color};
-		color:            #{$text-color};
+		background-color: #{$fill};
+		color:            #{$ink};
+		@if not $plain {
+			box-shadow: inset 0 0 0 1px color-mix(in srgb, #{$bg-color} 40%, transparent);
+		}
 	}
 }
 
