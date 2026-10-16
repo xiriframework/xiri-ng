@@ -201,6 +201,10 @@ export const demoNavFields: XiriNavigationField[] = [ {
 		icon: 'search',
 		link: 'Test/Query/Page'
 	}, {
+		name: 'Abstände',
+		icon: 'straighten',
+		link: 'Test/Spacing/Page'
+	}, {
 		name: 'Simulation',
 		icon: 'play_arrow',
 		link: 'Test/Test/Home',

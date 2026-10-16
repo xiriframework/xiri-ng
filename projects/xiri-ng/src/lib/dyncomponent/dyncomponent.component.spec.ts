@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
 import { XiriDynComponentComponent } from './dyncomponent.component';
@@ -12,7 +12,7 @@ import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
-import { injectGridStyles } from '../testing/grid-styles';
+import { injectGridStyles, removeGridStyles } from '../testing/grid-styles';
 
 @Component( {
 	selector: 'xiri-dyn-test-host',
@@ -251,6 +251,8 @@ describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 		return getComputedStyle( el ).marginBottom;
 	}
 
+	afterAll( removeGridStyles );
+
 	beforeEach( () => {
 		injectGridStyles();
 		TestBed.configureTestingModule( {
@@ -272,6 +274,7 @@ describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 		fixture.componentInstance.data.set( [ { type: 'expansion', data: { panels: [ { title: 'P', expanded: true, data: [ table ] } ] } } ] );
 		fixture.detectChanges();
 
+		// jsdom liefert '0', wenn keine Regel ein margin-bottom setzt
 		expect( marginBottom( '.mat-expansion-panel-body > xiri-dyncomponent' ) ).toBe( '0' );
 		expect( marginBottom( '.mat-expansion-panel-body mat-card.xiritablecard' ) ).toBe( '0px' );
 	} );
@@ -280,6 +283,7 @@ describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 		fixture.componentInstance.data.set( [ { type: 'tabs', data: { tabs: [ { label: 'T', data: [ table ] } ] } } ] );
 		fixture.detectChanges();
 
+		// jsdom liefert '0', wenn keine Regel ein margin-bottom setzt
 		expect( marginBottom( '.mat-mdc-tab-body-content > xiri-dyncomponent' ) ).toBe( '0' );
 		expect( marginBottom( '.mat-mdc-tab-body-content mat-card.xiritablecard' ) ).toBe( '0px' );
 	} );

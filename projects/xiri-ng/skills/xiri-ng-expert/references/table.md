@@ -131,6 +131,8 @@ export interface XiriTableOptions {
 Die Tabelle rendert sich in eine eigene `mat-card` mit `mat-elevation-z3` und `margin-bottom:
 var(--xiri-spacing-xl)`. Liegt sie in einem Expansion-Panel oder als Sub-Component in einer Card, ist
 das ein Rahmen im Rahmen. `options.flat: true` lässt Schatten, Hintergrund, Radius und das Margin weg.
+Im Grid (`.xrow` mit Geschwistern bzw. in einem `xiri-dyncomponent`-Grid) liefert der row-gap den Abstand, das
+Außen-Margin der Tabelle ist dort 0.
 Pendant zu `XiriCardSettings.flat`; Go-Seite `TableBuilder.SetFlat(true)` ab `xiri-go >= 0.3.9`.
 
 Ein Expansion-Panel, das eine flache Card oder eine flache Tabelle enthält, bekommt zusätzlich die

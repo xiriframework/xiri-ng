@@ -7,6 +7,17 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Vertikale Abstände im Grid: der row-gap liefert den Abstand (Breaking).**
+  - page-header, section, table, links, imagetext und cardlink verlieren ihre margin-bottom, wenn sie neben anderen im
+    `.xrow` oder in einem `xiri-dyncomponent`-Grid stehen. Backend-Seiten werden kompakter (vorher 44/52/84 px, jetzt
+    20 px).
+  - Das globale `xiri-dyncomponent { margin-bottom }` aus der Tabellenkomponente entfällt. Es wirkte nur, solange
+    irgendwo eine Tabelle lebte. Wer Abstand am Seitenende braucht, setzt ihn in der App.
+  - Händische Grids mit genau einem `.xcol` behalten das Margin.
+  - Zeilenabstand über `--xiri-grid-row-gap` (Default 20 px).
+
 ## [0.7.3]
 
 ### Added

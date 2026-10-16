@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriCardComponent, XiriCardSettings } from './card.component';
@@ -13,7 +13,7 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { XiriDynData } from '../dyncomponent/dyndata.interface';
-import { injectGridStyles } from '../testing/grid-styles';
+import { injectGridStyles, removeGridStyles } from '../testing/grid-styles';
 
 @Component({
 	selector: 'test-host',
@@ -635,6 +635,8 @@ describe('XiriCardComponent mit Table-Sub-Component', () => {
 		expect(el, selector).toBeTruthy();
 		return getComputedStyle(el as Element).marginBottom;
 	}
+
+	afterAll( removeGridStyles );
 
 	beforeEach(async () => {
 		injectGridStyles();

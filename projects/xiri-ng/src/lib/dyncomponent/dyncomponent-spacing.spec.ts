@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Component, signal, Type } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -17,7 +17,7 @@ import { XiriDownloadService } from '../services/download.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
-import { injectGridStyles } from '../testing/grid-styles';
+import { injectGridStyles, removeGridStyles } from '../testing/grid-styles';
 
 const pageHeader: XiriPageHeaderSettings = { title: 'Abstände', subtitle: 'Mess-Seite', icon: 'straighten', iconColor: 'primary' };
 const section: XiriSectionSettings = { title: 'Erste Section', icon: 'info', iconColor: 'primary' };
@@ -102,6 +102,8 @@ describe( 'Abstände im Grid', () => {
 		return fixture.nativeElement;
 	}
 
+	afterAll( removeGridStyles );
+
 	beforeEach( () => {
 		injectGridStyles();
 		TestBed.configureTestingModule( {
@@ -151,6 +153,7 @@ describe( 'Abstände im Grid', () => {
 
 	it( 'xiri-dyncomponent hat kein Außen-Margin, auch wenn eine Tabelle lebt', () => {
 		const root = renderDyn( [ table ] );
+		// jsdom liefert '0', wenn keine Regel ein margin-bottom setzt
 		expect( marginBottom( root, 'xiri-dyncomponent' ) ).toBe( '0' );
 	} );
 } );

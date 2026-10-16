@@ -10,3 +10,8 @@ export function injectGridStyles(): void {
 	style.textContent = compileString( '@use \'grid\'; @include grid.grid();', { loadPaths: [ 'projects/xiri-ng/styles' ] } ).css;
 	document.head.appendChild( style );
 }
+
+// Der Runner läuft mit isolate: false, der Style würde sonst in spätere Specs desselben Workers hineinragen.
+export function removeGridStyles(): void {
+	document.getElementById( 'xiri-grid-styles' )?.remove();
+}
