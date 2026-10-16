@@ -42,6 +42,18 @@ describe( 'XiriInfopointComponent', () => {
 		expect( card ).toBeTruthy();
 	} );
 
+	// Long values ("No connection for 5 minutes") broke word by word in display size in a 260px card:
+	// the value scales with the width of its column and wraps balanced. jsdom knows neither container
+	// queries nor text-wrap, so check the shipped component rules.
+	it( 'scales the value with its column instead of a fixed display size', () => {
+		const rules = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText );
+		const right = rules.find( t => /^\.right\[/.test( t ) ) ?? '';
+		const info = rules.find( t => /^\.right\[[^\]]*\]\s+\.info\[/.test( t ) ) ?? '';
+		expect( right ).toContain( 'container-type: inline-size' );
+		expect( info ).toContain( 'font-size: clamp(var(--xiri-font-size-title), 14cqi, var(--xiri-font-size-display))' );
+		expect( info ).toContain( 'text-wrap: balance' );
+	} );
+
 	it( 'should render text', () => {
 		const text = fixture.nativeElement.querySelector( '.text' );
 		expect( text ).toBeTruthy();

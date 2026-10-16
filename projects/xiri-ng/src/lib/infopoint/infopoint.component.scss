@@ -55,7 +55,9 @@
 
 	padding-left:    7px;
 
-	overflow-wrap:   anywhere; // Umbruch statt unsichtbares Abschneiden auf schmalen Hosts
+	// Wert skaliert mit der Spaltenbreite (cqi), lange Texte brechen zwischen Wörtern statt mitten drin.
+	container-type:  inline-size;
+	overflow-wrap:   break-word;
 
 	.text {
 		color:     var(--on-surface-variant, rgba(0, 0, 0, 0.54));
@@ -63,8 +65,9 @@
 	}
 
 	.info {
-		font-size:   var(--xiri-font-size-display);
+		font-size:   clamp(var(--xiri-font-size-title), 14cqi, var(--xiri-font-size-display));
 		font-weight: 500;
+		text-wrap:   balance;
 	}
 }
 
