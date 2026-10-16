@@ -2315,13 +2315,15 @@ describe( 'XiriTableComponent', () => {
 			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [], options: { flat: true } } );
 
 			expect( card().classList ).toContain( 'flat' );
+			expect( card().classList ).not.toContain( 'xiri-surface' );
 			expect( card().classList ).not.toContain( 'mat-elevation-z3' );
 		} );
 
 		it( 'keeps the elevation when flat is not set', () => {
 			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [] } );
 
-			expect( card().classList ).toContain( 'mat-elevation-z3' );
+			expect( card().classList ).toContain( 'xiri-surface' );
+			expect( card().classList ).not.toContain( 'mat-elevation-z3' );
 			expect( card().classList ).not.toContain( 'flat' );
 		} );
 	} );

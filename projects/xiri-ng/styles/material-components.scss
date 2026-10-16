@@ -184,6 +184,19 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
+// Surface: Karten und Tabellen der Library
+// M3 outlined statt Schatten. Den alten Look holt eine App zurück mit
+// --xiri-surface-border: transparent; --xiri-surface-shadow: var(--mat-app-elevation-shadow-level-2).
+// .mat-mdc-elevation-specific erhöht die Spezifität über Materials .mat-mdc-card, die zur Laufzeit später lädt.
+// ============================================
+.mat-mdc-elevation-specific.xiri-surface {
+	border:        1px solid var(--xiri-surface-border, var(--outline-variant));
+	box-shadow:    var(--xiri-surface-shadow, none);
+	border-radius: var(--xiri-radius-lg);
+	background-color: var(--xiri-surface-background, var(--surface));
+}
+
+// ============================================
 // Form field subscript
 // Form fields use subscriptSizing="dynamic" so a two-line hint grows instead of being clipped. A field
 // without hint keeps the 20px the fixed subscript reserved, so form rows do not move up. Global, because

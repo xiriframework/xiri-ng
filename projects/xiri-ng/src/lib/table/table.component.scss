@@ -96,7 +96,8 @@ mat-card.xiritablecard.flat {
 	}
 
 	.header {
-		background-color: var(--surface-container, #F3F3F6);
+		background-color: transparent;
+		border-bottom:    1px solid var(--outline-variant, #C2C7CF);
 		display:          flex;
 		justify-content:  space-between;
 		align-items:      center;

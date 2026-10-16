@@ -130,6 +130,16 @@ describe( 'theming mixins', () => {
 		expect( block ).not.toContain( 'elevation-shadow-level-2' );
 	} );
 
+	// One surface language: outlined instead of shadowed; the old shadow is one token away.
+	it( 'ships the outlined xiri-surface rule', () => {
+		const block = css.match( /\.xiri-surface \{[^}]*\}/ )?.[ 0 ] ?? '';
+		expect( block ).toContain( 'border: 1px solid var(--xiri-surface-border, var(--outline-variant))' );
+		expect( block ).toContain( 'box-shadow: var(--xiri-surface-shadow, none)' );
+		expect( block ).toContain( 'border-radius: var(--xiri-radius-lg)' );
+		// M3 outlined cards sit on surface; Material's elevated default (surface-container-low) made headers look grey.
+		expect( block ).toContain( 'background-color: var(--xiri-surface-background, var(--surface))' );
+	} );
+
 	it( 'gives every snackbar variant at least 4.5:1 text contrast', () => {
 		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
 			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );

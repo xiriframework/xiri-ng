@@ -294,6 +294,7 @@ describe('XiriCardComponent', () => {
 
 			const card = fixture.nativeElement.querySelector('mat-card');
 			expect(card.classList).toContain('flat');
+			expect(card.classList).not.toContain('xiri-surface');
 			expect(card.classList).not.toContain('mat-elevation-z2');
 		});
 
@@ -316,7 +317,9 @@ describe('XiriCardComponent', () => {
 			fixture.detectChanges();
 
 			const card = fixture.nativeElement.querySelector('mat-card');
-			expect(card.classList).toContain('mat-elevation-z2');
+			// M3: outlined surface instead of a shadow (styles/material-components.scss .xiri-surface)
+			expect(card.classList).toContain('xiri-surface');
+			expect(card.classList).not.toContain('mat-elevation-z2');
 			expect(fixture.nativeElement.querySelector('mat-card-header')).toBeTruthy();
 		});
 	});

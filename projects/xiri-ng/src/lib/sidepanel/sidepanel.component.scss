@@ -3,7 +3,7 @@
 	flex-direction: column;
 	height:         100%;
 	background:     var(--surface, var(--mat-sys-surface, #fff));
-	box-shadow:     var(--xiri-elevation-2, 0 0 16px rgba(0, 0, 0, 0.2));
+	box-shadow:     var(--xiri-shadow-lg);
 }
 
 .sidepanel-header {
@@ -11,7 +11,7 @@
 	align-items:     center;
 	justify-content: space-between;
 	padding:         var(--xiri-spacing-md);
-	border-bottom:   1px solid var(--xiri-border-color, rgba(0, 0, 0, 0.12));
+	border-bottom:   1px solid var(--outline-variant);
 }
 
 .sidepanel-title {

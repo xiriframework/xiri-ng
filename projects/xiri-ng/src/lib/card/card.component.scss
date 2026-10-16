@@ -37,8 +37,8 @@
 	}
 
 	mat-card-header {
-		margin:      0 0 2px 0;
-		box-shadow:  var(--xiri-shadow-xs);
+		margin:        0 0 2px 0;
+		border-bottom: 1px solid var(--outline-variant);
 		padding:     4px 8px 4px 16px;
 		align-items: center;
 		min-height:  32px;
