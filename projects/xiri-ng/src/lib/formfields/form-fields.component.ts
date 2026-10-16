@@ -187,6 +187,13 @@ export class XiriFormFieldsComponent implements OnInit {
 			this.fields();
 			if ( this._autoFocusDone )
 				return;
+			// Steht der Fokus schon in einem anderen Formular (Stepper + Query auf einer Seite), nicht wegnehmen:
+			// das Feld dort würde blurren, als berührt gelten und sofort seinen Pflichtfeld-Fehler zeigen.
+			const focusedForm = document.activeElement?.closest( 'xiri-form-fields' );
+			if ( focusedForm && focusedForm !== this.elementRef.nativeElement ) {
+				this._autoFocusDone = true;
+				return;
+			}
 			const target = Array.from(
 				this.elementRef.nativeElement.querySelectorAll<HTMLElement>( 'input, mat-select, textarea' )
 			).find( el => !el.closest( '[hidden]' ) );

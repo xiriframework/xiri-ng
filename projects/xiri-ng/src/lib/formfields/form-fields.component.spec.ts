@@ -2006,6 +2006,30 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( document.activeElement ).toBe( inputs[ 1 ] );
 		} );
 
+		// Stepper and query on one page: the second form must not steal focus, or the first field blurs,
+		// counts as touched and shows its required error before anybody typed.
+		it( 'leaves the focus in an earlier form instead of blurring its field', async () => {
+			@Component( {
+				selector: 'xiri-two-forms-host',
+				template: `<xiri-form-fields [form]="first" /><xiri-form-fields [form]="second" />`,
+				imports: [ XiriFormFieldsComponent ],
+			} )
+			class TwoFormsHost {
+				first: XiriFormField[] = [ { id: 'name', type: 'text', required: true, value: '' } ];
+				second: XiriFormField[] = [ { id: 'search', type: 'text', value: '' } ];
+			}
+
+			const two = TestBed.createComponent( TwoFormsHost );
+			two.detectChanges();
+			await two.whenStable();
+
+			const [ firstForm ] = two.debugElement.queryAll( By.directive( XiriFormFieldsComponent ) );
+			const firstInput: HTMLInputElement = firstForm.nativeElement.querySelector( 'input' );
+			expect( document.activeElement ).toBe( firstInput );
+			expect( firstForm.componentInstance.formGroup.get( 'name' )!.touched ).toBe( false );
+			expect( two.nativeElement.querySelector( 'mat-error' ) ).toBeNull();
+		} );
+
 		it( 'should focus the input, not a leading collapsible header toggle', async () => {
 			host.fields.set( [
 				{ id: 'section', type: 'header', value: 'Section', collapsible: true },
