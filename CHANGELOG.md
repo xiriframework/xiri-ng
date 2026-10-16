@@ -58,6 +58,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Kein Pflichtfeld-Fehler beim Laden**, wenn mehrere Formulare auf einer Seite stehen (z. B. Stepper und Query): der
   Autofokus nimmt einem anderen Formular den Fokus nicht mehr weg. Stehen mehrere Formulare auf einer Seite, bekommt
   das zuerst gerenderte den Fokus (vorher das zuletzt gerenderte).
+- **Tabellen-Kopfzeile beim Umbruch (mobil) ausgerichtet:** Abstand über `column-gap` und 4 px vertikales Padding
+  statt über Paddings/Margins der einzelnen Elemente; der Titel klebt nicht mehr am Rand, Buttons fluchten mit dem Titel.
 - **Sidepanel nie breiter als der Viewport** (`maxWidth: 100vw`), auch mit eigener `width`.
 - **Abstand Filter → Tabelle:** Folgt `xiri-query` im selben Container noch etwas (z. B. eine Tabelle), bringt sie
   `margin-bottom: var(--xiri-grid-row-gap, 20px)` mit; als letztes Element (eigene Grid-Spalte, Sidepanel, Dialog) keinen.
