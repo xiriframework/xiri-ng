@@ -122,6 +122,14 @@ describe( 'theming mixins', () => {
 		expect( css ).toMatch( /xiri-form-fields mat-form-field:not\(\.cell\) > \.mat-mdc-form-field-subscript-dynamic-size \{\s*min-height: 20px;/ );
 	} );
 
+	// M3: icon buttons are flat. The old grey disc with elevation (M2 mini-FAB look) is one token away.
+	it( 'renders coloured icon buttons flat, without disc and shadow', () => {
+		const block = css.match( /\.mat-mdc-icon-button\.mat-primary \{[^}]*\}/ )?.[ 0 ] ?? '';
+		expect( block ).toContain( 'box-shadow: var(--xiri-icon-button-shadow, none)' );
+		expect( block ).toContain( 'background-color: var(--xiri-icon-button-background-color, transparent)' );
+		expect( block ).not.toContain( 'elevation-shadow-level-2' );
+	} );
+
 	it( 'gives every snackbar variant at least 4.5:1 text contrast', () => {
 		for ( const type of [ 'success', 'error', 'info', 'warning' ] ) {
 			const block = [ ...css.matchAll( new RegExp( `\\.xiri-snackbar-${ type } \\{[^}]*\\}`, 'g' ) ) ].join( '' );

@@ -34,10 +34,12 @@
 		--mat-icon-button-state-layer-color: #{$bg-color};
 		--mat-icon-button-icon-color:        #{$bg-color};
 		color:                               #{$bg-color};
-		--mat-icon-button-background-color:  var(--xiri-icon-button-background-color, #{$color-gray-100});
-		background-color:                    var(--xiri-icon-button-background-color, #{$color-gray-100});
+		// M3: flach. Den alten M2-Look (graue Scheibe + Schatten) holt eine App über die beiden Tokens zurück:
+		// --xiri-icon-button-background-color: var(--color-gray-100); --xiri-icon-button-shadow: var(--mat-app-elevation-shadow-level-2)
+		--mat-icon-button-background-color:  var(--xiri-icon-button-background-color, transparent);
+		background-color:                    var(--xiri-icon-button-background-color, transparent);
 		border-radius:                       50%;
-		box-shadow:                          var(--mat-app-elevation-shadow-level-2);
+		box-shadow:                          var(--xiri-icon-button-shadow, none);
 	}
 }
 
