@@ -101,6 +101,15 @@ describe('XiriSidenavComponent', () => {
 		expect(fields[1].active).toBe(false);
 	});
 
+	it('draws the active entry as a pill', () => {
+		mockRouter.url = '/app/dashboard';
+		host.settings.set({ prefix: '/app', fields: [ { name: 'Dashboard', icon: 'dashboard', link: '/dashboard' } ] });
+		fixture.detectChanges();
+
+		const active: HTMLElement = fixture.nativeElement.querySelector('a.active');
+		expect(getComputedStyle(active).borderRadius).toBe('var(--xiri-sidenav-active-radius, var(--xiri-radius-full))');
+	});
+
 	it('should update active field on navigation', () => {
 		const fields: XiriNavigationField[] = [
 			{ name: 'Dashboard', icon: 'dashboard', link: '/dashboard' },

@@ -8,6 +8,10 @@
 }
 
 .mat-mdc-list-item {
+	// M3: alle Einträge als Pille mit Abstand zum Rand (aktiv und Hover). Eckig wie früher: --xiri-sidenav-active-radius: 0.
+	width:         auto;
+	margin-inline: var(--xiri-spacing-sm);
+	border-radius: var(--xiri-sidenav-active-radius, var(--xiri-radius-full));
 
 	--mat-list-list-item-label-text-size: 0.9rem;
 	--mat-list-list-item-label-text-weight: 400;
@@ -19,7 +23,7 @@
 	}
 
 	mat-icon.mat-mdc-list-item-icon {
-		color: var(--xiri-sidenav-icon-color, var(--secondary, #51606F));
+		color: var(--xiri-sidenav-icon-color, var(--on-surface-variant, #42474E));
 	}
 
 	.mdc-list-item__start {

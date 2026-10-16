@@ -87,16 +87,14 @@ describe( 'theming mixins', () => {
 			expect( dark, v ).toContain( `${ v }:` );
 	} );
 
-	// mat.all-component-colors() also emits a handful of non-colour tokens.
-	// This is the only one the library sets itself — it must not be reverted to
-	// Material's pill shape in dark mode only.
-	it( 'keeps the list indicator square in dark mode', () => {
-		const shapes = dark.match( /--mat-list-active-indicator-shape:[^;]*/g ) ?? [];
-
-		expect( shapes.length ).toBeGreaterThan( 0 );
-		expect( shapes[ shapes.length - 1 ] ).toContain( '0' );
-		expect( shapes[ shapes.length - 1 ] ).not.toContain( '9999px' );
+	// M3 navigation: the active entry is a secondary-container pill, icons are neutral. The square indicator
+	// (--mat-list-active-indicator-shape: 0) and the green --secondary icons are gone.
+	it( 'styles the sidenav the M3 way', () => {
+		expect( css ).not.toMatch( /--mat-list-active-indicator-shape:\s*0;/ );
+		expect( css ).toMatch( /--xiri-sidenav-active-color:\s*var\(--secondary-container\)/ );
+		expect( css ).toMatch( /--xiri-sidenav-icon-color:\s*var\(--on-surface-variant\)/ );
 	} );
+
 	// Der DOM-Test der Tabs beweist nur die Klasse; hier die ausgelieferte Regel samt Kind-Kombinator,
 	// damit verschachtelte Tabs ihr Padding behalten.
 	it( 'ships the no-padding rule for tab bodies with a child combinator', () => {

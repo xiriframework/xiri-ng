@@ -122,11 +122,6 @@
 	// Tells the browser to render native controls, scrollbars and form widgets dark.
 	color-scheme: dark;
 
-	// all-component-colors() above also emits a few non-colour tokens; this is the
-	// only one material-vars.scss sets itself. Without restoring it here, active
-	// nav items would be pill-shaped in dark mode and square in light mode.
-	--mat-list-active-indicator-shape: 0;
-
 	// Derived from the theme — a consumer no longer maintains these by hand.
 	--surface:                #{map.get($system, surface)};
 	--on-surface:             #{map.get($system, on-surface)};

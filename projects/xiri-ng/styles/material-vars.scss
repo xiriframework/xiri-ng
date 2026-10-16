@@ -276,7 +276,6 @@
 	--mat-list-list-item-hover-state-layer-color:                                    var(--primary-dark);
 	--mat-list-list-item-focus-state-layer-color:                                    var(--primary-dark);
 	--mat-list-active-indicator-color:                                               var(--primary-light);
-	--mat-list-active-indicator-shape:                                               0;
 
 	/* Autocomplete */
 	--mat-autocomplete-background-color:                                             var(--primary-light);
@@ -311,8 +310,8 @@
 	/* Sidenav */
 	--sidenav-background:                                                            #FFFFFF;
 	--xiri-sidenav-active-decoration:                                                none;
-	--xiri-sidenav-active-color:                                                     var(--surface-variant);
-	--xiri-sidenav-icon-color:                                                       var(--secondary);
+	--xiri-sidenav-active-color:                                                     var(--secondary-container);
+	--xiri-sidenav-icon-color:                                                       var(--on-surface-variant);
 	--mat-sidenav-container-width:                                                   auto;
 	--mat-sidenav-container-divider-color:                                           rgba(0, 0, 0, .12);
 
