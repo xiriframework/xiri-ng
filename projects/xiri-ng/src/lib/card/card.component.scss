@@ -124,13 +124,11 @@
 
 		// Multi-Component-Modus: Sub-Components sollen nicht direkt am Card-Rand kleben.
 		// Padding ist via xiri-go Card.WithPadding(...) konfigurierbar (Token oder CSS-Wert).
-		// Default: --xiri-spacing-md. Auf xs-Viewport immer 8px.
+		// Default: --xiri-spacing-md, in schmalen Cards weniger (bis 8px). Prozent-Padding bezieht sich auf die
+		// Kartenbreite, nicht den Viewport — ohne container-type, das eine Card in Flex-Containern schrumpfen ließe.
+		// Ein explizites WithPadding(...) gilt unverändert.
 		&.hasComponents {
-			padding: var(--xiri-card-padding, var(--xiri-spacing-md, 16px));
-
-			@media (max-width: 575.98px) {
-				padding: 8px;
-			}
+			padding: var(--xiri-card-padding, min(var(--xiri-spacing-md, 16px), max(8px, 3%)));
 		}
 
 		xiri-skeleton {

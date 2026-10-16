@@ -36,6 +36,16 @@ describe( 'XiriDescriptionListComponent', () => {
 		expect( el ).toBeTruthy();
 	} );
 
+	// One column below 480px of its OWN width (a narrow card on a wide screen), not of the viewport.
+	it( 'switches to one column by its own width', () => {
+		const rules = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) );
+		const host = rules.map( r => r.cssText ).find( t => /^\[_nghost-[^\]]*\]\s*\{/.test( t ) ) ?? '';
+		const container = rules.find( r => r.cssText.startsWith( '@container' ) )?.cssText ?? '';
+		expect( host ).toContain( 'container-type: inline-size' );
+		expect( container ).toContain( '(max-width: 480px)' );
+		expect( rules.some( r => r.cssText.startsWith( '@media' ) && r.cssText.includes( 'description-list' ) ) ).toBe( false );
+	} );
+
 	it( 'should render all items', () => {
 		const items = fixture.nativeElement.querySelectorAll( '.dl-item' );
 		expect( items.length ).toBe( 3 );

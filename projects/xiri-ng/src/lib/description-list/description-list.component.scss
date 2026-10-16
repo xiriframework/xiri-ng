@@ -1,3 +1,8 @@
+:host {
+	display:        block;
+	container-type: inline-size;
+}
+
 .description-list {
 	display: grid;
 	grid-template-columns: repeat(var(--dl-cols, 2), 1fr);
@@ -5,7 +10,8 @@
 	margin: 0;
 	padding: 0;
 
-	@media (max-width: 768px) { grid-template-columns: 1fr; }
+	// Einspaltig nach eigener Breite, nicht nach Viewport: eine schmale Card auf breitem Schirm zählt.
+	@container (max-width: 480px) { grid-template-columns: 1fr; }
 
 	.dl-item {
 		dt {

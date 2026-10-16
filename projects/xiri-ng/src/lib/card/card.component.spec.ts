@@ -625,6 +625,33 @@ class TableHostComponent {
 	settings = signal<XiriTableSettings>({ fields: [{ id: 'a', name: 'A' }], data: [{ id: 1, a: 'x' }] });
 }
 
+// Padding of a multi-component card follows the card's own width (percent padding resolves against it),
+// not the viewport: a narrow card on a wide screen gets the compact padding too. An explicit WithPadding() value applies as set.
+describe('XiriCardComponent: Innenabstand nach Kartenbreite', () => {
+	it('derives the components padding from the card width, not from a viewport media query', async () => {
+		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
+		TestBed.createComponent(TestHostComponent).detectChanges();
+		const rules = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map(r => r.cssText);
+
+		expect(rules.find(t => /mat-card-content\.hasComponents\[/.test(t) && t.includes('padding')) ?? '')
+			.toContain('padding: var(--xiri-card-padding, min(var(--xiri-spacing-md, 16px), max(8px, 3%)))');
+		expect(rules.some(t => t.startsWith('@media') && t.includes('hasComponents'))).toBe(false);
+	});
+
+	it('sets no inline padding without WithPadding(), so the width-based default applies', async () => {
+		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
+		const content = (padding?: string) => {
+			const f = TestBed.createComponent(TestHostComponent);
+			f.componentInstance.settings.set({ header: 'X', padding, components: [{ type: 'html', data: { html: 'x' } }] } as XiriCardSettings);
+			f.detectChanges();
+			return f.nativeElement.querySelector('mat-card-content.hasComponents') as HTMLElement;
+		};
+
+		expect(content().style.getPropertyValue('--xiri-card-padding')).toBe('');
+		expect(content('lg').style.getPropertyValue('--xiri-card-padding')).toBe('var(--xiri-spacing-lg, 24px)');
+	});
+});
+
 describe('XiriCardComponent mit Table-Sub-Component', () => {
 	const table: XiriDynData = {
 		type: 'table',

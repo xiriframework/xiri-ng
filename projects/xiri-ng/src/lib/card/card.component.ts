@@ -118,9 +118,10 @@ export class XiriCardComponent implements XiriPanelHost {
 	hasComponents = computed( () => ( this.card().components?.length ?? 0 ) > 0 );
 
 	/** Resolves padding setting (token or free CSS value) into a CSS length string. */
-	componentsPadding = computed<string>( () => {
+	// Ohne WithPadding() kein Inline-Wert: dann greift der breitenabhängige Default in card.component.scss.
+	componentsPadding = computed<string | null>( () => {
 		const v = this.card().padding;
-		if ( !v ) return 'var(--xiri-spacing-md, 16px)';
+		if ( !v ) return null;
 		switch ( v ) {
 			case 'xs': return 'var(--xiri-spacing-xs, 4px)';
 			case 'sm': return 'var(--xiri-spacing-sm, 8px)';
