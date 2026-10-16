@@ -7,6 +7,33 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### ⚠️ Breaking Changes (visuell)
+
+- **Neuer Standard-Look im Stil von Material 3.** Jede Änderung hat ein Token, mit dem eine App den alten Wert
+  zurückholt (in `:root` nach dem Theme-Include setzen):
+  - **Icon-Buttons flach** statt graue Scheibe mit Schatten — `--xiri-icon-button-background-color: var(--color-gray-100)`,
+    `--xiri-icon-button-shadow: var(--mat-app-elevation-shadow-level-2)`.
+  - **Karten und Tabellen mit Rand statt Schatten** (neue Klasse `.xiri-surface`, `surface`-Hintergrund), Card- und
+    Tabellen-Kopf ohne eigene Füllung — `--xiri-surface-border: transparent`,
+    `--xiri-surface-shadow: var(--mat-app-elevation-shadow-level-2)`, `--xiri-surface-background`.
+    Die Klassen `mat-elevation-z2`/`z3` an den Lib-Karten entfallen; eigenes CSS, das darauf zielt, greift nicht mehr.
+  - **Sidenav:** Einträge als Pille mit Randabstand, aktiv in `secondary-container`, Icons in `on-surface-variant` —
+    `--xiri-sidenav-active-radius: 0`, `--xiri-sidenav-active-color`, `--xiri-sidenav-icon-color`. Die Sidebar wird
+    durch den Randabstand 16 px breiter.
+  - **Page-Header ohne Primärlinie**, kompakter — `--xiri-page-header-border: 3px solid var(--primary)`.
+  - **Tags und Formular-Chips tonal** (getönte Fläche, Theme-Textfarbe) statt gesättigt mit weißem Text.
+  - **Charts:** Serien ohne Farbe nehmen die Theme-Farben (`seriesColor()`), `warn`/`success` lesen
+    `--color-warning`/`--color-success`; die Schrift ist die der App. Ohne Theme gilt weiter `FALLBACK_COLORS`.
+- **Layout:**
+  - Treeselect-/Multiselect-Listen wachsen mit dem Inhalt bis 300 px (`--xiri-treeselect-max-height`) statt fest 300 px.
+  - Description-List wird nach eigener Breite (480 px) einspaltig, nicht mehr nach Viewport (768 px).
+  - Card-Innenabstand mit Komponenten: ohne `WithPadding()` skaliert er mit der Kartenbreite (8–16 px); ein explizites
+    `WithPadding()` gilt jetzt auch auf schmalen Viewports (vorher dort pauschal 8 px).
+  - Page- und Section-Header brechen Aktionen bei wenig Platz unter den Titel um.
+  - Infopoint-Werte skalieren mit der Spaltenbreite; Stat-Labels zweizeilig mit vollem Text als Tooltip.
+- **Barrierefreiheit:** Zugeklappte Sidenav-Gruppen, Sections und Cards sind `inert` (vorher per Tab erreichbar);
+  Schalter mit `aria-expanded`/`aria-controls`. Baum-Toggle und „Unter-Eintrag hinzufügen“ sind per Tab erreichbar.
+
 ### Fixed
 
 - **Warning hat eine eigene Farbe** statt das Error-Rot: `--color-warning` ist Amber (`#B07700` hell, `#FFC94D` dunkel).
