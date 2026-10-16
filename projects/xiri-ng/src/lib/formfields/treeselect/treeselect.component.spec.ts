@@ -38,6 +38,14 @@ describe( 'XiriTreeselectComponent – writeValue / reset', () => {
 		fixture.detectChanges();
 	} );
 
+	// Kurze Listen sollen nicht 300px Leerfläche mitbringen: die Liste wächst mit dem Inhalt bis 300px.
+	it( 'begrenzt die Liste auf 300px statt sie fest so hoch zu machen', () => {
+		const tree = getComputedStyle( fixture.nativeElement.querySelector( '.tree' ) );
+		expect( tree.maxHeight ).toBe( 'var(--xiri-treeselect-max-height, 300px)' );
+		expect( tree.height ).not.toBe( '300px' );
+		expect( tree.overflowY ).toBe( 'auto' );
+	} );
+
 	it( 'übernimmt den initialen FormControl-Wert in die Baum-Auswahl', () => {
 		expect( host.cmp().value ).toEqual( [ 'A' ] );
 	} );

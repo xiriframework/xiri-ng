@@ -15,7 +15,7 @@
 .dynamic-form {
 	grid-row-gap: 7px;
 
-	// Material-Felder nicht auf die Zeilenhöhe strecken: ein Treeselect (300px) in derselben
+	// Material-Felder nicht auf die Zeilenhöhe strecken: ein Treeselect (bis 300px) in derselben
 	// Grid-Zeile würde sonst jedes mat-form-field daneben mitziehen (.mat-mdc-text-field-wrapper
 	// hat flex:auto). Nur mat-form-field — header/divider/question zentrieren bewusst in der Zelle.
 	> mat-form-field,
