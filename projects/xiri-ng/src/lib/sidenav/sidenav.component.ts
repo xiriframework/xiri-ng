@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, effect, inject, input } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, DestroyRef, effect, ElementRef, inject, input } from '@angular/core';
 import { filter } from "rxjs";
 import { Event, NavigationEnd, Router, RouterLink } from "@angular/router";
 import { XiriUrlPipe } from "../pipes/url.pipe";
@@ -6,7 +6,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { MatIcon } from '@angular/material/icon';
 import { MatListItem, MatListItemIcon, MatListItemMeta, MatListItemTitle } from '@angular/material/list';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatDrawer } from '@angular/material/sidenav';
+import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 
 export interface XiriSidebarSettings {
 	
@@ -56,6 +56,7 @@ export class XiriSidenavComponent {
 	private cdr: ChangeDetectorRef = inject( ChangeDetectorRef );
 	// The surrounding mat-sidenav/mat-drawer, if any — MatSidenav provides itself as MatDrawer.
 	private drawer = inject( MatDrawer, { optional: true } );
+	private container = inject( MatDrawerContainer, { optional: true } );
 	
 	settings = input<XiriSidebarSettings>();
 	loading = true;
@@ -86,6 +87,21 @@ export class XiriSidenavComponent {
 			} else {
 				this.fields = [];
 			}
+		} );
+
+		// The drawer is width: auto, so a scrollbar appearing in it (submenu expanded, nav loaded)
+		// widens it. MatDrawerContainer only recomputes the content margin on open/mode change or
+		// window resize, so the drawer would cover the content's left padding.
+		const host: HTMLElement = inject( ElementRef ).nativeElement;
+		const destroyRef = inject( DestroyRef );
+		afterNextRender( () => {
+			const drawerEl = host.closest( '.mat-drawer' );
+			if ( !this.container || !drawerEl || typeof ResizeObserver === 'undefined' )
+				return;
+
+			const observer = new ResizeObserver( () => this.container?.updateContentMargins() );
+			observer.observe( drawerEl );
+			destroyRef.onDestroy( () => observer.disconnect() );
 		} );
 	}
 	

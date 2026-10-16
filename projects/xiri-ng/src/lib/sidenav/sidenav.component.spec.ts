@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriSidenavComponent, XiriSidebarSettings, XiriNavigationField } from './sidenav.component';
@@ -6,7 +6,7 @@ import { Router, NavigationEnd, Event, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
-import { MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
+import { MatDrawerContainer, MatSidenav, MatSidenavContainer } from '@angular/material/sidenav';
 
 @Component({
 	selector: 'test-host',
@@ -389,8 +389,20 @@ class DrawerHostComponent {
 describe('XiriSidenavComponent inside a drawer', () => {
 	let fixture: ComponentFixture<DrawerHostComponent>;
 	let drawer: MatSidenav;
+	let observed: Element[];
+	let resize: () => void;
 
 	beforeEach(async () => {
+		observed = [];
+		resize = () => undefined;
+		vi.stubGlobal('ResizeObserver', class {
+			constructor(cb: ResizeObserverCallback) {
+				resize = () => cb([], this as unknown as ResizeObserver);
+			}
+			observe(el: Element): void { observed.push(el); }
+			unobserve(): void { return undefined; }
+			disconnect(): void { return undefined; }
+		});
 		await TestBed.configureTestingModule({
 			imports: [DrawerHostComponent],
 			providers: [provideRouter([{ path: '**', children: [] }])],
@@ -399,6 +411,8 @@ describe('XiriSidenavComponent inside a drawer', () => {
 		fixture.detectChanges();
 		drawer = fixture.debugElement.query(By.directive(MatSidenav)).componentInstance;
 	});
+
+	afterEach(() => vi.unstubAllGlobals());
 
 	async function click(selector: string): Promise<void> {
 		(fixture.nativeElement.querySelector(selector) as HTMLElement).click();
@@ -426,5 +440,17 @@ describe('XiriSidenavComponent inside a drawer', () => {
 		fixture.detectChanges();
 		await click('a[href="/home"]');
 		expect(drawer.opened).toBe(true);
+	});
+
+	// The drawer is width: auto, so a scrollbar appearing in it (submenu expanded) widens it.
+	// MatDrawerContainer only recomputes the content margin on open/mode change, so the
+	// drawer would cover the content's left padding.
+	it('updates the content margin when the drawer changes size', () => {
+		const container = fixture.debugElement.query(By.directive(MatDrawerContainer)).componentInstance as MatDrawerContainer;
+		const update = vi.spyOn(container, 'updateContentMargins');
+
+		expect(observed).toContain(fixture.nativeElement.querySelector('mat-sidenav'));
+		resize();
+		expect(update).toHaveBeenCalled();
 	});
 });

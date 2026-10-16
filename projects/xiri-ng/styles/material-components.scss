@@ -189,6 +189,16 @@ td.align-right .xiri-chips-display {
 }
 
 // ============================================
+// Sidenav scrollbar
+// Thin and muted, so it does not dominate the narrow drawer. The content margin
+// follows the width change it causes (XiriSidenavComponent).
+// ============================================
+.mat-drawer-inner-container {
+	scrollbar-width: thin;
+	scrollbar-color: var(--outline-variant) transparent;
+}
+
+// ============================================
 // Tab Body Content Padding
 // ============================================
 
