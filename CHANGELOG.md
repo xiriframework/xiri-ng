@@ -18,6 +18,21 @@ versioning follows [Semantic Versioning](https://semver.org/).
   - Händische Grids mit genau einem `.xcol` behalten das Margin.
   - Zeilenabstand über `--xiri-grid-row-gap` (Default 20 px).
 
+### Migration
+
+- Die DynPage rendert `<xiri-dyncomponent class="xrow" [data]="…">`. Ohne `class="xrow"` gibt es kein Grid; die
+  Komponenten behalten dann ihr Margin, nur das globale Margin am Seitenende fällt weg.
+- Hat die App den Abstand am Seitenende vom globalen `xiri-dyncomponent`-Margin bezogen, gehört er jetzt ins
+  Seitenlayout der App (z. B. `padding-bottom` am Content-Container).
+- Liegt die Breadcrumb als eigenes `.xcol` im selben `.xrow` wie der Inhalt, steht sie 20 px (row-gap) über dem
+  Inhalt. Soll es weniger sein, gehört sie außerhalb dieses Grids.
+
+### Documentation
+
+- **README und `xiri-ng-expert`-Skill beschreiben die vertikalen Abstände im Grid** (README „Vertical spacing“,
+  `references/dyncomponent.md` „Vertikale Abstände im Grid“, `references/table.md`), und das DynPage-Beispiel rendert
+  `xiri-dyncomponent` mit `class="xrow"`.
+
 ## [0.7.3]
 
 ### Added

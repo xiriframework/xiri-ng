@@ -415,6 +415,14 @@ Combine classes for responsive behavior:
 
 This renders full width on mobile, half width on medium screens, and one-third on large screens.
 
+### Vertical spacing
+
+Inside a grid the row gap is the only vertical spacing (`--xiri-grid-row-gap`, default 20px). Components that bring
+their own bottom margin outside a grid (page-header, section, table, links, imagetext, cardlink) drop it when they sit
+in a `xiri-dyncomponent class="xrow"` grid, even as its only child, or next to siblings in any `.xrow`. A hand-written
+`.xrow` with a single column keeps the margin. Render backend pages with `class="xrow"` on `xiri-dyncomponent`,
+otherwise there is no grid and no gap.
+
 ## Theming
 
 xiri-ng uses the Angular Material Design 3 theming system with SCSS.

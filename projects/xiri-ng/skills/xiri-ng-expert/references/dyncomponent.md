@@ -130,6 +130,15 @@ const page: XiriDynData[] = [
 <xiri-dyncomponent [data]="results" [filterData]="filter"/>
 ```
 
+## Vertikale Abstände im Grid
+
+`<xiri-dyncomponent class="xrow">` ist ein Grid; den Abstand zwischen den Komponenten liefert allein der row-gap
+(`--xiri-grid-row-gap`, Default 20px). Komponenten mit eigenem Außenabstand (page-header, section, table, links,
+imagetext, cardlink) verlieren ihr margin-bottom im `xiri-dyncomponent`-Grid, auch als einziges Kind (Section-, Card-,
+Container-Inhalt), und in jedem `.xrow`, sobald ihre Spalte Geschwister hat. Ein händisches `.xrow` mit nur einer
+Spalte behält das Margin. Ohne `class="xrow"` gibt es weder Grid noch Gap. Abstand am Seitenende setzt die App
+(seit 0.8.0 gibt es kein globales `xiri-dyncomponent`-Margin mehr).
+
 ## DynPage — der seitenweite Loader (Wildcard-Route)
 
 Es gibt **keine** Library-Page-Komponente — jede App implementiert einen kleinen
