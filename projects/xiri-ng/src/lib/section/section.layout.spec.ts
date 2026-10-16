@@ -42,13 +42,34 @@ class GridHost {
 	q = signal( query );
 }
 
+// Query and table in the same column of a multi-column grid (query-demo): the gap belongs between them too.
+@Component( {
+	selector: 'test-grid-shared-column',
+	template: `<div class="xrow"><div class="xcol-8"><xiri-query [settings]="q()" /><xiri-table [settings]="t()" /></div><div class="xcol-4">x</div></div>`,
+	imports: [ XiriQueryComponent, XiriTableComponent ],
+} )
+class SharedColumnHost {
+	q = signal( query );
+	t = signal( table );
+}
+
+// A query as last element (result embedded, sidepanel/dialog/tab content) must not leave an empty margin below.
+@Component( {
+	selector: 'test-section-query-only',
+	template: `<xiri-section [settings]="{ title: 'Liste' }"><xiri-query [settings]="q()" /></xiri-section>`,
+	imports: [ XiriSectionComponent, XiriQueryComponent ],
+} )
+class QueryOnlyHost {
+	q = signal( query );
+}
+
 describe( 'Abstand Filter → Tabelle', () => {
 	afterAll( removeGridStyles );
 
 	beforeEach( async () => {
 		injectGridStyles();
 		await TestBed.configureTestingModule( {
-			imports: [ SectionHost, GridHost ],
+			imports: [ SectionHost, GridHost, SharedColumnHost, QueryOnlyHost ],
 			providers: [
 				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: { post: vi.fn().mockReturnValue( of( {} ) ), get: vi.fn().mockReturnValue( of( {} ) ) } },
@@ -63,7 +84,7 @@ describe( 'Abstand Filter → Tabelle', () => {
 		} ).compileComponents();
 	} );
 
-	function queryMargin( host: typeof SectionHost | typeof GridHost ): string {
+	function queryMargin( host: typeof SectionHost | typeof GridHost | typeof SharedColumnHost | typeof QueryOnlyHost ): string {
 		const fixture = TestBed.createComponent( host );
 		fixture.detectChanges();
 		return getComputedStyle( fixture.nativeElement.querySelector( 'xiri-query' ) ).marginBottom;
@@ -73,7 +94,15 @@ describe( 'Abstand Filter → Tabelle', () => {
 		expect( queryMargin( SectionHost ) ).toBe( 'var(--xiri-grid-row-gap, 20px)' );
 	} );
 
-	it( 'drops the query margin in a grid, the row gap is the spacing there', () => {
-		expect( queryMargin( GridHost ) ).toBe( '0px' );
+	it( 'has no margin as the only element of a grid column, the row gap is the spacing there', () => {
+		expect( queryMargin( GridHost ) ).toMatch( /^0(px)?$/ );
+	} );
+
+	it( 'keeps the gap to a table in the same column of a multi-column grid', () => {
+		expect( queryMargin( SharedColumnHost ) ).toBe( 'var(--xiri-grid-row-gap, 20px)' );
+	} );
+
+	it( 'leaves no margin below a query that is the last element', () => {
+		expect( queryMargin( QueryOnlyHost ) ).toMatch( /^0(px)?$/ );
 	} );
 } );

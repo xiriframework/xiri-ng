@@ -1,7 +1,11 @@
-// Außerhalb eines Grids (händisch in eine Section projiziert) bringt die Query ihren Abstand zur Folgekomponente
-// selbst mit, wie Tabelle und Page-Header; im Grid nullt styles/grid.scss ihn, dort liefert der row-gap den Abstand.
+// Folgt der Query im selben Container etwas (händisch: Query + Tabelle/Tabs in einer Section oder Spalte), bringt
+// sie den Grid-Abstand dorthin selbst mit. Als letztes Element (eigene .xcol im Grid, Ergebnis eingebettet, Sidepanel,
+// Dialog, Tab) bleibt unten nichts übrig. :last-child übergeht Angulars Kommentar-Knoten.
 :host {
-	display:       block;
+	display: block;
+}
+
+:host(:not(:last-child)) {
 	margin-bottom: var(--xiri-grid-row-gap, 20px);
 }
 
