@@ -17,8 +17,9 @@
 		</mat-toolbar-row>
 	</mat-toolbar>
 
+	<!-- fixedTopGap = Toolbarhöhe (--mat-toolbar-standard-height, 60px bei Dichte -1) -->
 	<mat-sidenav-container class="nav-sidenav-container">
-		<mat-sidenav #snav [mode]="isSmall() ? 'over' : 'side'" role="navigation" [fixedInViewport]="isSmall()" fixedTopGap="48" [opened]="!isSmall() && navLoaded" (openedChange)="!isSmall() && (navLoaded = $event)" disableClose>
+		<mat-sidenav #snav [mode]="isSmall() ? 'over' : 'side'" role="navigation" [fixedInViewport]="isSmall()" fixedTopGap="60" [opened]="!isSmall() && navLoaded" (openedChange)="!isSmall() && (navLoaded = $event)" disableClose>
 			<mat-nav-list>
 				<xiri-sidenav [settings]="navsettings"></xiri-sidenav>
 			</mat-nav-list>

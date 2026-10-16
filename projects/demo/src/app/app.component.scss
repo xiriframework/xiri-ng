@@ -7,14 +7,11 @@ mat-sidenav-container {
 	min-height: 100vh;
 	background: transparent;
 
-  mat-sidenav {
-    mat-nav-list {
-      padding-top: 0;
-    }
-  }
 }
 
 mat-toolbar.nav-toolbar {
+	// Eine Höhe auf allen Breiten (M3), damit fixedTopGap des Overlay-Drawers passt (app.component.html).
+	--mat-toolbar-mobile-height: var(--mat-toolbar-standard-height);
 	position: sticky;
 	position: -webkit-sticky;
 	top:      0;

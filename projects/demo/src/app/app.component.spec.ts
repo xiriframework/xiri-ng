@@ -34,6 +34,19 @@ describe( 'AppComponent', () => {
 		expect( getComputedStyle( fixture.nativeElement.querySelector( '.nav-logo' ) ).marginLeft ).toBe( 'var(--xiri-spacing-sm, 8px)' );
 	} );
 
+	// The overlay drawer started at 48px under a 52px (phone) or 60px (tablet) toolbar and hid the top of the
+	// first entry. One toolbar height everywhere, and the drawer gap matches it.
+	it( 'starts the overlay drawer exactly below the toolbar', () => {
+		const toolbar: HTMLElement = fixture.nativeElement.querySelector( 'mat-toolbar' );
+		expect( getComputedStyle( toolbar ).getPropertyValue( '--mat-toolbar-mobile-height' ).trim() ).toBe( 'var(--mat-toolbar-standard-height)' );
+		expect( sidenav().fixedTopGap ).toBe( 60 );
+	} );
+
+	// The active first entry (a pill) sat flush against the toolbar edge: keep Material's list padding.
+	it( 'keeps the list padding above the first entry', () => {
+		expect( getComputedStyle( fixture.nativeElement.querySelector( 'mat-sidenav mat-nav-list' ) ).paddingTop ).not.toBe( '0px' );
+	} );
+
 	function sidenav(): MatSidenav {
 		return fixture.debugElement.query( By.directive( MatSidenav ) ).componentInstance;
 	}
