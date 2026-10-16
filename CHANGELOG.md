@@ -13,16 +13,22 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Callout und Status „warning" sind damit von „error" unterscheidbar.
 - **Dark Mode setzt die Container-Farben neu** (`--primary-container`, `--error-container` samt `--on-*`) und definiert
   `--on-success`. Error-Box und Chat-Bubbles blieben vorher hell.
+- **Erfolgsfarbe mit dunklem Text:** `--on-success` ist jetzt gesetzt (`#002110` hell, `#003919` dunkel). Buttons,
+  Badges, Chips und Infopoints in `success` zeigen dadurch dunklen statt weißen Text (Kontrast vorher 2,1:1). Wer
+  `--color-success` auf ein dunkles Grün überschreibt, setzt `--on-success` mit.
+- **Auto-Dark-Modus respektiert App-Overrides:** Der Selektor `:root:not(:where(.light-theme))` hat jetzt
+  `:root`-Spezifität. Eigene `:root { --… }`-Werte nach dem Theme-Include gelten in „auto" wie in „dark".
 - **Snackbar-Texte haben ausreichend Kontrast** (≥ 4,5:1): Success, Error, Info und Warning nutzen dunklere Hintergründe.
 - **Mehrzeilige Hinweise unter Formularfeldern werden nicht mehr abgeschnitten.** Die Felder nutzen
   `subscriptSizing="dynamic"`; Felder ohne Hinweis behalten ihre 20 px, die Zeilenabstände bleiben gleich.
 - **Datetimerange in schmalen Spalten:** Das Datum behält seine Mindestbreite, Von- und Bis-Zeit brechen als Ganzes um.
 - **Kein Pflichtfeld-Fehler beim Laden**, wenn mehrere Formulare auf einer Seite stehen (z. B. Stepper und Query): der
-  Autofokus nimmt einem anderen Formular den Fokus nicht mehr weg.
+  Autofokus nimmt einem anderen Formular den Fokus nicht mehr weg. Stehen mehrere Formulare auf einer Seite, bekommt
+  das zuerst gerenderte den Fokus (vorher das zuletzt gerenderte).
 - **Sidepanel nie breiter als der Viewport** (`maxWidth: 100vw`), auch mit eigener `width`.
-- **Abstand Filter → Tabelle:** `xiri-query` bringt außerhalb eines Grids `margin-bottom: var(--xiri-grid-row-gap, 20px)`
-  mit, wie Tabelle und Page-Header ihren; im Grid entfällt er. Händisch in eine Section gelegte Query + Tabelle klebten
-  vorher aneinander.
+- **Abstand Filter → Tabelle:** Folgt `xiri-query` im selben Container noch etwas (z. B. eine Tabelle), bringt sie
+  `margin-bottom: var(--xiri-grid-row-gap, 20px)` mit; als letztes Element (eigene Grid-Spalte, Sidepanel, Dialog) keinen.
+  Händisch in eine Section oder Spalte gelegte Query + Tabelle klebten vorher aneinander.
 
 ## [0.8.0]
 
