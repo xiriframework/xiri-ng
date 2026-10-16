@@ -176,6 +176,22 @@ describe( 'XiriChatComponent', () => {
 			expect( bubbles( f ).length ).toBe( 1 );
 		} );
 
+		it( 'späte POST-Antwort überschreibt einen neueren Status aus dem Poll nicht', async () => {
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', poll: 1, cursor: 'c1', messages: [] } );
+			type( f, 'Hallo' );
+			enter( f );
+			const post = http.expectOne( r => r.method === 'POST' );
+			const clientId = post.request.body.clientId;
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=c1' )
+				.flush( { messages: [ { id: 'm5', text: 'Hallo', time: T, own: true, status: 'read', clientId } ], cursor: 'c2' } );
+			post.flush( { message: { id: 'm5', text: 'Hallo', time: T, own: true, status: 'sent', clientId } } );
+			f.detectChanges();
+			expect( bubbles( f ).length ).toBe( 1 );
+			expect( el( f ).querySelector( '[aria-label="Gelesen"]' ) ).toBeTruthy();
+		} );
+
 		it( 'pollt nach gescheiterter Startseite weiter (wirkt als Retry)', async () => {
 			vi.useFakeTimers();
 			await render( { url: 'Chat', poll: 1 } );

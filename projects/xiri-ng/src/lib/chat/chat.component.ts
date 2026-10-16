@@ -244,8 +244,9 @@ export class XiriChatComponent implements OnInit {
 		this.data.post( this.settings().url, { text, clientId } ).subscribe( {
 			next: res => {
 				const msg = ( res as { message?: XiriChatMessage } | null )?.message;
+				// Kam die Nachricht schon per Poll/SSE (ggf. mit neuerem Status), gewinnt dieser Stand.
 				if ( msg )
-					this.upsert( [ { ...msg, clientId } ] );
+					this.upsert( [ { ...msg, ...this.byId().get( msg.id ), clientId } ] );
 				else
 					this.setStatus( clientId, 'sent' );
 			},
