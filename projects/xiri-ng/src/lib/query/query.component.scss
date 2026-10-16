@@ -1,3 +1,9 @@
+// Außerhalb eines Grids (händisch in eine Section projiziert) bringt die Query ihren Abstand zur Folgekomponente
+// selbst mit, wie Tabelle und Page-Header; im Grid nullt styles/grid.scss ihn, dort liefert der row-gap den Abstand.
+:host {
+	display:       block;
+	margin-bottom: var(--xiri-grid-row-gap, 20px);
+}
 
 .query {
 	padding-left:  var(--xiri-spacing-md);
