@@ -487,7 +487,7 @@ function getSpacingPage( withTable: boolean ): unknown {
 		data: [
 			{ type: 'page-header', data: { title: 'Abstände', subtitle: 'Mess-Seite für vertikale Abstände', icon: 'straighten', iconColor: 'primary' } },
 			section( 'Erste Section', 'Inhalt der ersten Section.' ),
-			...( withTable ? [ table ] : [] ),
+			...( withTable ? [ table, { type: 'section', data: { title: 'Tabelle in Section', components: [ table ] } } ] : [] ),
 			stat( 'Fahrzeuge', 42, 'local_shipping' ),
 			stat( 'Fahrer', 17, 'person' ),
 			stat( 'Touren', 128, 'route' ),

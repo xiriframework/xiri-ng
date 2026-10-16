@@ -21,6 +21,18 @@
 		}
 	}
 
+	// Im Grid liefert der row-gap den Abstand. Komponenten mit eigenem Außenabstand verlieren ihn, sobald ihr Wrapper
+	// Geschwister hat (händisches .xrow) oder sie in einem xiri-dyncomponent-Grid stehen — dort auch als Einzelkind,
+	// sonst bliebe das Margin in Section/Card/Container hängen. Wrapper ist nicht immer .xcol (display frei), daher *.
+	$spaced: 'xiri-page-header > .page-header', 'xiri-section > .xiri-section', 'xiri-table > mat-card.xiritablecard',
+	         'xiri-links > mat-card', 'xiri-imagetext > .card', 'xiri-cardlink';
+	@each $sel in $spaced {
+		.xrow > :not(:only-child) > #{$sel},
+		xiri-dyncomponent.xrow > * > #{$sel} {
+			margin-bottom: 0;
+		}
+	}
+
 	.xrow-cq {
 		container-type: inline-size;
 		container-name: xrow;

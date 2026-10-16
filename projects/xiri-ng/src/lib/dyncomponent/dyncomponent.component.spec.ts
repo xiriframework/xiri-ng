@@ -12,6 +12,7 @@ import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { XiriDownloadService } from '../services/download.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
+import { injectGridStyles } from '../testing/grid-styles';
 
 @Component( {
 	selector: 'xiri-dyn-test-host',
@@ -237,13 +238,11 @@ describe( 'XiriDynComponentComponent', () => {
 	} );
 } );
 
-// Integrationspunkt Expansion/Tabs → Dyncomponent: das globale Außen-Margin von xiri-dyncomponent
-// (aus table.component.scss) darf innerhalb eines Panel- bzw. Tab-Bodys nicht wirken — dort liefert
-// das Body-Padding den Abschluss. Der Inhalt ist eine Tabelle, damit die globalen Table-Styles
-// im Test überhaupt geladen sind; ihr eigenes Margin bleibt dabei die Gegenprobe.
+// Integrationspunkt Expansion/Tabs → Dyncomponent: xiri-dyncomponent hat kein Außen-Margin, im Panel- bzw. Tab-Body
+// liefert das Body-Padding den Abschluss. Die Tabelle im Body steht im xiri-dyncomponent-Grid; ihr Margin nullt die
+// Regel in styles/grid.scss. Die Tabelle lädt zugleich die globalen Table-Styles in den Test.
 describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
-	const XL = 'var(--xiri-spacing-xl)';
 	const table: XiriDynData = { type: 'table', data: { fields: [ { id: 'a', name: 'A' } ], data: [ { id: 1, a: 'x' } ] } };
 
 	function marginBottom( selector: string ): string {
@@ -253,6 +252,7 @@ describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 	}
 
 	beforeEach( () => {
+		injectGridStyles();
 		TestBed.configureTestingModule( {
 			imports: [ TestHostComponent ],
 			providers: [
@@ -268,19 +268,19 @@ describe( 'XiriDynComponentComponent in Expansion/Tabs', () => {
 		fixture = TestBed.createComponent( TestHostComponent );
 	} );
 
-	it( 'Dyncomponent im Expansion-Panel-Body hat kein Außen-Margin, die Tabelle darin behält ihres', () => {
+	it( 'Dyncomponent im Expansion-Panel-Body und die Tabelle darin haben kein Außen-Margin', () => {
 		fixture.componentInstance.data.set( [ { type: 'expansion', data: { panels: [ { title: 'P', expanded: true, data: [ table ] } ] } } ] );
 		fixture.detectChanges();
 
-		expect( marginBottom( '.mat-expansion-panel-body > xiri-dyncomponent' ) ).toBe( '0px' );
-		expect( marginBottom( '.mat-expansion-panel-body mat-card.xiritablecard' ) ).toBe( XL );
+		expect( marginBottom( '.mat-expansion-panel-body > xiri-dyncomponent' ) ).toBe( '0' );
+		expect( marginBottom( '.mat-expansion-panel-body mat-card.xiritablecard' ) ).toBe( '0px' );
 	} );
 
-	it( 'Dyncomponent im Tab-Body hat kein Außen-Margin, die Tabelle darin behält ihres', () => {
+	it( 'Dyncomponent im Tab-Body und die Tabelle darin haben kein Außen-Margin', () => {
 		fixture.componentInstance.data.set( [ { type: 'tabs', data: { tabs: [ { label: 'T', data: [ table ] } ] } } ] );
 		fixture.detectChanges();
 
-		expect( marginBottom( '.mat-mdc-tab-body-content > xiri-dyncomponent' ) ).toBe( '0px' );
-		expect( marginBottom( '.mat-mdc-tab-body-content mat-card.xiritablecard' ) ).toBe( XL );
+		expect( marginBottom( '.mat-mdc-tab-body-content > xiri-dyncomponent' ) ).toBe( '0' );
+		expect( marginBottom( '.mat-mdc-tab-body-content mat-card.xiritablecard' ) ).toBe( '0px' );
 	} );
 } );

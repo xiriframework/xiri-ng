@@ -13,6 +13,7 @@ import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriSessionStorageService } from '../services/sessionStorage.service';
 import { XiriResponseHandlerService } from '../services/response-handler.service';
 import { XiriDynData } from '../dyncomponent/dyndata.interface';
+import { injectGridStyles } from '../testing/grid-styles';
 
 @Component({
 	selector: 'test-host',
@@ -610,8 +611,8 @@ describe('XiriCardComponent', () => {
 	});
 });
 
-// Integrationspunkt Card → Dyncomponent → Table: das globale Außen-Margin der Tabelle
-// (mat-card.xiritablecard) darf als direkte Sub-Component einer Card nicht wirken.
+// Integrationspunkt Card → Dyncomponent → Table: im Grid der Card liefert der row-gap den Abstand, das Außen-Margin
+// der Tabelle (mat-card.xiritablecard) nullt die Regel in styles/grid.scss, auch verschachtelt im Container.
 @Component({
 	selector: 'test-table-host',
 	template: `<xiri-table [settings]="settings()" />`,
@@ -636,6 +637,7 @@ describe('XiriCardComponent mit Table-Sub-Component', () => {
 	}
 
 	beforeEach(async () => {
+		injectGridStyles();
 		await TestBed.configureTestingModule({
 			imports: [TestHostComponent, TableHostComponent],
 			providers: [
@@ -674,8 +676,8 @@ describe('XiriCardComponent mit Table-Sub-Component', () => {
 		expect(marginBottom(root, 'mat-card-content.hasComponents mat-card.xiritablecard')).toBe('0px');
 	});
 
-	it('Tabelle in einem Container in der Card behält ihr Außen-Margin (Scope-Grenze)', () => {
+	it('Tabelle in einem Container in der Card hat kein Außen-Margin', () => {
 		const root = renderCard({ header: 'Outer', components: [{ type: 'container', data: { components: [table] } }] });
-		expect(marginBottom(root, 'mat-card-content.hasComponents mat-card.xiritablecard')).toBe(XL);
+		expect(marginBottom(root, 'mat-card-content.hasComponents mat-card.xiritablecard')).toBe('0px');
 	});
 });
