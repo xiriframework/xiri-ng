@@ -146,6 +146,15 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getDialogsPage() } ) );
 	}
 
+	// Mess-Seiten für vertikale Abstände in der dynpage (doku/plan/2026-10-16-dynpage-abstaende)
+	if ( req.url.includes( 'Test/Spacing/NoTable' ) ) {
+		return of( new HttpResponse( { status: 200, body: getSpacingPage( false ) } ) );
+	}
+
+	if ( req.url.includes( 'Test/Spacing/Page' ) ) {
+		return of( new HttpResponse( { status: 200, body: getSpacingPage( true ) } ) );
+	}
+
 	if ( req.url.includes( 'Test/Test/Home' ) ) {
 		return of( new HttpResponse( { status: 200, body: getTestHomePage() } ) );
 	}
@@ -449,6 +458,46 @@ function getTableResponse( type: string, body: MockRequestBody ): unknown {
 }
 
 // DynPage mock responses
+
+// Typische Web-UI-Seite: page-header, section, table, umbrechende Stats, card, section.
+function getSpacingPage( withTable: boolean ): unknown {
+	const stat = ( label: string, value: number, icon: string ) => ( { type: 'stat', data: { label, value, icon, iconColor: 'primary' } } );
+	const section = ( title: string, text: string ) => ( {
+		type: 'section',
+		data: { title, icon: 'info', iconColor: 'primary', components: [ { type: 'infotext', data: { text } } ] }
+	} );
+	const table = {
+		type: 'table',
+		data: {
+			data: [
+				{ id: 1, name: 'Alice', status: 'aktiv' },
+				{ id: 2, name: 'Bob', status: 'inaktiv' },
+				{ id: 3, name: 'Charlie', status: 'aktiv' },
+			],
+			fields: [
+				{ id: 'id', name: 'ID', format: 'number' },
+				{ id: 'name', name: 'Name' },
+				{ id: 'status', name: 'Status' },
+			],
+			options: { title: 'Benutzer', search: false, pagination: false }
+		}
+	};
+	return {
+		bread: [ { label: 'Home', link: '/Overview' }, { label: 'Spacing' } ],
+		data: [
+			{ type: 'page-header', data: { title: 'Abstände', subtitle: 'Mess-Seite für vertikale Abstände', icon: 'straighten', iconColor: 'primary' } },
+			section( 'Erste Section', 'Inhalt der ersten Section.' ),
+			...( withTable ? [ table ] : [] ),
+			stat( 'Fahrzeuge', 42, 'local_shipping' ),
+			stat( 'Fahrer', 17, 'person' ),
+			stat( 'Touren', 128, 'route' ),
+			stat( 'Kilometer', 9870, 'speed' ),
+			stat( 'Alarme', 3, 'warning' ),
+			{ type: 'card', newRow: true, data: { header: 'Details', data: { 'Kunde': 'ACME GmbH', 'Ort': 'Linz' } } },
+			section( 'Zweite Section', 'Inhalt der zweiten Section.' ),
+		]
+	};
+}
 function getLoginTestPage(): unknown {
 	return {
 		bread: null,

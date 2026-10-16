@@ -3,18 +3,19 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriStatComponent, XiriStatSettings } from 'projects/xiri-ng/src/lib/stat/stat.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-stats',
 	            templateUrl: './stats.component.html',
 	            styleUrl: './stats.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriStatComponent,
-		            GoCodePanelComponent,
-		            XiriBreadcrumbComponent
+		            GoCodePanelComponent
 	            ]
             } )
 export class StatsComponent {

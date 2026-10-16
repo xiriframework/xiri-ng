@@ -1,19 +1,10 @@
-<div class="xcontainer-fluid">
-
-	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- 1: Chart + 2 Compact-Stats -->
-	<div class="xrow">
+		<!-- 1: Chart + 2 Compact-Stats -->
 		<div class="xcol">
 			<xiri-section [settings]="section1">
 				<div class="xrow">
@@ -26,10 +17,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 2: Three Compact Stats -->
-	<div class="xrow">
+		<!-- 2: Three Compact Stats -->
 		<div class="xcol">
 			<xiri-section [settings]="section2">
 				<div class="xrow">
@@ -42,10 +31,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 3: Chart + Description-List -->
-	<div class="xrow">
+		<!-- 3: Chart + Description-List -->
 		<div class="xcol">
 			<xiri-section [settings]="section3">
 				<div class="xrow">
@@ -59,5 +46,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

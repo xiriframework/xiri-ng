@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Sprache umschalten -->
-	<div class="xrow">
+		<!-- Sprache umschalten -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSwitch">
 				<mat-card class="mat-elevation-z2">
@@ -59,10 +49,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Datum & Zahlen -->
-	<div class="xrow">
+		<!-- Datum & Zahlen -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionFormats">
 				<mat-card class="mat-elevation-z2">
@@ -78,10 +66,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Validierungs-Fehlertexte -->
-	<div class="xrow">
+		<!-- Validierungs-Fehlertexte -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionValidation">
 				<mat-card class="mat-elevation-z2">
@@ -96,10 +82,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Custom-Sprache -->
-	<div class="xrow">
+		<!-- Custom-Sprache -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCustom">
 				<mat-card class="mat-elevation-z2">
@@ -118,5 +102,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

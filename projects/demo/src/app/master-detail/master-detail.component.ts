@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriCalloutComponent, XiriCalloutSettings } from 'projects/xiri-ng/src/lib/callout/callout.component';
 import { XiriQueryComponent, XiriQueryResultCount, XiriQuerySettings } from 'projects/xiri-ng/src/lib/query/query.component';
 import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
@@ -20,14 +20,15 @@ interface DemoOrder {
 	machine: string;
 	due: string;
 }
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-master-detail',
 	            templateUrl: './master-detail.component.html',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
-		            XiriBreadcrumbComponent,
 		            XiriCalloutComponent,
 		            XiriQueryComponent,
 		            XiriTableComponent,

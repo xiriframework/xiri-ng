@@ -1,41 +1,27 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Stepper -->
-	<div class="xrow">
+		<!-- Stepper -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionStepper">
 				<p>Steps: Personal Info → Contact → Summary.</p>
 				<xiri-stepper [settings]="stepperSettings"></xiri-stepper>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Query + Tabs -->
-	<div class="xrow">
+		<!-- Query + Tabs -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionQueryTabs">
 				<xiri-query [settings]="querySettings" (filterChange)="filterChanged($event)"></xiri-query>
 				<xiri-tabs [settings]="tabsSettings" [filterData]="filterData()" [dyncomponent]="dynTemplate"></xiri-tabs>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Query Collapsed Demo -->
-	<div class="xrow">
+		<!-- Query Collapsed Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionQueryCollapsed">
 				<div class="xrow">
@@ -50,8 +36,7 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>
 
 <ng-template #dynTemplate let-obj>
 	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>

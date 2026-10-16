@@ -1,15 +1,16 @@
 import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriChatComponent } from 'projects/xiri-ng/src/lib/chat/chat.component';
 import { XiriChatSettings } from 'projects/xiri-ng/src/lib/chat/chat.types';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-chat',
 	            templateUrl: './chat.component.html',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriBreadcrumbComponent, XiriChatComponent, GoCodePanelComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriChatComponent, GoCodePanelComponent ]
             } )
 export class ChatComponent {
 

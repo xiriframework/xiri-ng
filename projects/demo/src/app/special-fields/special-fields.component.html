@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- File Upload -->
-	<div class="xrow">
+		<!-- File Upload -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionFileUpload">
 				<mat-card class="mat-elevation-z2">
@@ -26,10 +16,8 @@
 				<app-go-code [code]="goFileCode" title="Go: field (file)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Volume -->
-	<div class="xrow">
+		<!-- Volume -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionVolume">
 				<mat-card class="mat-elevation-z2">
@@ -40,10 +28,8 @@
 				<app-go-code [code]="goVolumeCode" title="Go: field (volume)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Timelimit -->
-	<div class="xrow">
+		<!-- Timelimit -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTimelimit">
 				<mat-card class="mat-elevation-z2">
@@ -54,10 +40,8 @@
 				<app-go-code [code]="goTimelimitCode" title="Go: field (timelimit)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Question -->
-	<div class="xrow">
+		<!-- Question -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionQuestion">
 				<mat-card class="mat-elevation-z2">
@@ -68,10 +52,8 @@
 				<app-go-code [code]="goQuestionCode" title="Go: field (question)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Waiting -->
-	<div class="xrow">
+		<!-- Waiting -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionWaiting">
 				<mat-card class="mat-elevation-z2">
@@ -82,10 +64,8 @@
 				<app-go-code [code]="goWaitingCode" title="Go: field (waiting)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Chips / Tags -->
-	<div class="xrow">
+		<!-- Chips / Tags -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionChips">
 				<mat-card class="mat-elevation-z2">
@@ -96,10 +76,8 @@
 				<app-go-code [code]="goChipsCode" title="Go: field (chips)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Radio -->
-	<div class="xrow">
+		<!-- Radio -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRadio">
 				<mat-card class="mat-elevation-z2">
@@ -111,5 +89,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

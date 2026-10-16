@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- 1: Simple -->
-	<div class="xrow">
+		<!-- 1: Simple -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSimple1">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 2: Simple variant -->
-	<div class="xrow">
+		<!-- 2: Simple variant -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSimple2">
 				<div class="xrow">
@@ -44,10 +32,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 2b: Rotated x-axis labels -->
-	<div class="xrow">
+		<!-- 2b: Rotated x-axis labels -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRotate">
 				<div class="xrow">
@@ -63,10 +49,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 3: Stacked -->
-	<div class="xrow">
+		<!-- 3: Stacked -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionStacked">
 				<div class="xrow">
@@ -79,10 +63,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 4: Heatmap -->
-	<div class="xrow">
+		<!-- 4: Heatmap -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionHeatmap">
 				<div class="xrow">
@@ -97,10 +79,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 5: Line Chart -->
-	<div class="xrow">
+		<!-- 5: Line Chart -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionLine">
 				<div class="xrow">
@@ -113,10 +93,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 5b: Line rotated x-axis labels -->
-	<div class="xrow">
+		<!-- 5b: Line rotated x-axis labels -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionLineRotated">
 				<div class="xrow">
@@ -129,10 +107,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 6: Pie & Donut -->
-	<div class="xrow">
+		<!-- 6: Pie & Donut -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionPie">
 				<div class="xrow">
@@ -150,10 +126,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 7: Gauge -->
-	<div class="xrow">
+		<!-- 7: Gauge -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionGauge">
 				<div class="xrow">
@@ -174,10 +148,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 8: Nightingale -->
-	<div class="xrow">
+		<!-- 8: Nightingale -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionNightingale">
 				<div class="xrow">
@@ -190,10 +162,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 9: Heatmap Matrix -->
-	<div class="xrow">
+		<!-- 9: Heatmap Matrix -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionHeatmap2">
 				<div class="xrow">
@@ -208,10 +178,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 9b: Heatmap rotated x-axis labels -->
-	<div class="xrow">
+		<!-- 9b: Heatmap rotated x-axis labels -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionHeatmapRotated">
 				<div class="xrow">
@@ -224,10 +192,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 10: Calendar -->
-	<div class="xrow">
+		<!-- 10: Calendar -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCalendar">
 				<div class="xrow">
@@ -242,10 +208,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 11: Tree -->
-	<div class="xrow">
+		<!-- 11: Tree -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTree">
 				<div class="xrow">
@@ -258,10 +222,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 12: Sankey -->
-	<div class="xrow">
+		<!-- 12: Sankey -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSankey">
 				<div class="xrow">
@@ -276,10 +238,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 13: Gantt -->
-	<div class="xrow">
+		<!-- 13: Gantt -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionGantt">
 				<div class="xrow">
@@ -294,10 +254,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- 14: Bullet Chart -->
-	<div class="xrow">
+		<!-- 14: Bullet Chart -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionBullet">
 				<div class="xrow">
@@ -314,5 +272,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

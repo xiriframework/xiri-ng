@@ -3,18 +3,19 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriMultiStatComponent, XiriMultiStatSettings } from 'projects/xiri-ng/src/lib/multi-stat/multi-stat.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-multi-stat',
 	            templateUrl: './multi-stat.component.html',
 	            styleUrl: './multi-stat.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriMultiStatComponent,
-		            GoCodePanelComponent,
-		            XiriBreadcrumbComponent
+		            GoCodePanelComponent
 	            ]
             } )
 export class MultiStatComponent {

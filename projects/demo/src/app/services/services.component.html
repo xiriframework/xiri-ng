@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- ThemeService -->
-	<div class="xrow">
+		<!-- ThemeService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTheme">
 				<mat-card class="mat-elevation-z2">
@@ -29,10 +19,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriDataService -->
-	<div class="xrow">
+		<!-- XiriDataService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDataService">
 				<mat-card class="mat-elevation-z2">
@@ -42,10 +30,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriDateService -->
-	<div class="xrow">
+		<!-- XiriDateService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDateService">
 				<mat-card class="mat-elevation-z2">
@@ -57,10 +43,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriNumberService -->
-	<div class="xrow">
+		<!-- XiriNumberService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionNumberService">
 				<mat-card class="mat-elevation-z2">
@@ -72,10 +56,8 @@
 				</mat-card>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- LocalStorage & SessionStorage -->
-	<div class="xrow">
+		<!-- LocalStorage & SessionStorage -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionStorage">
 				<div class="xrow">
@@ -123,5 +105,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

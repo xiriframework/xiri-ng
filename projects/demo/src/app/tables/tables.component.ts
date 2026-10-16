@@ -9,15 +9,17 @@ import { XiriRawTableComponent, XiriRawTableSettings } from 'projects/xiri-ng/sr
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-tables',
 	            templateUrl: './tables.component.html',
 	            styleUrl: './tables.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, XiriRawTableComponent,
-		            GoCodePanelComponent, XiriBreadcrumbComponent, MatButtonToggleGroup, MatButtonToggle
+		            GoCodePanelComponent, MatButtonToggleGroup, MatButtonToggle
 	            ]
             } )
 export class TablesComponent {

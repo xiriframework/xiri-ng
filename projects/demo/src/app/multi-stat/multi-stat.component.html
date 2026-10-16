@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Variante 1: Header + Icons -->
-	<div class="xrow">
+		<!-- Variante 1: Header + Icons -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionKpi">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 2: ohne Header -->
-	<div class="xrow">
+		<!-- Variante 2: ohne Header -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionPlain">
 				<div class="xrow">
@@ -44,10 +32,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 3: Einheiten & Trend -->
-	<div class="xrow">
+		<!-- Variante 3: Einheiten & Trend -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionUnits">
 				<div class="xrow">
@@ -60,10 +46,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 4: viele Kennzahlen -->
-	<div class="xrow">
+		<!-- Variante 4: viele Kennzahlen -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionMany">
 				<div class="xrow">
@@ -76,10 +60,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 4b: vertikale Items -->
-	<div class="xrow">
+		<!-- Variante 4b: vertikale Items -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionVertical">
 				<div class="xrow">
@@ -92,10 +74,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 5: klickbare Zahlen -->
-	<div class="xrow">
+		<!-- Variante 5: klickbare Zahlen -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionLinks">
 				<div class="xrow">
@@ -108,10 +88,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Variante 6: AJAX-Nachladen -->
-	<div class="xrow">
+		<!-- Variante 6: AJAX-Nachladen -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionAjax">
 				<div class="xrow">
@@ -122,5 +100,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

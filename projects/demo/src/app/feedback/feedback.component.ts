@@ -9,18 +9,20 @@ import { XiriMultiprogressComponent, XiriMultiprogressSettings } from 'projects/
 import { XiriProgressComponent, XiriProgressSettings } from 'projects/xiri-ng/src/lib/progress/progress.component';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriButton, XiriButtonComponent } from 'projects/xiri-ng/src/lib/button/button.component';
 import { XiriSidepanelService } from 'projects/xiri-ng/src/lib/sidepanel/sidepanel.service';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-feedback',
 	            templateUrl: './feedback.component.html',
 	            styleUrl: './feedback.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriDoneComponent,
@@ -29,7 +31,6 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		            XiriProgressComponent,
 		            MatButton,
 		            MatIcon,
-		            XiriBreadcrumbComponent,
 		            XiriButtonComponent,
 		            GoCodePanelComponent
 	            ]

@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Text Lines -->
-	<div class="xrow">
+		<!-- Text Lines -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTextLines">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Circle -->
-	<div class="xrow">
+		<!-- Circle -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCircle">
 				<div class="xrow">
@@ -44,10 +32,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Rectangle -->
-	<div class="xrow">
+		<!-- Rectangle -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRect">
 				<div class="xrow">
@@ -60,19 +46,15 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table Rows -->
-	<div class="xrow">
+		<!-- Table Rows -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTableRows">
 				<xiri-skeleton type="table-row" [lines]="5" [columns]="4"></xiri-skeleton>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Simulate Loading -->
-	<div class="xrow">
+		<!-- Simulate Loading -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSimulate">
 				<button mat-raised-button color="primary" (click)="simulateLoad()">Simulate 2s Load</button>
@@ -89,5 +71,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

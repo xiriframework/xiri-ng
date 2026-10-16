@@ -6,13 +6,14 @@ import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.inter
 import { XiriCardSettings } from 'projects/xiri-ng/src/lib/card/card.component';
 import { XiriButton } from 'projects/xiri-ng/src/lib/button/button.component';
 import { XiriButtonlineSettings } from 'projects/xiri-ng/src/lib/buttonline/buttonline.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-dynamic',
 	            templateUrl: './dynamic.component.html',
 	            styleUrl: './dynamic.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriBreadcrumbComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent ]
             } )
 export class DynamicComponent {
 

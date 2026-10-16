@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- XiriHeaderComponent -->
-	<div class="xrow">
+		<!-- XiriHeaderComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionHeader">
 				<div class="xrow">
@@ -47,10 +37,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriButtonlineComponent -->
-	<div class="xrow">
+		<!-- XiriButtonlineComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionButtonline">
 				<div class="xrow">
@@ -65,27 +53,22 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriSearchComponent -->
-	<div class="xrow">
+		<!-- XiriSearchComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSearch">
 				<xiri-search (changed)="searchChange($event)" [placeholder]="'Search..'" [focus]="searchFocus()" [open]="true" [reset]="searchReset()"></xiri-search>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriTabsComponent -->
-	<div class="xrow">
+		<!-- XiriTabsComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTabs">
 				<xiri-tabs [settings]="tabsSettings" [dyncomponent]="dynTemplate"></xiri-tabs>
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>
 
 <ng-template #dynTemplate let-obj>
 	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>

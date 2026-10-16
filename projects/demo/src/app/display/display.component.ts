@@ -9,13 +9,15 @@ import { XiriCardlinkComponent, XiriCardlinkSettings } from 'projects/xiri-ng/sr
 import { SafehtmlPipe } from 'projects/xiri-ng/src/lib/pipes/safehtml.pipe';
 import { MatCard } from '@angular/material/card';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-display',
 	            templateUrl: './display.component.html',
 	            styleUrl: './display.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriInfopointComponent,
@@ -25,8 +27,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 		            XiriCardlinkComponent,
 		            SafehtmlPipe,
 		            MatCard,
-		            GoCodePanelComponent,
-		            XiriBreadcrumbComponent
+		            GoCodePanelComponent
 	            ]
             } )
 export class DisplayComponent {

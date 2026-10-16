@@ -1,49 +1,31 @@
-<div class="xcontainer-fluid">
-
-	<!-- 1. Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- 2. Page-Header: Identität + primäre Aktion -->
-	<div class="xrow">
+		<!-- 2. Page-Header: Identität + primäre Aktion -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- 3. Status -->
-	<div class="xrow">
+		<!-- 3. Status -->
 		<div class="xcol">
 			<xiri-status [settings]="status"></xiri-status>
 		</div>
-	</div>
 
-	<!-- 4. Stat-Grid: max 3 kompakte Kennzahlen -->
-	<div class="xrow">
+		<!-- 4. Stat-Grid: max 3 kompakte Kennzahlen -->
 		<div class="xcol">
 			<xiri-stat-grid [settings]="stats"></xiri-stat-grid>
 		</div>
-	</div>
 
-	<!-- 5. Description-List: max ~4 Metadaten -->
-	<div class="xrow">
+		<!-- 5. Description-List: max ~4 Metadaten -->
 		<div class="xcol">
 			<xiri-description-list [settings]="meta"></xiri-description-list>
 		</div>
-	</div>
 
-	<!-- 6. Buttonline: sekundäre Aktionen -->
-	<div class="xrow">
+		<!-- 6. Buttonline: sekundäre Aktionen -->
 		<div class="xcol">
 			<xiri-buttonline [settings]="secondaryActions"></xiri-buttonline>
 		</div>
-	</div>
 
-	<!-- Erklärung: Rezept statt eigener Component-Typ -->
-	<div class="xrow">
+		<!-- Erklärung: Rezept statt eigener Component-Typ -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRecipe">
 				<div class="xrow">
@@ -75,5 +57,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

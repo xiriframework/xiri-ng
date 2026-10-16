@@ -7,14 +7,16 @@ import { XiriDescriptionListComponent, XiriDescriptionListSettings } from 'proje
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-layout',
 	            templateUrl: './layout.component.html',
 	            styleUrl: './layout.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriDividerComponent,
 		            XiriStatGridComponent,
@@ -22,8 +24,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 		            XiriDescriptionListComponent,
 		            XiriSectionComponent,
 		            XiriDynComponentComponent,
-		            GoCodePanelComponent,
-		            XiriBreadcrumbComponent
+		            GoCodePanelComponent
 	            ]
 	            } )
 export class LayoutComponent {

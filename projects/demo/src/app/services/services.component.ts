@@ -12,13 +12,15 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { FormsModule } from '@angular/forms';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-services',
 	            templateUrl: './services.component.html',
 	            styleUrl: './services.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            MatButton,
@@ -28,8 +30,7 @@ import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/sr
 		            FormsModule,
 		            MatFormField,
 		            MatLabel,
-		            MatInput,
-		            XiriBreadcrumbComponent
+		            MatInput
 	            ]
             } )
 export class ServicesComponent {

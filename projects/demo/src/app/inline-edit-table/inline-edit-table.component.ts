@@ -4,19 +4,20 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.interface';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 
 /** dd.mm.yyyy from an ISO date — what the Go formatter renders for the De locale. */
 function isoToDisplay( iso: string ): string {
 	const [ y, m, d ] = iso.split( '-' );
 	return `${ d }.${ m }.${ y }`;
 }
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-inline-edit-table',
 	            templateUrl: './inline-edit-table.component.html',
 	            styleUrl: './inline-edit-table.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent ]
             } )
 export class InlineEditTableComponent {
 

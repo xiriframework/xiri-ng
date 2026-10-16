@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Basic Breadcrumbs -->
-	<div class="xrow">
+		<!-- Basic Breadcrumbs -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionBasic">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Deep Navigation -->
-	<div class="xrow">
+		<!-- Deep Navigation -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDeep">
 				<div class="xrow">
@@ -44,10 +32,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- External Links -->
-	<div class="xrow">
+		<!-- External Links -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionExternal">
 				<div class="xrow">
@@ -60,10 +46,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- All Items with Icons -->
-	<div class="xrow">
+		<!-- All Items with Icons -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionIcons">
 				<div class="xrow">
@@ -77,5 +61,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

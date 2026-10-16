@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Basic Variants -->
-	<div class="xrow">
+		<!-- Basic Variants -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionBasicVariants">
 				<button mat-raised-button class="success" (click)="showSuccess()">
@@ -35,10 +25,8 @@
 				</button>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- With Action -->
-	<div class="xrow">
+		<!-- With Action -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionWithAction">
 				<button mat-raised-button color="primary" (click)="showWithAction()">
@@ -46,15 +34,12 @@
 				</button>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Usage -->
-	<div class="xrow">
+		<!-- Usage -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionUsage">
 				<app-go-code [code]="usageCode" title="TypeScript"></app-go-code>
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

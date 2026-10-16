@@ -5,13 +5,14 @@ import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriFormComponent } from 'projects/xiri-ng/src/lib/form/form.component';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-selects',
 	            templateUrl: './selects.component.html',
 	            styleUrls: [ './selects.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, MatCard, MatCardContent, XiriFormComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, MatCard, MatCardContent, XiriFormComponent, GoCodePanelComponent ]
             } )
 export class SelectsComponent {
 

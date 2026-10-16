@@ -3,18 +3,19 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriEmptyStateComponent, XiriEmptyStateSettings } from 'projects/xiri-ng/src/lib/empty-state/empty-state.component';
 import { XiriTableComponent, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-empty-state',
 	            templateUrl: './empty-state.component.html',
 	            styleUrl: './empty-state.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriEmptyStateComponent,
-		            XiriTableComponent,
-		            XiriBreadcrumbComponent
+		            XiriTableComponent
 	            ]
             } )
 export class EmptyStateComponent {

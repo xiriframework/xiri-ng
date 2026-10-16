@@ -2,17 +2,18 @@ import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriStatusComponent, XiriStatusSettings } from 'projects/xiri-ng/src/lib/status/status.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector:    'app-status',
 	            templateUrl: './status.component.html',
 	            imports:     [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriStatusComponent,
-		            XiriBreadcrumbComponent,
 		            GoCodePanelComponent
 	            ]
             } )

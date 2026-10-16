@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriStatusComponent, XiriStatusSettings } from 'projects/xiri-ng/src/lib/status/status.component';
 import { XiriStatGridComponent, XiriStatGridSettings } from 'projects/xiri-ng/src/lib/stat-grid/stat-grid.component';
@@ -7,6 +7,7 @@ import { XiriDescriptionListComponent, XiriDescriptionListSettings } from 'proje
 import { XiriButtonlineComponent, XiriButtonlineSettings } from 'projects/xiri-ng/src/lib/buttonline/buttonline.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 // Rezept "Entity Summary": KEIN eigener Component-Typ, sondern eine feste Komposition
 // bestehender xiri-Komponenten für einen Detailkopf (hier: Auftrag/Kunde/Gerät).
@@ -16,7 +17,7 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 	            selector:    'app-entity-summary',
 	            templateUrl: './entity-summary.component.html',
 	            imports:     [
-		            XiriBreadcrumbComponent,
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriStatusComponent,
 		            XiriStatGridComponent,

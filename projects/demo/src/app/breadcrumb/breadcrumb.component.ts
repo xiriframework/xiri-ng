@@ -3,12 +3,13 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-breadcrumb',
 	            templateUrl: './breadcrumb.component.html',
 	            styleUrl: './breadcrumb.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriBreadcrumbComponent, GoCodePanelComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriBreadcrumbComponent, GoCodePanelComponent ]
             } )
 export class BreadcrumbComponent {
 

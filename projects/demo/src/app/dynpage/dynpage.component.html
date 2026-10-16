@@ -1,25 +1,16 @@
-<div class="xcontainer-fluid">
-	<div class="xrow">
-		@if (bread()) {
-			<div class="xcol bread">
-				test
-			</div>
-		}
-		<div class="xcol">
-			@if (loading()) {
-				<div class="dynpage-loader">
-					<mat-spinner diameter="30"></mat-spinner>
-				</div>
-			}
-			@if (error()) {
-				<div class="xcol error">
-					<h1>Page not found</h1>
-				</div>
-			}
-			<xiri-dyncomponent [data]="data()" [dyncomponent]="outdyncomponent" class="xrow"></xiri-dyncomponent>
+<app-demo-page [bread]="breadArray()">
+	@if (loading()) {
+		<div class="dynpage-loader">
+			<mat-spinner diameter="30"></mat-spinner>
 		</div>
-	</div>
-</div>
+	}
+	@if (error()) {
+		<div class="xcol error">
+			<h1>Page not found</h1>
+		</div>
+	}
+	<xiri-dyncomponent [data]="data()" [dyncomponent]="outdyncomponent" class="xrow"></xiri-dyncomponent>
+</app-demo-page>
 
 <ng-template #outdyncomponent let-obj let-filter="filterData">
 	@switch (obj.type) {

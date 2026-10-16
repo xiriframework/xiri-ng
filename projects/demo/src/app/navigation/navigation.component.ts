@@ -12,14 +12,16 @@ import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { XiriCardSettings } from 'projects/xiri-ng/src/lib/card/card.component';
 import { XiriFormSettings } from 'projects/xiri-ng/src/lib/form/form.component';
 import { XiriListSettings } from 'projects/xiri-ng/src/lib/list/list.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriButtonResult } from 'projects/xiri-ng/src/lib/button/button.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-navigation',
 	            templateUrl: './navigation.component.html',
 	            styleUrl: './navigation.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriHeaderComponent,
@@ -27,8 +29,7 @@ import { XiriButtonResult } from 'projects/xiri-ng/src/lib/button/button.compone
 		            XiriSearchComponent,
 		            XiriTabsComponent,
 		            XiriDynComponentComponent,
-		            GoCodePanelComponent,
-		            XiriBreadcrumbComponent
+		            GoCodePanelComponent
 	            ]
             } )
 export class NavigationComponent {

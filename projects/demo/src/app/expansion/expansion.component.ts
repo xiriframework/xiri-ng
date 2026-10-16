@@ -4,20 +4,21 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriExpansionComponent, XiriExpansionPanelSettings, XiriExpansionSettings } from 'projects/xiri-ng/src/lib/expansion/expansion.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriDynData } from 'projects/xiri-ng/src/lib/dyncomponent/dyndata.interface';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriCardSettings } from 'projects/xiri-ng/src/lib/card/card.component';
 import { XiriTableRow, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-expansion',
 	            templateUrl: './expansion.component.html',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriExpansionComponent,
 		            XiriDynComponentComponent,
-		            XiriBreadcrumbComponent,
 		            GoCodePanelComponent
 	            ]
             } )

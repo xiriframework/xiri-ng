@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- ThemeService -->
-	<div class="xrow">
+		<!-- ThemeService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTheme">
 				<p>Current mode: <strong>{{ themeService.isDark() ? 'Dark' : 'Light' }}</strong></p>
@@ -25,10 +15,8 @@
 				</button>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Component-Katalog -->
-	<div class="xrow">
+		<!-- Component-Katalog -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCatalog">
 
@@ -76,5 +64,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

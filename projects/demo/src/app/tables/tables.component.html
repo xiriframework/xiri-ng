@@ -1,139 +1,105 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Table 1 -->
-	<div class="xrow">
+		<!-- Table 1 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable1">
 				<xiri-table [settings]="data"></xiri-table>
 				<app-go-code [code]="goTable1Code" title="Go: table (select + header)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 2 -->
-	<div class="xrow">
+		<!-- Table 2 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable2">
 				<xiri-table [settings]="data2"></xiri-table>
 				<app-go-code [code]="goTable2Code" title="Go: table (input fields)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 3 -->
-	<div class="xrow">
+		<!-- Table 3 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable3">
 				<xiri-table [settings]="data3"></xiri-table>
 				<app-go-code [code]="goTable3Code" title="Go: table (row buttons)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 4 -->
-	<div class="xrow">
+		<!-- Table 4 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable4">
 				<xiri-table [settings]="data4"></xiri-table>
 				<app-go-code [code]="goTable4Code" title="Go: table (footer + menu)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 5 -->
-	<div class="xrow">
+		<!-- Table 5 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable5">
 				<xiri-table [settings]="data5" (clickedRow)="onRowClicked($event)"></xiri-table>
 				<app-go-code [code]="goTable5Code" title="Go: table (chips + borders)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 5b: Bulk Actions -->
-	<div class="xrow">
+		<!-- Table 5b: Bulk Actions -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionBulk">
 				<xiri-table [settings]="dataBulk"></xiri-table>
 				<app-go-code [code]="goBulkCode" title="Go: table (BulkActions / UX-007)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 6 -->
-	<div class="xrow">
+		<!-- Table 6 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable6">
 				<xiri-table [settings]="data6"></xiri-table>
 				<app-go-code [code]="goTable6Code" title="Go: table (server-side)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 7 -->
-	<div class="xrow">
+		<!-- Table 7 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable7">
 				<xiri-table [settings]="data7"></xiri-table>
 				<app-go-code [code]="goTable7Code" title="Go: table (scrollHeight)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 8 -->
-	<div class="xrow">
+		<!-- Table 8 -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable8">
 				<xiri-table [settings]="data8"></xiri-table>
 				<app-go-code [code]="goTable8Code" title="Go: ChipsField (status tags)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 9: Auto-Refresh / Poll -->
-	<div class="xrow">
+		<!-- Table 9: Auto-Refresh / Poll -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTable9">
 				<xiri-table [settings]="data9"></xiri-table>
 				<app-go-code [code]="goTable9Code" title="Go: table (SetPoll / Auto-Refresh)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 10: Error + Retry -->
-	<div class="xrow">
+		<!-- Table 10: Error + Retry -->
 		<div class="xcol">
 			<h3 style="margin: 24px 0 8px;">Error + Retry (differenzierte Fehlermeldung + Wiederholen)</h3>
 			<xiri-table [settings]="dataError"></xiri-table>
 		</div>
-	</div>
 
-	<!-- RawTable -->
-	<div class="xrow">
+		<!-- RawTable -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRawTable">
 				<xiri-raw-table [settings]="rawTableSettings"></xiri-raw-table>
 				<app-go-code [code]="goRawTableCode" title="Go: table (static data)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table 11: Density + Number Column -->
-	<div class="xrow">
+		<!-- Table 11: Density + Number Column -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDensity">
 				<mat-button-toggle-group [value]="density()" (change)="setDensity($event.value)">
@@ -146,5 +112,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- XiriDoneComponent -->
-	<div class="xrow">
+		<!-- XiriDoneComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDone">
 				<div class="xrow">
@@ -25,10 +15,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriErrorComponent -->
-	<div class="xrow">
+		<!-- XiriErrorComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionError">
 				<div class="xrow">
@@ -38,10 +26,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriAlertComponent -->
-	<div class="xrow">
+		<!-- XiriAlertComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionAlert">
 				<button mat-raised-button color="warn" (click)="openAlert('warning')">
@@ -53,10 +39,8 @@
 				</button>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriSidepanelService -->
-	<div class="xrow">
+		<!-- XiriSidepanelService -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSidepanel">
 				<button mat-raised-button color="primary" (click)="openSidepanel()">
@@ -64,10 +48,8 @@
 				</button>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriMultiprogressComponent -->
-	<div class="xrow">
+		<!-- XiriMultiprogressComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionMultiprogress">
 				<div class="xrow">
@@ -91,10 +73,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Selbst-pollender Button -->
-	<div class="xrow">
+		<!-- Selbst-pollender Button -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionButtonPoll">
 				<xiri-button [button]="workerButton"></xiri-button>
@@ -102,5 +82,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

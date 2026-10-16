@@ -3,22 +3,23 @@ import { Subject } from 'rxjs';
 import { fr } from 'date-fns/locale/fr';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriFormFieldsComponent } from 'projects/xiri-ng/src/lib/formfields/form-fields.component';
 import { XiriFormField } from 'projects/xiri-ng/src/lib/formfields/field.interface';
 import { XiriLocaleService } from 'projects/xiri-ng/src/lib/services/locale.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent } from '@angular/material/card';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-locale',
 	            templateUrl: './locale.component.html',
 	            styleUrl: './locale.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
-		            XiriBreadcrumbComponent,
 		            XiriFormFieldsComponent,
 		            MatButton,
 		            MatIcon,

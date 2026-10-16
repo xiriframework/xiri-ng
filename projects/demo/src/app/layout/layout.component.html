@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- PageHeader-Demo -->
-	<div class="xrow">
+		<!-- PageHeader-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionPageHeader">
 				<div class="xrow">
@@ -43,10 +33,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Section-Demo -->
-	<div class="xrow">
+		<!-- Section-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSection">
 				<div class="xrow">
@@ -66,10 +54,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Divider-Demo -->
-	<div class="xrow">
+		<!-- Divider-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDivider">
 				<div class="xrow">
@@ -94,10 +80,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- StatGrid-Demo -->
-	<div class="xrow">
+		<!-- StatGrid-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionStatGrid">
 				<div class="xrow">
@@ -113,10 +97,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Toolbar-Demo -->
-	<div class="xrow">
+		<!-- Toolbar-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionToolbar">
 				<div class="xrow">
@@ -134,10 +116,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- DescriptionList-Demo -->
-	<div class="xrow">
+		<!-- DescriptionList-Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDescList">
 				<div class="xrow">
@@ -165,10 +145,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- cols + Container Queries -->
-	<div class="xrow">
+		<!-- cols + Container Queries -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionColsCQ">
 				<div class="xrow">
@@ -202,15 +180,12 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- DynComponent Integration -->
-	<div class="xrow">
+		<!-- DynComponent Integration -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDynComponent">
 				<xiri-dyncomponent [data]="dynData"></xiri-dyncomponent>
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

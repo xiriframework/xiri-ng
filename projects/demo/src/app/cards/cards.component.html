@@ -1,30 +1,18 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- DynComponent Cards -->
-	<div class="xrow">
+		<!-- DynComponent Cards -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDynCards">
 				<xiri-dyncomponent [data]="data" class="xrow"></xiri-dyncomponent>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table Card -->
-	<div class="xrow">
+		<!-- Table Card -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTableCard">
 				<div class="xrow">
@@ -37,10 +25,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Card with Buttons -->
-	<div class="xrow">
+		<!-- Card with Buttons -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCardButtons">
 				<div class="xrow">
@@ -53,10 +39,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Flat Card -->
-	<div class="xrow">
+		<!-- Flat Card -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionFlatCard">
 				<div class="xrow">
@@ -72,10 +56,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Nachladbares Panel -->
-	<div class="xrow">
+		<!-- Nachladbares Panel -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionPanel">
 				<div class="xrow">
@@ -91,10 +73,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Dense Card -->
-	<div class="xrow">
+		<!-- Dense Card -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDenseCard">
 				<div class="xrow">
@@ -107,10 +87,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Card with Icon Values -->
-	<div class="xrow">
+		<!-- Card with Icon Values -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionIconCard">
 				<div class="xrow">
@@ -123,10 +101,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Card with Menu Button -->
-	<div class="xrow">
+		<!-- Card with Menu Button -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionMenuCard">
 				<div class="xrow">
@@ -139,10 +115,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Card with Chips Column -->
-	<div class="xrow">
+		<!-- Card with Chips Column -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionChipsCard">
 				<div class="xrow">
@@ -152,10 +126,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Collapsible Cards -->
-	<div class="xrow">
+		<!-- Collapsible Cards -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCollapsibleCard">
 				<div class="xrow">
@@ -175,5 +147,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

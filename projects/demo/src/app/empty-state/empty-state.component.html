@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Standalone -->
-	<div class="xrow">
+		<!-- Standalone -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionStandalone">
 				<div class="xrow">
@@ -28,15 +18,12 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Table Integration -->
-	<div class="xrow">
+		<!-- Table Integration -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTableIntegration">
 				<xiri-table [settings]="tableSettings"></xiri-table>
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

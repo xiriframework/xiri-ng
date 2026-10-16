@@ -38,6 +38,28 @@ describe( 'every demo page', () => {
 	} );
 } );
 
+// Same DOM as a dynpage of a client app, so spacing measured here is the spacing there.
+describe( 'demo page structure', () => {
+
+	it.each( [ ...routePaths, ...dynPaths, ...showsNotFound ] )( '%s has the client dynpage structure', async path => {
+		const fixture = await renderDemo( '/' + path );
+
+		const container = fixture.nativeElement.querySelector( '.mainpage .xcontainer-fluid' ) as HTMLElement;
+		const rows = container.querySelectorAll( ':scope > .xrow' );
+		expect( rows.length ).toBe( 1 );
+
+		const cols = rows[ 0 ].querySelectorAll( ':scope > .xcol' );
+		const bread = rows[ 0 ].querySelectorAll( ':scope > .xcol.bread' );
+		expect( bread.length ).toBeLessThanOrEqual( 1 );
+		if ( bread.length )
+			expect( cols[ 0 ] ).toBe( bread[ 0 ] );
+
+		const content = cols[ cols.length - 1 ];
+		expect( content.classList.contains( 'bread' ) ).toBe( false );
+		expect( content.querySelectorAll( ':scope > .xrow, :scope > xiri-dyncomponent.xrow' ).length ).toBe( 1 );
+	} );
+} );
+
 describe( 'demo sidebar', () => {
 
 	it( 'links every demo page', () => {

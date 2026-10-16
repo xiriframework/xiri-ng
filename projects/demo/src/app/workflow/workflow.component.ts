@@ -6,21 +6,22 @@ import { XiriTabsComponent, XiriTabsSettings } from 'projects/xiri-ng/src/lib/ta
 import { XiriQueryComponent, XiriQuerySettings } from 'projects/xiri-ng/src/lib/query/query.component';
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-workflow',
 	            templateUrl: './workflow.component.html',
 	            styleUrl: './workflow.component.scss',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
 		            XiriStepperComponent,
 		            XiriTabsComponent,
 		            XiriQueryComponent,
 		            XiriDynComponentComponent,
-		            XiriBreadcrumbComponent,
 		            GoCodePanelComponent
 	            ]
             } )

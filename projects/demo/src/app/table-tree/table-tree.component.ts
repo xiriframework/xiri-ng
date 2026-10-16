@@ -5,13 +5,14 @@ import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/
 import { XiriTableComponent, XiriTableSettings, XiriTableRow } from 'projects/xiri-ng/src/lib/table/table.component';
 import { XiriTableField } from 'projects/xiri-ng/src/lib/raw-table/tabefield.interface';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-table-tree',
 	            templateUrl: './table-tree.component.html',
 	            styleUrl: './table-tree.component.scss',
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriTableComponent, GoCodePanelComponent ]
             } )
 export class TableTreeComponent {
 

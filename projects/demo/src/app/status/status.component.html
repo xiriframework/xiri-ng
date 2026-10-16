@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Badge -->
-	<div class="xrow">
+		<!-- Badge -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionBadge">
 				<div class="xrow">
@@ -32,10 +22,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Dot -->
-	<div class="xrow">
+		<!-- Dot -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDot">
 				<div class="xrow">
@@ -52,10 +40,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Text -->
-	<div class="xrow">
+		<!-- Text -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionText">
 				<div class="xrow">
@@ -73,5 +59,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

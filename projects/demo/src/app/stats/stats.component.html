@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Dashboard Layout -->
-	<div class="xrow">
+		<!-- Dashboard Layout -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDashboard">
 				<div class="xrow">
@@ -41,10 +31,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Minimal Variant -->
-	<div class="xrow">
+		<!-- Minimal Variant -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionMinimal">
 				<div class="xrow">
@@ -65,5 +53,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- XiriInfopointComponent -->
-	<div class="xrow">
+		<!-- XiriInfopointComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionInfopoint">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriImagetextComponent -->
-	<div class="xrow">
+		<!-- XiriImagetextComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionImagetext">
 				<div class="xrow">
@@ -51,10 +39,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriLinksComponent -->
-	<div class="xrow">
+		<!-- XiriLinksComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionLinks">
 				<div class="xrow">
@@ -67,10 +53,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriListComponent -->
-	<div class="xrow">
+		<!-- XiriListComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionList">
 				<div class="xrow">
@@ -82,10 +66,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- XiriCardlinkComponent -->
-	<div class="xrow">
+		<!-- XiriCardlinkComponent -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionCardlink">
 				<div class="xrow">
@@ -97,10 +79,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- SafehtmlPipe -->
-	<div class="xrow">
+		<!-- SafehtmlPipe -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSafeHtml">
 				<div class="xrow">
@@ -113,5 +93,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

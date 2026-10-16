@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { XiriBarChartComponent, XiriBarChartSettings } from 'projects/xiri-ng/src/lib/barchart/barchart.component';
 import { XiriLineChartComponent, XiriLineChartSettings } from 'projects/xiri-ng/src/lib/linechart/linechart.component';
 import { XiriPieChartComponent, XiriPieChartSettings } from 'projects/xiri-ng/src/lib/piechart/piechart.component';
@@ -13,15 +13,16 @@ import { XiriSankeyComponent, XiriSankeySettings } from 'projects/xiri-ng/src/li
 import { XiriGanttComponent, XiriGanttSettings } from 'projects/xiri-ng/src/lib/gantt/gantt.component';
 import { XiriBulletChartComponent, XiriBulletChartSettings } from 'projects/xiri-ng/src/lib/bulletchart/bulletchart.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component({
 	selector: 'app-barcharts',
 	templateUrl: './barcharts.component.html',
 	styleUrl: './barcharts.component.scss',
 	imports: [
+		DemoPageComponent,
 		XiriPageHeaderComponent,
 		XiriSectionComponent,
-		XiriBreadcrumbComponent,
 		XiriBarChartComponent,
 		XiriLineChartComponent,
 		XiriPieChartComponent,

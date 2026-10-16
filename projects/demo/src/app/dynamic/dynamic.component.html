@@ -1,30 +1,18 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- DynComponent Demo -->
-	<div class="xrow">
+		<!-- DynComponent Demo -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDynComponent">
 				<xiri-dyncomponent [data]="cardData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- DynPage Explanation -->
-	<div class="xrow">
+		<!-- DynPage Explanation -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionDynPage">
 				<ol>
@@ -38,8 +26,7 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>
 
 <ng-template #dynTemplate let-obj>
 	@switch (obj.type) {

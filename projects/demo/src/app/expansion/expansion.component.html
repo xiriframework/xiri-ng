@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- displayMode vs multi -->
-	<div class="xrow">
+		<!-- displayMode vs multi -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionFlatMulti">
 				<div class="xrow">
@@ -44,10 +34,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Tabellen im Panel -->
-	<div class="xrow">
+		<!-- Tabellen im Panel -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionTables">
 				<div class="xrow">
@@ -77,10 +65,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Lazy & Unload -->
-	<div class="xrow">
+		<!-- Lazy & Unload -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionLazy">
 				<div class="xrow">
@@ -95,10 +81,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Toggle -->
-	<div class="xrow">
+		<!-- Toggle -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionToggle">
 				<div class="xrow">
@@ -108,10 +92,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Header-Buttons -->
-	<div class="xrow">
+		<!-- Header-Buttons -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionButtons">
 				<div class="xrow">
@@ -124,10 +106,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Nachladbares Panel -->
-	<div class="xrow">
+		<!-- Nachladbares Panel -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionPanelUrl">
 				<div class="xrow">
@@ -141,8 +121,7 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>
 
 <ng-template #dynTemplate let-obj>
 	<xiri-dyncomponent [data]="obj.data" [filterData]="obj.filterData" [dyncomponent]="dynTemplate" class="xrow"></xiri-dyncomponent>

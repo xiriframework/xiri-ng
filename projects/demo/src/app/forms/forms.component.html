@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Field Types -->
-	<div class="xrow">
+		<!-- Field Types -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionFieldTypes">
 				<mat-card class="mat-elevation-z2">
@@ -26,10 +16,8 @@
 				<app-go-code [code]="goFieldTypesCode" title="Go: form/field"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Collapsible Sections & Dividers -->
-	<div class="xrow">
+		<!-- Collapsible Sections & Dividers -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSections">
 				<mat-card class="mat-elevation-z2">
@@ -40,10 +28,8 @@
 				<app-go-code [code]="goSectionsCode" title="Go: form (sections)"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Conditional Fields -->
-	<div class="xrow">
+		<!-- Conditional Fields -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionConditional">
 				<mat-card class="mat-elevation-z2">
@@ -54,10 +40,8 @@
 				<app-go-code [code]="goConditionalCode" title="Go: field.SetShowWhen"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Dependent Fields -->
-	<div class="xrow">
+		<!-- Dependent Fields -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionReload">
 				<mat-card class="mat-elevation-z2">
@@ -68,10 +52,8 @@
 				<app-go-code [code]="goReloadCode" title="Go: field.SetReloadOn"></app-go-code>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Repeatable Rows -->
-	<div class="xrow">
+		<!-- Repeatable Rows -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionRows">
 				<mat-card class="mat-elevation-z2">
@@ -83,5 +65,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

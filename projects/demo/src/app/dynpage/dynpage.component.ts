@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Event, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Observable, Subscription } from "rxjs";
@@ -6,6 +6,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriDynComponentComponent } from '../../../../xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { XiriDataService } from "../../../../xiri-ng/src/lib/services/data.service";
+import { XiriBreadcrumbItem } from "../../../../xiri-ng/src/lib/breadcrumb/breadcrumb.component";
+import { DemoPageComponent } from "../demo-page/demo-page.component";
 import { XiriDynData } from "../../../../xiri-ng/src/lib/dyncomponent/dyndata.interface";
 
 interface DynPageResponse {
@@ -16,8 +18,7 @@ interface DynPageResponse {
 @Component( {
 	            selector: 'app-dynpage',
 	            templateUrl: './dynpage.component.html',
-	            styleUrls: [ './dynpage.component.scss' ],
-	            imports: [ MatProgressSpinner, XiriDynComponentComponent ]
+	            imports: [ MatProgressSpinner, XiriDynComponentComponent, DemoPageComponent ]
             } )
 export class DynpageComponent implements OnInit, OnDestroy {
 	
@@ -28,6 +29,8 @@ export class DynpageComponent implements OnInit, OnDestroy {
 	public loading = signal( true );
 	public data = signal<XiriDynData[]>( [] );
 	public bread = signal<unknown>( null );
+	// The mock backend sends null or a plain string too; only an array is a breadcrumb.
+	public breadArray = computed( () => Array.isArray( this.bread() ) ? this.bread() as XiriBreadcrumbItem[] : null );
 	private subs: Subscription = new Subscription();
 	public error = signal( false );
 	

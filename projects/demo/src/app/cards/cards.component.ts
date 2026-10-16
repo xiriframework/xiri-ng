@@ -9,13 +9,14 @@ import { XiriButtonlineSettings } from "projects/xiri-ng/src/lib/buttonline/butt
 import { XiriDynComponentComponent } from 'projects/xiri-ng/src/lib/dyncomponent/dyncomponent.component';
 import { XiriCardComponent } from 'projects/xiri-ng/src/lib/card/card.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-cards',
 	            templateUrl: './cards.component.html',
 	            styleUrls: [ './cards.component.scss' ],
-	            imports: [ XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent, GoCodePanelComponent, XiriBreadcrumbComponent ]
+	            imports: [ DemoPageComponent, XiriPageHeaderComponent, XiriSectionComponent, XiriDynComponentComponent, XiriCardComponent, GoCodePanelComponent ]
             } )
 export class CardsComponent {
 

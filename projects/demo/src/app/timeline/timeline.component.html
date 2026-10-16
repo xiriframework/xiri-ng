@@ -1,21 +1,11 @@
-<div class="xcontainer-fluid">
-
-	<!-- Breadcrumb -->
+<app-demo-page [bread]="breadcrumbs">
 	<div class="xrow">
-		<div class="xcol">
-			<xiri-breadcrumb [settings]="breadcrumbs"></xiri-breadcrumb>
-		</div>
-	</div>
-
-	<!-- Seitenkopf -->
-	<div class="xrow">
+		<!-- Seitenkopf -->
 		<div class="xcol">
 			<xiri-page-header [settings]="pageHeaderIntro"></xiri-page-header>
 		</div>
-	</div>
 
-	<!-- Activity Log -->
-	<div class="xrow">
+		<!-- Activity Log -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionActivityLog">
 				<div class="xrow">
@@ -28,10 +18,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Order Status -->
-	<div class="xrow">
+		<!-- Order Status -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionOrderStatus">
 				<div class="xrow">
@@ -44,10 +32,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Simple Steps -->
-	<div class="xrow">
+		<!-- Simple Steps -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSimpleSteps">
 				<div class="xrow">
@@ -60,10 +46,8 @@
 				</div>
 			</xiri-section>
 		</div>
-	</div>
 
-	<!-- Horizontal Stepper -->
-	<div class="xrow">
+		<!-- Horizontal Stepper -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionHorizontalStepper">
 				<div class="xrow">
@@ -79,5 +63,4 @@
 			</xiri-section>
 		</div>
 	</div>
-
-</div>
+</app-demo-page>

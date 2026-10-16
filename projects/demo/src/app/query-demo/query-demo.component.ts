@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-ng/src/lib/page-header/page-header.component';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
-import { XiriBreadcrumbComponent, XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
+import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import {
 	XiriQueryComponent,
 	XiriQueryResultCount,
@@ -15,14 +15,15 @@ interface DemoOrder {
 	status: number;
 	category: string;
 }
+import { DemoPageComponent } from '../demo-page/demo-page.component';
 
 @Component( {
 	            selector: 'app-query-demo',
 	            templateUrl: './query-demo.component.html',
 	            imports: [
+		            DemoPageComponent,
 		            XiriPageHeaderComponent,
 		            XiriSectionComponent,
-		            XiriBreadcrumbComponent,
 		            XiriQueryComponent,
 		            GoCodePanelComponent
 	            ]
