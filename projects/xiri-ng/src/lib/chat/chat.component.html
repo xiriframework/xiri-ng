@@ -1,0 +1,52 @@
+<div class="xiri-chat" [style.height]="settings().height">
+	<div #scroller class="messages" role="log" aria-live="polite" (scroll)="onScroll()">
+		@for ( row of rows(); track row.key ) {
+			@if ( row.kind === 'day' ) {
+				<div class="day"><span>{{ row.label }}</span></div>
+			} @else {
+				<div class="row" [class.own]="row.msg.own">
+					@if ( !row.msg.own ) {
+						<div class="avatar" aria-hidden="true">
+							@if ( row.showFrom ) {
+								@if ( row.msg.avatar ) { <img [src]="row.msg.avatar" alt=""> } @else { <span>{{ row.initials }}</span> }
+							}
+						</div>
+					}
+					<div class="bubble">
+						@if ( row.showFrom && row.msg.from ) { <div class="from">{{ row.msg.from }}</div> }
+						<div class="text">{{ row.msg.text }}</div>
+						<div class="meta">
+							<span class="time">{{ row.time }}</span>
+							@if ( row.msg.own && row.msg.status ) {
+								<span class="status" [class.read]="row.msg.status === 'read'" [class.failed]="row.msg.status === 'failed'"
+								      role="img" [attr.aria-label]="labels()[ row.msg.status ]">
+									<mat-icon aria-hidden="true">{{ statusIcon[ row.msg.status ] }}</mat-icon>
+								</span>
+							}
+						</div>
+						@if ( row.msg.status === 'failed' ) {
+							<button mat-button type="button" class="retry" (click)="retry( row.msg )">{{ labels().retry }}</button>
+						}
+					</div>
+				</div>
+			}
+		}
+	</div>
+	@if ( unseen() ) {
+		<button mat-stroked-button type="button" class="unseen" (click)="scrollToBottom()">
+			<mat-icon>arrow_downward</mat-icon>{{ labels().newMessages }}
+		</button>
+	}
+	@if ( !settings().readonly ) {
+		<div class="composer">
+			<textarea cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"
+			          [attr.aria-label]="labels().input" [placeholder]="settings().placeholder ?? ''"
+			          [attr.maxlength]="settings().maxLength ?? null" [value]="draft()"
+			          (input)="onInput( $event )" (keydown)="onKeydown( $event )"></textarea>
+			<button mat-icon-button type="button" class="send" [disabled]="!draft().trim()" [attr.aria-label]="labels().send"
+			        (click)="submit()">
+				<mat-icon>send</mat-icon>
+			</button>
+		</div>
+	}
+</div>
