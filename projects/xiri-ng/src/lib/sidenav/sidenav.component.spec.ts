@@ -159,7 +159,9 @@ describe('XiriSidenavComponent', () => {
 
 		const toggle: HTMLElement = fixture.nativeElement.querySelector('.parent');
 		const submenu: HTMLElement = fixture.nativeElement.querySelector('.submenu');
-		expect(toggle.getAttribute('role')).toBe('button');
+		// A real button: focusable by Tab and opened by Enter/Space natively (a mat-list-item element was neither).
+		expect(toggle.tagName).toBe('BUTTON');
+		expect(toggle.tabIndex).toBe(0);
 		expect(submenu.id).toBeTruthy();
 		expect(toggle.getAttribute('aria-controls')).toBe(submenu.id);
 		expect(toggle.getAttribute('aria-expanded')).toBe('false');
@@ -463,7 +465,7 @@ describe('XiriSidenavComponent inside a drawer', () => {
 	});
 
 	it('keeps an overlay drawer open when a submenu is toggled', async () => {
-		await click('mat-list-item.parent');
+		await click('button.parent');
 		expect(drawer.opened).toBe(true);
 	});
 

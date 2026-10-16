@@ -9,7 +9,8 @@
 
 .mat-mdc-list-item {
 	// M3: alle Einträge als Pille mit Abstand zum Rand (aktiv und Hover). Eckig wie früher: --xiri-sidenav-active-radius: 0.
-	width:         auto;
+	// calc statt auto: Gruppen-Schalter sind <button>, die bei auto auf ihren Inhalt schrumpfen.
+	width:         calc(100% - 2 * var(--xiri-spacing-sm));
 	margin-inline: var(--xiri-spacing-sm);
 	border-radius: var(--xiri-sidenav-active-radius, var(--xiri-radius-full));
 
@@ -48,6 +49,16 @@
 			color: var(--xiri-sidenav-active-icon-color, var(--primary));
 		}
 	}
+}
+
+// Gruppen-Schalter sind echte <button> (fokussierbar, Enter/Space nativ): Browser-Button-Styles zurücksetzen.
+button.mat-mdc-list-item.parent {
+	border:     0;
+	background: transparent;
+	font:       inherit;
+	color:      inherit;
+	text-align: start;
+	cursor:     pointer;
 }
 
 .submenu {

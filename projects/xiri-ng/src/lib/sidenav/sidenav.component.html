@@ -20,7 +20,7 @@
 				<span matListItemTitle>{{ nav.name }}</span>
 			</a>
 		} @else if (nav.menu) {
-			<mat-list-item (click)="nav.showSubmenu = !nav.showSubmenu" (keydown.enter)="nav.showSubmenu = !nav.showSubmenu" (keydown.space)="nav.showSubmenu = !nav.showSubmenu; $event.preventDefault()" role="button" [attr.aria-expanded]="nav.showSubmenu" [attr.aria-controls]="uid + '-' + i" class="parent">
+			<button mat-list-item type="button" (click)="nav.showSubmenu = !nav.showSubmenu" [attr.aria-expanded]="nav.showSubmenu" [attr.aria-controls]="uid + '-' + i" class="parent">
 				@if (nav.iconSet) {
 					<mat-icon matListItemIcon [fontSet]="nav.iconSet" [class]="nav.active ? 'primary' : 'accent'">{{ nav.icon }}</mat-icon>
 				} @else {
@@ -30,7 +30,7 @@
 				<span matListItemMeta>
 					<mat-icon class="menu-button" [class.rotated]="nav.showSubmenu">expand_more</mat-icon>
 				</span>
-			</mat-list-item>
+			</button>
 			<!-- inert: zugeklappt nur per max-height verborgen, sonst blieben die Links in der Tab-Reihenfolge -->
 			<div class="submenu" [class.expanded]="nav.showSubmenu" [id]="uid + '-' + i" [attr.inert]="nav.showSubmenu ? null : ''">
 				@for (subnav of nav.sub; track subnav; let j = $index) {
@@ -39,12 +39,12 @@
 							@let subnavUrl = subnav.link | xiriUrl;
 							<a mat-list-item [routerLink]="subnavUrl?.path" [queryParams]="subnavUrl?.queryParams" [class.active]="subnav.active">{{ subnav.name }}</a>
 						} @else if (subnav.menu) {
-							<mat-list-item (click)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.enter)="subnav.showSubmenu = !subnav.showSubmenu" (keydown.space)="subnav.showSubmenu = !subnav.showSubmenu; $event.preventDefault()" role="button" [attr.aria-expanded]="subnav.showSubmenu" [attr.aria-controls]="uid + '-' + i + '-' + j" class="parent">
+							<button mat-list-item type="button" (click)="subnav.showSubmenu = !subnav.showSubmenu" [attr.aria-expanded]="subnav.showSubmenu" [attr.aria-controls]="uid + '-' + i + '-' + j" class="parent">
 								<span matListItemTitle>{{ subnav.name }}</span>
 								<span matListItemMeta>
 									<mat-icon class="menu-button" [class.rotated]="subnav.showSubmenu">expand_more</mat-icon>
 								</span>
-							</mat-list-item>
+							</button>
 							<div class="submenu submenu-nested" [class.expanded]="subnav.showSubmenu" [id]="uid + '-' + i + '-' + j" [attr.inert]="subnav.showSubmenu ? null : ''">
 								@for (subsubnav of subnav.sub; track subsubnav) {
 									@if (!subsubnav.hide) {
