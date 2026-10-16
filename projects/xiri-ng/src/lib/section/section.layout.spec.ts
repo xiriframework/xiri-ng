@@ -63,13 +63,20 @@ class QueryOnlyHost {
 	q = signal( query );
 }
 
+@Component( {
+	selector: 'test-section-icon',
+	template: `<xiri-section [settings]="{ title: '1: Select + Buttons + Header Rotation', icon: 'table_chart' }">x</xiri-section>`,
+	imports: [ XiriSectionComponent ],
+} )
+class IconSectionHost {}
+
 describe( 'Abstand Filter → Tabelle', () => {
 	afterAll( removeGridStyles );
 
 	beforeEach( async () => {
 		injectGridStyles();
 		await TestBed.configureTestingModule( {
-			imports: [ SectionHost, GridHost, SharedColumnHost, QueryOnlyHost ],
+			imports: [ SectionHost, GridHost, SharedColumnHost, QueryOnlyHost, IconSectionHost ],
 			providers: [
 				provideRouter( [] ),
 				{ provide: XiriDataService, useValue: { post: vi.fn().mockReturnValue( of( {} ) ), get: vi.fn().mockReturnValue( of( {} ) ) } },
@@ -89,6 +96,21 @@ describe( 'Abstand Filter → Tabelle', () => {
 		fixture.detectChanges();
 		return getComputedStyle( fixture.nativeElement.querySelector( 'xiri-query' ) ).marginBottom;
 	}
+
+	// On narrow screens the header actions move below the title instead of squeezing it.
+	it( 'lets the section header wrap', () => {
+		const fixture = TestBed.createComponent( SectionHost );
+		fixture.detectChanges();
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.section-header' ) ).flexWrap ).toBe( 'wrap' );
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.section-header-left' ) ).minWidth ).toBe( '0px' );
+	} );
+
+	// Mobile: a long title squeezed the section icon to a sliver.
+	it( 'keeps the section icon at full size next to a long title', () => {
+		const fixture = TestBed.createComponent( IconSectionHost );
+		fixture.detectChanges();
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.section-header-left mat-icon' ) ).flexShrink ).toBe( '0' );
+	} );
 
 	it( 'puts the grid row gap between a projected query and the table below', () => {
 		expect( queryMargin( SectionHost ) ).toBe( 'var(--xiri-grid-row-gap, 20px)' );

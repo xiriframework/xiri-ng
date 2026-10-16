@@ -48,6 +48,12 @@ describe( 'XiriPageHeaderComponent', () => {
 		expect( rule ).toContain( 'padding: var(--xiri-spacing-md, 1rem) 0' );
 	} );
 
+	// On narrow screens the actions move below the title instead of squeezing it.
+	it( 'lets the actions wrap below the title', () => {
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.page-header' ) ).flexWrap ).toBe( 'wrap' );
+		expect( getComputedStyle( fixture.nativeElement.querySelector( '.page-header-content' ) ).minWidth ).toBe( '0px' );
+	} );
+
 	it( 'should render title', () => {
 		const h1 = fixture.nativeElement.querySelector( 'h1' );
 		expect( h1 ).toBeTruthy();

@@ -2,7 +2,9 @@
 	display:         flex;
 	align-items:     flex-start;
 	justify-content: space-between;
-	gap:             var(--xiri-spacing-md, 1rem);
+	// Wenig Platz: Aktionen unter den Titel statt den Titel zu quetschen.
+	flex-wrap:       wrap;
+	gap:             var(--xiri-spacing-sm, 0.5rem) var(--xiri-spacing-md, 1rem);
 	// M3: keine Primärlinie, die Section-Trenner darunter reichen. Alte Linie: --xiri-page-header-border: 3px solid var(--primary).
 	padding:         var(--xiri-spacing-md, 1rem) 0 var(--xiri-spacing-sm, 0.5rem);
 	border-bottom:   var(--xiri-page-header-border, none);
@@ -31,5 +33,7 @@
 		display:     flex;
 		align-items: center;
 		gap:         var(--xiri-spacing-md, 1rem);
+		flex:        1 1 16rem;
+		min-width:   0;
 	}
 }

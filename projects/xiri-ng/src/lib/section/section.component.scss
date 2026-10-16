@@ -5,6 +5,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		// Wenig Platz: Aktionen unter den Titel statt den Titel zu quetschen.
+		flex-wrap: wrap;
+		row-gap: var(--xiri-spacing-sm);
 		padding: var(--xiri-spacing-sm, 0.5rem) 0;
 
 		h2 {
@@ -23,6 +26,12 @@
 			display: flex;
 			align-items: center;
 			gap: var(--xiri-spacing-sm);
+			flex: 1 1 16rem;
+			min-width: 0;
+
+			mat-icon {
+				flex-shrink: 0; // ein langer Titel quetschte das Icon mobil zu einem Strich
+			}
 		}
 		.section-header-right {
 			display: flex;
