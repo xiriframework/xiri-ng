@@ -7,6 +7,23 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Warning hat eine eigene Farbe** statt das Error-Rot: `--color-warning` ist Amber (`#B07700` hell, `#FFC94D` dunkel).
+  Callout und Status „warning" sind damit von „error" unterscheidbar.
+- **Dark Mode setzt die Container-Farben neu** (`--primary-container`, `--error-container` samt `--on-*`) und definiert
+  `--on-success`. Error-Box und Chat-Bubbles blieben vorher hell.
+- **Snackbar-Texte haben ausreichend Kontrast** (≥ 4,5:1): Success, Error, Info und Warning nutzen dunklere Hintergründe.
+- **Mehrzeilige Hinweise unter Formularfeldern werden nicht mehr abgeschnitten.** Die Felder nutzen
+  `subscriptSizing="dynamic"`; Felder ohne Hinweis behalten ihre 20 px, die Zeilenabstände bleiben gleich.
+- **Datetimerange in schmalen Spalten:** Das Datum behält seine Mindestbreite, Von- und Bis-Zeit brechen als Ganzes um.
+- **Kein Pflichtfeld-Fehler beim Laden**, wenn mehrere Formulare auf einer Seite stehen (z. B. Stepper und Query): der
+  Autofokus nimmt einem anderen Formular den Fokus nicht mehr weg.
+- **Sidepanel nie breiter als der Viewport** (`maxWidth: 100vw`), auch mit eigener `width`.
+- **Abstand Filter → Tabelle:** `xiri-query` bringt außerhalb eines Grids `margin-bottom: var(--xiri-grid-row-gap, 20px)`
+  mit, wie Tabelle und Page-Header ihren; im Grid entfällt er. Händisch in eine Section gelegte Query + Tabelle klebten
+  vorher aneinander.
+
 ## [0.8.0]
 
 ### ⚠️ Breaking Changes
