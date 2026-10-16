@@ -41,7 +41,7 @@ export interface XiriCardSettings {
 	flat?: boolean    // Ohne Schatten/Hintergrund/Radius; Header nur wenn er Inhalt hat.
 	padding?: string  // Token 'xs'|'sm'|'md'|'lg'|'xl' oder freier CSS-Wert ('16px', '1rem', 'var(--…)').
 	                  // Wirkt nur im Multi-Component-Modus (settings.components).
-	                  // Auf xs-Viewport (<576px) immer 8px.
+	                  // Ohne Angabe skaliert der Abstand mit der Kartenbreite (8–16px).
 }
 
 let nextUniqueIdXiriCard = 0;

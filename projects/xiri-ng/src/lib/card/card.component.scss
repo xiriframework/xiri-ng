@@ -24,6 +24,8 @@
 
 .card {
 	overflow: hidden;
+	// Eine verschachtelte Card ohne WithPadding() erbt sonst den Inline-Wert der äußeren.
+	--xiri-card-padding: initial;
 
 	// Eingebettet (z. B. im Expansion-Panel): kein Rahmen, kein Schatten – auch nicht am Header.
 	&.flat {

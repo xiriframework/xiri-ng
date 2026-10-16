@@ -680,6 +680,9 @@ describe('XiriCardComponent: Innenabstand nach Kartenbreite', () => {
 		};
 
 		expect(content().style.getPropertyValue('--xiri-card-padding')).toBe('');
+		// A nested card without WithPadding() must not inherit the outer card's inline value.
+		const rules = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map(r => r.cssText);
+		expect(rules.find(t => /^\.card\[[^\]]*\]\s*\{/.test(t)) ?? '').toContain('--xiri-card-padding: initial');
 		expect(content('lg').style.getPropertyValue('--xiri-card-padding')).toBe('var(--xiri-spacing-lg, 24px)');
 	});
 });
