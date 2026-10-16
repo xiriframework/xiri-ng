@@ -27,6 +27,12 @@ describe( 'buildChatRows', () => {
 		expect( rows.map( r => r.kind === 'day' ? r.label : r.msg.id ) )
 			.toEqual( [ '10. Oktober 2026', 'a', 'Gestern', 'b', 'Heute', 'c' ] );
 		expect( ( rows[ 5 ] as XiriChatMsgRow ).time ).toBe( '10:00' );
+		// Nicht von heute: Datum vor der Uhrzeit, im Kurzformat der Locale.
+		expect( ( rows[ 1 ] as XiriChatMsgRow ).time ).toBe( '10.10.2026 10:00' );
+		expect( ( rows[ 3 ] as XiriChatMsgRow ).time ).toBe( '15.10.2026 10:00' );
+		locale.setLanguage( 'en' );
+		const en = buildChatRows( msgs, NOW, locale, locale.chatLabels() );
+		expect( ( en[ 1 ] as XiriChatMsgRow ).time ).toBe( '10/10/2026 10:00' );
 	} );
 
 	it( 'gleiche Zeit behält die Eingangsreihenfolge', () => {

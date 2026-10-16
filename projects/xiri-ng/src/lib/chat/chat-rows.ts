@@ -29,7 +29,9 @@ export function buildChatRows(
 			prev = undefined;
 		}
 		const showFrom = !msg.own && ( !prev || !!prev.own || prev.from !== msg.from );
-		rows.push( { kind: 'msg', key: 'm:' + msg.id, msg, time: format( date, 'HH:mm' ), showFrom, initials: chatInitials( msg.from ) } );
+		// Nicht von heute: Kurzdatum der Locale vor der Uhrzeit.
+		const time = format( date, day === today ? 'HH:mm' : 'P HH:mm', { locale: locale.dateFnsLocale() } );
+		rows.push( { kind: 'msg', key: 'm:' + msg.id, msg, time, showFrom, initials: chatInitials( msg.from ) } );
 		prev = msg;
 	}
 	return rows;

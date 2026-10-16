@@ -847,7 +847,8 @@ interface XiriTimelineItem {
 ### xiri-chat
 
 Messenger-artiger Verlauf: neue Nachrichten unten, Eingabe mit Senden (Enter; Shift+Enter = Umbruch). Eigene
-Nachrichten rechts mit Status, fremde links mit Name und Avatar (sonst Initialen), Datums-Trenner. Text wird nie als
+Nachrichten rechts mit Status, fremde links mit Name und Avatar (sonst Initialen), Datums-Trenner; Nachrichten vor
+heute zeigen das Kurzdatum der Locale vor der Uhrzeit. Text wird nie als
 HTML gerendert. Go-Builder: xiri-go `chat.New` (Protokoll dort in `references/components.md`).
 
 ```typescript

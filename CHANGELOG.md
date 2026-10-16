@@ -11,9 +11,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 - **Komponente `chat`: Messenger-artiger Verlauf mit Eingabe.** Neue Nachrichten unten, eigene rechts mit Status
   (sendet, gesendet, zugestellt, gelesen, fehlgeschlagen mit „Erneut senden“), fremde links mit Name und Avatar oder
-  Initialen, Datums-Trenner (Heute/Gestern/Datum). Enter sendet, Shift+Enter bricht um. Aktualisierung per `poll`
-  (Sekunden, pausiert bei verstecktem Tab) oder `stream` (SSE über `EventSource`, Cookie-Auth); Nachrichten werden per
-  `id` zusammengeführt, geänderte Status kommen über den Cursor. Hochscrollen lädt ältere Nachrichten (`before`).
+  Initialen, Datums-Trenner (Heute/Gestern/Datum), bei Nachrichten vor heute Datum vor der Uhrzeit. Enter sendet,
+  Shift+Enter bricht um. Aktualisierung per `poll` (Sekunden, pausiert bei verstecktem Tab) oder `stream` (SSE über
+  `EventSource`, Cookie-Auth); Nachrichten werden per `id` zusammengeführt, geänderte Status kommen über den Cursor.
+  Hochscrollen lädt ältere Nachrichten (`before`).
   Texte über `chatLabels` in `XiriLanguageDefinition` (de/en eingebaut). Höhe per `height`, Standard `60vh`
   (`100%` füllt einen Container mit fester Höhe). Go-Builder: xiri-go `chat.New`.
 - **Feldtyp `rows`: Liste gleich aufgebauter Zeilen in einem Formular.** `fields` beschreibt eine Zeile
