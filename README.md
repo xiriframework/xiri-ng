@@ -162,6 +162,7 @@ With both active, Claude scaffolds the backend handlers and the matching fronten
 | Stat Grid | `stat-grid` | Grid layout for multiple statistics |
 | Description List | `description-list` | Key-value pairs display (like a definition list) |
 | Timeline | `timeline` | Vertical timeline for events/activities |
+| Chat | `chat` | Messenger-style conversation with input, polling or SSE updates |
 | Info Point | `infopoint` | Information tooltip |
 | Image Text | `imagetext` | Image with text content |
 | Links | `links` | Link list display |
@@ -522,7 +523,7 @@ Sobald aktiviert, triggert der Skill automatisch, wenn du Angular-Code schreibst
 - **`xiri-dyncomponent`**: Rendering von `XiriDynData[]`, alle 27 type-Werte, Custom-Rendering via TemplateRef
 - **Formulare**: `XiriFormFieldsComponent`, alle 19 Feldtypen, `showWhen`-Conditional-Visibility, `select`-Directive
 - **Tabellen**: `XiriTableComponent` und `XiriRawTableComponent` — Settings, Fields, Server-Side-Pagination, Inline-Edit
-- **Komponenten**: Card, Dialog, Stepper, Tabs, Expansion, Timeline, Stat/StatGrid, Page-Header, Toolbar, …
+- **Komponenten**: Card, Dialog, Stepper, Tabs, Expansion, Timeline, Chat, Stat/StatGrid, Page-Header, Toolbar, …
 - **Farben/Types**: `XiriColor` (Theme + Extended), `XiriButton`, `XiriButtonResult`, etc.
 - **Theming & i18n**: Material Design 3, `ThemeService`-Signals, Locale-Propagation
 

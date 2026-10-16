@@ -104,7 +104,7 @@ components: XiriDynData[] = [
 // stepper | header | list | spacer | container | infopoint | multiprogress
 // imagetext | tabs | expansion | infotext | html | stat | empty-state
 // timeline | page-header | section | divider | stat-grid | multi-stat | toolbar
-// description-list | barchart   (barchart benötigt zusätzlich `mode`)
+// description-list | barchart | chat   (barchart benötigt zusätzlich `mode`)
 ```
 
 ## xiri-form-fields — Forms
@@ -379,6 +379,7 @@ stepperSettings = {
              { value: 45, label: 'Fertig', color: 'green', trend: { value: 5, direction: 'up' } } ] }"/>
 <xiri-stat-grid [settings]="{ stats: [...], columns: 4, title: 'KPIs' }"/>  <!-- nur für eigenständige KPI-Karten -->
 <xiri-timeline [settings]="{ items: [...], orientation: 'vertical' }"/>
+<xiri-chat [settings]="{ url: 'Ticket/42/Chat', poll: 5, placeholder: 'Nachricht schreiben' }"/>  <!-- Messenger: neue unten, Enter sendet -->
 <xiri-barchart mode="simple"  [settings]="{ title: 'Weekly', yMin: 0, yMax: 12, color: 'purple',
                                             bars: [{ label: 'M', name: 'Monday', value: 3 }, ...] }"/>
 <xiri-barchart mode="stacked" [settings]="{ bars: [{ label: 'M', name: 'Monday',

@@ -123,6 +123,7 @@ export class DevicesComponent { /* ... */ }
 | `XiriStatGridComponent`       | Grid of KPI tiles                                 |
 | `XiriMultiprogressComponent`  | Multi-row progress bars                           |
 | `XiriTimelineComponent`       | Vertical or horizontal timeline                   |
+| `XiriChatComponent`           | Messenger-style chat with input, poll/SSE updates |
 | `XiriEmptyStateComponent`     | Empty-state placeholder with optional action      |
 | `XiriSkeletonComponent`       | Loading skeleton (text/circle/rect/table-row)     |
 | `XiriAlertComponent`          | Alert / confirmation dialog content               |

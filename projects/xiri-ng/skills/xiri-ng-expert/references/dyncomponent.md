@@ -66,6 +66,7 @@ Renderer kennt und welche davon xiri-go ausgibt (`goBuilder`; Gegenstück `core.
 | `stat`              | `xiri-stat`            | `XiriStatSettings`                   |
 | `empty-state`       | `xiri-empty-state`     | `XiriEmptyStateSettings`             |
 | `timeline`          | `xiri-timeline`        | `XiriTimelineSettings`               |
+| `chat`              | `xiri-chat`            | `XiriChatSettings`                   |
 | `page-header`       | `xiri-page-header`     | `XiriPageHeaderSettings`             |
 | `section`           | `xiri-section`         | `XiriSectionSettings` (rekursiv!)    |
 | `divider`           | `xiri-divider`         | `XiriDividerSettings`                |

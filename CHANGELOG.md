@@ -14,7 +14,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   Initialen, Datums-Trenner (Heute/Gestern/Datum). Enter sendet, Shift+Enter bricht um. Aktualisierung per `poll`
   (Sekunden, pausiert bei verstecktem Tab) oder `stream` (SSE über `EventSource`, Cookie-Auth); Nachrichten werden per
   `id` zusammengeführt, geänderte Status kommen über den Cursor. Hochscrollen lädt ältere Nachrichten (`before`).
-  Texte über `chatLabels` in `XiriLanguageDefinition` (de/en eingebaut). Go-Builder: xiri-go `chat.New`.
+  Texte über `chatLabels` in `XiriLanguageDefinition` (de/en eingebaut). Höhe per `height`, Standard `60vh`
+  (`100%` füllt einen Container mit fester Höhe). Go-Builder: xiri-go `chat.New`.
 - **Feldtyp `rows`: Liste gleich aufgebauter Zeilen in einem Formular.** `fields` beschreibt eine Zeile
   (Unterfelder `text` mit Vorschlägen über `list`, `number`, `bool`, `select`; `hide` für interne IDs), der Wert ist
   ein Array von Objekten. Darstellung als kompakte Tabelle mit Spaltenköpfen, auf schmalen Breiten (auch im Dialog)

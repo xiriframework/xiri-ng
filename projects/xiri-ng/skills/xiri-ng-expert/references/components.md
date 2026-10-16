@@ -844,6 +844,39 @@ interface XiriTimelineItem {
 }
 ```
 
+### xiri-chat
+
+Messenger-artiger Verlauf: neue Nachrichten unten, Eingabe mit Senden (Enter; Shift+Enter = Umbruch). Eigene
+Nachrichten rechts mit Status, fremde links mit Name und Avatar (sonst Initialen), Datums-Trenner. Text wird nie als
+HTML gerendert. Go-Builder: xiri-go `chat.New` (Protokoll dort in `references/components.md`).
+
+```typescript
+@input.required settings: XiriChatSettings;
+
+interface XiriChatSettings extends XiriChatPage {
+  url: string;          // GET Startseite, ?cursor= (Änderungen), ?before=<id> (ältere); POST {text, clientId} → {message}
+  stream?: string;      // SSE per EventSource (Cookie-Auth), ersetzt poll
+  poll?: number;        // Sekunden; pausiert bei verstecktem Tab
+  placeholder?: string;
+  maxLength?: number;
+  readonly?: boolean;   // ohne Eingabe
+  height?: string;      // Standard '60vh'; '100%' füllt einen Container mit fester Höhe
+}
+
+interface XiriChatPage { messages?: XiriChatMessage[]; cursor?: string; hasOlder?: boolean; }
+
+interface XiriChatMessage {
+  id: string; text: string;
+  time: number;         // Unix-Sekunden
+  own?: boolean; from?: string; avatar?: string;
+  status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';  // sending/failed nur clientseitig
+  clientId?: string;    // ersetzt die optimistische Nachricht
+}
+```
+
+Nachrichten werden per `id` zusammengeführt (Upsert); der Cursor muss auch geänderte Nachrichten liefern (Status).
+Texte über `chatLabels` in `XiriLanguageDefinition` (de/en eingebaut, fehlende Keys = Deutsch).
+
 ### xiri-description-list
 
 ```typescript
