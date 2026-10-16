@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { computed } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { resolveColor, notifyThemeChanged, FALLBACK_COLORS } from './color';
+import { resolveColor, notifyThemeChanged, FALLBACK_COLORS, seriesColor } from './color';
 
 describe( 'echarts color resolution', () => {
 
@@ -62,6 +62,28 @@ describe( 'echarts color resolution', () => {
 	it( 'falls back for an unknown token', () => {
 		expect( resolveColor( 'nonsense', '#123456' ) ).toBe( '#123456' );
 		expect( resolveColor( undefined, '#123456' ) ).toBe( '#123456' );
+	} );
+
+	// Without an explicit colour a series takes the theme's colours instead of a fixed violet.
+	it( 'colours series without an explicit colour from the theme', () => {
+		expect( resolveColor( undefined ) ).toBe( '#2892D9' );
+		expect( seriesColor( 0 ) ).toBe( '#2892D9' );
+		expect( seriesColor( 1 ) ).toBe( '#9B8AAF' );
+	} );
+
+	it( 'falls back to the fixed palette when the theme sets no variable (no xirimat.theming())', () => {
+		document.documentElement.style.removeProperty( '--primary' );
+		expect( seriesColor( 0 ) ).toBe( FALLBACK_COLORS[ 0 ] );
+		expect( resolveColor( undefined ) ).toBe( FALLBACK_COLORS[ 0 ] );
+	} );
+
+	it( 'reads warn and success from the theme', () => {
+		document.documentElement.style.setProperty( '--color-warning', '#B07700' );
+		document.documentElement.style.setProperty( '--color-success', '#2ECC71' );
+		expect( resolveColor( 'warn' ) ).toBe( '#B07700' );
+		expect( resolveColor( 'success' ) ).toBe( '#2ECC71' );
+		document.documentElement.style.removeProperty( '--color-warning' );
+		document.documentElement.style.removeProperty( '--color-success' );
 	} );
 
 	it( 'keeps the categorical fallback palette free of variables', () => {

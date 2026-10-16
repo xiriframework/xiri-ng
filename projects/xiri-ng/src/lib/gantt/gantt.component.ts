@@ -56,7 +56,7 @@ export class XiriGanttComponent {
 			t.start,
 			t.end,
 			t.name,
-			resolveColor( t.color, '#8b5cf6' )
+			resolveColor( t.color )
 		] );
 
 		const renderItem = ( _params: unknown, api: XiriEchartsRenderItemApi ) => {

@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
-import { resolveColor, FALLBACK_COLORS } from '../echarts/color';
+import { resolveColor, seriesColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
 import { XiriEchartsTooltipParams } from '../echarts/params';
 
@@ -57,7 +57,7 @@ export class XiriLineChartComponent {
 		const labels = s.xLabels ?? [];
 
 		const series = lines.map( ( line, i ) => {
-			const color = resolveColor( line.color, FALLBACK_COLORS[ i % FALLBACK_COLORS.length ] );
+			const color = resolveColor( line.color, seriesColor( i ) );
 			return {
 				type: 'line',
 				name: line.name,

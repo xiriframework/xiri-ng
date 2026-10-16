@@ -34,7 +34,7 @@ export class XiriGaugeChartComponent {
 		const s = this.settings();
 		const min = s.min ?? 0;
 		const max = s.max ?? 100;
-		const color = resolveColor( s.color, '#8b5cf6' );
+		const color = resolveColor( s.color );
 
 		return {
 			series: [ {

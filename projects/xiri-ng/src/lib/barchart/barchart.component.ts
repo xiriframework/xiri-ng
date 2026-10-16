@@ -120,7 +120,7 @@ export class XiriBarChartComponent {
 	private simpleOption() {
 		const s = this.settings();
 		const bars = s.bars ?? [];
-		const color = resolveColor( s.color, '#8b5cf6' );
+		const color = resolveColor( s.color );
 		return {
 			grid: this.baseGrid(),
 			tooltip: {
@@ -243,7 +243,7 @@ export class XiriBarChartComponent {
 	private heatmapOption() {
 		const s = this.settings();
 		const points = s.points ?? [];
-		const color = resolveColor( s.color, '#8b5cf6' );
+		const color = resolveColor( s.color );
 		return {
 			grid: { ...this.baseGrid(), left: 8, right: 8 },
 			tooltip: {

@@ -32,7 +32,7 @@ export class XiriBulletChartComponent {
 
 	option = computed( () => {
 		const s = this.settings();
-		const color = resolveColor( s.color, '#8b5cf6' );
+		const color = resolveColor( s.color );
 		const max = s.max ?? Math.max( s.value, s.target ?? 0 ) * 1.2;
 		const compact = this.compact();
 		const valueText = s.label ? `${ s.value } ${ s.label }` : `${ s.value }`;

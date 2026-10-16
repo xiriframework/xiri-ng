@@ -14,9 +14,9 @@ export const COLOR_CSS_VAR: Record<string, string> = {
 	secondary: 'var(--secondary)',
 	tertiary:  'var(--tertiary)',
 	accent:    'var(--tertiary)',
-	warn:      '#f5a623',
+	warn:      'var(--color-warning)',
 	error:     'var(--error)',
-	success:   '#2e7d32',
+	success:   'var(--color-success)',
 	emerald:   '#10b981',
 	red:       '#e53935',
 	yellow:    '#fbc02d',
@@ -64,21 +64,22 @@ function readCssVar( expression: string ): string | undefined {
  * valid color — both have to be resolved to a literal first, or the series ends
  * up with no color at all. Unknown tokens fall back to the given fallback.
  */
-export function resolveColor( color: XiriColor | string | undefined, fallback = '#8b5cf6' ): string {
+export function resolveColor( color: XiriColor | string | undefined, fallback?: string ): string {
 	themeEpoch(); // track theme changes, see notifyThemeChanged()
+	const orDefault = () => fallback ?? seriesColor( 0 );
 
-	if ( !color ) return fallback;
+	if ( !color ) return orDefault();
 
 	const mapped = COLOR_CSS_VAR[ color ];
-	if ( mapped === undefined ) return fallback;
+	if ( mapped === undefined ) return orDefault();
 
 	if ( mapped.startsWith( 'var(' ) )
-		return readCssVar( mapped ) ?? fallback;
+		return readCssVar( mapped ) ?? orDefault();
 
 	// "inherit" means the surrounding text color, which a canvas cannot inherit.
 	if ( mapped === 'currentColor' ) {
-		if ( typeof document === 'undefined' ) return fallback;
-		return getComputedStyle( document.documentElement ).color || fallback;
+		if ( typeof document === 'undefined' ) return orDefault();
+		return getComputedStyle( document.documentElement ).color || orDefault();
 	}
 
 	return mapped;
@@ -89,3 +90,16 @@ export function resolveColor( color: XiriColor | string | undefined, fallback = 
  * when no explicit color is provided. Indexed via `FALLBACK_COLORS[i % length]`.
  */
 export const FALLBACK_COLORS = [ '#8b5cf6', '#10b981', '#1e88e5', '#fb8c00', '#e53935', '#fbc02d', '#43a047', '#616161' ];
+
+/** Theme variables a series takes in turn when it has no explicit colour. */
+const SERIES_VARS = [ '--primary', '--tertiary', '--color-success', '--color-warning', '--error', '--color-info', '--secondary' ];
+
+/**
+ * Default colour of the series at `index` when no colour is given: the theme's colours in turn,
+ * so charts match the app. Without a theme (variable unset, SSR) the fixed `FALLBACK_COLORS` take over.
+ */
+export function seriesColor( index: number ): string {
+	themeEpoch(); // track theme changes, see notifyThemeChanged()
+	const name = SERIES_VARS[ index % SERIES_VARS.length ];
+	return readCssVar( `var(${ name })` ) ?? FALLBACK_COLORS[ index % FALLBACK_COLORS.length ];
+}

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { XiriEchartsHostComponent } from './echarts-host.component';
+import { XiriEchartsHostComponent, withThemeFont } from './echarts-host.component';
 
 describe( 'XiriEchartsHostComponent', () => {
 
@@ -17,5 +17,12 @@ describe( 'XiriEchartsHostComponent', () => {
 
 		// echarts.init marks its element with this attribute
 		expect( host.hasAttribute( '_echarts_instance_' ) ).toBe( false );
+	} );
+
+	// echarts draws in its own default font ('sans-serif'), not the app's.
+	it( 'gives the chart option the app font without overriding an explicit textStyle', () => {
+		expect( withThemeFont( { series: [] }, 'Roboto' ) ).toEqual( { series: [], textStyle: { fontFamily: 'Roboto' } } );
+		expect( withThemeFont( { textStyle: { fontSize: 10 } }, 'Roboto' ) ).toEqual( { textStyle: { fontFamily: 'Roboto', fontSize: 10 } } );
+		expect( withThemeFont( { textStyle: { fontFamily: 'Mono' } }, 'Roboto' ) ).toEqual( { textStyle: { fontFamily: 'Mono' } } );
 	} );
 } );

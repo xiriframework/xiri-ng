@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
-import { resolveColor, FALLBACK_COLORS } from '../echarts/color';
+import { resolveColor, seriesColor } from '../echarts/color';
 import { escapeHtml } from '../echarts/tooltip';
 import { XiriEchartsCallbackParams } from '../echarts/params';
 
@@ -63,7 +63,7 @@ export class XiriPieChartComponent {
 			data: slices.map( ( slice, i ) => ( {
 				name: slice.name,
 				value: slice.value,
-				itemStyle: { color: resolveColor( slice.color, FALLBACK_COLORS[ i % FALLBACK_COLORS.length ] ) }
+				itemStyle: { color: resolveColor( slice.color, seriesColor( i ) ) }
 			} ) )
 		};
 		if ( s.nightingale ) {

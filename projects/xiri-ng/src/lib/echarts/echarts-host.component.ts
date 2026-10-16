@@ -150,6 +150,16 @@ export class XiriEchartsHostComponent implements AfterViewInit, OnDestroy {
 		if ( !this.chart ) return;
 		const opt = this.option();
 		if ( !opt ) return;
-		this.chart.setOption( opt, true );
+		const font = typeof document === 'undefined' ? '' : getComputedStyle( document.body ).fontFamily;
+		this.chart.setOption( font ? withThemeFont( opt, font ) : opt, true );
 	}
+}
+
+/**
+ * echarts draws in its own default font; charts take the app's font instead. An explicit
+ * `textStyle.fontFamily` in the option wins.
+ */
+export function withThemeFont( option: unknown, fontFamily: string ): unknown {
+	const o = option as { textStyle?: Record<string, unknown> };
+	return { ...o, textStyle: { fontFamily, ...o.textStyle } };
 }

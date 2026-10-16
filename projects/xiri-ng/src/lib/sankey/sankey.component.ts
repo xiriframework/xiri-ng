@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { XiriColor } from '../types/color.type';
 import { XiriEchartsHostComponent } from '../echarts/echarts-host.component';
-import { resolveColor, FALLBACK_COLORS } from '../echarts/color';
+import { resolveColor, seriesColor } from '../echarts/color';
 
 export interface XiriSankeyNode {
 	name: string;
@@ -62,7 +62,7 @@ export class XiriSankeyComponent {
 				label: { fontSize: 12 },
 				data: s.nodes.map( ( n, i ) => ( {
 					name: n.name,
-					itemStyle: { color: resolveColor( n.color, FALLBACK_COLORS[ i % FALLBACK_COLORS.length ] ) }
+					itemStyle: { color: resolveColor( n.color, seriesColor( i ) ) }
 				} ) ),
 				links: s.links
 			} ]
