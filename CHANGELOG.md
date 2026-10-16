@@ -29,6 +29,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **`xiri-dialog` zeigt Feldfehler einer 400-Antwort am Feld**, wie `xiri-form` (bisher nur im Banner).
 - `XiriValidationMessages`: optionale Texte `minRows`, `maxRows`, `duplicate` (Fallback Deutsch).
 
+### Fixed
+
+- **Sidenav verdeckt nicht mehr den linken Rand des Inhalts**, wenn darin eine Scrollleiste erscheint (Untermenü
+  aufgeklappt): `xiri-sidenav` zieht den Content-Rand der umgebenden `mat-sidenav` nach. Die Scrollleiste der
+  Sidebar ist schmal und dezent.
+
 ## [0.7.2]
 
 ### Added
