@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0]
+
 ### ⚠️ Breaking Changes
 
 - **Vertikale Abstände im Grid: der row-gap liefert den Abstand (Breaking).**
