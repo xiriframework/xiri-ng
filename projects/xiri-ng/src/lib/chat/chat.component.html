@@ -1,5 +1,12 @@
 <div class="xiri-chat" [style.height]="settings().height">
 	<div #scroller class="messages" role="log" aria-live="polite" (scroll)="onScroll()">
+		@if ( hasOlder() ) {
+			<div #sentinel class="sentinel">
+				@if ( loadingOlder() ) {
+					<mat-progress-spinner mode="indeterminate" diameter="20" [attr.aria-label]="labels().loadingOlder" />
+				}
+			</div>
+		}
 		@for ( row of rows(); track row.key ) {
 			@if ( row.kind === 'day' ) {
 				<div class="day"><span>{{ row.label }}</span></div>

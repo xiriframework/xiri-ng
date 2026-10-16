@@ -1,13 +1,16 @@
 import {
-	afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, inject, Injector, input, OnInit, signal, viewChild
+	afterNextRender, ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, Injector, input, OnInit, signal,
+	viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, EMPTY, exhaustMap, filter, fromEvent, interval, merge } from 'rxjs';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriDataService } from '../services/data.service';
 import { XiriLocaleService } from '../services/locale.service';
-import { buildChatRows } from './chat-rows';
+import { buildChatRows, XiriChatMsgRow } from './chat-rows';
 import { XiriChatMessage, XiriChatPage, XiriChatSettings, XiriChatStatus } from './chat.types';
 
 const STATUS_ICON: Record<XiriChatStatus, string> = {
@@ -29,7 +32,7 @@ export function chatQuery( url: string, key: string, value: string ): string {
 	            templateUrl: './chat.component.html',
 	            styleUrl: './chat.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
-	            imports: [ CdkTextareaAutosize, MatButton, MatIconButton, MatIcon ]
+	            imports: [ CdkTextareaAutosize, MatButton, MatIconButton, MatIcon, MatProgressSpinner ]
             } )
 export class XiriChatComponent implements OnInit {
 
@@ -53,14 +56,37 @@ export class XiriChatComponent implements OnInit {
 	// true nach dem ersten Scroll nach unten; erst dann darf der Wächter oben nachladen.
 	protected readonly ready = signal( false );
 	protected cursor = '';
+	protected readonly loadingOlder = signal( false );
+	private readonly sentinel = viewChild<ElementRef<HTMLElement>>( 'sentinel' );
+
+	constructor() {
+		// Ein neuer Observer pro Lauf: Nach jedem Nachladen meldet er den aktuellen Stand sofort. Ist der Wächter noch
+		// sichtbar (kurzer Verlauf), lädt er so weiter, bis der Bereich gefüllt ist oder hasOlder false wird.
+		effect( onCleanup => {
+			const el = this.sentinel()?.nativeElement;
+			if ( !el || !this.ready() || this.loadingOlder() || typeof IntersectionObserver === 'undefined' )
+				return;
+			const observer = new IntersectionObserver( entries => {
+				if ( entries.some( e => e.isIntersecting ) )
+					this.loadOlder();
+			}, { root: this.scroller().nativeElement } );
+			observer.observe( el );
+			onCleanup( () => observer.disconnect() );
+		} );
+	}
 
 	ngOnInit(): void {
 		const s = this.settings();
+		const start = ( page: XiriChatPage ) => {
+			this.applyPage( page, 'initial' );
+			this.startUpdates( s );
+		};
 		if ( s.messages )
-			this.applyPage( s, 'initial' );
+			start( s );
 		else
+			// Scheitert die Startseite, laufen Poll/SSE trotzdem an: mit leerem Cursor liefert der Server die Startseite.
 			this.data.get( s.url ).pipe( takeUntilDestroyed( this.destroyRef ) )
-				.subscribe( res => this.applyPage( res as XiriChatPage, 'initial' ) );
+				.subscribe( { next: res => start( res as XiriChatPage ), error: () => this.startUpdates( s ) } );
 	}
 
 	protected submit(): void {
@@ -136,6 +162,72 @@ export class XiriChatComponent implements OnInit {
 	protected isAtBottom(): boolean {
 		const el = this.scroller().nativeElement;
 		return el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_THRESHOLD;
+	}
+
+	private startUpdates( s: XiriChatSettings ): void {
+		if ( s.stream )
+			this.openStream( s.stream );
+		else if ( s.poll && s.poll > 0 )
+			this.startPolling( s.url, s.poll );
+	}
+
+	// Leerer Cursor = es kam noch keine Startseite an, die Antwort zählt dann als Startseite.
+	private pageKind(): PageKind {
+		return this.cursor ? 'update' : 'initial';
+	}
+
+	private startPolling( url: string, seconds: number ): void {
+		merge( interval( seconds * 1000 ), fromEvent( document, 'visibilitychange' ) ).pipe(
+			filter( () => !document.hidden ),
+			exhaustMap( () => this.data.get( chatQuery( url, 'cursor', this.cursor ) ).pipe( catchError( () => EMPTY ) ) ),
+			takeUntilDestroyed( this.destroyRef ),
+		).subscribe( res => this.applyPage( res as XiriChatPage, this.pageKind() ) );
+	}
+
+	private openStream( stream: string ): void {
+		if ( typeof EventSource === 'undefined' )
+			return;
+		// Auth nur per Cookie: EventSource kann keine eigenen Header senden.
+		const source = new EventSource( this.data.getConfigApi() + chatQuery( stream, 'cursor', this.cursor ), { withCredentials: true } );
+		source.onmessage = event => {
+			let page: XiriChatPage;
+			try {
+				page = JSON.parse( event.data ) as XiriChatPage;
+			} catch {
+				return; // kaputtes Event verwerfen, das nächste bringt den Stand mit
+			}
+			if ( page && typeof page === 'object' )
+				this.applyPage( page, this.pageKind() );
+		};
+		this.destroyRef.onDestroy( () => source.close() );
+	}
+
+	private loadOlder(): void {
+		const oldest = this.rows().find( ( r ): r is XiriChatMsgRow => r.kind === 'msg' );
+		if ( !oldest || !this.hasOlder() || this.loadingOlder() )
+			return;
+		this.loadingOlder.set( true );
+		// Nach Destroy keine Antwort mehr verarbeiten: applyPage/afterNextRender bräuchten die View.
+		this.data.get( chatQuery( this.settings().url, 'before', oldest.msg.id ) ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( {
+			next: res => {
+				// Erst jetzt messen: Der Nutzer kann während des Requests gescrollt haben.
+				const el = this.scroller().nativeElement;
+				const fromBottom = el.scrollHeight - el.scrollTop;
+				this.applyPage( res as XiriChatPage, 'older' );
+				// Scrollposition halten: Der Inhalt wächst oben, der Abstand zum unteren Rand bleibt gleich.
+				afterNextRender( {
+					write: () => {
+						el.scrollTop = el.scrollHeight - fromBottom;
+						this.loadingOlder.set( false );
+					}
+				}, { injector: this.injector } );
+			},
+			error: () => {
+				// Kein Endlos-Retry: Der Observer würde sofort wieder auslösen.
+				this.hasOlder.set( false );
+				this.loadingOlder.set( false );
+			},
+		} );
 	}
 
 	private post( text: string, clientId: string ): void {

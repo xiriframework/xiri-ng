@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -126,5 +126,128 @@ describe( 'XiriChatComponent', () => {
 		const f = await render( { url: 'Chat', messages: [], placeholder: 'Schreib was', maxLength: 10 } );
 		expect( textarea( f ).placeholder ).toBe( 'Schreib was' );
 		expect( textarea( f ).getAttribute( 'maxlength' ) ).toBe( '10' );
+	} );
+
+	describe( 'Aktualisierung', () => {
+		afterEach( () => {
+			vi.useRealTimers();
+			vi.unstubAllGlobals();
+		} );
+
+		it( 'pollt mit Cursor und ersetzt geänderte Nachrichten per id', async () => {
+			vi.useFakeTimers();
+			const f = await render( {
+				url: 'Chat', poll: 2, cursor: 'c1', messages: [ { id: 'm1', text: 'Hi', time: T, own: true, status: 'sent' } ],
+			} );
+			await vi.advanceTimersByTimeAsync( 2000 );
+			http.expectOne( '/api/Chat?cursor=c1' )
+				.flush( { messages: [ { id: 'm1', text: 'Hi', time: T, own: true, status: 'read' } ], cursor: 'c2' } );
+			f.detectChanges();
+			expect( bubbles( f ).length ).toBe( 1 );
+			expect( el( f ).querySelector( '[aria-label="Gelesen"]' ) ).toBeTruthy();
+			await vi.advanceTimersByTimeAsync( 2000 );
+			http.expectOne( '/api/Chat?cursor=c2' ).flush( { messages: [], cursor: 'c2' } );
+		} );
+
+		it( 'Poll-Antwort vor der POST-Antwort ergibt keine doppelte Nachricht', async () => {
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', poll: 1, cursor: 'c1', messages: [] } );
+			type( f, 'Hallo' );
+			enter( f );
+			const post = http.expectOne( r => r.method === 'POST' );
+			const clientId = post.request.body.clientId;
+			const saved = { id: 'm5', text: 'Hallo', time: T, own: true, status: 'sent' as const, clientId };
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=c1' ).flush( { messages: [ saved ], cursor: 'c2' } );
+			post.flush( { message: saved } );
+			f.detectChanges();
+			expect( bubbles( f ).length ).toBe( 1 );
+		} );
+
+		it( 'pollt nach gescheiterter Startseite weiter (wirkt als Retry)', async () => {
+			vi.useFakeTimers();
+			await render( { url: 'Chat', poll: 1 } );
+			http.expectOne( '/api/Chat' ).flush( null, { status: 500, statusText: 'x' } );
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=' ).flush( { messages: [], cursor: 'c1' } );
+		} );
+
+		it( 'SSE: Event macht Upsert, kaputtes JSON wird verworfen, Destroy schließt', async () => {
+			const sources: { url: string; onmessage?: ( e: { data: string } ) => void; close: () => void; closed: boolean }[] = [];
+			vi.stubGlobal( 'EventSource', class {
+				onmessage?: ( e: { data: string } ) => void;
+				closed = false;
+				constructor( public url: string ) { sources.push( this ); }
+				close() { this.closed = true; }
+			} );
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', stream: 'Chat/Stream', poll: 1, cursor: 'c1', messages: [] } );
+			expect( sources.map( s => s.url ) ).toEqual( [ '/api/Chat/Stream?cursor=c1' ] );
+
+			sources[ 0 ].onmessage!( { data: '{kaputt' } );
+			sources[ 0 ].onmessage!( { data: 'null' } );
+			sources[ 0 ].onmessage!( { data: JSON.stringify( { messages: [ { id: 'm2', text: 'per SSE', time: T } ], cursor: 'c2' } ) } );
+			f.detectChanges();
+			expect( el( f ).textContent ).toContain( 'per SSE' );
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectNone( r => r.url.includes( 'cursor=' ) ); // stream ersetzt poll
+
+			f.destroy();
+			expect( sources[ 0 ].closed ).toBe( true );
+		} );
+
+		describe( 'ältere Nachrichten', () => {
+			let trigger: ( visible: boolean ) => void;
+
+			beforeEach( () => {
+				vi.stubGlobal( 'IntersectionObserver', class {
+					constructor( private cb: IntersectionObserverCallback ) {
+						trigger = v => this.cb( [ { isIntersecting: v } as IntersectionObserverEntry ], this as never );
+					}
+					observe() {}
+					disconnect() {}
+				} );
+			} );
+
+			it( 'lädt über before nach und stoppt bei hasOlder=false', async () => {
+				const f = await render( { url: 'Chat', hasOlder: true, messages: [ { id: 'm5', text: 'neu', time: T } ] } );
+				await f.whenStable(); // ready wird erst nach dem ersten Rendern (afterNextRender) gesetzt
+				trigger( true );
+				http.expectOne( '/api/Chat?before=m5' ).flush( { messages: [ { id: 'm1', text: 'uralt', time: T - 86400 * 3 } ], hasOlder: false } );
+				await f.whenStable();
+				expect( el( f ).textContent ).toContain( 'uralt' );
+				expect( el( f ).querySelector( '.sentinel' ) ).toBeNull();
+			} );
+
+			it( 'stellt das Nachladen nach einem Fehler ein (keine Endlosschleife)', async () => {
+				const f = await render( { url: 'Chat', hasOlder: true, messages: [ { id: 'm5', text: 'neu', time: T } ] } );
+				await f.whenStable(); // ready wird erst nach dem ersten Rendern (afterNextRender) gesetzt
+				trigger( true );
+				http.expectOne( '/api/Chat?before=m5' ).flush( null, { status: 500, statusText: 'x' } );
+				await f.whenStable();
+				trigger( true );
+				http.expectNone( r => r.url.includes( 'before=' ) );
+				expect( el( f ).querySelector( '.sentinel' ) ).toBeNull();
+			} );
+		} );
+
+		it( 'zeigt den Chip „Neue Nachrichten“, wenn der Nutzer nicht unten ist', async () => {
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', poll: 1, cursor: 'c1', messages: [ { id: 'm1', text: 'a', time: T } ] } );
+			const scroller = el( f ).querySelector( '.messages' ) as HTMLElement;
+			Object.defineProperty( scroller, 'scrollHeight', { value: 1000, configurable: true } );
+			Object.defineProperty( scroller, 'clientHeight', { value: 300, configurable: true } );
+			// Fest auf 0: Ein noch ausstehender Scroll nach unten (afterNextRender) darf den Zustand nicht überschreiben.
+			Object.defineProperty( scroller, 'scrollTop', { get: () => 0, set: () => undefined, configurable: true } );
+
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=c1' ).flush( { messages: [ { id: 'm2', text: 'b', time: T + 1, from: 'Anna' } ], cursor: 'c2' } );
+			f.detectChanges();
+			const chip = el( f ).querySelector( '.unseen' ) as HTMLButtonElement;
+			expect( chip.textContent ).toContain( 'Neue Nachrichten' );
+			chip.click();
+			f.detectChanges();
+			expect( el( f ).querySelector( '.unseen' ) ).toBeNull();
+		} );
 	} );
 } );
