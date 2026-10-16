@@ -102,23 +102,22 @@ mat-card.xiritablecard.flat {
 		justify-content:  space-between;
 		align-items:      center;
 		flex-wrap:        wrap;
+		// Abstand über gap statt über Paddings/Margins an den Kindern: die waren auf eine Zeile abgestimmt und
+		// landeten beim Umbruch (mobil) am Zeilenanfang. Vertikales Padding, damit umgebrochene Zeilen nicht am Rand kleben.
+		column-gap:       var(--xiri-spacing-sm, 8px);
 
-		min-height:       51px;
-		padding:          0 16px;
+		min-height:       43px; // + 2 × 4px Padding = die bisherigen 51px
+		padding:          var(--xiri-spacing-xs, 4px) 16px;
 		border-top-left-radius:  var(--mat-card-elevated-container-shape, 12px);
 		border-top-right-radius: var(--mat-card-elevated-container-shape, 12px);
 
-		.buttons {
-			padding:     0 7px 0 0.5rem;
-			margin-left: -16px;
+		.buttons button {
+			z-index: 200;
+		}
 
-			button {
-				z-index: 200;
-			}
-
-			&.saveInput {
-				padding-left: 21px;
-			}
+		// Icon-Buttons ganz links: Glyphe bündig mit dem Titeltext (der Button hat 8px Innenabstand).
+		.buttons:first-child {
+			margin-left: -8px;
 		}
 
 		.middle {
@@ -126,10 +125,6 @@ mat-card.xiritablecard.flat {
 			font-size: var(--xiri-font-size-title);
 			display:   flex;
 			padding:   0;
-		}
-
-		xiri-buttonline {
-			padding: 0 0 0 16px;
 		}
 
 		.autorefresh-indicator {

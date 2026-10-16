@@ -2093,6 +2093,29 @@ describe( 'XiriTableComponent', () => {
 		expect( toggle!.getAttribute( 'tabindex' ) ).not.toBe( '-1' );
 	} );
 
+	// Mobile: the header wraps. Spacing comes from the container gap and a little vertical padding, not from
+	// per-item paddings/margins tuned for one line (title stuck to the top edge, buttons indented or sticking out).
+	it( 'spaces the header items with a gap so a wrapped header stays aligned', () => {
+		createFixture( {
+			fields: [ { id: 'name', name: 'Name' } ], data: [],
+			options: {
+				title: 'Titel', search: true, saveInput: '/save',
+				buttons: { class: '', buttons: [ { text: 'Speichern', type: 'raised', action: 'api', url: '/save' } ] },
+			},
+		} );
+		fixture.detectChanges();
+		const style = ( sel: string ) => getComputedStyle( fixture.nativeElement.querySelector( sel ) );
+
+		// jsdom cannot resolve a padding shorthand with var(); check the shipped rule.
+		const headerRule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText )
+		                        .find( t => /^\.xiritable \.header \{/.test( t ) ) ?? '';
+		expect( headerRule ).toContain( 'padding: var(--xiri-spacing-xs, 4px) 16px' );
+		expect( style( '.header' ).columnGap ).toBe( 'var(--xiri-spacing-sm, 8px)' );
+		expect( style( '.header xiri-buttonline' ).paddingLeft ).toMatch( /^0(px)?$/ );
+		expect( style( '.header .buttons.saveInput' ).marginLeft ).toMatch( /^0(px)?$/ );
+		expect( style( '.header .buttons.saveInput' ).paddingLeft ).toMatch( /^0(px)?$/ );
+	} );
+
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();
