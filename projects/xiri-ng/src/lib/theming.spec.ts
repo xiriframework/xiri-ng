@@ -35,6 +35,12 @@ describe( 'theming mixins', () => {
 			expect( root, v ).toContain( `${ v }:` );
 	} );
 
+	it( 'gives warning its own colour instead of the error colour', () => {
+		expect( css ).not.toMatch( /--color-warning:\s*var\(--error\)/ );
+		expect( root ).toMatch( /--color-warning:\s*#B07700/i );
+		expect( dark ).toMatch( /--color-warning:\s*#FFC94D/i );
+	} );
+
 	it( 'emits both dark selectors, matching the classes XiriThemeService sets', () => {
 		expect( css ).toContain( '@media (prefers-color-scheme: dark)' );
 		expect( css ).toContain( ':root:not(.light-theme)' );

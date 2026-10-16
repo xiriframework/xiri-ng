@@ -93,7 +93,7 @@
 		// Custom app vars not in M3
 		--color-primary:        var(--primary);
 		--color-secondary:      var(--secondary);
-		--color-warning:        var(--error);
+		--color-warning:        #{$color-warning};
 		--color-success:        #{$color-success};
 		--color-info:           #{$color-info};
 
@@ -151,6 +151,7 @@
 	--ripple:                 rgba(206, 229, 255, 0.12);
 	--color-success:          #66E093;
 	--color-info:             #56C8E0;
+	--color-warning:          #FFC94D;
 
 	// Elevation needs more opacity on dark surfaces than on light ones.
 	--xiri-shadow-xs:         0 1px 2px 0 rgba(0, 0, 0, 0.2);
