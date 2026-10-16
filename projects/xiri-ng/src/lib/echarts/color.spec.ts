@@ -82,6 +82,10 @@ describe( 'echarts color resolution', () => {
 		expect( palette.slice( 0, 4 ) ).toEqual( [ '#2892D9', '#9B8AAF', '#4CAF50', '#17A2B8' ] );
 		for ( const semantic of [ '#FF5449', '#B07700', '#2ECC71' ] )
 			expect( palette ).not.toContain( semantic );
+		// …and the fixed palette behind them holds no red/yellow/green either, over a full cycle.
+		const long = Array.from( { length: 4 + FALLBACK_COLORS.length }, ( _, i ) => seriesColor( i ) );
+		for ( const signal of [ '#e53935', '#fbc02d', '#43a047' ] )
+			expect( long ).not.toContain( signal );
 		for ( const v of [ '--color-info', '--color-warning', '--color-success' ] )
 			document.documentElement.style.removeProperty( v );
 	} );

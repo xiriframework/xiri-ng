@@ -89,7 +89,7 @@ export function resolveColor( color: XiriColor | string | undefined, fallback?: 
  * Default categorical palette used by charts (line/pie/sankey) to color series
  * when no explicit color is provided. Indexed via `FALLBACK_COLORS[i % length]`.
  */
-export const FALLBACK_COLORS = [ '#8b5cf6', '#10b981', '#1e88e5', '#fb8c00', '#e53935', '#fbc02d', '#43a047', '#616161' ];
+export const FALLBACK_COLORS = [ '#8b5cf6', '#10b981', '#1e88e5', '#fb8c00', '#616161' ]; // kein Rot/Gelb/Grün: läse sich als Status
 
 /**
  * Theme variables a series takes in turn when it has no explicit colour. Deliberately no semantic colours

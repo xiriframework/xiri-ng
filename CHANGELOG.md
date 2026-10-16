@@ -26,7 +26,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   - **Charts:** Serien ohne Farbe nehmen reihum `--primary`, `--tertiary`, `--secondary`, `--color-info`, danach
     `FALLBACK_COLORS` (neu: `seriesColor(index)`); `warn`/`success` lesen `--color-warning`/`--color-success`; die
     Schrift ist die der App. **API:** `resolveColor(color)` ohne zweites Argument liefert als Default jetzt
-    `seriesColor(0)` (Theme-Primärfarbe) statt fest `#8b5cf6`.
+    `seriesColor(0)` (Theme-Primärfarbe) statt fest `#8b5cf6`. `FALLBACK_COLORS` enthält kein Rot, Gelb und Grün mehr
+    (5 statt 8 Einträge).
   - **Ohne Token zum Zurückdrehen:** tonale Tags/Chips, der Randabstand der Sidenav-Einträge, der 480-px-Umbruch der
     Description-List und die Wertgröße des Infopoints (`clamp()`); hier hilft nur eigenes CSS.
 - **Layout:**
