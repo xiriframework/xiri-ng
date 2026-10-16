@@ -177,6 +177,15 @@ describe('XiriSidenavComponent', () => {
 		expect(submenu.hasAttribute('inert')).toBe(false);
 	});
 
+	// Phone: opening the overlay drawer moves focus to the first link (Material's first-tabbable), and Material
+	// paints its focus state layer on :focus — "Overview" looked selected next to the active entry. Only show it
+	// for keyboard focus (:focus-visible); the keyboard focus ring stays (styles/_accessibility.scss).
+	it('shows the focus state layer only for keyboard focus', () => {
+		const rule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText )
+		                  .find( t => t.includes( ':not(:focus-visible)' ) && t.includes( 'mat-mdc-list-item' ) ) ?? '';
+		expect( rule ).toContain( '--mat-list-list-item-focus-state-layer-opacity: 0' );
+	});
+
 	it('should handle menu items with submenus', () => {
 		const fields: XiriNavigationField[] = [
 			{

@@ -60,6 +60,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
   das zuerst gerenderte den Fokus (vorher das zuletzt gerenderte).
 - **Tabellen-Kopfzeile beim Umbruch (mobil) ausgerichtet:** Abstand über `column-gap` und 4 px vertikales Padding
   statt über Paddings/Margins der einzelnen Elemente; der Titel klebt nicht mehr am Rand, Buttons fluchten mit dem Titel.
+- **Sidenav auf dem Handy:** Beim Öffnen des Overlay-Drawers wirkte der erste Eintrag mit ausgewählt (Materials
+  Fokus-Ebene bei `:focus`). Sie erscheint jetzt nur bei Tastaturfokus (`:focus-visible`).
 - **Sidepanel nie breiter als der Viewport** (`maxWidth: 100vw`), auch mit eigener `width`.
 - **Abstand Filter → Tabelle:** Folgt `xiri-query` im selben Container noch etwas (z. B. eine Tabelle), bringt sie
   `margin-bottom: var(--xiri-grid-row-gap, 20px)` mit; als letztes Element (eigene Grid-Spalte, Sidepanel, Dialog) keinen.

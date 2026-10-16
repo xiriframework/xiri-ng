@@ -13,6 +13,12 @@
 	width:         100%;
 	border-radius: var(--xiri-sidenav-active-radius, 0);
 
+	// Fokus-Ebene nur bei Tastaturfokus: der Overlay-Drawer fokussiert beim Öffnen den ersten Link, und Material
+	// zeichnet die Ebene schon bei :focus — mobil sah „Overview“ dann wie ausgewählt aus. Der Fokusring bleibt.
+	&:not(:focus-visible) {
+		--mat-list-list-item-focus-state-layer-opacity: 0;
+	}
+
 	--mat-list-list-item-label-text-size: 0.9rem;
 	--mat-list-list-item-label-text-weight: 400;
 
