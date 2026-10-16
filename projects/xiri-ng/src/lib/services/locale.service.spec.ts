@@ -185,7 +185,7 @@ describe( 'XiriLocaleService', () => {
 		} );
 
 		it( 'unbekanntes Locale warnt und ändert nichts', () => {
-			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			const warn = vi.spyOn( console, 'warn' ).mockImplementation( () => undefined );
 			service.setLocale( 'en' );
 			service.setLocale( 'xx' );
 			expect( service.localeString() ).toBe( 'en-GB' );

@@ -15,6 +15,8 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      // Omitting a key via `const { key, ...rest } = obj` is intended, not an unused variable.
+      "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
       "@angular-eslint/directive-selector": [
         "error",
         {

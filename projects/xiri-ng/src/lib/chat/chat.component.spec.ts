@@ -232,8 +232,8 @@ describe( 'XiriChatComponent', () => {
 					constructor( private cb: IntersectionObserverCallback ) {
 						trigger = v => this.cb( [ { isIntersecting: v } as IntersectionObserverEntry ], this as never );
 					}
-					observe() {}
-					disconnect() {}
+					observe(): void { return undefined; }
+					disconnect(): void { return undefined; }
 				} );
 			} );
 

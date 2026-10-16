@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'vitest';
 import { mainText, renderDemo, waitFor } from '../../testing/demo-harness';
 
 describe( 'Chat demo page', () => {
