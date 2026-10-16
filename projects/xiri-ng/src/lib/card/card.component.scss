@@ -32,13 +32,18 @@
 		border-radius: 0;
 
 		mat-card-header {
-			box-shadow: none;
+			border-bottom: 0;
 		}
 	}
 
 	mat-card-header {
 		margin:        0 0 2px 0;
 		border-bottom: 1px solid var(--outline-variant);
+
+		// Zugeklappt nichts zu trennen: sonst stünde die Linie doppelt über dem Kartenrand.
+		&:has(+ .collapse-wrapper.collapsed) {
+			border-bottom-color: transparent;
+		}
 		padding:     4px 8px 4px 16px;
 		align-items: center;
 		min-height:  32px;

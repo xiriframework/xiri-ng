@@ -658,6 +658,18 @@ describe('XiriCardComponent: Innenabstand nach Kartenbreite', () => {
 		expect(rules.some(t => t.startsWith('@media') && t.includes('hasComponents'))).toBe(false);
 	});
 
+	// The header divider must not show on flat cards (embedded, "kein Rahmen") nor double up with the card's own
+	// bottom border when the card is collapsed. jsdom has no layout, so check the shipped rules.
+	it('draws the header divider only where it separates content', async () => {
+		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
+		TestBed.createComponent(TestHostComponent).detectChanges();
+		const rules = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map(r => r.cssText);
+
+		expect(rules.find(t => /\.flat\[[^\]]*\]\s+mat-card-header\[/.test(t)) ?? '').toMatch(/border-bottom: 0(px)?;/);
+		expect(rules.find(t => t.includes(':has(+ .collapse-wrapper.collapsed') || /:has\(\+\s*\.collapse-wrapper\.collapsed/.test(t)) ?? '')
+			.toContain('border-bottom-color: transparent');
+	});
+
 	it('sets no inline padding without WithPadding(), so the width-based default applies', async () => {
 		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
 		const content = (padding?: string) => {
