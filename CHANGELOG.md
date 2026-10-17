@@ -62,6 +62,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   das zuerst gerenderte den Fokus (vorher das zuletzt gerenderte).
 - **Tabellen-Kopfzeile beim Umbruch (mobil) ausgerichtet:** Abstand über `column-gap` und 4 px vertikales Padding
   statt über Paddings/Margins der einzelnen Elemente; der Titel klebt nicht mehr am Rand, Buttons fluchten mit dem Titel.
+- **Tabellen-Footer beim Umbruch (mobil):** „Einträge pro Seite“ klebt nicht mehr an der Trennlinie bzw. Summenzeile
+  (8 px `margin-block`, einzeilig unverändert). Die Spalte für Select-Buttons erscheint nur noch mit sichtbaren
+  `selectButtons`; leer gab sie einen Streifen über dem Paginator.
 - **Sidenav auf dem Handy:** Beim Öffnen des Overlay-Drawers wirkte der erste Eintrag mit ausgewählt (Materials
   Fokus-Ebene bei `:focus`). Sie erscheint jetzt nur bei Tastaturfokus (`:focus-visible`).
 - **Sidepanel nie breiter als der Viewport** (`maxWidth: 100vw`), auch mit eigener `width`.
