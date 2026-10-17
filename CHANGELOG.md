@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.0]
+
 ### ⚠️ Breaking Changes (visuell)
 
 - **Neuer Standard-Look im Stil von Material 3.** Jede Änderung hat ein Token, mit dem eine App den alten Wert
