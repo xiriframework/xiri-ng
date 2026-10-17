@@ -82,6 +82,12 @@ mat-card.xiritablecard.flat {
 
 			--mat-form-field-container-height:           32px;
 			--mat-form-field-container-vertical-padding: 4px;
+
+			// Mobil bricht der Paginator um, dann klebte „Einträge pro Seite“ an der Trennlinie bzw. Summenzeile.
+			// Symmetrisch, damit es einzeilig in den 51px zentriert bleibt (32 + 2 × 8 < 51).
+			.mat-mdc-paginator-page-size {
+				margin-block: var(--xiri-spacing-sm, 8px);
+			}
 		}
 
 		.bottomrow {

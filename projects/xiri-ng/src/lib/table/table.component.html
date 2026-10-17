@@ -432,7 +432,7 @@
 			}
 
 			<div class="xrow xsmall" [class.bottomrow]="(options.select || options.pagination) && !options.footer">
-				@if (options.select) {
+				@if (options.select && hasVisibleSelectButtons) {
 					<div class="xcol xcol-md-2 select-buttons">
 						@for (button of options.selectButtons; track button) {
 							@if (!button.hide) {

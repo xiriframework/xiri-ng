@@ -860,6 +860,10 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		return !!this.options.select || this.bulkActionsEnabled;
 	}
 
+	get hasVisibleSelectButtons(): boolean {
+		return !!this.options.selectButtons?.some( b => !b.hide );
+	}
+
 	// The sticky context bar is only meaningful in bulk mode and only once something is selected.
 	get bulkBarActive(): boolean {
 		return this.bulkActionsEnabled && this.selection.hasValue();

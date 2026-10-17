@@ -2116,6 +2116,31 @@ describe( 'XiriTableComponent', () => {
 		expect( style( '.header .buttons.saveInput' ).paddingLeft ).toMatch( /^0(px)?$/ );
 	} );
 
+	// Mobile: the paginator wraps into two lines and "items per page" sat flush against the divider (or the
+	// summary row). Symmetric margin keeps it centred in the 51px single-line row, so desktop stays unchanged.
+	it( 'gives the paginator page size vertical margin so a wrapped paginator does not touch the row above', () => {
+		createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [ { id: 1, name: 'A' } ] } );
+		fixture.detectChanges();
+		expect( fixture.nativeElement.querySelector( 'mat-paginator .mat-mdc-paginator-page-size' ) ).toBeTruthy();
+
+		// jsdom does not resolve logical properties; check the shipped rule.
+		const rule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText )
+		                  .find( t => /^\.xiritable \.table-full mat-paginator \.mat-mdc-paginator-page-size \{/.test( t ) ) ?? '';
+		expect( rule ).toContain( 'margin-block: var(--xiri-spacing-sm, 8px)' );
+	} );
+
+	// An empty select-buttons column added a 10px stripe above the paginator on mobile.
+	it( 'renders no select-buttons column without visible selection buttons', () => {
+		const render = ( selectButtons?: XiriButton[] ) => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [ { id: 1, name: 'A' } ], options: { select: true, selectButtons } } );
+			fixture.detectChanges();
+			return fixture.nativeElement.querySelector( '.select-buttons' );
+		};
+		expect( render() ).toBeNull();
+		expect( render( [ { text: '', type: 'icon', action: 'api', icon: 'send', url: '/a', hide: true } ] ) ).toBeNull();
+		expect( render( [ { text: '', type: 'icon', action: 'api', icon: 'send', url: '/a' } ] ) ).toBeTruthy();
+	} );
+
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();
