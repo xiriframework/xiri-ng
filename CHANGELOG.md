@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Tabellen-Footer kompakter:** Die Höhe folgt der `density` (compact 36 px, regular 40 px, relaxed 48 px statt fix
+  51 px). Die Seitenanzahl-Auswahl erscheint ohne Rahmen als „25 ▾“ (Rahmen nur bei Fokus), das deutsche Label heißt
+  „Pro Seite:“ statt „Einträge pro Seite:“, und die Auswahl entfällt, wenn alle Zeilen auf die kleinste Seitengröße
+  passen. `.xiritable` schneidet vertikal ab (`overflow-y: hidden`), sonst ragten Materials 48 px-Touch-Targets aus
+  der Zeile und jede Tabelle scrollte 4 px.
+
 ## [0.9.0]
 
 ### ⚠️ Breaking Changes (visuell)
