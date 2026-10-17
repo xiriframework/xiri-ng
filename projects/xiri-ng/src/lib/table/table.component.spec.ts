@@ -2116,17 +2116,72 @@ describe( 'XiriTableComponent', () => {
 		expect( style( '.header .buttons.saveInput' ).paddingLeft ).toMatch( /^0(px)?$/ );
 	} );
 
+	const cssRule = ( re: RegExp ) => Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) )
+	                                       .map( r => r.cssText ).find( t => re.test( t ) ) ?? '';
+	const rows = ( n: number ) => Array.from( { length: n }, ( _, i ) => ( { id: i, name: 'R' + i } ) );
+
 	// Mobile: the paginator wraps into two lines and "items per page" sat flush against the divider (or the
-	// summary row). Symmetric margin keeps it centred in the 51px single-line row, so desktop stays unchanged.
+	// summary row). Symmetric margin keeps it centred in the single-line row (field + 2 × 4px = row height).
 	it( 'gives the paginator page size vertical margin so a wrapped paginator does not touch the row above', () => {
-		createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: [ { id: 1, name: 'A' } ] } );
+		createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 11 ) } );
 		fixture.detectChanges();
 		expect( fixture.nativeElement.querySelector( 'mat-paginator .mat-mdc-paginator-page-size' ) ).toBeTruthy();
 
 		// jsdom does not resolve logical properties; check the shipped rule.
-		const rule = Array.from( document.styleSheets ).flatMap( sheet => Array.from( sheet.cssRules ) ).map( r => r.cssText )
-		                  .find( t => /^\.xiritable \.table-full mat-paginator \.mat-mdc-paginator-page-size \{/.test( t ) ) ?? '';
-		expect( rule ).toContain( 'margin-block: var(--xiri-spacing-sm, 8px)' );
+		expect( cssRule( /^\.xiritable \.table-full mat-paginator \.mat-mdc-paginator-page-size \{/ ) )
+			.toContain( 'margin-block: var(--xiri-spacing-xs, 4px)' );
+	} );
+
+	describe( 'footer row', () => {
+		it( 'carries the density class so its height follows the table density', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ), options: { density: 'compact' } } );
+			const row = () => fixture.nativeElement.querySelector( 'mat-paginator' ).closest( '.xrow' ) as HTMLElement;
+			expect( row().classList ).toContain( 'density-compact' );
+			expect( row().classList ).toContain( 'xrow' );
+
+			host.settings.set( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ), options: { density: 'relaxed' } } );
+			fixture.detectChanges();
+			expect( row().classList ).toContain( 'density-relaxed' );
+			expect( row().classList ).not.toContain( 'density-compact' );
+		} );
+
+		it( 'ships footer heights per density', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ) } );
+			expect( cssRule( /^\.xiritable \.table-full \.xrow\.density-compact \{/ ) ).toContain( '--mat-paginator-container-size: 36px' );
+			expect( cssRule( /^\.xiritable \.table-full \.xrow\.density-regular \{/ ) ).toContain( '--mat-paginator-container-size: 40px' );
+			expect( cssRule( /^\.xiritable \.table-full \.xrow\.density-relaxed \{/ ) ).toContain( '--mat-paginator-container-size: 48px' );
+		} );
+
+		// The page size select is a plain "25 ▾" without the outlined box; the outline only returns on focus.
+		it( 'hides the page size outline unless focused', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ) } );
+			expect( cssRule( /mat-paginator \.mat-mdc-paginator-page-size \.mat-mdc-form-field:not\(\.mat-focused\) \.mdc-notched-outline \{/ ) )
+				.toContain( 'display: none' );
+		} );
+
+		// 0.3rem padding around the 36px icon buttons pushed the footer to 47px instead of the density height.
+		it( 'keeps the select-buttons column within the footer height', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ) } );
+			expect( cssRule( /^\.xiritable \.select-buttons \{/ ) ).toContain( 'padding: 0px 0.8rem' );
+		} );
+
+		// Material's 48px touch targets stick out of the 40px footer; with overflow: auto every table scrolled 4px vertically.
+		it( 'clips vertical overflow of the table container instead of scrolling it', () => {
+			createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( 1 ) } );
+			const rule = cssRule( /^\.xiritable \{/ );
+			expect( rule ).toContain( 'overflow-x: auto' );
+			expect( rule ).toContain( 'overflow-y: hidden' );
+		} );
+
+		it( 'hides the page size select when all rows fit on the smallest page size', () => {
+			const pageSize = ( n: number ) => {
+				createFixture( { fields: [ { id: 'name', name: 'Name' } ], data: rows( n ), options: { pageSizes: [ 10, 25 ] } } );
+				fixture.detectChanges();
+				return fixture.nativeElement.querySelector( 'mat-paginator .mat-mdc-paginator-page-size' );
+			};
+			expect( pageSize( 10 ) ).toBeNull();
+			expect( pageSize( 11 ) ).toBeTruthy();
+		} );
 	} );
 
 	// An empty select-buttons column added a 10px stripe above the paginator on mobile.

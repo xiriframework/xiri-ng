@@ -16,7 +16,9 @@ mat-card.xiritablecard.flat {
 
 .xiritable {
 	width:    100%;
-	overflow: auto; // breite Tabelle scrollt in sich, statt die Card zu sprengen
+	overflow-x: auto; // breite Tabelle scrollt in sich, statt die Card zu sprengen
+	// Vertikal abschneiden: Materials 48px-Touch-Targets ragen aus der 40px-Footer-Zeile, sonst scrollt jede Tabelle 4px.
+	overflow-y: hidden;
 
 	// Kein overflow-wrap: anywhere auf den Zellen — bewusst, nicht vergessen. anywhere wirkt auf
 	// die min-content-Breite und bricht deshalb auch normale Wörter, sobald eine Spalte nur knapp
@@ -76,17 +78,47 @@ mat-card.xiritablecard.flat {
 			padding: var(--xiri-spacing-md);
 		}
 
+		// Footer-Zeile (Paginator + Auswahl-Buttons) folgt der Tabellen-density. Formfeld = Zeile − 2 × 4px,
+		// damit der margin-block unten die Zeile nicht aufdrückt.
+		.xrow {
+			&.density-compact {
+				--mat-paginator-container-size:                       36px;
+				--mat-paginator-form-field-container-height:          28px;
+				--mat-paginator-form-field-container-vertical-padding: 2px;
+				--mat-icon-button-state-layer-size:                   32px;
+			}
+
+			&.density-regular {
+				--mat-paginator-container-size:                       40px;
+				--mat-paginator-form-field-container-height:          32px;
+				--mat-paginator-form-field-container-vertical-padding: 4px;
+			}
+
+			&.density-relaxed {
+				--mat-paginator-container-size:                       48px;
+				--mat-paginator-form-field-container-height:          36px;
+				--mat-paginator-form-field-container-vertical-padding: 6px;
+			}
+		}
+
 		mat-paginator {
 			--mat-paginator-container-background-color: transparent;
-			--mat-paginator-container-size:             51px;
+			--mat-paginator-page-size-select-width:     64px;
+			--mat-select-enabled-trigger-text-color:    var(--on-surface-variant, #44474F);
 
-			--mat-form-field-container-height:           32px;
-			--mat-form-field-container-vertical-padding: 4px;
-
-			// Mobil bricht der Paginator um, dann klebte „Einträge pro Seite“ an der Trennlinie bzw. Summenzeile.
-			// Symmetrisch, damit es einzeilig in den 51px zentriert bleibt (32 + 2 × 8 < 51).
+			// Mobil bricht der Paginator um, dann klebte „Pro Seite“ an der Trennlinie bzw. Summenzeile.
 			.mat-mdc-paginator-page-size {
-				margin-block: var(--xiri-spacing-sm, 8px);
+				margin-block: var(--xiri-spacing-xs, 4px);
+				color:        var(--on-surface-variant, #44474F);
+			}
+
+			// Seitenanzahl dezent: „25 ▾“ ohne Rahmen, der Rahmen kommt nur beim Fokus (Tastatur) zurück.
+			.mat-mdc-paginator-page-size .mat-mdc-form-field:not(.mat-focused) .mdc-notched-outline {
+				display: none;
+			}
+
+			.mat-mdc-paginator-page-size .mat-mdc-text-field-wrapper {
+				padding-inline: var(--xiri-spacing-sm, 8px);
 			}
 		}
 
@@ -351,7 +383,7 @@ mat-card.xiritablecard.flat {
 	}
 
 	.select-buttons {
-		padding:     0.3rem 0.8rem;
+		padding:     0 0.8rem;
 		display:     flex;
 		align-items: center;
 

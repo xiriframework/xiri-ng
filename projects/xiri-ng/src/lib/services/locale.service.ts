@@ -109,7 +109,7 @@ const deMaterialLabels: XiriMaterialLabels = {
 		comparisonDateLabel: 'Vergleichszeitraum',
 	},
 	paginator: {
-		itemsPerPageLabel: 'Einträge pro Seite:',
+		itemsPerPageLabel: 'Pro Seite:',
 		nextPageLabel: 'Nächste Seite',
 		previousPageLabel: 'Vorherige Seite',
 		firstPageLabel: 'Erste Seite',

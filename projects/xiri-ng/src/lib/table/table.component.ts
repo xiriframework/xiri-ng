@@ -875,6 +875,11 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		return this.options.serverSide ? this._totalCount() : this.dataSource.filteredData.length;
 	}
 
+	// Nothing to choose when every row fits on the smallest page size.
+	pageSizeHidden(): boolean {
+		return this.bulkTotalCount() <= Math.min( ...( this.options.pageSizes ?? [] ) );
+	}
+
 	// The count the triggered action operates on: the whole filtered result in "all results"
 	// mode, otherwise the explicitly selected rows on the current page.
 	bulkCount(): number {

@@ -168,7 +168,7 @@ describe( 'XiriLocaleService', () => {
 			service.setLocale( 'en' );
 			TestBed.tick();
 			expect( service.validationMessagesFor().required ).toBe( 'Pflichtfeld – bitte ausfüllen' );
-			expect( TestBed.inject( MatPaginatorIntl ).itemsPerPageLabel ).toBe( 'Einträge pro Seite:' );
+			expect( TestBed.inject( MatPaginatorIntl ).itemsPerPageLabel ).toBe( 'Pro Seite:' );
 			expect( service.localeString() ).toBe( 'en-GB' );
 			expect( service.formatNumber( 1234.5 ) ).toBe( '1,234.5' );
 			expect( service.maxFileSizeMessage( 1.5 * 1024 * 1024 ) ).toBe( 'Datei zu groß, maximal 1.5 MB' );
@@ -306,7 +306,7 @@ describe( 'XiriLocaleService', () => {
 			TestBed.tick();
 			expect( TestBed.inject( MatDatepickerIntl ).openCalendarLabel ).toBe( 'Kalender öffnen' );
 			const paginator = TestBed.inject( MatPaginatorIntl );
-			expect( paginator.itemsPerPageLabel ).toBe( 'Einträge pro Seite:' );
+			expect( paginator.itemsPerPageLabel ).toBe( 'Pro Seite:' );
 			expect( paginator.getRangeLabel( 1, 10, 25 ) ).toBe( '11 – 20 von 25' );
 			expect( paginator.getRangeLabel( 0, 10, 0 ) ).toBe( '0 von 0' );
 		} );
