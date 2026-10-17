@@ -1175,6 +1175,15 @@ export class MyChart {
 }
 ```
 
-Helper-Funktionen aus `lib/echarts/`: `resolveColor(token, fallback)` — XiriColor → **konkreter** CSS-Wert; `escapeHtml(s)` — für Tooltip-Strings.
+Helper-Funktionen aus `lib/echarts/`: `resolveColor(token, fallback?)` — XiriColor → **konkreter** CSS-Wert;
+`seriesColor(index)` — Farbe der n-ten Serie ohne eigene Farbe; `escapeHtml(s)` — für Tooltip-Strings.
 
-`resolveColor` löst Theme-Tokens (`primary`, `secondary`, `tertiary`, `accent`, `error`, `inherit`) zur Laufzeit gegen die CSS-Variablen des Documents auf. Das ist Pflicht, weil echarts auf ein **Canvas** zeichnet: dort sind weder `var(--x)` noch `currentColor` gültige Farben — eine Serie bekäme sonst gar keine. Beim Theme-Wechsel lösen die Charts automatisch neu auf; ihre `option`-`computed()` hängt über `resolveColor` an einem Signal, das `XiriThemeService` hochzählt.
+- Serien ohne Farbe nehmen reihum `--primary`, `--tertiary`, `--secondary`, `--color-info`, danach
+  `FALLBACK_COLORS` (5 Farben, bewusst ohne Rot/Gelb/Grün — läse sich als Status). Für eigene Charts
+  `seriesColor(i)` statt einer festen Palette nehmen.
+- `resolveColor(color)` ohne `fallback` liefert bei leerem/unbekanntem Token `seriesColor(0)` (Theme-Primärfarbe,
+  bis v0.8 fest `#8b5cf6`). `warn`/`success` lesen `--color-warning`/`--color-success`.
+- Die Chart-Schrift ist die der App.
+
+`resolveColor` löst Theme-Tokens (`primary`, `secondary`, `tertiary`, `accent`, `warn`, `error`, `success`, `inherit`)
+zur Laufzeit gegen die CSS-Variablen des Documents auf. Das ist Pflicht, weil echarts auf ein **Canvas** zeichnet: dort sind weder `var(--x)` noch `currentColor` gültige Farben — eine Serie bekäme sonst gar keine. Beim Theme-Wechsel lösen die Charts automatisch neu auf; ihre `option`-`computed()` hängt über `resolveColor` an einem Signal, das `XiriThemeService` hochzählt.

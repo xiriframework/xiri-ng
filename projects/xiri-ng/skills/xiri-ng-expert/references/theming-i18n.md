@@ -88,6 +88,27 @@ $dark-theme:  xirimat.create-theme(mat.$azure-palette, mat.$blue-palette, dark, 
 `color-scheme: dark`. Die nicht aus M3 ableitbaren Werte (`--primary-dark`, Statusfarben, Schatten,
 Grautöne) sind Defaults — nach dem Include überschreibbar.
 
+Statusfarben: `--color-warning` ist Amber (`#B07700` hell, `#FFC94D` dunkel), nicht mehr das Error-Rot.
+`--on-success` (Text auf `--color-success`) ist hell wie dunkel gesetzt und dunkel; wer `--color-success` auf ein
+dunkles Grün überschreibt, setzt `--on-success` mit. Der Auto-Dark-Selektor hat `:root`-Spezifität, eigene
+`:root { --… }`-Werte nach dem Include gelten also auch im Modus `auto`.
+
+### Look-Tokens (ab v0.9)
+
+Der Standard-Look folgt Material 3. Jede Abweichung lässt sich über ein Token in `:root` (nach dem Theme-Include)
+zurückdrehen oder anpassen:
+
+| Token | Default / wirkt auf | Alter Look (bis v0.8) |
+|---|---|---|
+| `--xiri-surface-border`, `--xiri-surface-shadow`, `--xiri-surface-background` | Karten und Tabellen (Klasse `.xiri-surface`): Rand statt Schatten, `surface`-Fläche | `--xiri-surface-border: transparent; --xiri-surface-shadow: var(--mat-app-elevation-shadow-level-2)` |
+| `--xiri-icon-button-background-color`, `--xiri-icon-button-shadow` | Icon-Buttons flach | `var(--color-gray-100)` bzw. `var(--mat-app-elevation-shadow-level-2)` |
+| `--xiri-sidenav-active-color`, `--xiri-sidenav-active-icon-color`, `--xiri-sidenav-icon-color`, `--xiri-sidenav-active-radius`, `--xiri-sidenav-active-decoration` | Sidenav: aktiver Eintrag in `secondary-container`, Icons `on-surface-variant` | Pille: `--xiri-sidenav-active-radius: var(--xiri-radius-full)` |
+| `--xiri-page-header-border` | Page-Header ohne Linie | `3px solid var(--primary)` |
+| `--xiri-treeselect-max-height` | Tree-/Multiselect-Liste wächst bis 300 px | — |
+
+Die Lib-Karten tragen keine `mat-elevation-z2`/`z3` mehr. Sidenav-Gruppen-Schalter sind `<button mat-list-item>`
+(CSS auf `mat-list-item.parent` greift nicht mehr). Tonale Tags/Chips haben kein Token.
+
 ### `mat.theme()`-Kompatibilität
 
 Wer stattdessen `mat.theme()` nutzt (das war hier früher dokumentiert), bekommt `--mat-sys-*`
