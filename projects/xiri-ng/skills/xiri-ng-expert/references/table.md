@@ -95,7 +95,7 @@ export interface XiriTableOptions {
 
   pagination?: boolean = true;
   itemsPerPage?: number = 50;
-  pageSizes?: number[] = [10, 25, 50, 100, 500];
+  pageSizes?: number[] = [10, 25, 50, 100, 500];  // Auswahl entfällt, wenn alle Zeilen auf die kleinste Größe passen
 
   select?: boolean;                    // Checkbox für Row-Selection
   selectButtons?: XiriButton[];        // Buttons die auf Selection wirken
