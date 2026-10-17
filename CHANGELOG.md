@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.1]
+
 ### Changed
 
 - **Tabellen-Footer kompakter:** Die Höhe folgt der `density` (compact 36 px, regular 40 px, relaxed 48 px statt fix
