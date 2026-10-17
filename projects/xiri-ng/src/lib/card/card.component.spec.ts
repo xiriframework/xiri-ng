@@ -670,6 +670,16 @@ describe('XiriCardComponent: Innenabstand nach Kartenbreite', () => {
 			.toContain('border-bottom-color: transparent');
 	});
 
+	// A gap under the header divider shows as a strip above the first row's hover background.
+	it('puts the first row directly under the header divider', async () => {
+		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
+		const f = TestBed.createComponent(TestHostComponent);
+		f.componentInstance.settings.set({ header: 'X', data: [ [ 'a', 'b' ] ] } as XiriCardSettings);
+		f.detectChanges();
+
+		expect(getComputedStyle(f.nativeElement.querySelector('mat-card-header')).marginBottom).toMatch(/^0(px)?$/);
+	});
+
 	it('sets no inline padding without WithPadding(), so the width-based default applies', async () => {
 		await TestBed.configureTestingModule({ imports: [TestHostComponent], providers: [{ provide: XiriDataService, useValue: {} }, { provide: XiriDownloadService, useValue: {} }, { provide: MatDialog, useValue: {} }, { provide: Location, useValue: {} }, provideRouter([])] }).compileComponents();
 		const content = (padding?: string) => {
