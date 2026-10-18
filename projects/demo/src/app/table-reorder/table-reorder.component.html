@@ -1,0 +1,14 @@
+<app-demo-page [bread]="breadcrumbs">
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+
+		<div class="xcol">
+			<xiri-section [settings]="section">
+				<xiri-table [settings]="rules"></xiri-table>
+				<app-go-code [code]="goCode" title="Go: table mit SetReorderURL"></app-go-code>
+			</xiri-section>
+		</div>
+	</div>
+</app-demo-page>

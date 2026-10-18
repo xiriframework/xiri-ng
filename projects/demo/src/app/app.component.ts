@@ -50,7 +50,7 @@ export const demoNavFields: XiriNavigationField[] = [ {
 	name: 'Tables',
 	icon: 'table_chart',
 	menu: true,
-	regex: /^(Tables|InlineEditTable|TableTree|Query|MasterDetail)/,
+	regex: /^(Tables|InlineEditTable|TableTree|TableReorder|Query|MasterDetail)/,
 	sub: [ {
 		name: 'Tables',
 		icon: 'table_chart',
@@ -67,6 +67,10 @@ export const demoNavFields: XiriNavigationField[] = [ {
 		name: 'Tree Table',
 		icon: 'account_tree',
 		link: 'TableTree'
+	}, {
+		name: 'Drag & Drop',
+		icon: 'drag_indicator',
+		link: 'TableReorder'
 	}, {
 		name: 'Master-Detail',
 		icon: 'vertical_split',

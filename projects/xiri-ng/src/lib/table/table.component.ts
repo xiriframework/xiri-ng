@@ -29,6 +29,8 @@ import {
 	MatTableDataSource
 } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
@@ -164,6 +166,8 @@ export interface XiriTableOptions {
 	serverSide?: boolean
 	scrollHeight?: string
 	editUrl?: string
+	// Drag&drop row order: POST {id, before} here after a drop (before: null = to the end), then reload.
+	reorderUrl?: string
 	tree?: XiriTableTreeSettings // opt-in tree mode; delivered here by the Go builder (options.tree)
 }
 
@@ -216,7 +220,8 @@ export type { XiriTableTreeSettings, XiriTableRow, XiriTableCellValue } from './
 	                       MatFooterRow, MatFooterRowDef, MatFooterCell, MatFooterCellDef,
 	                       MatMenu, MatMenuItem, MatMenuTrigger,
 	                       MatSelect, MatOption,
-	                       XiriEmptyStateComponent ]
+	                       XiriEmptyStateComponent,
+	                       CdkDropList, CdkDrag, CdkDragHandle, CdkScrollable ]
             } )
 export class XiriTableComponent implements OnInit, OnDestroy {
 	
@@ -246,6 +251,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	loading = signal<boolean>( true );
 	// refresh:'table' während eines Loads: Der laufende Request kann vor der Änderung gestartet sein – nachholen.
 	private refreshPending = signal( false );
+	// A reorder POST is in flight; blocks further drops until the table reloaded.
+	reordering = signal( false );
 	private _totalCount = signal<number>( 0 );
 
 	displayedColumns: XiriTableField[] = [];
@@ -608,6 +615,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.extraHeaderFields = [];
 		this.extraHeaders = [];
 		
+		if ( this.options.reorderUrl )
+			this.columnsToDisplay.push( '_reorder' );
 		if ( this.showSelectColumn )
 			this.columnsToDisplay.push( 'select' );
 		
@@ -660,7 +669,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			if ( !saved )
 				return;
 
-			if ( saved.sort !== undefined && saved.sortDirection !== undefined )
+			// A cleared sort ('') must stay cleared: MatSort.sort() would turn an empty start into 'asc'.
+			if ( saved.sort !== undefined && saved.sortDirection )
 				this.sort().sort( ( { id: saved.sort, start: saved.sortDirection } ) as MatSortable );
 			if ( saved.pageSize !== undefined && saved.pageIndex !== undefined ) {
 				this.paginator().pageIndex = saved.pageIndex;
@@ -975,6 +985,67 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	private clearBulk(): void {
 		this.selection.clear();
 		this.bulkAllResults.set( false );
+	}
+
+	// ============================================================================
+	// Drag&drop reorder (options.reorderUrl)
+	// ============================================================================
+
+	// Dragging only where the shown order is the app's order of all rows: the drop indices then
+	// match dataSource.data, and {id, before} means the same to the app as on screen.
+	get canReorder(): boolean {
+		return !!this.options.reorderUrl
+			&& !this.settings().data && !this.options.serverSide && !this.tree.enabled
+			&& !this.loading() && !this.reordering()
+			&& !this.sort().direction && !this.searchText
+			&& ( !this.options.pagination || this.dataSource.filteredData.length <= this.paginator().pageSize );
+	}
+
+	// A poll reload mid-drag would rebuild the dragged row; the reload after the drop reschedules it.
+	// The preview row sits outside the table layout and would shrink its cells to their content:
+	// give them the widths of the placeholder, which still stands in the table.
+	reorderStarted( event: CdkDragStart ): void {
+		this.cancelAutoRefreshTimers();
+		const placeholder = event.source.getPlaceholderElement();
+		const preview = placeholder.parentElement?.querySelector<HTMLElement>( ':scope > .cdk-drag-preview' );
+		[ ...placeholder.children ].forEach( ( cell, i ) => {
+			const target = preview?.children[ i ] as HTMLElement | undefined;
+			if ( target ) {
+				target.style.boxSizing = 'border-box';
+				target.style.width = cell.getBoundingClientRect().width + 'px';
+			}
+		} );
+	}
+
+	reorderDrop( event: CdkDragDrop<unknown> ): void {
+		if ( event.previousIndex === event.currentIndex ) {
+			const poll = this.autoRefresh();
+			if ( poll )
+				this.scheduleAutoRefresh( poll.intervalMs );
+			return;
+		}
+
+		const data = this.dataSource.data;
+		moveItemInArray( data, event.previousIndex, event.currentIndex );
+		this.dataSource._updateChangeSubscription();
+		const payload = { id: data[ event.currentIndex ].id, before: data[ event.currentIndex + 1 ]?.id ?? null };
+
+		// Not bound to reloadAbort$: a filter change must not cancel the save. No callReturn: the
+		// response only carries a message (shown by the data service), the table reloads anyway.
+		this.reordering.set( true );
+		this.dataService.post( this.options.reorderUrl ?? '', payload ).pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( {
+			next: () => this.reorderDone(),
+			error: ( err: unknown ) => {
+				this.snackbar.error( errorMessage( err ) || 'Unknown Error' );
+				this.reorderDone();
+			},
+		} );
+	}
+
+	// Always reload, also after an error: that shows the order the app actually stored.
+	private reorderDone(): void {
+		this.reordering.set( false );
+		this.refreshTable();
 	}
 
 	clicked( row: XiriTableRow ) {

@@ -20,6 +20,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { MatMenuHarness } from '@angular/material/menu/testing';
 import { MatTooltipHarness } from '@angular/material/tooltip/testing';
+import { CdkDragDrop, CdkDragStart, CdkDropList } from '@angular/cdk/drag-drop';
 
 // Narrow view onto the component's private members the tests reach into.
 interface TableInternals {
@@ -2588,6 +2589,256 @@ describe( 'XiriTableComponent', () => {
 			// positive control: the spy does see navigation of an active entry
 			await ( await menu.getItems( { text: 'Öffnen' } ) )[ 0 ].click();
 			expect( navigate ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'reorder (drag&drop)', () => {
+		const fields: XiriTableField[] = [ { id: 'name', name: 'Name' } ];
+		const rows = () => [ 1, 2, 3, 4 ].map( id => ( { id, name: 'Row ' + id } ) );
+		let reorderResponse: () => unknown;
+
+		// Data and reorder requests both go through dataService.post; split them by url.
+		function createReorderTable( options: XiriTableOptions = {}, extra: Partial<XiriTableSettings> = {} ) {
+			mockDataService.post.mockImplementation( ( url: string ) =>
+				url === 'test/reorder' ? reorderResponse() : of( { data: rows() } ) );
+			createFixture( { url: 'test/data', fields, options: { reorderUrl: 'test/reorder', ...options }, ...extra } );
+		}
+
+		const dataCalls = () => mockDataService.post.mock.calls.filter( c => c[ 0 ] === 'test/data' ).length;
+		const reorderCalls = () => mockDataService.post.mock.calls.filter( c => c[ 0 ] === 'test/reorder' ).map( c => c[ 1 ] );
+
+		function drop( previousIndex: number, currentIndex: number ) {
+			const list = fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList );
+			list.dropped.emit( { previousIndex, currentIndex } as CdkDragDrop<unknown> );
+			fixture.detectChanges();
+		}
+
+		beforeEach( () => {
+			reorderResponse = () => of( {} );
+		} );
+
+		// CDK state at cdkDragStarted: the placeholder (a copy of the row) sits in the table, the preview next to it.
+		function dragStart( widths: number[] ): { start: CdkDragStart; preview: HTMLElement } {
+			const tbody = document.createElement( 'tbody' );
+			const row = ( cls: string ) => {
+				const tr = document.createElement( 'tr' );
+				tr.className = cls;
+				widths.forEach( () => tr.appendChild( document.createElement( 'td' ) ) );
+				tbody.appendChild( tr );
+				return tr;
+			};
+			const placeholder = row( 'cdk-drag-placeholder' );
+			[ ...placeholder.children ].forEach( ( td, i ) =>
+				vi.spyOn( td, 'getBoundingClientRect' ).mockReturnValue( { width: widths[ i ] } as DOMRect ) );
+			const preview = row( 'cdk-drag-preview' );
+			const start = { source: { getPlaceholderElement: () => placeholder } } as unknown as CdkDragStart;
+			return { start, preview };
+		}
+
+		it( 'Vorschau-Zeile übernimmt die Spaltenbreiten der Tabelle', () => {
+			createReorderTable();
+			const { start, preview } = dragStart( [ 40, 115, 293 ] );
+
+			component.reorderStarted( start );
+
+			expect( [ ...preview.children ].map( td => ( td as HTMLElement ).style.width ) ).toEqual( [ '40px', '115px', '293px' ] );
+		} );
+
+		it( 'ohne reorderUrl: keine Griff-Spalte, Sortierung nicht aufhebbar', () => {
+			mockDataService.post.mockReturnValue( of( { data: rows() } ) );
+			createFixture( { url: 'test/data', fields } );
+
+			expect( component.columnsToDisplay ).toEqual( [ 'name' ] );
+			expect( fixture.nativeElement.querySelector( '.xiri-reorder-handle' ) ).toBeNull();
+			expect( fixture.nativeElement.querySelector( 'tr.cdk-drag' ) ).toBeNull();
+			expect( fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList ).disabled ).toBe( true );
+			expect( component.canReorder ).toBe( false );
+		} );
+
+		it( 'mit reorderUrl: Griff-Spalte ganz vorne, auch vor der Auswahl-Spalte', () => {
+			createReorderTable( { select: true } );
+
+			expect( component.columnsToDisplay ).toEqual( [ '_reorder', 'select', 'name' ] );
+			expect( fixture.nativeElement.querySelectorAll( 'tr.mat-mdc-row .xiri-reorder-handle' ).length ).toBe( 4 );
+		} );
+
+		it( 'Drop nach oben schickt {id, before} und lädt neu', () => {
+			createReorderTable();
+			const loads = dataCalls();
+
+			drop( 3, 0 );
+
+			expect( reorderCalls() ).toEqual( [ { id: 4, before: 1 } ] );
+			expect( dataCalls() ).toBe( loads + 1 );
+		} );
+
+		it( 'Drop ans Ende schickt before: null', () => {
+			createReorderTable();
+			drop( 0, 3 );
+			expect( reorderCalls() ).toEqual( [ { id: 1, before: null } ] );
+		} );
+
+		it( 'Drop an alter Stelle schickt nichts', () => {
+			createReorderTable();
+			const loads = dataCalls();
+			drop( 2, 2 );
+			expect( reorderCalls() ).toEqual( [] );
+			expect( dataCalls() ).toBe( loads );
+		} );
+
+		it( 'verschiebt die Zeile sofort lokal, bis die Antwort da ist', () => {
+			const pending = new Subject<unknown>();
+			reorderResponse = () => pending;
+			createReorderTable();
+
+			drop( 3, 0 );
+
+			expect( component.dataSource.data.map( r => r.id ) ).toEqual( [ 4, 1, 2, 3 ] );
+			expect( component.canReorder ).toBe( false );
+			pending.next( {} );
+			pending.complete();
+			expect( component.canReorder ).toBe( true );
+		} );
+
+		it( 'Fehler: Snackbar und Reload mit der Server-Reihenfolge', () => {
+			reorderResponse = () => throwError( () => ( { error: { error: 'Version veraltet' } } ) );
+			createReorderTable();
+			const loads = dataCalls();
+
+			drop( 3, 0 );
+
+			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Version veraltet' );
+			expect( dataCalls() ).toBe( loads + 1 );
+			expect( component.dataSource.data.map( r => r.id ) ).toEqual( [ 1, 2, 3, 4 ] );
+		} );
+
+		it( 'wertet die Antwort nicht als refresh aus: genau ein Reload', () => {
+			reorderResponse = () => of( { refresh: 'table' } );
+			createReorderTable();
+			const loads = dataCalls();
+
+			drop( 3, 0 );
+
+			expect( mockResponseHandler.handle ).not.toHaveBeenCalled();
+			expect( dataCalls() ).toBe( loads + 1 );
+		} );
+
+		it( 'ein Filterwechsel während des Speicherns bricht es nicht ab', () => {
+			const pending = new Subject<unknown>();
+			reorderResponse = () => pending;
+			createReorderTable( {}, { hasFilter: true } );
+			host.filterData.set( { status: 'a' } );
+			fixture.detectChanges();
+
+			drop( 3, 0 );
+			host.filterData.set( { status: 'b' } );
+			fixture.detectChanges();
+			const loads = dataCalls();
+			pending.next( {} );
+			pending.complete();
+
+			expect( component.reordering() ).toBe( false );
+			expect( dataCalls() ).toBe( loads + 1 );
+		} );
+
+		it( 'ziehbar mit Filter-Formular, sonst nicht bei Sortierung, Suche, mehreren Seiten', () => {
+			createReorderTable( { itemsPerPage: 10 }, { hasFilter: true } );
+			host.filterData.set( { status: 'a' } );
+			fixture.detectChanges();
+			expect( component.canReorder ).toBe( true );
+
+			component.sort().sort( { id: 'name', start: 'asc', disableClear: false } );
+			expect( component.canReorder ).toBe( false );
+			component.sort().direction = '';
+			expect( component.canReorder ).toBe( true );
+
+			component.searchDo( 'row' );
+			expect( component.canReorder ).toBe( false );
+			component.searchDo( '' );
+			expect( component.canReorder ).toBe( true );
+
+			component.paginator()._changePageSize( 2 );
+			expect( component.canReorder ).toBe( false );
+
+			component.paginator()._changePageSize( 10 );
+			component.loading.set( true );
+			expect( component.canReorder ).toBe( false );
+		} );
+
+		it( 'nicht ziehbar bei serverSide, Tree-Modus und statischen Daten', () => {
+			createReorderTable( { serverSide: true } );
+			expect( component.canReorder ).toBe( false );
+
+			createReorderTable( { tree: { idField: 'id', parentIdField: 'parent' } } );
+			expect( component.canReorder ).toBe( false );
+
+			mockDataService.post.mockReturnValue( of( {} ) );
+			createFixture( { fields, data: rows(), options: { reorderUrl: 'test/reorder' } } );
+			expect( component.canReorder ).toBe( false );
+		} );
+
+		it( 'gesperrt: Liste deaktiviert, Griff ausgegraut', () => {
+			createReorderTable();
+			component.searchDo( 'row' ); // im echten Ablauf über das Such-Event, das die View markiert
+			internals( component )._changeDetectorRef.markForCheck();
+			fixture.detectChanges();
+
+			const list = fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList );
+			expect( list.disabled ).toBe( true );
+			expect( fixture.nativeElement.querySelector( '.xiri-reorder-handle.disabled' ) ).not.toBeNull();
+		} );
+
+		it( 'mit reorderUrl hebt der dritte Klick auf den Header die Sortierung auf', () => {
+			createReorderTable();
+			const header = fixture.nativeElement.querySelector( 'th.mat-sort-header' ) as HTMLElement;
+			header.click();
+			header.click();
+			header.click();
+			expect( component.sort().direction ).toBe( '' );
+			expect( component.canReorder ).toBe( true );
+		} );
+
+		it( 'Klick auf den Griff löst keinen Zeilenklick aus', () => {
+			createReorderTable();
+			const emitSpy = vi.fn();
+			component.clickedRow.subscribe( emitSpy );
+
+			( fixture.nativeElement.querySelector( 'tr.mat-mdc-row .xiri-reorder-handle' ) as HTMLElement ).click();
+
+			expect( emitSpy ).not.toHaveBeenCalled();
+		} );
+
+		it( 'saveState: aufgehobene Sortierung wird nicht als aufsteigend wiederhergestellt', () => {
+			mockSessionStorage.getTimeout.mockReturnValue( { sort: 'name', sortDirection: '' } );
+			createReorderTable( { saveState: true, saveStateId: 'regeln' } );
+
+			expect( component.sort().direction ).toBe( '' );
+			expect( component.canReorder ).toBe( true );
+		} );
+
+		describe( 'Poll während des Ziehens', () => {
+			beforeEach( () => vi.useFakeTimers() );
+			afterEach( () => vi.useRealTimers() );
+
+			function createPolling() {
+				mockDataService.post.mockImplementation( ( url: string ) =>
+					url === 'test/reorder' ? of( {} ) : of( { data: rows(), poll: 2000 } ) );
+				createFixture( { url: 'test/data', fields, options: { reorderUrl: 'test/reorder' } } );
+			}
+
+			it( 'pausiert beim Ziehen und läuft nach einem Drop an alter Stelle weiter', () => {
+				createPolling();
+				const list = fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList );
+				const loads = dataCalls();
+
+				component.reorderStarted( dragStart( [] ).start );
+				vi.advanceTimersByTime( 3000 );
+				expect( dataCalls() ).toBe( loads );
+
+				list.dropped.emit( { previousIndex: 1, currentIndex: 1 } as CdkDragDrop<unknown> );
+				vi.advanceTimersByTime( 2000 );
+				expect( dataCalls() ).toBe( loads + 1 );
+			} );
 		} );
 	} );
 } );

@@ -507,6 +507,39 @@ td.xiri-tree-td .xiri-tree-addsub:focus-visible {
 	opacity: 1;
 }
 
+// Drag&drop reorder (options.reorderUrl). The preview stays in the tbody (cdkDragPreviewContainer="parent"),
+// so it keeps the column widths.
+td.xiri-reorder-cell, th.xiri-reorder-cell {
+	width:         40px;
+	padding-left:  8px;
+	padding-right: 0;
+}
+
+.xiri-reorder-handle {
+	cursor:         grab;
+	vertical-align: middle;
+	color:          var(--on-surface-variant);
+
+	&.disabled {
+		cursor:  default;
+		opacity: 0.38;
+	}
+}
+
+tr.cdk-drag-preview {
+	background: var(--surface-container-high);
+	box-shadow: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+tr.cdk-drag-placeholder {
+	opacity: 0.3;
+}
+
+.cdk-drop-list-dragging tr.mat-mdc-row:not(.cdk-drag-placeholder),
+tr.cdk-drag-animating {
+	transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
 // Ancestor-only context rows during an active search are dimmed.
 tr.xiri-tree-dimmed {
 	opacity: 0.6;

@@ -24,6 +24,39 @@ interface MockRequestBody {
 	_search?: string;
 }
 
+// Table-Reorder-Demo: gespeicherte Regel-Reihenfolge. Die Standardregel (id 99) ist gesperrt und bleibt am Ende.
+interface ReorderRule { id: number; name: string; source: string; target: string; action: string }
+const reorderRulesInitial: ReorderRule[] = [
+	{ id: 1, name: 'Admin-Zugang', source: '10.0.0.0/24', target: 'mgmt', action: 'allow' },
+	{ id: 2, name: 'Webserver', source: 'any', target: 'dmz-web:443', action: 'allow' },
+	{ id: 3, name: 'Mailrelay', source: 'any', target: 'dmz-mail:25', action: 'allow' },
+	{ id: 4, name: 'Backup', source: 'srv-backup', target: 'storage:873', action: 'allow' },
+	{ id: 5, name: 'Gäste-WLAN sperren', source: 'guest', target: 'lan', action: 'deny' },
+	{ id: 6, name: 'Monitoring', source: 'srv-mon', target: 'any:161', action: 'allow' },
+	{ id: 99, name: 'Standardregel', source: 'any', target: 'any', action: 'deny' },
+];
+let reorderRules = [ ...reorderRulesInitial ];
+
+// Für Specs: Modulzustand zwischen Tests zurücksetzen.
+export function resetReorderMock(): void {
+	reorderRules = [ ...reorderRulesInitial ];
+}
+
+// Wie ein Go-Handler mit table.ReorderRequest: before null = ans Ende.
+function moveReorderRule( body: { id?: number; before?: number | null } ) {
+	if ( body.id === 99 || body.before === null )
+		return failAfter( 300, { status: 409, statusText: 'Conflict', error: { error: 'Die Standardregel bleibt am Ende' } } );
+	const moved = reorderRules.find( r => r.id === body.id );
+	const rest = reorderRules.filter( r => r.id !== body.id );
+	const at = rest.findIndex( r => r.id === body.before );
+	if ( !moved || at < 0 )
+		return failAfter( 300, { status: 400, statusText: 'Bad Request', error: { error: 'Unbekannte Regel' } } );
+	rest.splice( at, 0, moved );
+	reorderRules = rest;
+	return of( new HttpResponse( { status: 200, body: { done: true, message: 'Reihenfolge gespeichert', messageType: 'success' } } ) )
+		.pipe( delay( 300 ) );
+}
+
 // Poll-Zähler für den Waiting-Dialog: die Demo simuliert einen Job, der nach einigen Polls fertig ist.
 let dialogWaitingPolls = 0;
 
@@ -198,6 +231,15 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 
 	if ( req.url.includes( 'Test/Form/Page' ) ) {
 		return of( new HttpResponse( { status: 200, body: getFormPage() } ) );
+	}
+
+	// Table-Reorder-Demo
+	if ( req.url.includes( 'Test/Reorder/Data' ) ) {
+		const data = reorderRules.map( ( r, i ) => ( { ...r, pos: i + 1 } ) );
+		return of( new HttpResponse( { status: 200, body: { data } } ) ).pipe( delay( 200 ) );
+	}
+	if ( req.url.includes( 'Test/Reorder/Move' ) ) {
+		return moveReorderRule( req.body as { id?: number; before?: number | null } );
 	}
 
 	// Server-side table data

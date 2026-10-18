@@ -18,6 +18,11 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Tabelle: `selectMin`/`selectMax` an Select-Buttons und Bulk-Actions.** Der Button ist nur aktiv, solange die Anzahl
   passt (Select-Buttons: ausgewählte Zeilen; Bulk-Actions: `bulkCount`, bei „Alle Ergebnisse“ die ganze Treffermenge).
   Mit Hint bleibt der gesperrte Button hoverbar und zeigt den Hint. Go: `TableButton.WithSelectCount`.
+- **Tabelle: Zeilen per Drag&Drop umsortieren (`options.reorderUrl`).** Ziehgriff-Spalte vorne; nach dem Drop geht
+  `POST {id, before}` an die URL (`before: null` = ans Ende der ganzen Liste), danach lädt die Tabelle immer neu, auch
+  nach einem Fehler. Ziehbar nur unsortiert, ohne Suchtext, mit allen Zeilen auf einer Seite, nicht bei `serverSide`,
+  Tree-Modus oder statischen Daten; sonst ist der Griff ausgegraut. Mit `reorderUrl` hebt der dritte Klick auf einen
+  Spaltenkopf die Sortierung wieder auf. Go: `TableBuilder.SetReorderURL`.
 
 ### Changed
 
