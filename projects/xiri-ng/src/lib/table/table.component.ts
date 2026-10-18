@@ -900,6 +900,14 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		this.bulkAllResults.set( true );
 	}
 
+	// Select buttons and bulk actions are blocked outside [selectMin, selectMax] (0/missing = no limit)
+	// and always on an empty selection. Callers pass the count their action works on.
+	countBlocked( button: XiriButton, count: number ): boolean {
+		return count === 0
+			|| ( !!button.selectMin && count < button.selectMin )
+			|| ( !!button.selectMax && count > button.selectMax );
+	}
+
 	cancelBulk(): void {
 		this.selection.clear();
 		this.bulkAllResults.set( false );
@@ -911,7 +919,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// on just the current page. Destructive actions (color 'warn') confirm with the exact count.
 	bulkAction( event: MouseEvent, button: XiriButton ): void {
 		event.stopPropagation();
-		if ( this.selection.isEmpty() )
+		if ( this.countBlocked( button, this.bulkCount() ) )
 			return;
 
 		const allResults = this.bulkAllResults();
@@ -993,7 +1001,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	openDialogSelection( event: MouseEvent, button: XiriButton ) {
 
 		event.stopPropagation();
-		if ( this.selection.isEmpty() )
+		if ( this.countBlocked( button, this.selection.selected.length ) )
 			return true;
 
 		const data: XiriTableDialogData = { ...button, type: 'data' };
@@ -1021,7 +1029,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	
 	apiCallSelection( event: MouseEvent, button: XiriButton ) {
 		event.stopPropagation();
-		if ( this.selection.isEmpty() )
+		if ( this.countBlocked( button, this.selection.selected.length ) )
 			return;
 		
 		const data = { data: this.getSelectionIDs() };
@@ -1069,7 +1077,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 	downloadSelection( event: MouseEvent, button: XiriButton ) {
 		event.stopPropagation();
-		if ( this.selection.isEmpty() )
+		if ( this.countBlocked( button, this.selection.selected.length ) )
 			return;
 
 		const url = button.url ? button.url : '';

@@ -15,6 +15,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **Chips: Vorschläge per `url`/`searchWith`** wie beim Textfeld (`XiriSuggestDirective`). Ein Vorschlag wird als
   Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID.
 - **Chips: bereits gewählte Chips werden nicht noch einmal vorgeschlagen** (Optionen und Server-Treffer).
+- **Tabelle: `selectMin`/`selectMax` an Select-Buttons und Bulk-Actions.** Der Button ist nur aktiv, solange die Anzahl
+  passt (Select-Buttons: ausgewählte Zeilen; Bulk-Actions: `bulkCount`, bei „Alle Ergebnisse“ die ganze Treffermenge).
+  Mit Hint bleibt der gesperrte Button hoverbar und zeigt den Hint. Go: `TableButton.WithSelectCount`.
 
 ### Changed
 

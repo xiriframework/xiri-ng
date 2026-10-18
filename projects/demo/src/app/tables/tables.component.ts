@@ -137,7 +137,13 @@ export class TablesComponent {
 					{ type: 'icon', text: 'Name', action: 'api', icon: 'home' }
 				], class: ''
 			},
-			selectButtons: [ { type: 'icon', text: 'Name', action: 'api', icon: 'home' } ]
+			selectButtons: [
+				{ type: 'icon', text: 'Name', action: 'api', icon: 'home' },
+				{
+					type: 'icon', text: 'Vergleichen', action: 'api', icon: 'compare_arrows', hint: 'Genau zwei Zeilen vergleichen',
+					selectMin: 2, selectMax: 2
+				}
+			]
 		},
 		hasFilter: false
 	};
@@ -385,6 +391,10 @@ export class TablesComponent {
 				{ text: 'Archivieren', type: 'button', action: 'api', url: 'Test/Bulk/Archive', icon: 'archive', color: 'primary' },
 				{ text: 'Exportieren', type: 'button', action: 'download', url: 'Test/Bulk/Export', icon: 'download', color: 'accent' },
 				{ text: 'Löschen', type: 'button', action: 'api', url: 'Test/Bulk/Delete', icon: 'delete', color: 'warn' },
+				{
+					text: 'Zusammenführen', type: 'button', action: 'api', url: 'Test/Bulk/Merge', icon: 'merge',
+					hint: 'Mindestens zwei Rechnungen', selectMin: 2
+				},
 			],
 		},
 		hasFilter: false
