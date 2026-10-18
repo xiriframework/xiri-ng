@@ -41,6 +41,10 @@ versioning follows [Semantic Versioning](https://semver.org/).
 - **`disabled` am Button wirkt überall:** `WithDisabled(true)` sperrt den Button jetzt auch in Formular, Dialog,
   Stepper, Alert und bei den Tabellen-Buttons `dialog`/`api`/`save`. Bisher wirkte es nur bei eigenständigen Buttons
   (Card, Buttonline, Page). Ein so markierter Button war dort bisher klickbar.
+- **Suchfeld (`xiri-search`) im Treeselect ohne Konsolen-Warnung NG01354:** Das Eingabefeld bindet `ngModel` jetzt
+  standalone, Angular warnte beim Öffnen der Suche innerhalb eines Formulars.
+- **Suchfeld: Fokusrahmen umschließt auch das Schließen-Symbol** (Treeselect, Tabelle, Toolbar), nicht nur die Eingabe.
+- **Treeselect: leere Liste klappt nicht mehr auf 0 Höhe zusammen**, der Baum zeigt mindestens eine Zeile.
 
 ## [0.9.1]
 

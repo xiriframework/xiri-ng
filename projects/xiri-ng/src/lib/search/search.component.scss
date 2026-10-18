@@ -18,6 +18,13 @@
 		width:          100%;
 		margin-left:    8px;
 	}
+
+	// Fokusrahmen um Eingabe und Schließen-Symbol gemeinsam, nicht nur um das Eingabefeld.
+	&:has(input:focus-visible) {
+		outline:        2px solid var(--primary, #2892D9);
+		outline-offset: -2px;
+		border-radius:  var(--xiri-radius-xs);
+	}
 }
 
 input {
@@ -29,11 +36,5 @@ input {
 	outline:    none;
 	width:      100%;
 	color:      var(--on-surface);
-
-	&:focus-visible {
-		outline:        2px solid var(--primary, #2892D9);
-		outline-offset: -2px;
-		border-radius:  var(--xiri-radius-xs);
-	}
 }
 

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { XiriSearchComponent } from './search.component';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
 	selector: 'test-host',
@@ -238,5 +239,33 @@ describe('XiriSearchComponent', () => {
 	it('should handle empty placeholder', () => {
 		const comp = fixture.debugElement.children[0].componentInstance as XiriSearchComponent;
 		expect(comp.placeholder()).toBe('');
+	});
+});
+
+// Im Treeselect sitzt xiri-search innerhalb eines [formGroup]. Ein nicht-standalone ngModel löst dort
+// beim Öffnen NG01354 aus (kann sich nicht beim Formular registrieren); das Suchfeld gehört auch nicht dazu.
+@Component({
+	selector: 'test-form-host',
+	template: `<form [formGroup]="form"><xiri-search /></form>`,
+	imports: [XiriSearchComponent, ReactiveFormsModule],
+})
+class TestFormHostComponent {
+	form = new FormGroup({});
+}
+
+describe('XiriSearchComponent in einem Formular', () => {
+	it('öffnet ohne NG01354-Warnung', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		try {
+			const fixture = TestBed.createComponent(TestFormHostComponent);
+			fixture.detectChanges();
+			(fixture.nativeElement.querySelector('button') as HTMLButtonElement).click();
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('input')).not.toBeNull();
+			expect(warn.mock.calls.flat().join(' ')).not.toContain('NG01354');
+		} finally {
+			warn.mockRestore();
+		}
 	});
 });

@@ -61,6 +61,7 @@
 .tree {
 	// Wächst mit dem Inhalt bis 300px, darüber scrollt sie; feste Höhe wie früher: --xiri-treeselect-max-height + height setzen.
 	max-height:       var(--xiri-treeselect-max-height, 300px);
+	min-height:       36px; // = eine mat-tree-node: ein leerer Baum klappt nicht auf 0 zusammen
 	width:            100%;
 	overflow-y:       auto;
 	background-color: var(--surface, #FFF);
