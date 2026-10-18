@@ -526,9 +526,17 @@ td.xiri-reorder-cell, th.xiri-reorder-cell {
 	}
 }
 
+// Fixed-positioned, the row is no longer laid out as a table row: flex centers the cells vertically
+// (their widths come from reorderStarted).
 tr.cdk-drag-preview {
-	background: var(--surface-container-high);
+	display:     flex;
+	align-items: center;
+	background:  var(--surface-container-high);
 	box-shadow: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+tr.cdk-drag-preview > td {
+	flex: none;
 }
 
 tr.cdk-drag-placeholder {
