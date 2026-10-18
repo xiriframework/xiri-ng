@@ -116,6 +116,7 @@ export interface XiriTableOptions {
   saveInput?: string;
   saveInputUrl?: string;
   editUrl?: string;                    // POST-URL für Inline-Edit-Save
+  reorderUrl?: string;                 // Drag&Drop-Sortierung: POST {id, before} (s. u. „Zeilen umsortieren")
 
   borders?: boolean;
   bordersHeader?: boolean;
@@ -186,6 +187,11 @@ treffen.
 
 Selection-Buttons (`options.selectButtons`) posten `{ data: (string | number)[] }`; Bulk-Actions
 posten `{ ids, mode, count }`.
+
+Beide sind bei leerer Auswahl gesperrt, außerdem bei `disabled: true` und außerhalb von
+`[selectMin, selectMax]` (am `XiriButton`, `0`/fehlend = keine Grenze). Gezählt werden bei Selection-Buttons die
+ausgewählten Zeilen, bei Bulk-Actions `count` (bei „Alle Ergebnisse“ die ganze Treffermenge). Mit `hint` bleibt der
+gesperrte Button hoverbar und erklärt die Sperre. Go: `TableButton.WithSelectCount(2, 2)` / `.WithDisabled(true)`.
 
 **Jede auswählbare Zeile braucht eine `id`.** Zeilen ohne `id` (bzw. mit `null`) sind nicht
 auswählbar — sie bekommen keine Checkbox und werden von „alle auswählen" übersprungen, genau wie
@@ -405,6 +411,22 @@ tableSettings: XiriTableSettings = {
   ],
 };
 ```
+
+## Zeilen umsortieren (`options.reorderUrl`)
+
+Mit `reorderUrl` bekommt die Tabelle vorne eine Ziehgriff-Spalte (`drag_indicator`). Nach dem Drop geht
+`POST reorderUrl { id, before }` an den Server: `before` ist die `id` der Zeile, vor der die gezogene jetzt steht,
+`null` heißt ans Ende der ganzen Liste. Danach lädt die Tabelle immer neu, auch nach einem Fehler (dann mit
+Snackbar), und zeigt so die Reihenfolge, die die App gespeichert hat. Drop an der alten Stelle schickt nichts.
+
+- Ziehbar nur, wenn die Anzeige die Reihenfolge aller Zeilen ist: keine Spaltensortierung, kein Suchtext, alle Zeilen
+  auf einer Seite; nicht bei `serverSide`, Tree-Modus oder statischen `data`. Sonst ist der Griff ausgegraut. Mit
+  `reorderUrl` hebt der dritte Klick auf einen Spaltenkopf die Sortierung wieder auf.
+- Ein Filter-Formular sperrt nicht: `{id, before}` bleibt in einer gefilterten Liste eindeutig, `before: null` heißt
+  aber auch dann „ans absolute Ende“.
+- Jede Zeile braucht eine `id`. Während des Ziehens pausiert ein laufender Poll.
+- Lange Listen: `pagination: false` oder eine große `itemsPerPage`.
+- Go: `TableBuilder.SetReorderURL(u)`, im Handler `c.Bind(&table.ReorderRequest{})`. Ab xiri-ng 0.10.0.
 
 ## `refresh: 'table'` aus Buttons der Tabelle
 

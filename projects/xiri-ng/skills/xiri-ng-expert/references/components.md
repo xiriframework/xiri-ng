@@ -291,6 +291,11 @@ interface XiriButtonlineSettings {
 @input          pollText: string = '';    // Backend-Text während des Pollings (überschreibt Countdown)
 ```
 
+Gesperrt ist der Button bei `disabled`, `loading` oder `button.disabled`. Ein Capture-Listener am Host stoppt dann
+jeden Klick (`preventDefault` + `stopPropagation`), bevor der `(click)` des Verwenders oder ein umschließender
+`<a routerLink>` ihn sieht; Verwender brauchen keinen eigenen Disabled-Guard. Mit `hint` setzt buttonstyle
+`disabledInteractive`, damit der Tooltip am gesperrten Button erscheint.
+
 ### XiriButton
 
 ```typescript
@@ -312,8 +317,10 @@ interface XiriButton {
   hint?: string;
   tabIndex?: number;
   inline?: boolean;
-  disabled?: boolean;
+  disabled?: boolean;   // wirkt in allen Renderpfaden; mit hint bleibt der Button hoverbar und zeigt ihn als Tooltip
   autoLoad?: boolean;   // Aktion einmalig automatisch beim Laden auslösen (siehe unten)
+  selectMin?: number;   // Tabellen-Selection-Buttons/Bulk-Actions: aktiv nur bei min <= Anzahl <= max (0 = keine Grenze)
+  selectMax?: number;
 
   data?: any;
   target?: string;      // 'link'/'href': Link-Target. 'download': '_blank' = im Tab anzeigen statt speichern

@@ -174,6 +174,12 @@ der `list` löscht den Text nicht. Kommen die Vorschläge erst per Reload, initi
 sonst rendert die Komponente ein normales Textfeld und tauscht das Input beim Patch aus. Go:
 `field.NewTextField(...).SetSuggestions(...)` / `.SetSuggestionsURL(u, ids...)` + `builder.BindSuggest`.
 
+**Chips (`type: 'chips'`).** Optionen in `list` dürfen Zahl- oder String-IDs haben; der Wert ist ein Array aus
+Options-IDs und Freitext. `freeText: false` übernimmt nur Optionen, anderer Text bleibt im Eingabefeld. `url` +
+`searchWith` laden Vorschläge wie beim Textfeld; ein Vorschlag wird als Freitext-Chip eingefügt, heißt er wie eine
+Option, als deren ID. Bereits gewählte Chips werden nicht erneut vorgeschlagen. Details: `references/form-fields.md`.
+Go: `field.NewChipsField(...).SetList(...).SetFreeText(false).SetSuggestionsURL(u, ids...)`.
+
 **addUrl — neue Option per Dialog anlegen.** `select`, `multiselect`/`treeselect`, `object`/`model`
 und `chips` bekommen mit `addUrl` einen „+“-Button neben dem Feld:
 
@@ -184,7 +190,7 @@ und `chips` bekommen mit `addUrl` einen „+“-Button neben dem Feld:
 Klick lädt `xiri-dialog` per GET auf `addUrl` (ein normaler Form-Dialog vom Backend). Antwortet
 dessen POST mit `{ done: true, created: { id, name } }`, hängt das Feld die Option an seine `list`
 und selektiert sie — bei Mehrfachwerten zusätzlich, ohne Duplikat. `id` muss den Typ der
-vorhandenen Options-IDs haben (chips: Zahl). Go: `f.BaseField.SetAddURL(u)` +
+vorhandenen Options-IDs haben (chips: Zahl oder String). Go: `f.BaseField.SetAddURL(u)` +
 `response.NewReturnDone().WithCreated(id, name)`.
 
 Zugriff auf die reactive Form:
@@ -226,8 +232,9 @@ tableSettings = {
   options: {
     pagination: true, itemsPerPage: 50, sort: true, search: true,
     saveState: true, saveStateId: 'devices-table',
-    select: true, selectButtons: [ ... ],
+    select: true, selectButtons: [ ... ],    // Buttons optional mit selectMin/selectMax
     editUrl: '/api/devices/inline-edit',
+    // reorderUrl: '/api/devices/reorder',     // Drag&Drop-Sortierung (nicht mit serverSide), s. references/table.md
     buttons: { buttons: [...], class: 'small' },
   },
   fields: [
@@ -330,6 +337,11 @@ buttons: XiriButton[] = [
 `hide?: boolean` — der Button wird **gar nicht** gerendert (nicht im DOM) und feuert auch kein `autoLoad`. Gilt in allen Renderpfaden: freistehend, Form, Dialog, Alert, Stepper, Tabelle (Bulk/Zelle/Selection) und Links. Backend: `button.WithHide(true)`. Kein Berechtigungs-Contract — der Endpoint muss ohnehin abgesichert sein.
 
 `target?: string` — bei `action: 'link'` und `'href'` das Link-Target (`'_blank'` öffnet einen neuen Tab, `link` routet dann nicht per SPA); bei `action: 'download'` bedeutet `'_blank'`, dass die Datei **im Tab angezeigt** statt gespeichert wird. Backend: `button.WithTarget("_blank")`.
+
+**Deaktivierter Button mit `hint`** bleibt per Maus und Tastatur erreichbar (`disabledInteractive`,
+`aria-disabled`) und zeigt den Hint als Tooltip; ohne Hint ist er nativ `disabled`. Klicks auf einen gesperrten Button
+(`disabled`, `loading` oder `button.disabled`) erreichen den Verwender nie, auch nicht den umschließenden Link.
+`button.disabled` wirkt in allen Renderpfaden (Form, Dialog, Stepper, Alert, Tabelle).
 
 **Icon-Buttons brauchen `hint`.** Bei `type: 'icon' | 'fab' | 'minifab'` liefert `xiri-go` kein `text`, der Accessible Name kommt also nur aus `hint`. Fehlt er, ist der Button für Screenreader namenlos — xiri-go warnt beim Rendern.
 

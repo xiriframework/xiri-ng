@@ -56,6 +56,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
   der Titel um, bei offener Suche wird er mit „…“ gekürzt (mindestens 3rem). Umbrochene Einträge ragen nicht mehr in
   die nächste Zeile, überlange Wörter brechen um statt horizontal zu scrollen.
 
+### Documentation
+
+- **Skill-Doku `xiri-ng-expert`:** `form-fields.md` und `SKILL.md` beschreiben Chips mit String-IDs, `freeText: false`
+  und Vorschläge per `url`/`searchWith`; `table.md` das Umsortieren per `reorderUrl` und `selectMin`/`selectMax` an
+  Select-Buttons und Bulk-Actions; `components.md` und `SKILL.md` den gesperrten Button (Hint als Tooltip, Klicks
+  blockiert, `button.disabled` überall wirksam).
+
 ## [0.9.1]
 
 ### Changed

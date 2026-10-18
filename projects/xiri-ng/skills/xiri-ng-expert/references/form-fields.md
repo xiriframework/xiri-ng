@@ -118,6 +118,7 @@ export interface XiriFormField {
   // --- Text: Vorschläge (mat-autocomplete, Freitext bleibt) ---
   // list (id === name) lokal gefiltert; url beim Tippen: POST {search, <searchWith-Felder>} -> [{id, name}]
   searchWith?: string[];     // Feld-IDs derselben Form, deren aktueller (enabled) Wert mitgeht
+  freeText?: boolean;        // chips: false = nur Optionen übernehmen, Default true
 
   // --- Server-driven content ---
   reloadOn?: string[];       // Feld-IDs, deren Änderung dieses Feld neu lädt
@@ -179,7 +180,7 @@ Anzeige-Formular bleibt absendbar, und versteckte Werte gehen nie zum Server (de
 | `file`          | File-Upload Button                                | `accept`, `multiple`, `max` (Bytes pro Datei; größere Datei → Meldung, Formular gesperrt) |
 | `volume`        | Volume-Slider (mit Einheit via `textSuffix`)      | `min`, `max`                       |
 | `timelimit`     | Time-Limit Auswahl                                | `texts` (Label-Overrides)          |
-| `chips`         | Mat-Chip-List                                     | `list`, `validations`              |
+| `chips`         | Mat-Chip-List                                     | `list` (Zahl- oder String-IDs), `freeText`, `url`, `searchWith`, `validations` |
 | `question`      | Read-Only Frage + Icon (z.B. Confirmation-Dialog) | `icon`, `iconColor`, `done`        |
 | `waiting`       | Loading-Spinner                                   |                                    |
 | `header`        | Sektions-Header (mit optional Collapse)           | `collapsible`, `collapsed`         |
@@ -304,6 +305,27 @@ setzt `name` ein.
 - Go: `field.NewTextField(...).SetSuggestions("Wien", "Graz")`, `.SetSuggestionsURL(u, "country")`,
   Handler `builder.BindSuggest(c, country)` (siehe xiri-go-expert).
 
+
+### Chips — Optionen, Freitext, Vorschläge
+
+```typescript
+{ id: 'ifaces', type: 'chips', name: 'Interfaces',
+  list: [ { id: 'eth0', name: 'eth0' }, { id: 7, name: 'LAN', color: 'primary' } ],
+  freeText: false,                                   // nur Optionen
+  url: 'Iface/Suggest', searchWith: [ 'host' ] }     // Vorschläge wie beim Textfeld
+```
+
+- Wert: Array aus Options-IDs (Zahl oder String) und Freitext-Strings. Label und Farbe werden für beide ID-Typen aus
+  `list` aufgelöst.
+- Enter, Komma oder Blur: Text gleich dem `name` einer Option ergibt deren ID, sonst einen Freitext-Chip, bei
+  `freeText: false` gar nichts (der Text bleibt im Eingabefeld).
+- Vorschläge über `XiriSuggestDirective` (gleiche Regeln wie oben): eine Option aus `list` wird als ID übernommen, ein
+  Server-Treffer als Freitext mit seinem `name` (heißt er wie eine Option, als deren ID). Bereits gewählte Chips
+  erscheinen nicht erneut im Panel.
+- Go: `field.NewChipsField(id, name, required).SetList(opts).SetFreeText(false).SetSuggestionsURL(u, "host")`; im
+  Handler `builder.BindSuggest`. Nach dem Binden `IDs()` (Zahl-Optionen), `StrIDs()` (String-Optionen), `Texts()`
+  (Freitext). Ab xiri-ng 0.10.0.
+
 ### reloadOn — Inhalt vom Server nachladen
 
 `showWhen` blendet ein Feld ein und aus. `reloadOn` lädt seinen **Inhalt** neu, sobald sich ein
@@ -414,8 +436,8 @@ String; `0` ist gültig). Der Button ist deaktiviert, solange die Form oder das 
 
 Grenzen:
 
-- `id` muss den JSON-Typ der vorhandenen Options-IDs haben; der Vergleich ist strikt. `chips` löst
-  Labels nur für numerische IDs auf (Strings sind dort Freitext).
+- `id` muss den JSON-Typ der vorhandenen Options-IDs haben; der Vergleich ist strikt. `chips` nimmt Zahl- und
+  String-IDs an.
 - Ein `treeselect` mit `url` ignoriert `list` und lädt seinen Baum nach dem Anlegen selbst neu — der
   Server muss die neue Entität dann sofort liefern.
 - Ein späterer `reloadOn`-Patch ersetzt die Liste; liefert der Server die neue Option nicht mit, wird
