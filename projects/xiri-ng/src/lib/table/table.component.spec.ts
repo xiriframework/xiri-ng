@@ -2814,6 +2814,51 @@ describe( 'XiriTableComponent', () => {
 			expect( fixture.nativeElement.querySelector( '.xiri-reorder-handle.disabled' ) ).not.toBeNull();
 		} );
 
+		const handleTooltip = () =>
+			fixture.debugElement.query( By.css( 'tr.mat-mdc-row .xiri-reorder-handle' ) ).injector.get( MatTooltip );
+		const handleGrey = () => !!fixture.nativeElement.querySelector( 'tr.mat-mdc-row .xiri-reorder-handle.disabled' );
+
+		it( 'aktiver Griff zeigt „Zum Verschieben ziehen“', () => {
+			createReorderTable();
+			expect( handleTooltip().disabled ).toBe( false );
+			expect( handleTooltip().message ).toBe( 'Zum Verschieben ziehen' );
+			expect( handleGrey() ).toBe( false );
+		} );
+
+		it( 'während Speichern und Neuladen: Ziehen gesperrt, Griff aber nicht grau und ohne Sperr-Hinweis', () => {
+			const pending = new Subject<unknown>();
+			reorderResponse = () => pending;
+			createReorderTable();
+
+			drop( 3, 0 );
+
+			expect( fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList ).disabled ).toBe( true );
+			expect( handleGrey() ).toBe( false );
+			expect( handleTooltip().message ).toBe( 'Zum Verschieben ziehen' );
+			pending.next( {} );
+			pending.complete();
+		} );
+
+		it( 'Ziehen schließt den Tooltip des Griffs (die Original-Zeile bekommt kein mouseleave)', async () => {
+			createReorderTable();
+			const loader = TestbedHarnessEnvironment.loader( fixture );
+			const tooltip = await loader.getHarness( MatTooltipHarness.with( { selector: 'tr.mat-mdc-row .xiri-reorder-handle' } ) );
+			await tooltip.show();
+			expect( await tooltip.isOpen() ).toBe( true );
+
+			component.reorderStarted( dragStart( [] ).start );
+
+			expect( await tooltip.isOpen() ).toBe( false );
+		} );
+
+		it( 'gesperrt durch Sortierung: grau mit Sperr-Hinweis', () => {
+			createReorderTable();
+			( fixture.nativeElement.querySelector( 'th.mat-sort-header' ) as HTMLElement ).click();
+			fixture.detectChanges();
+			expect( handleGrey() ).toBe( true );
+			expect( handleTooltip().message ).toContain( 'nur ohne Spaltensortierung' );
+		} );
+
 		it( 'mit reorderUrl hebt der dritte Klick auf den Header die Sortierung auf', () => {
 			createReorderTable();
 			const header = fixture.nativeElement.querySelector( 'th.mat-sort-header' ) as HTMLElement;
