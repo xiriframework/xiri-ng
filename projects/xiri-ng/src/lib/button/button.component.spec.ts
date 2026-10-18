@@ -836,4 +836,25 @@ describe('XiriButtonComponent link target (echter RouterLink)', () => {
 		expect(click(a).defaultPrevented).toBe(true);
 		expect(navigate).toHaveBeenCalled();
 	});
+
+	// Clicks land where a user hits: on the inner <button> or, under a disabled one
+	// (pointer-events: none), on the inline <xiri-buttonstyle> host.
+	describe.each(['xiri-buttonstyle', 'xiri-buttonstyle button'])('Klick auf %s', (target) => {
+		it('navigiert bei aktivem Link-Button', () => {
+			host.btn.set(makeButton({ action: 'link', url: '/ziel', hint: 'Hinweis' }));
+			fixture.detectChanges();
+			const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+			fixture.nativeElement.querySelector(target).click();
+			expect(navigate).toHaveBeenCalled();
+		});
+
+		it('navigiert bei deaktiviertem Link-Button nicht', () => {
+			host.btn.set(makeButton({ action: 'link', url: '/ziel', hint: 'Gesperrt' }));
+			host.disabled.set(true);
+			fixture.detectChanges();
+			const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+			fixture.nativeElement.querySelector(target).click();
+			expect(navigate).not.toHaveBeenCalled();
+		});
+	});
 });

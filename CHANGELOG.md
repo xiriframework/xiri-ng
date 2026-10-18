@@ -7,6 +7,18 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Deaktivierter Button zeigt seinen Hint:** Ein deaktivierter Button mit `hint` bleibt per Maus und Tastatur
+  erreichbar (`disabledInteractive`, `aria-disabled`) und zeigt den Hint als Tooltip. Ohne Hint bleibt er nativ
+  `disabled` und außerhalb der Tab-Reihenfolge.
+- **Klicks auf deaktivierte Buttons lösen nichts mehr aus:** Ein Klick mitten auf einen deaktivierten Button landete am
+  `<xiri-buttonstyle>`-Host und löste dort die Aktion des Verwenders aus. Betroffen waren u. a. Link-Buttons (navigierten
+  trotz Sperre), Formular-Buttons während des Ladens (zweiter Request) und Query-Filterbuttons (leerten das Ergebnis).
+- **`disabled` am Button wirkt überall:** `WithDisabled(true)` sperrt den Button jetzt auch in Formular, Dialog,
+  Stepper, Alert und bei den Tabellen-Buttons `dialog`/`api`/`save`. Bisher wirkte es nur bei eigenständigen Buttons
+  (Card, Buttonline, Page). Ein so markierter Button war dort bisher klickbar.
+
 ## [0.9.1]
 
 ### Changed

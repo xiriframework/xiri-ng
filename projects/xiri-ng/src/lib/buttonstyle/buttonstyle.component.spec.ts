@@ -15,13 +15,15 @@ function makeButton(overrides: Partial<XiriButton> = {}): XiriButton {
 
 @Component({
 	selector: 'test-host',
-	template: `<xiri-buttonstyle [button]="btn()" [disabled]="disabled()" [loading]="loading()" />`,
+	// (click) on the host like every consumer (form, dialog, stepper, alert, table, xiri-button).
+	template: `<xiri-buttonstyle [button]="btn()" [disabled]="disabled()" [loading]="loading()" (click)="clicks = clicks + 1" />`,
 	imports: [XiriButtonstyleComponent],
 })
 class TestHostComponent {
 	btn = signal<XiriButton>(makeButton());
 	disabled = signal(false);
 	loading = signal(false);
+	clicks = 0;
 }
 
 describe('XiriButtonstyleComponent', () => {
@@ -209,6 +211,87 @@ describe('XiriButtonstyleComponent', () => {
 			fixture.detectChanges();
 
 			expect(fixture.nativeElement.querySelector('button')).toBeTruthy();
+		});
+	});
+
+	describe('disabled', () => {
+		const hostEl = () => fixture.nativeElement.querySelector('xiri-buttonstyle') as HTMLElement;
+		const btnEl = () => fixture.nativeElement.querySelector('button') as HTMLButtonElement;
+
+		it('lets clicks on an active button reach the consumer', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Aktiv', hint: 'Hinweis' }));
+			fixture.detectChanges();
+
+			btnEl().click();
+			hostEl().click();
+
+			expect(host.clicks).toBe(2);
+		});
+
+		it('keeps a disabled button without hint natively disabled', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Gesperrt' }));
+			host.disabled.set(true);
+			fixture.detectChanges();
+
+			expect(btnEl().disabled).toBe(true);
+			expect(btnEl().hasAttribute('aria-disabled')).toBe(false);
+		});
+
+		// The hint must stay reachable: no native disabled (pointer-events: none, no focus),
+		// but marked disabled for assistive tech. jsdom has no hit-testing, so the tooltip
+		// itself is only checked in the browser.
+		it.each(['raised', 'icon'])('keeps a disabled %s button with hint interactive', (type) => {
+			host.btn.set(makeButton({ type, text: 'Gesperrt', icon: 'edit', hint: 'Grund' }));
+			host.disabled.set(true);
+			fixture.detectChanges();
+
+			expect(btnEl().disabled).toBe(false);
+			expect(btnEl().getAttribute('aria-disabled')).toBe('true');
+			expect(btnEl().classList).toContain('mat-mdc-button-disabled-interactive');
+		});
+
+		it('blocks clicks on a disabled button with hint', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Gesperrt', hint: 'Grund' }));
+			host.disabled.set(true);
+			fixture.detectChanges();
+
+			btnEl().click();
+
+			expect(host.clicks).toBe(0);
+		});
+
+		// Under a disabled button (pointer-events: none) a real click hits the inline host.
+		it('blocks clicks that land on the host of a disabled button', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Gesperrt' }));
+			host.disabled.set(true);
+			fixture.detectChanges();
+
+			hostEl().click();
+
+			expect(host.clicks).toBe(0);
+		});
+
+		it('treats loading like disabled', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Lädt', hint: 'Grund' }));
+			host.loading.set(true);
+			fixture.detectChanges();
+
+			btnEl().click();
+			hostEl().click();
+
+			expect(btnEl().getAttribute('aria-disabled')).toBe('true');
+			expect(host.clicks).toBe(0);
+		});
+
+		// form, dialog, stepper, alert and table pass their own [disabled] expression.
+		it('honours button.disabled even when the disabled input is false', () => {
+			host.btn.set(makeButton({ type: 'raised', text: 'Gesperrt', disabled: true }));
+			fixture.detectChanges();
+
+			hostEl().click();
+
+			expect(btnEl().disabled).toBe(true);
+			expect(host.clicks).toBe(0);
 		});
 	});
 });

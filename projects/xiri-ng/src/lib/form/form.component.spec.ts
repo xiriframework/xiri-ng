@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { UntypedFormGroup } from '@angular/forms';
 import { XiriFormComponent, XiriFormSettings } from './form.component';
 import { XiriFormService, XiriFormServiceData } from '../services/form.service';
+import { XiriButton } from '../button/button.component';
 import { Location } from '@angular/common';
 
 function stubLocalStorage(): void {
@@ -221,6 +222,26 @@ describe( 'XiriFormComponent', () => {
 			expect( component.fieldErrors() ).toEqual( { name: 'zu kurz' } );
 			// Fehler an unbekannten/unsichtbaren Feldern wären sonst nirgends sichtbar.
 			expect( component.error() ).toBe( 'name: zu kurz' );
+		} );
+	} );
+
+	// Real click on the rendered <xiri-buttonstyle> host: that is where a click under a
+	// disabled button (pointer-events: none) lands in the browser.
+	describe( 'button click in the DOM', () => {
+		function renderWith( button: XiriButton ) {
+			mockFormService.parse.mockReturnValue( { url: 'test/form', fields: [], buttons: [ button ], extra: {} } );
+			createFixture();
+			return fixture.nativeElement.querySelector( 'xiri-buttonstyle' ) as HTMLElement;
+		}
+
+		it( 'runs the action of an active button', () => {
+			renderWith( { text: 'Zurück', action: 'back', type: 'flat' } ).click();
+			expect( mockLocation.back ).toHaveBeenCalled();
+		} );
+
+		it( 'ignores a button disabled via button.disabled', () => {
+			renderWith( { text: 'Zurück', action: 'back', type: 'flat', disabled: true } ).click();
+			expect( mockLocation.back ).not.toHaveBeenCalled();
 		} );
 	} );
 

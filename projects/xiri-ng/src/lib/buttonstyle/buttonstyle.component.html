@@ -16,7 +16,7 @@
 		@case ('icon') {
 			<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 			        [attr.aria-label]="button().hint || button().text"
-			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()">
+			        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint">
 				@if (loading()) {
 					<mat-spinner diameter="20"></mat-spinner>
 				} @else {
@@ -30,7 +30,7 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+			        [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				@if (loading()) {
 					<mat-spinner diameter="20"></mat-spinner>
@@ -48,7 +48,7 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+			        [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 			</button>
@@ -58,7 +58,7 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+			        [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 			</button>
@@ -68,7 +68,7 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+			        [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 			</button>
@@ -78,7 +78,7 @@
 			        [matTooltip]="button().hint"
 			        [matTooltipDisabled]="!button().hint"
 			        [color]="button().color || 'primary'"
-			        [disabled]="disabled() || loading()"
+			        [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 			</button>
@@ -86,7 +86,7 @@
 		@case ('minifab') {
 			<button mat-mini-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 			        [attr.aria-label]="button().hint || button().text"
-			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
+			        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				@if (loading()) {
 					<mat-spinner diameter="20"></mat-spinner>
@@ -98,7 +98,7 @@
 		@case ('fab') {
 			<button mat-fab [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 			        [attr.aria-label]="button().hint || button().text"
-			        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
+			        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint"
 			        [tabIndex]="button().tabIndex">
 				@if (loading()) {
 					<mat-spinner diameter="24"></mat-spinner>
@@ -111,7 +111,7 @@
 			@if (button().icon) {
 				<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 				        [attr.aria-label]="button().hint || button().text"
-				        [color]="button().color || 'primary'" [disabled]="disabled() || loading()"
+				        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint"
 				        [tabIndex]="button().tabIndex">
 					@if (loading()) {
 						<mat-spinner diameter="20"></mat-spinner>
@@ -125,7 +125,7 @@
 				        [matTooltip]="button().hint"
 				        [matTooltipDisabled]="!button().hint"
 				        [color]="button().color || 'primary'"
-				        [disabled]="disabled() || loading()"
+				        [disabled]="off()" [disabledInteractive]="!!button().hint"
 				        [tabIndex]="button().tabIndex">
 					<ng-container [ngTemplateOutlet]="textContent"></ng-container>
 				</button>
