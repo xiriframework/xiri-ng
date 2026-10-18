@@ -2706,14 +2706,16 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( component.formGroup.get( 'x' )!.value ).toBe( 10 );
 		} );
 
-		it( 'verwirft bei chips String-IDs (wären dort Freitext)', async () => {
+		it( 'übernimmt bei chips String-IDs und zeigt das Label der neuen Option', async () => {
 			host.fields.set( [ selectField( { type: 'chips', value: [ 'frei' ] } ) ] );
 			fixture.detectChanges();
 			await clickAdd();
 
 			created( 'tag-99', 'Neu' );
 
-			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 'frei' ] );
+			expect( component.formGroup.get( 'x' )!.value ).toEqual( [ 'frei', 'tag-99' ] );
+			expect( component.fields()![ 0 ].list ).toContainEqual( { id: 'tag-99', name: 'Neu' } );
+			expect( fixture.nativeElement.textContent ).toContain( 'Neu' );
 		} );
 
 		it( 'öffnet keinen Dialog mehr, wenn die Komponente während des Imports zerstört wurde', async () => {

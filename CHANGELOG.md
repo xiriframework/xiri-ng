@@ -7,7 +7,24 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Chips: Optionen mit String-ID.** Chips zeigen Label und Farbe auch für Optionen mit String-`id`; der „+“-Button
+  (`addUrl`) übernimmt angelegte Optionen mit String-ID.
+- **Chips: `freeText: false`.** Nur Optionen werden übernommen; anderer Text bleibt im Eingabefeld stehen.
+- **Chips: Vorschläge per `url`/`searchWith`** wie beim Textfeld (`XiriSuggestDirective`). Ein Vorschlag wird als
+  Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID.
+
+### Changed
+
+- **Chips: Text gleich einem Options-Namen ergibt die Options-ID.** Enter, Komma oder Blur mit exakt dem Namen einer
+  Option legten bisher einen Freitext-Chip an.
+
 ### Fixed
+
+- **Chips: keine Doppel-Chips mehr bei Auswahl aus der Liste.** Klick auf eine Option oder Pfeil + Enter legten
+  zusätzlich den getippten Teiltext als Chip an. Nach dem Hinzufügen zeigt die Liste wieder alle Optionen statt der
+  Treffer des alten Suchtexts.
 
 - **Deaktivierter Button zeigt seinen Hint:** Ein deaktivierter Button mit `hint` bleibt per Maus und Tastatur
   erreichbar (`disabledInteractive`, `aria-disabled`) und zeigt den Hint als Tooltip. Ohne Hint bleibt er nativ

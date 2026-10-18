@@ -65,11 +65,12 @@ export interface XiriFormField {
 
 	multiple?: boolean // treeselect, multiselect
 	selectAll?: boolean // select (multiple): "Alle/Keine"-Toggle über der Optionsliste
-	url?: string // treeselect, multiselect
+	url?: string // treeselect, multiselect; text, chips: Vorschläge beim Tippen
 	search?: boolean // treeselect, multiselect
 	serverSideSearch?: boolean // select
-	searchWith?: string[] // text: IDs anderer Felder, deren aktueller (enabled) Wert im Vorschlags-Request mitgeht
+	searchWith?: string[] // text, chips: IDs anderer Felder, deren aktueller (enabled) Wert im Vorschlags-Request mitgeht
 	params?: Record<string, unknown> // select
+	freeText?: boolean // chips: false = nur Optionen, Default true
 
 	rows?: number // textfield
 	accept?: string // xiri-file

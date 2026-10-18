@@ -63,7 +63,8 @@ export class SpecialFieldsComponent {
 
 	sectionChips: XiriSectionSettings = {
 		title: 'Chips / Tags',
-		subtitle: "type: 'chips' - Tag input with free text or autocomplete from a list. Press Enter or comma to add. When items come from a list with color, chips are colored accordingly.",
+		subtitle: "type: 'chips' - Tag input with free text, server suggestions (url) or options from a list (numeric or " +
+			"string ids). Press Enter or comma to add; freeText: false accepts only options. Options with color color their chips.",
 		icon: 'label',
 		iconColor: 'primary',
 	};
@@ -220,21 +221,35 @@ export class SpecialFieldsComponent {
 			name: 'Tags (free text)',
 			class: 'xcol-md-6',
 			id: 'tags',
-			hint: 'Type and press Enter',
+			hint: 'Type and press Enter, "Fahrzeug" loads suggestions',
 			value: [ 'Angular', 'TypeScript' ],
+			url: 'Test/Search/Select',
 		}, {
 			type: 'chips',
 			name: 'Categories (from list)',
 			class: 'xcol-md-6',
 			id: 'categories',
 			hint: 'Select from suggestions',
-			value: [ 'Frontend', 'Testing' ],
+			value: [ 1, 5 ],
 			list: [
 				{ id: 1, name: 'Frontend', color: 'primary' },
 				{ id: 2, name: 'Backend', color: 'accent' },
 				{ id: 3, name: 'DevOps', color: 'warn' },
 				{ id: 4, name: 'Design', color: 'purple' },
 				{ id: 5, name: 'Testing', color: 'success' },
+			],
+		}, {
+			type: 'chips',
+			name: 'Interfaces (no free text)',
+			class: 'xcol-md-6',
+			id: 'ifaces',
+			hint: 'String IDs, only options are accepted',
+			value: [ 'eth1' ],
+			freeText: false,
+			list: [
+				{ id: 'eth0', name: 'Ethernet 0', color: 'primary' },
+				{ id: 'eth1', name: 'Ethernet 1', color: 'accent' },
+				{ id: 'wlan0', name: 'WLAN 0' },
 			],
 		} ],
 		buttons: [ {
@@ -273,10 +288,19 @@ f2 := field.NewFileField("file2", "Multiple Files", false).
     SetClass("xcol-md-6 xcol-xl-4")
 // done: true → schaltet auf Completed-State`;
 
-	goChipsCode = `c := field.NewChipsField("tags", "Tags", false).
-    SetClass("xcol-md-6 xcol-xl-4")
-// Freie Texteingabe oder Autocomplete aus Liste
-// Enter oder Komma zum Hinzufügen`;
+	goChipsCode = `// Freitext mit Vorschlägen vom Server (Handler: builder.BindSuggest)
+tags := field.NewChipsField("tags", "Tags (free text)", false).
+    SetSuggestionsURL(xurl.NewUrlPrefix("/Test/Search/Select", "/api"))
+
+// Optionen mit String-ID, kein Freitext
+ifaces := field.NewChipsField("ifaces", "Interfaces (no free text)", false).
+    SetList([]field.SelectOption{
+        {Value: "eth0", Label: "Ethernet 0"},
+        {Value: "eth1", Label: "Ethernet 1"},
+    }).
+    SetFreeText(false)
+
+// Nach BindAndValidate: ifaces.StrIDs(), tags.Texts(), numerische IDs per IDs()`;
 
 	radioForm: XiriFormSettings = {
 		load: false,

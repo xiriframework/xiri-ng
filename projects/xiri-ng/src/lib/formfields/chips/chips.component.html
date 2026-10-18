@@ -14,17 +14,20 @@
 	</mat-chip-grid>
 	<input #chipInput
 	       [matChipInputFor]="chipGrid"
-	       [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+	       [matChipInputSeparatorKeyCodes]="separatorKeyCodes()"
 	       [matChipInputAddOnBlur]="true"
 	       (matChipInputTokenEnd)="add($event)"
-	       (input)="onInputChange($event)"
-	       (focus)="onFocus()"
+	       (input)="onInput()"
+	       [xiriSuggest]="field()" #suggest="xiriSuggest"
 	       [matAutocomplete]="auto"
 	       [disabled]="disabled()"
 	       [placeholder]="field().hint || ''">
-	<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-		@for (option of filteredOptions(); track option.id) {
-			<mat-option [value]="option">{{ option.name }}</mat-option>
+	<!-- autoActiveFirstOption explizit aus: MAT_AUTOCOMPLETE_DEFAULT_OPTIONS der Host-App würde Enter sonst
+	     immer auf die erste Option lenken. mousedown verhindern: sonst blurt der Klick das Input, und
+	     matChipInputAddOnBlur legt den Teiltext als zweiten Chip an. -->
+	<mat-autocomplete #auto="matAutocomplete" [autoActiveFirstOption]="false" (optionSelected)="selected($event)">
+		@for (option of suggest.options(); track option.name) {
+			<mat-option [value]="option" (mousedown)="$event.preventDefault()">{{ option.name }}</mat-option>
 		}
 	</mat-autocomplete>
 </mat-form-field>

@@ -396,10 +396,6 @@ export class XiriFormFieldsComponent implements OnInit {
 		// schreiben, das den Dialog geöffnet hat.
 		if ( !field || this.formGroup.get( id ) !== control || control.disabled || done !== true || !isCreatedOption( created ) )
 			return;
-		// Bei chips sind Strings Freitext, nur Zahlen werden als Option aufgelöst.
-		if ( field.type === 'chips' && typeof created.id !== 'number' )
-			return;
-
 		if ( !collectOptionIds( field.list ?? [] ).has( created.id ) )
 			field.list = [ ...( field.list ?? [] ), { id: created.id, name: created.name } ];
 

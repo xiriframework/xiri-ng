@@ -16,6 +16,10 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { XiriFormField, XiriFormFieldSelectOption } from '../field.interface';
 import { MatOption } from '@angular/material/core';
+import { XiriSuggestDirective } from '../suggest/suggest.directive';
+
+const ENTER_COMMA = [ ENTER, COMMA ];
+const COMMA_ONLY = [ COMMA ];
 
 @Component( {
 	            selector: 'xiri-chips',
@@ -36,7 +40,8 @@ import { MatOption } from '@angular/material/core';
 		            MatAutocompleteTrigger,
 		            MatAutocomplete,
 		            MatOption,
-		            MatIcon
+		            MatIcon,
+		            XiriSuggestDirective
 	            ]
             } )
 export class XiriChipsComponent implements ControlValueAccessor {
@@ -44,11 +49,9 @@ export class XiriChipsComponent implements ControlValueAccessor {
 	field = input.required<XiriFormField>();
 
 	chips = signal<( string | number )[]>( [] );
-	filteredOptions = signal<XiriFormFieldSelectOption[]>( [] );
-
-	readonly separatorKeyCodes = [ ENTER, COMMA ] as const;
 
 	chipInput = viewChild<ElementRef<HTMLInputElement>>( 'chipInput' );
+	private trigger = viewChild( MatAutocompleteTrigger );
 
 	// Zwei Sperrquellen, verodert. field ist hier ein input(), kein Setter -- die Ableitung
 	// gehoert deshalb in ein computed. Angular ruft beim Control-Setup setDisabledState(false),
@@ -80,19 +83,22 @@ export class XiriChipsComponent implements ControlValueAccessor {
 		untracked( () => this.controlDisabled.set( isDisabled ) );
 	}
 
+	// Enter auf einer markierten Option wählt sie über selected(). Als Trenner würde Enter zusätzlich den
+	// getippten Teiltext anlegen. panelOpen mitprüfen: Material setzt activeOption beim Schließen nicht zurück.
+	separatorKeyCodes(): number[] {
+		const trigger = this.trigger();
+		return trigger?.panelOpen && trigger.activeOption ? COMMA_ONLY : ENTER_COMMA;
+	}
+
 	add( event: MatChipInputEvent ): void {
 		if ( this.disabled() ) return;
 
 		const value = ( event.value || '' ).trim();
 		if ( !value ) return;
 
-		const current = [ ...this.chips() ];
-		if ( !current.includes( value ) ) {
-			current.push( value );
-			this.chips.set( current );
-			this.onChange( current );
-		}
-		event.chipInput.clear();
+		// Abgelehnter Freitext bleibt im Input stehen, damit nichts unbemerkt verloren geht.
+		if ( this.take( value ) )
+			this.clearInput();
 	}
 
 	remove( chip: string | number ): void {
@@ -110,38 +116,47 @@ export class XiriChipsComponent implements ControlValueAccessor {
 		if ( this.disabled() ) return;
 
 		const option = event.option.value as XiriFormFieldSelectOption;
-		const current = [ ...this.chips() ];
-		if ( !current.includes( option.id ) ) {
-			current.push( option.id );
-			this.chips.set( current );
-			this.onChange( current );
-		}
-		const chipInput = this.chipInput();
-		if ( chipInput ) {
-			chipInput.nativeElement.value = '';
-		}
+		// Listen-Option über die Referenz (die Suggest-Directive behält die Objekte), Server-Vorschlag über den Namen.
+		if ( this.field().list?.includes( option ) )
+			this.push( option.id );
+		else
+			this.take( option.name );
+		// Immer leeren: Material hat das Options-Objekt schon ins Input geschrieben.
+		this.clearInput();
 	}
 
-	filterOptions( value: string ): void {
-		const list = this.field().list || [];
-		if ( !value ) {
-			this.filteredOptions.set( list );
-			return;
-		}
-		const filterValue = value.toLowerCase();
-		this.filteredOptions.set(
-			list.filter( option => option.name.toLowerCase().includes( filterValue ) )
-		);
-	}
-
-	onInputChange( event: Event ): void {
-		const input = event.target as HTMLInputElement;
-		this.filterOptions( input.value );
+	onInput(): void {
 		this.onTouched();
 	}
 
-	onFocus(): void {
-		this.filterOptions( '' );
+	/** Text gleich einem Options-Namen wird zur ID, sonst Freitext, falls erlaubt. */
+	private take( text: string ): boolean {
+		const option = this.field().list?.find( o => o.name === text );
+		if ( option )
+			this.push( option.id );
+		else if ( this.field().freeText === false )
+			return false;
+		else
+			this.push( text );
+		return true;
+	}
+
+	private push( chip: string | number ): void {
+		const current = this.chips();
+		if ( current.includes( chip ) )
+			return;
+		const next = [ ...current, chip ];
+		this.chips.set( next );
+		this.onChange( next );
+	}
+
+	/** Leeren über ein input-Event, damit die Suggest-Directive Suchtext und alte Servertreffer verwirft. */
+	private clearInput(): void {
+		const input = this.chipInput()?.nativeElement;
+		if ( !input )
+			return;
+		input.value = '';
+		input.dispatchEvent( new Event( 'input' ) );
 	}
 
 	chipColor( chip: string | number ): string {
@@ -150,10 +165,6 @@ export class XiriChipsComponent implements ControlValueAccessor {
 	}
 
 	displayLabel( chip: string | number ): string {
-		if ( typeof chip === 'number' ) {
-			const option = this.field().list?.find( o => o.id === chip );
-			return option?.name ?? String( chip );
-		}
-		return chip;
+		return this.field().list?.find( o => o.id === chip )?.name ?? String( chip );
 	}
 }
