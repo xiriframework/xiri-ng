@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0]
+
 ### Added
 
 - **Chips: Optionen mit String-ID.** Chips zeigen Label und Farbe auch für Optionen mit String-`id`; der „+“-Button
