@@ -8316,7 +8316,22 @@ export class SelectsComponent {
 			class: 'xcol-md-6 xcol-xl-4',
 			id: 'treeselect3',
 			hint: 'Kategorie wählen',
-			list: undefined,
+			list: [
+				{
+					id: 'fahrzeuge', name: 'Fahrzeuge', isGroup: true, children: [
+						{ id: 11, name: 'PKW' },
+						{ id: 12, name: 'LKW' },
+						{ id: 13, name: 'Anhänger' },
+					],
+				},
+				{
+					id: 'maschinen', name: 'Maschinen', isGroup: true, children: [
+						{ id: 21, name: 'Bagger' },
+						{ id: 22, name: 'Stapler' },
+					],
+				},
+				{ id: 31, name: 'Sonstiges' },
+			],
 			required: false,
 		}, {
 			type: 'treeselect',
