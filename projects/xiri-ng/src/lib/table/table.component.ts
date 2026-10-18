@@ -166,7 +166,7 @@ export interface XiriTableOptions {
 	serverSide?: boolean
 	scrollHeight?: string
 	editUrl?: string
-	// Drag&drop row order: POST {id, before} here after a drop (before: null = to the end), then reload.
+	// Drag&drop row order: POST {id, before, after} here after a drop (neighbours below/above, null at the end/top), then reload.
 	reorderUrl?: string
 	tree?: XiriTableTreeSettings // opt-in tree mode; delivered here by the Go builder (options.tree)
 }
@@ -993,7 +993,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// ============================================================================
 
 	// Dragging only where the shown order is the app's order of all rows: the drop indices then
-	// match dataSource.data, and {id, before} means the same to the app as on screen.
+	// match dataSource.data, and {id, before, after} means the same to the app as on screen.
 	// Blocked = the handle is greyed out; loading/saving only pause dragging briefly.
 	get reorderBlocked(): boolean {
 		return !!this.settings().data || !!this.options.serverSide || this.tree.enabled
@@ -1032,7 +1032,13 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		const data = this.dataSource.data;
 		moveItemInArray( data, event.previousIndex, event.currentIndex );
 		this.dataSource._updateChangeSubscription();
-		const payload = { id: data[ event.currentIndex ].id, before: data[ event.currentIndex + 1 ]?.id ?? null };
+		// Both neighbours: with a filter form the shown rows are a subset, and before: null alone would mean
+		// "end of the whole list" — after names the shown row above the drop.
+		const payload = {
+			id: data[ event.currentIndex ].id,
+			before: data[ event.currentIndex + 1 ]?.id ?? null,
+			after: data[ event.currentIndex - 1 ]?.id ?? null,
+		};
 
 		// Not bound to reloadAbort$: a filter change must not cancel the save. No callReturn: the
 		// response only carries a message (shown by the data service), the table reloads anyway.

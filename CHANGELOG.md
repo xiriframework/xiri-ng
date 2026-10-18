@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Tabelle: Drop-Request mit `after`.** Nach dem Umsortieren geht `POST {id, before, after}` an `reorderUrl`;
+  `after` ist die `id` der Zeile direkt über der Ablagestelle (`null` ganz oben). In einer per Filter-Formular
+  gefilterten Liste ist damit auch ein Drop unter die letzte sichtbare Zeile eindeutig. Go:
+  `table.ReorderRequest.After` (xiri-go ≥ 0.9.1).
+
 ## [0.10.0]
 
 ### Added

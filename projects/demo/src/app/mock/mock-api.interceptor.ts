@@ -42,7 +42,7 @@ export function resetReorderMock(): void {
 	reorderRules = [ ...reorderRulesInitial ];
 }
 
-// Wie ein Go-Handler mit table.ReorderRequest: before null = ans Ende.
+// Wie ein Go-Handler mit table.ReorderRequest. Ungefiltert genügt before (null = ans Ende), after wird nicht gebraucht.
 function moveReorderRule( body: { id?: number; before?: number | null } ) {
 	if ( body.id === 99 || body.before === null )
 		return failAfter( 300, { status: 409, statusText: 'Conflict', error: { error: 'Die Standardregel bleibt am Ende' } } );

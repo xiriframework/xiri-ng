@@ -2688,20 +2688,27 @@ describe( 'XiriTableComponent', () => {
 			expect( fixture.nativeElement.querySelectorAll( 'tr.mat-mdc-row .xiri-reorder-handle' ).length ).toBe( 4 );
 		} );
 
-		it( 'Drop nach oben schickt {id, before} und lädt neu', () => {
+		it( 'Drop nach oben schickt {id, before, after: null} und lädt neu', () => {
 			createReorderTable();
 			const loads = dataCalls();
 
 			drop( 3, 0 );
 
-			expect( reorderCalls() ).toEqual( [ { id: 4, before: 1 } ] );
+			expect( reorderCalls() ).toEqual( [ { id: 4, before: 1, after: null } ] );
 			expect( dataCalls() ).toBe( loads + 1 );
 		} );
 
-		it( 'Drop ans Ende schickt before: null', () => {
+		it( 'Drop in die Mitte nennt beide Nachbarn', () => {
+			createReorderTable();
+			drop( 0, 2 );
+			expect( reorderCalls() ).toEqual( [ { id: 1, before: 4, after: 3 } ] );
+		} );
+
+		// Gefilterte Liste: before: null allein hieße „ans Ende der ganzen Liste“, after nennt die sichtbare Zeile darüber.
+		it( 'Drop ans Ende schickt before: null und after = letzte Zeile', () => {
 			createReorderTable();
 			drop( 0, 3 );
-			expect( reorderCalls() ).toEqual( [ { id: 1, before: null } ] );
+			expect( reorderCalls() ).toEqual( [ { id: 1, before: null, after: 4 } ] );
 		} );
 
 		it( 'Drop an alter Stelle schickt nichts', () => {

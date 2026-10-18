@@ -77,13 +77,14 @@ func (ctrl *RuleController) table() *table.Table[Rule] {
     return b.Build()
 }
 
-// POST {id, before} — before == nil: ans Ende der ganzen Liste
+// POST {id, before, after}: Nachbarn unter und über der Ablagestelle (nil = Listenende/-anfang).
+// Mit Filter-Formular zählen nur die sichtbaren Zeilen: bei before == nil gehört die Zeile hinter after.
 func (ctrl *RuleController) Reorder(c echo.Context) error {
     var req table.ReorderRequest
     if err := c.Bind(&req); err != nil {
         return err
     }
-    if err := ctrl.rules.Move(req.ID, req.Before); err != nil {
+    if err := ctrl.rules.Move(req.ID, req.Before, req.After); err != nil {
         // Snackbar; die Tabelle lädt trotzdem neu und zeigt die gespeicherte Reihenfolge
         return c.JSON(409, response.NewErrorResponse(err.Error()))
     }
