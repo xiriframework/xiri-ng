@@ -10,7 +10,12 @@ import {
 	viewChild
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import {
+	MatAutocomplete,
+	MatAutocompleteActivatedEvent,
+	MatAutocompleteSelectedEvent,
+	MatAutocompleteTrigger
+} from '@angular/material/autocomplete';
 import { MatChipGrid, MatChipInput, MatChipInputEvent, MatChipRemove, MatChipRow } from '@angular/material/chips';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -52,6 +57,9 @@ export class XiriChipsComponent implements ControlValueAccessor {
 
 	chipInput = viewChild<ElementRef<HTMLInputElement>>( 'chipInput' );
 	private trigger = viewChild( MatAutocompleteTrigger );
+	private auto = viewChild( MatAutocomplete );
+	/** Name der per Pfeil markierten Option. Tippen, Auswahl und Schließen heben die Markierung auf. */
+	private marked: string | null = null;
 
 	// Zwei Sperrquellen, verodert. field ist hier ein input(), kein Setter -- die Ableitung
 	// gehoert deshalb in ein computed. Angular ruft beim Control-Setup setDisabledState(false),
@@ -126,18 +134,53 @@ export class XiriChipsComponent implements ControlValueAccessor {
 	}
 
 	onInput(): void {
+		this.marked = null;
 		this.onTouched();
+	}
+
+	// Material löscht die Markierung bei jeder Änderung der Optionsliste. Treffen Server-Treffer erst nach dem Pfeil
+	// ein (langsame Leitung), nähme Enter sonst den getippten Teiltext. Darum die Markierung per Name zurückholen.
+	// ponytail: nutzt MatAutocomplete._keyManager (intern), bei einem Material-Update mit dem Spec prüfen.
+	onActivated( event: MatAutocompleteActivatedEvent ): void {
+		if ( event.option ) {
+			this.marked = ( event.option.value as XiriFormFieldSelectOption ).name;
+			return;
+		}
+		const auto = this.auto();
+		if ( !this.marked || !auto )
+			return;
+		const index = auto.options.toArray().findIndex( o => ( o.value as XiriFormFieldSelectOption ).name === this.marked );
+		if ( index >= 0 )
+			auto._keyManager.setActiveItem( index );
+		else
+			this.marked = null;
+	}
+
+	onClosed(): void {
+		this.marked = null;
+	}
+
+	/** Panel-Optionen ohne die, deren Chip schon gewählt ist. */
+	unchosen( options: XiriFormFieldSelectOption[] ): XiriFormFieldSelectOption[] {
+		const chips = this.chips();
+		return options.filter( o => !chips.includes( this.chipFor( o ) ) );
+	}
+
+	/** Der Chip, den eine Panel-Option ergäbe: Listen-Option per Referenz, Server-Vorschlag über den Namen. */
+	private chipFor( option: XiriFormFieldSelectOption ): string | number {
+		return this.field().list?.includes( option ) ? option.id : this.optionNamed( option.name )?.id ?? option.name;
+	}
+
+	private optionNamed( name: string ): XiriFormFieldSelectOption | undefined {
+		return this.field().list?.find( o => o.name === name );
 	}
 
 	/** Text gleich einem Options-Namen wird zur ID, sonst Freitext, falls erlaubt. */
 	private take( text: string ): boolean {
-		const option = this.field().list?.find( o => o.name === text );
-		if ( option )
-			this.push( option.id );
-		else if ( this.field().freeText === false )
+		const option = this.optionNamed( text );
+		if ( !option && this.field().freeText === false )
 			return false;
-		else
-			this.push( text );
+		this.push( option ? option.id : text );
 		return true;
 	}
 

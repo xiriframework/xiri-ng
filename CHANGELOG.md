@@ -13,7 +13,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   (`addUrl`) übernimmt angelegte Optionen mit String-ID.
 - **Chips: `freeText: false`.** Nur Optionen werden übernommen; anderer Text bleibt im Eingabefeld stehen.
 - **Chips: Vorschläge per `url`/`searchWith`** wie beim Textfeld (`XiriSuggestDirective`). Ein Vorschlag wird als
-  Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID.
+  Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID. Eine per Pfeil markierte Option bleibt markiert,
+  wenn Server-Treffer erst danach eintreffen (sonst nahm Enter auf langsamen Leitungen den getippten Teiltext).
+- **Chips: bereits gewählte Chips werden nicht noch einmal vorgeschlagen** (Optionen und Server-Treffer).
 
 ### Changed
 

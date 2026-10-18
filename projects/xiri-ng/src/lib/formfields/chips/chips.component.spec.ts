@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { XiriChipsComponent } from './chips.component';
 import { XiriFormField, XiriFormFieldSelectOption } from '../field.interface';
 import { XiriDataService } from '../../services/data.service';
@@ -187,6 +187,42 @@ describe( 'XiriChipsComponent: Optionen, Freitext und Vorschläge', () => {
 		fixture.detectChanges();
 		expect( host.ctrl.value ).toEqual( [] );
 		expect( input().value ).toBe( '' );
+	} );
+
+	it( 'schlägt bereits gewählte Optionen nicht noch einmal vor', async () => {
+		await render( { list: [ FRONTEND, BACKEND ] }, [ 1 ] );
+		await type( 'e' );
+		expect( panelTexts() ).toEqual( [ 'Backend' ] );
+	} );
+
+	it( 'schlägt Server-Treffer nicht vor, die schon als Chip da sind (Freitext oder Option per Name)', async () => {
+		post.mockReturnValue( of( [ { id: 9, name: 'eth9' }, { id: 8, name: 'eth8' }, { id: 7, name: 'Ethernet 0' } ] ) );
+		await render( { list: [ ETH0 ], url: 'Iface/Search' }, [ 'eth9', 'eth0' ] );
+		await type( 'eth' );
+		vi.advanceTimersByTime( 200 );
+		fixture.detectChanges();
+		await fixture.whenStable();
+		expect( panelTexts() ).toEqual( [ 'eth8' ] );
+	} );
+
+	it( 'behält die Markierung, wenn Server-Treffer nach dem Pfeil eintreffen (langsame Leitung)', async () => {
+		const response = new Subject<unknown>();
+		post.mockReturnValue( response );
+		await render( { list: [ ETH0, ETH1 ], url: 'Iface/Search' } );
+		await type( 'Ethernet' );
+		vi.advanceTimersByTime( 200 ); // Request ist raus, Antwort steht noch aus
+		key( ARROW_DOWN );
+		expect( panelOptions()[ 0 ].classList ).toContain( 'mat-mdc-option-active' );
+
+		response.next( [ { id: 9, name: 'Ethernet 9' } ] );
+		fixture.detectChanges();
+		await fixture.whenStable();
+		vi.advanceTimersByTime( 1 ); // Material reagiert auf options.changes mit delay(0)
+		fixture.detectChanges();
+		expect( panelTexts() ).toEqual( [ 'Ethernet 0', 'Ethernet 1', 'Ethernet 9' ] );
+
+		key( ENTER );
+		expect( host.ctrl.value ).toEqual( [ 'eth0' ] );
 	} );
 
 	// Ein Klick auf eine Option blurt sonst das Input, und matChipInputAddOnBlur legt den Teiltext als

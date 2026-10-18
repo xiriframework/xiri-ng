@@ -25,8 +25,9 @@
 	<!-- autoActiveFirstOption explizit aus: MAT_AUTOCOMPLETE_DEFAULT_OPTIONS der Host-App würde Enter sonst
 	     immer auf die erste Option lenken. mousedown verhindern: sonst blurt der Klick das Input, und
 	     matChipInputAddOnBlur legt den Teiltext als zweiten Chip an. -->
-	<mat-autocomplete #auto="matAutocomplete" [autoActiveFirstOption]="false" (optionSelected)="selected($event)">
-		@for (option of suggest.options(); track option.name) {
+	<mat-autocomplete #auto="matAutocomplete" [autoActiveFirstOption]="false" (optionSelected)="selected($event)"
+	                  (optionActivated)="onActivated($event)" (closed)="onClosed()">
+		@for (option of unchosen(suggest.options()); track option.name) {
 			<mat-option [value]="option" (mousedown)="$event.preventDefault()">{{ option.name }}</mat-option>
 		}
 	</mat-autocomplete>
