@@ -45,9 +45,9 @@ versioning follows [Semantic Versioning](https://semver.org/).
   standalone, Angular warnte beim Öffnen der Suche innerhalb eines Formulars.
 - **Suchfeld: Fokusrahmen umschließt auch das Schließen-Symbol** (Treeselect, Tabelle, Toolbar), nicht nur die Eingabe.
 - **Treeselect: leere Liste klappt nicht mehr auf 0 Höhe zusammen**, der Baum zeigt mindestens eine Zeile.
-- **Treeselect in schmalen Spalten:** Die Lupe bleibt neben dem Titel (der Titel bricht um), erst die geöffnete Suche
-  rutscht bei Platzmangel in eine eigene Zeile. Umbrochene Einträge ragen nicht mehr in die nächste Zeile, überlange
-  Wörter brechen um statt horizontal zu scrollen.
+- **Treeselect in schmalen Spalten:** Die Lupe bleibt neben dem Titel, die Kopfzeile bricht nie um. Geschlossen bricht
+  der Titel um, bei offener Suche wird er mit „…“ gekürzt (mindestens 3rem). Umbrochene Einträge ragen nicht mehr in
+  die nächste Zeile, überlange Wörter brechen um statt horizontal zu scrollen.
 
 ## [0.9.1]
 

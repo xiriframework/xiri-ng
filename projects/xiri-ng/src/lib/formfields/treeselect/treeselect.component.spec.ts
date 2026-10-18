@@ -185,8 +185,8 @@ describe( 'XiriTreeselectComponent – ID-Typen', () => {
 	} );
 } );
 
-// Schmale Spalten (z. B. xcol-md-3): die Lupe bleibt neben dem Titel, erst die geöffnete Suche darf in eine eigene
-// Zeile rutschen. Umbrochene Einträge dürfen nicht in die nächste Zeile ragen. Pixel misst nur der Browser, hier die Regeln.
+// Schmale Spalten (z. B. xcol-md-3): die Kopfzeile bricht nie um. Geschlossen bricht der Titel um, bei offener Suche
+// wird er mit „…“ gekürzt (mindestens 3rem). Umbrochene Einträge dürfen nicht in die nächste Zeile ragen. Pixel misst nur der Browser, hier die Regeln.
 describe( 'XiriTreeselectComponent – schmale Spalte', () => {
 	let fixture: ComponentFixture<TestHostComponent>;
 
@@ -204,15 +204,19 @@ describe( 'XiriTreeselectComponent – schmale Spalte', () => {
 
 	const el = ( sel: string ) => fixture.nativeElement.querySelector( sel ) as HTMLElement;
 
-	it( 'gibt dem Titel bei geschlossener Suche keine Mindestbreite, bei offener 8rem', () => {
+	it( 'bricht die Kopfzeile nie um und kürzt den Titel bei offener Suche', () => {
+		expect( getComputedStyle( el( '.line' ) ).flexWrap ).not.toBe( 'wrap' );
 		expect( el( '.line' ).classList ).not.toContain( 'search-open' );
 		expect( getComputedStyle( el( '.header' ) ).flexBasis ).toMatch( /^0(px|%)?$/ );
+		expect( getComputedStyle( el( '.header span' ) ).whiteSpace ).not.toBe( 'nowrap' );
 
 		( el( 'xiri-search button' ) as HTMLButtonElement ).click();
 		fixture.detectChanges();
 
 		expect( el( '.line' ).classList ).toContain( 'search-open' );
-		expect( getComputedStyle( el( '.header' ) ).flexBasis ).toBe( '128px' ); // 8rem
+		expect( getComputedStyle( el( '.header' ) ).minWidth ).toBe( '48px' ); // 3rem
+		const span = getComputedStyle( el( '.header span' ) );
+		expect( [ span.whiteSpace, span.overflow, span.textOverflow ] ).toEqual( [ 'nowrap', 'hidden', 'ellipsis' ] );
 	} );
 
 	it( 'lässt Einträge mit umbrochenem Label wachsen und bricht lange Wörter um', () => {

@@ -15,12 +15,10 @@
 
 // Kein .xrow im Kopf: die 11 Spalten-Gaps à 24px brauchen 264px — in schmalen Dialogen (~240px
 // Innenbreite) kollabieren alle Tracks auf 0 und das Grid läuft rechts über .main hinaus, das Such-Icon
-// wird abgeschnitten. Flex mit Umbruch: Label und Suche nebeneinander, solange dem Label 8rem bleiben,
-// sonst rutscht die Suche rechtsbündig in eine eigene Zeile (containerbasiert statt Viewport-Breakpoint).
-// Die 8rem gelten nur bei offener Suche: geschlossen bleibt die Lupe neben dem Titel, der Titel bricht um.
+// wird abgeschnitten. Flex ohne Umbruch: die Suche bleibt immer neben dem Titel. Geschlossen bricht der Titel um,
+// bei offener Suche wird er mit „…“ gekürzt (mindestens 3rem), damit das Eingabefeld Platz hat.
 .line {
 	display:                 flex;
-	flex-wrap:               wrap;
 	align-items:             center;
 	background-color:        var(--surface-bright, #F9F9FC);
 	padding:                 0 0 0 1rem;
@@ -43,7 +41,13 @@
 	}
 
 	&.search-open .header {
-		flex-basis: 8rem;
+		min-width: 3rem;
+
+		span {
+			white-space:   nowrap;
+			overflow:      hidden;
+			text-overflow: ellipsis;
+		}
 	}
 
 	.search {
