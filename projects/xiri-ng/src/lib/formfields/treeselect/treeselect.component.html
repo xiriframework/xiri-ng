@@ -1,5 +1,5 @@
 <div class="main">
-	<div class="line">
+	<div class="line" [class.search-open]="search()?.show">
 		<div class="header"><span>{{ field.name }}</span></div>
 		<div class="search">
 			@if (field.search !== false) {

@@ -184,3 +184,39 @@ describe( 'XiriTreeselectComponent – ID-Typen', () => {
 		expect( cmp.value ).toEqual( [ 'abc' ] );
 	} );
 } );
+
+// Schmale Spalten (z. B. xcol-md-3): die Lupe bleibt neben dem Titel, erst die geöffnete Suche darf in eine eigene
+// Zeile rutschen. Umbrochene Einträge dürfen nicht in die nächste Zeile ragen. Pixel misst nur der Browser, hier die Regeln.
+describe( 'XiriTreeselectComponent – schmale Spalte', () => {
+	let fixture: ComponentFixture<TestHostComponent>;
+
+	beforeEach( () => {
+		TestBed.configureTestingModule( {
+			imports: [ TestHostComponent ],
+			providers: [
+				{ provide: XiriDataService, useValue: { get: vi.fn() } },
+				{ provide: XiriSnackbarService, useValue: { error: vi.fn() } },
+			],
+		} );
+		fixture = TestBed.createComponent( TestHostComponent );
+		fixture.detectChanges();
+	} );
+
+	const el = ( sel: string ) => fixture.nativeElement.querySelector( sel ) as HTMLElement;
+
+	it( 'gibt dem Titel bei geschlossener Suche keine Mindestbreite, bei offener 8rem', () => {
+		expect( el( '.line' ).classList ).not.toContain( 'search-open' );
+		expect( getComputedStyle( el( '.header' ) ).flexBasis ).toMatch( /^0(px|%)?$/ );
+
+		( el( 'xiri-search button' ) as HTMLButtonElement ).click();
+		fixture.detectChanges();
+
+		expect( el( '.line' ).classList ).toContain( 'search-open' );
+		expect( getComputedStyle( el( '.header' ) ).flexBasis ).toBe( '128px' ); // 8rem
+	} );
+
+	it( 'lässt Einträge mit umbrochenem Label wachsen und bricht lange Wörter um', () => {
+		expect( getComputedStyle( el( 'mat-tree-node' ) ).maxHeight ).not.toBe( '38px' );
+		expect( getComputedStyle( el( 'mat-tree-node .mdc-label' ) ).overflowWrap ).toBe( 'anywhere' );
+	} );
+} );

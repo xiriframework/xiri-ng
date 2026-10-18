@@ -252,6 +252,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<XiriTreeselectId[] | 
 	 * Tree
 	 */
 	public tree = viewChild.required<MatTree<XiriTreeselectTreeNode>>( MatTree );
+	protected search = viewChild( XiriSearchComponent );
 	private dataChange = new BehaviorSubject<XiriTreeselectTreeNode[] | null>( null );
 	public dataSource: MatTreeNestedDataSource<XiriTreeselectTreeNode>;
 	private checklistSelection = new SelectionModel<XiriTreeselectTreeNode>( true /* multiple */ );

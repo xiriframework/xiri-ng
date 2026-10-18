@@ -17,6 +17,7 @@
 // Innenbreite) kollabieren alle Tracks auf 0 und das Grid läuft rechts über .main hinaus, das Such-Icon
 // wird abgeschnitten. Flex mit Umbruch: Label und Suche nebeneinander, solange dem Label 8rem bleiben,
 // sonst rutscht die Suche rechtsbündig in eine eigene Zeile (containerbasiert statt Viewport-Breakpoint).
+// Die 8rem gelten nur bei offener Suche: geschlossen bleibt die Lupe neben dem Titel, der Titel bricht um.
 .line {
 	display:                 flex;
 	flex-wrap:               wrap;
@@ -28,7 +29,7 @@
 	border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--xiri-radius-xs, var(--mat-sys-corner-extra-small)));
 
 	.header {
-		flex:        1 1 8rem;
+		flex:        1 1 0;
 		min-width:   0;
 		color:       var(--on-surface-variant, rgba(0, 0, 0, 0.54));
 		display:     flex;
@@ -39,6 +40,10 @@
 			min-width:     0;
 			overflow-wrap: anywhere; // untrennbare lange Labels laufen nicht in die Suche
 		}
+	}
+
+	&.search-open .header {
+		flex-basis: 8rem;
 	}
 
 	.search {
@@ -75,9 +80,14 @@
 		color:     var(--on-surface-variant, rgba(0, 0, 0, 0.54));
 	}
 
+	// Keine max-height: ein umbrochenes Label (schmale Spalte) ragte sonst in die nächste Zeile.
 	mat-tree-node {
 		min-height: 20px;
-		max-height: 38px;
+
+		// Material setzt break-word; ein Wort breiter als die Spalte erzwang sonst horizontales Scrollen.
+		::ng-deep .mdc-label {
+			overflow-wrap: anywhere;
+		}
 
 		&.notree {
 			margin-left: -25px;
