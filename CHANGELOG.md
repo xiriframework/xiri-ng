@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.1]
+
 ### Added
 
 - **Tabelle: Drop-Request mit `after`.** Nach dem Umsortieren geht `POST {id, before, after}` an `reorderUrl`;
