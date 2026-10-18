@@ -92,7 +92,7 @@ export class SelectsComponent {
 		}, {
 			type: 'select',
 			name: 'Select mit String-Werten',
-			class: 'xcol-md-6 xcol-xl-4',
+			class: 'xcol-start xcol-md-6 xcol-xl-4',
 			id: 'action',
 			search: false,
 			required: true,
@@ -113,7 +113,7 @@ export class SelectsComponent {
 		}, {
 			type: 'multiselect',
 			name: 'multiselect',
-			class: 'xcol-md-6 xcol-xl-4',
+			class: 'xcol-start xcol-md-6 xcol-xl-4',
 			id: 'multiselect',
 			hint: 'Höchstens 3 Einträge wählbar',
 			max: 3,
