@@ -375,10 +375,8 @@
 						<ng-container matColumnDef="_reorder" [sticky]="true">
 							<th mat-header-cell *matHeaderCellDef class="xiri-reorder-cell"></th>
 							<td mat-cell *matCellDef="let row" class="xiri-reorder-cell" (click)="$event.stopPropagation()">
-								<mat-icon class="xiri-reorder-handle" cdkDragHandle [class.disabled]="reorderBlocked" aria-hidden="true"
-								          [matTooltip]="reorderBlocked
-								              ? 'Umsortieren nur ohne Spaltensortierung und Suche, mit allen Zeilen auf einer Seite'
-								              : 'Zum Verschieben ziehen'">drag_indicator</mat-icon>
+								<mat-icon class="xiri-reorder-handle" cdkDragHandle [class.disabled]="reorderBlocked"
+								          aria-hidden="true">drag_indicator</mat-icon>
 							</td>
 							<td mat-footer-cell *matFooterCellDef class="xiri-reorder-cell" [hidden]="!options.footer"></td>
 						</ng-container>

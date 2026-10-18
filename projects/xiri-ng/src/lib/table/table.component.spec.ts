@@ -2815,13 +2815,12 @@ describe( 'XiriTableComponent', () => {
 		} );
 
 		const handleTooltip = () =>
-			fixture.debugElement.query( By.css( 'tr.mat-mdc-row .xiri-reorder-handle' ) ).injector.get( MatTooltip );
+			fixture.debugElement.query( By.css( 'tr.mat-mdc-row .xiri-reorder-handle' ) ).injector.get( MatTooltip, null );
 		const handleGrey = () => !!fixture.nativeElement.querySelector( 'tr.mat-mdc-row .xiri-reorder-handle.disabled' );
 
-		it( 'aktiver Griff zeigt „Zum Verschieben ziehen“', () => {
+		it( 'Griff ohne Tooltip, aktiv nicht grau', () => {
 			createReorderTable();
-			expect( handleTooltip().disabled ).toBe( false );
-			expect( handleTooltip().message ).toBe( 'Zum Verschieben ziehen' );
+			expect( handleTooltip() ).toBeNull();
 			expect( handleGrey() ).toBe( false );
 		} );
 
@@ -2834,29 +2833,16 @@ describe( 'XiriTableComponent', () => {
 
 			expect( fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList ).disabled ).toBe( true );
 			expect( handleGrey() ).toBe( false );
-			expect( handleTooltip().message ).toBe( 'Zum Verschieben ziehen' );
 			pending.next( {} );
 			pending.complete();
 		} );
 
-		it( 'Ziehen schließt den Tooltip des Griffs (die Original-Zeile bekommt kein mouseleave)', async () => {
-			createReorderTable();
-			const loader = TestbedHarnessEnvironment.loader( fixture );
-			const tooltip = await loader.getHarness( MatTooltipHarness.with( { selector: 'tr.mat-mdc-row .xiri-reorder-handle' } ) );
-			await tooltip.show();
-			expect( await tooltip.isOpen() ).toBe( true );
-
-			component.reorderStarted( dragStart( [] ).start );
-
-			expect( await tooltip.isOpen() ).toBe( false );
-		} );
-
-		it( 'gesperrt durch Sortierung: grau mit Sperr-Hinweis', () => {
+		it( 'gesperrt durch Sortierung: grau, ohne Tooltip', () => {
 			createReorderTable();
 			( fixture.nativeElement.querySelector( 'th.mat-sort-header' ) as HTMLElement ).click();
 			fixture.detectChanges();
 			expect( handleGrey() ).toBe( true );
-			expect( handleTooltip().message ).toContain( 'nur ohne Spaltensortierung' );
+			expect( handleTooltip() ).toBeNull();
 		} );
 
 		it( 'mit reorderUrl hebt der dritte Klick auf den Header die Sortierung auf', () => {

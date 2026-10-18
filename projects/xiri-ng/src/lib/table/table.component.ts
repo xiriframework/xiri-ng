@@ -14,7 +14,6 @@ import {
 	TemplateRef,
 	untracked,
 	viewChild,
-	viewChildren,
 	ViewEncapsulation
 } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -249,7 +248,6 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	paginator = viewChild.required<MatPaginator>( MatPaginator );
 	sort = viewChild.required<MatSort>( MatSort );
 	table = viewChild.required<MatTable<XiriTableRow>>( MatTable );
-	private tooltips = viewChildren( MatTooltip );
 	loading = signal<boolean>( true );
 	// refresh:'table' während eines Loads: Der laufende Request kann vor der Änderung gestartet sein – nachholen.
 	private refreshPending = signal( false );
@@ -996,7 +994,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 
 	// Dragging only where the shown order is the app's order of all rows: the drop indices then
 	// match dataSource.data, and {id, before} means the same to the app as on screen.
-	// Blocked = the handle is greyed out with a hint; loading/saving only pause dragging briefly.
+	// Blocked = the handle is greyed out; loading/saving only pause dragging briefly.
 	get reorderBlocked(): boolean {
 		return !!this.settings().data || !!this.options.serverSide || this.tree.enabled
 			|| !!this.sort().direction || !!this.searchText
@@ -1010,10 +1008,8 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// A poll reload mid-drag would rebuild the dragged row; the reload after the drop reschedules it.
 	// The preview row sits outside the table layout and would shrink its cells to their content:
 	// give them the widths of the placeholder, which still stands in the table.
-	// The dragged row is moved away hidden, so its handle never gets a mouseleave: close the tooltip here.
 	reorderStarted( event: CdkDragStart ): void {
 		this.cancelAutoRefreshTimers();
-		this.tooltips().forEach( tooltip => tooltip.hide( 0 ) );
 		const placeholder = event.source.getPlaceholderElement();
 		const preview = placeholder.parentElement?.querySelector<HTMLElement>( ':scope > .cdk-drag-preview' );
 		[ ...placeholder.children ].forEach( ( cell, i ) => {
