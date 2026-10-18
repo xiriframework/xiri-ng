@@ -90,6 +90,27 @@ export class SelectsComponent {
 				'Rom', 'Stockholm', 'Tallinn', 'Warschau', 'Wien', 'Zagreb',
 			].map( ( name, i ) => ( { id: i + 1, name } ) ),
 		}, {
+			type: 'select',
+			name: 'Select mit String-Werten',
+			class: 'xcol-md-6 xcol-xl-4',
+			id: 'action',
+			search: false,
+			required: true,
+			hint: 'Go liest den Wert als StrValue ("allow" / "deny")',
+			value: 'allow',
+			list: [ { id: 'allow', name: 'Erlauben' }, { id: 'deny', name: 'Verweigern' } ],
+		}, {
+			type: 'select',
+			name: 'Multi-Select mit String-Werten',
+			class: 'xcol-md-6 xcol-xl-4',
+			id: 'actions',
+			multiple: true,
+			search: false,
+			required: false,
+			hint: 'Go liest die Werte als StrValues',
+			value: [],
+			list: [ { id: 'read', name: 'Lesen' }, { id: 'write', name: 'Schreiben' }, { id: 'delete', name: 'Löschen' } ],
+		}, {
 			type: 'multiselect',
 			name: 'multiselect',
 			class: 'xcol-md-6 xcol-xl-4',
@@ -8341,6 +8362,20 @@ tags := field.NewSelectField("tags_all", "Multi-Select", false,
     SetMultiple(true).
     SetSelectAll(true).
     SetClass("xcol-md-6 xcol-xl-4")
+
+// String-Werte: Ergebnis in StrValue / StrValues (Value / Values bleiben bei Zahlen-Options)
+action := field.NewSelectField("action", "Select mit String-Werten", true, []field.SelectOption{
+    {Value: "allow", Label: "Erlauben"},
+    {Value: "deny", Label: "Verweigern"},
+})
+actions := field.NewSelectField("actions", "Multi-Select mit String-Werten", false, []field.SelectOption{
+    {Value: "read", Label: "Lesen"},
+    {Value: "write", Label: "Schreiben"},
+    {Value: "delete", Label: "Löschen"},
+}).SetMultiple(true)
+// nach builder.BindAndValidate:
+rule.Action = action.StrValue        // "allow"
+rule.Permissions = actions.StrValues // []string{"read", "write"}
 
 // Checkbox-Liste (type "multiselect") mit Limit
 multi := field.NewModelListField("multiselect", "multiselect", true, "user", []int32{3})
