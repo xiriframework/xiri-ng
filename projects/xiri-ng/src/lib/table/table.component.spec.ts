@@ -2255,6 +2255,26 @@ describe( 'XiriTableComponent', () => {
 			bulkButton().click();
 			expect( mockDataService.post ).not.toHaveBeenCalled();
 		} );
+
+		it( 'keeps disabled select buttons and bulk actions blocked whatever the selection', () => {
+			const off: XiriButton = { ...plain, disabled: true };
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { id: 1, name: 'A' }, { id: 2, name: 'B' } ],
+				options: { select: true, selectButtons: [ off ], bulkActions: [ { ...off, type: 'button', text: 'Senden' } ] },
+			} );
+			fixture.detectChanges();
+			( fixture.nativeElement.querySelector( 'td.mat-mdc-cell mat-checkbox input' ) as HTMLInputElement ).click();
+			fixture.detectChanges();
+
+			const selectButton = fixture.nativeElement.querySelector( '.select-buttons button' ) as HTMLButtonElement;
+			const bulkButton = fixture.nativeElement.querySelector( '[data-testid="table-bulk-bar"] .xiri-bulk-spacer ~ button' ) as HTMLButtonElement;
+			expect( isBlocked( selectButton ) ).toBe( true );
+			expect( isBlocked( bulkButton ) ).toBe( true );
+			selectButton.click();
+			bulkButton.click();
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+		} );
 	} );
 
 	describe( 'ngOnDestroy', () => {
@@ -2653,6 +2673,12 @@ describe( 'XiriTableComponent', () => {
 			expect( fixture.nativeElement.querySelector( 'tr.cdk-drag' ) ).toBeNull();
 			expect( fixture.debugElement.query( By.directive( CdkDropList ) ).injector.get( CdkDropList ).disabled ).toBe( true );
 			expect( component.canReorder ).toBe( false );
+
+			const header = fixture.nativeElement.querySelector( 'th.mat-sort-header' ) as HTMLElement;
+			header.click();
+			header.click();
+			header.click();
+			expect( component.sort().direction ).toBe( 'asc' );
 		} );
 
 		it( 'mit reorderUrl: Griff-Spalte ganz vorne, auch vor der Auswahl-Spalte', () => {

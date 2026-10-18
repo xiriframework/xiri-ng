@@ -914,6 +914,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// and always on an empty selection. Callers pass the count their action works on.
 	countBlocked( button: XiriButton, count: number ): boolean {
 		return count === 0
+			|| !!button.disabled
 			|| ( !!button.selectMin && count < button.selectMin )
 			|| ( !!button.selectMax && count > button.selectMax );
 	}

@@ -31,6 +31,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **Tabelle: `disabled` sperrt jetzt auch Select-Buttons und Bulk-Actions.** Bisher wurden sie aktiv, sobald Zeilen
+  ausgewählt waren. Go: `TableButton.WithDisabled`.
 - **Textfeld-Vorschläge: Pfeil-Markierung geht bei späten Server-Treffern nicht mehr verloren.** Bei `list` + `url`
   löschte Material die Markierung, sobald Server-Treffer nach dem Pfeil eintrafen; Enter behielt dann den getippten
   Teiltext. Der Fix sitzt in `XiriSuggestDirective` und gilt für Textfeld, Rows-Textzellen und Chips.
