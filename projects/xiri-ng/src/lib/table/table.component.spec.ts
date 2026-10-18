@@ -2196,6 +2196,66 @@ describe( 'XiriTableComponent', () => {
 		expect( render( [ { text: '', type: 'icon', action: 'api', icon: 'send', url: '/a' } ] ) ).toBeTruthy();
 	} );
 
+	describe( 'selectMin/selectMax', () => {
+		const compare: XiriButton = {
+			text: '', type: 'icon', action: 'api', icon: 'compare_arrows', url: '/compare', hint: 'Genau zwei Zeilen', selectMin: 2, selectMax: 2,
+		};
+		const plain: XiriButton = { text: '', type: 'icon', action: 'api', icon: 'send', url: '/send', hint: 'Senden' };
+		const isBlocked = ( b: HTMLButtonElement ) => b.disabled || b.getAttribute( 'aria-disabled' ) === 'true';
+
+		it( 'enables a select button only while the selected row count is within its limits', () => {
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { id: 1, name: 'A' }, { id: 2, name: 'B' }, { id: 3, name: 'C' } ],
+				options: { select: true, selectButtons: [ compare, plain ] },
+			} );
+			fixture.detectChanges();
+			const boxes = fixture.nativeElement.querySelectorAll( 'td.mat-mdc-cell mat-checkbox input' ) as NodeListOf<HTMLInputElement>;
+			const blocked = () => {
+				fixture.detectChanges();
+				return Array.from( fixture.nativeElement.querySelectorAll( '.select-buttons button' ) as NodeListOf<HTMLButtonElement> ).map( isBlocked );
+			};
+			expect( boxes.length ).toBe( 3 );
+
+			expect( blocked() ).toEqual( [ true, true ] );
+			boxes[ 0 ].click();
+			expect( blocked() ).toEqual( [ true, false ] );
+
+			// The hint explains the lock, so the blocked button stays hoverable — its click must not run the action.
+			( fixture.nativeElement.querySelector( '.select-buttons button' ) as HTMLButtonElement ).click();
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+
+			boxes[ 1 ].click();
+			expect( blocked() ).toEqual( [ false, false ] );
+			boxes[ 2 ].click();
+			expect( blocked() ).toEqual( [ true, false ] );
+		} );
+
+		it( 'counts bulk actions by bulkCount, so "all results" can exceed selectMax', () => {
+			const limited: XiriButton = { text: 'Merge', type: 'button', action: 'api', url: '/bulk/merge', hint: 'Höchstens zwei', selectMax: 2 };
+			createFixture( {
+				fields: [ { id: 'name', name: 'Name' } ],
+				data: [ { id: 1, name: 'A' }, { id: 2, name: 'B' } ],
+				options: { bulkActions: [ limited ], serverSide: true, selectAllResults: true },
+			} );
+			internals( component )._displayeddata = component.dataSource.data;
+			const bulkButton = () => {
+				internals( component )._changeDetectorRef.markForCheck();
+				fixture.detectChanges();
+				return fixture.nativeElement.querySelector( '[data-testid="table-bulk-bar"] .xiri-bulk-spacer ~ button' ) as HTMLButtonElement;
+			};
+
+			component.masterToggle();
+			expect( isBlocked( bulkButton() ) ).toBe( false );
+
+			( component as unknown as { _totalCount: { set( n: number ): void } } )._totalCount.set( 100 );
+			component.selectAllResults();
+			expect( isBlocked( bulkButton() ) ).toBe( true );
+			bulkButton().click();
+			expect( mockDataService.post ).not.toHaveBeenCalled();
+		} );
+	} );
+
 	describe( 'ngOnDestroy', () => {
 		it( 'should cleanup subscriptions and close dialog', () => {
 			const closeSpy = vi.fn();

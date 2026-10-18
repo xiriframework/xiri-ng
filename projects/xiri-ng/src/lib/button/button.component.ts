@@ -46,6 +46,11 @@ export interface XiriButton {
 	loading?: boolean
 	filename?: string
 
+	// Table select buttons and bulk actions: active only while the selected count is within
+	// [selectMin, selectMax]; missing or 0 means no limit on that side.
+	selectMin?: number
+	selectMax?: number
+
 	// send btns
 	check?: string[]
 	send?: string[]

@@ -347,6 +347,30 @@ describe( 'XiriFormFieldsComponent', () => {
 			expect( httpStub.post ).toHaveBeenLastCalledWith( '/api/City/Search', { dept: 8, search: 'gra' } );
 		} );
 
+		// Material löscht die Pfeil-Markierung bei jeder Listenänderung; ein später Servertreffer darf sie nicht kosten.
+		it( 'keeps the arrow-key marking when server suggestions arrive late (slow connection)', async () => {
+			const response = new Subject<unknown>();
+			httpStub.post.mockReturnValue( response );
+			await render( [ cityField( { url: 'City/Search' } ) ] );
+			const input = await typeInto( 'gr' );
+			vi.advanceTimersByTime( 200 ); // Request ist raus, Antwort steht noch aus
+			input.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'ArrowDown', keyCode: 40 } ) );
+			fixture.detectChanges();
+			expect( panelOptions()[ 0 ].classList ).toContain( 'mat-mdc-option-active' );
+
+			response.next( [ { id: 'Grambach', name: 'Grambach' } ] );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			vi.advanceTimersByTime( 1 ); // Material reagiert auf options.changes mit delay(0)
+			fixture.detectChanges();
+			expect( panelTexts() ).toEqual( [ 'Graz', 'Grambach' ] );
+
+			input.dispatchEvent( new KeyboardEvent( 'keydown', ENTER ) );
+			fixture.detectChanges();
+			await fixture.whenStable();
+			expect( component.formGroup.get( 'city' )?.value ).toBe( 'Graz' );
+		} );
+
 		it( 'renders a text field without suggestions with the plain value accessor', () => {
 			host.fields.set( [ { type: 'text', id: 'plain', name: 'Plain' } ] );
 			fixture.detectChanges();
@@ -433,6 +457,30 @@ describe( 'XiriFormFieldsComponent', () => {
 			fixture.detectChanges();
 
 			expect( component.fields()![ 0 ].serverSideSearch ).toBe( true );
+		} );
+
+		// xiri-go SelectField mit String-Options: die IDs müssen als String zurückkommen, nicht als Zahl.
+		it.each( [
+			{ multiple: false, value: 'allow', want: 'deny' },
+			{ multiple: true, value: [], want: [ 'deny' ] },
+		] )( 'gibt String-IDs unverändert zurück (multiple=$multiple)', async ( { multiple, value, want } ) => {
+			host.fields.set( [ {
+				id: 'action',
+				type: 'select',
+				multiple,
+				search: false,
+				value,
+				list: [ { id: 'allow', name: 'Erlauben' }, { id: 'deny', name: 'Verweigern' } ],
+			} as XiriFormField ] );
+			await fixture.whenStable();
+			const matSelect = fixture.debugElement.query( By.directive( MatSelect ) ).componentInstance as MatSelect;
+			matSelect.open();
+			await fixture.whenStable();
+
+			( matSelect.panel.nativeElement as HTMLElement ).querySelectorAll<HTMLElement>( 'mat-option' )[ 1 ].click();
+			await fixture.whenStable();
+
+			expect( component.formGroup.get( 'action' )!.value ).toEqual( want );
 		} );
 	} );
 

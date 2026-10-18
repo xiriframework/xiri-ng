@@ -1,6 +1,7 @@
-import { computed, Directive, effect, inject, input, signal, untracked } from '@angular/core';
+import { computed, DestroyRef, Directive, effect, inject, input, OnInit, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroupDirective } from '@angular/forms';
+import { MatAutocomplete, MatAutocompleteActivatedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { catchError, concat, map, of, Subject, switchMap, timer } from 'rxjs';
 import { XiriFormField, XiriFormFieldSelectOption } from '../field.interface';
 import { XiriDataService } from '../../services/data.service';
@@ -12,13 +13,16 @@ import { XiriDataService } from '../../services/data.service';
  *
  * Bewusst über DOM-Events statt control.valueChanges: form-fields tauscht Controls bei Formular-
  * ersetzung aus, die Directive überlebt dank `track field.id` - ein gegriffenes Control wäre alt.
+ *
+ * Hängt am selben Input ein MatAutocompleteTrigger, hält die Directive außerdem die Pfeil-Markierung über
+ * Listenänderungen hinweg (siehe onActivated).
  */
 @Directive( {
 	selector: 'input[xiriSuggest]',
 	exportAs: 'xiriSuggest',
 	host: { '(input)': 'onInput( $event )', '(focus)': 'onFocus( $event )' },
 } )
-export class XiriSuggestDirective {
+export class XiriSuggestDirective implements OnInit {
 	field = input.required<XiriFormField>( { alias: 'xiriSuggest' } );
 
 	private search = signal( '' );
@@ -28,6 +32,10 @@ export class XiriSuggestDirective {
 	private dataService = inject( XiriDataService );
 	/** Das formGroup von form-fields; optional, damit die Directive auch an einem nackten Input läuft. */
 	private formGroupDir = inject( FormGroupDirective, { optional: true } );
+	private trigger = inject( MatAutocompleteTrigger, { self: true, optional: true } );
+	private destroyRef = inject( DestroyRef );
+	/** Text der per Pfeil markierten Option. Tippen und Schließen des Panels heben die Markierung auf. */
+	private marked: string | null = null;
 
 	/** Was das Panel zeigt: lokale Treffer, dann Servertreffer, nach name dedupliziert. */
 	options = computed( () => {
@@ -67,7 +75,33 @@ export class XiriSuggestDirective {
 		} );
 	}
 
+	ngOnInit(): void {
+		const auto = this.trigger?.autocomplete;
+		if ( !auto )
+			return;
+		auto.optionActivated.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( e => this.onActivated( auto, e ) );
+		auto.closed.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => this.marked = null );
+	}
+
+	// Material löscht die Markierung bei jeder Änderung der Optionsliste. Treffen Servertreffer erst nach dem Pfeil
+	// ein (langsame Leitung), nähme Enter sonst den getippten Teiltext. Darum die Markierung per Text zurückholen.
+	// ponytail: nutzt MatAutocomplete._keyManager (intern), bei einem Material-Update mit den Specs prüfen.
+	private onActivated( auto: MatAutocomplete, event: MatAutocompleteActivatedEvent ): void {
+		if ( event.option ) {
+			this.marked = event.option.viewValue;
+			return;
+		}
+		if ( this.marked === null )
+			return;
+		const index = auto.options.toArray().findIndex( o => o.viewValue === this.marked );
+		if ( index >= 0 )
+			auto._keyManager.setActiveItem( index );
+		else
+			this.marked = null;
+	}
+
 	onInput( event: Event ): void {
+		this.marked = null;
 		const value = ( event.target as HTMLInputElement ).value;
 		this.search.set( value );
 		this.typed$.next( value );

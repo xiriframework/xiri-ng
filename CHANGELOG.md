@@ -13,8 +13,7 @@ versioning follows [Semantic Versioning](https://semver.org/).
   (`addUrl`) übernimmt angelegte Optionen mit String-ID.
 - **Chips: `freeText: false`.** Nur Optionen werden übernommen; anderer Text bleibt im Eingabefeld stehen.
 - **Chips: Vorschläge per `url`/`searchWith`** wie beim Textfeld (`XiriSuggestDirective`). Ein Vorschlag wird als
-  Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID. Eine per Pfeil markierte Option bleibt markiert,
-  wenn Server-Treffer erst danach eintreffen (sonst nahm Enter auf langsamen Leitungen den getippten Teiltext).
+  Freitext-Chip eingefügt, heißt er wie eine Option, als deren ID.
 - **Chips: bereits gewählte Chips werden nicht noch einmal vorgeschlagen** (Optionen und Server-Treffer).
 
 ### Changed
@@ -24,10 +23,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **Textfeld-Vorschläge: Pfeil-Markierung geht bei späten Server-Treffern nicht mehr verloren.** Bei `list` + `url`
+  löschte Material die Markierung, sobald Server-Treffer nach dem Pfeil eintrafen; Enter behielt dann den getippten
+  Teiltext. Der Fix sitzt in `XiriSuggestDirective` und gilt für Textfeld, Rows-Textzellen und Chips.
 - **Chips: keine Doppel-Chips mehr bei Auswahl aus der Liste.** Klick auf eine Option oder Pfeil + Enter legten
   zusätzlich den getippten Teiltext als Chip an. Nach dem Hinzufügen zeigt die Liste wieder alle Optionen statt der
   Treffer des alten Suchtexts.
-
 - **Deaktivierter Button zeigt seinen Hint:** Ein deaktivierter Button mit `hint` bleibt per Maus und Tastatur
   erreichbar (`disabledInteractive`, `aria-disabled`) und zeigt den Hint als Tooltip. Ohne Hint bleibt er nativ
   `disabled` und außerhalb der Tab-Reihenfolge.
