@@ -438,6 +438,45 @@ describe('XiriButtonComponent', () => {
 		});
 	});
 
+	// link/href: the enclosing <a> is the tab stop, the inner button must not be a second one.
+	describe('tabIndex', () => {
+		const inner = () => fixture.nativeElement.querySelector('xiri-buttonstyle button') as HTMLButtonElement;
+
+		for (const action of ['link', 'href']) {
+			it(`takes the inner button of a ${action} button out of the tab order`, () => {
+				host.btn.set(makeButton({ action }));
+				fixture.detectChanges();
+
+				expect(inner().getAttribute('tabindex')).toBe('-1');
+			});
+		}
+
+		it('takes the inner button of an icon link button out of the tab order', () => {
+			host.btn.set(makeButton({ action: 'link', type: 'icon', icon: 'edit', hint: 'Bearbeiten' }));
+			fixture.detectChanges();
+
+			expect(inner().getAttribute('tabindex')).toBe('-1');
+		});
+
+		it('honours an explicit tabIndex on an icon button', () => {
+			host.btn.set(makeButton({ action: 'api', type: 'icon', icon: 'edit', hint: 'Bearbeiten', tabIndex: -1 }));
+			fixture.detectChanges();
+
+			expect(inner().getAttribute('tabindex')).toBe('-1');
+		});
+
+		// Regression guard for itatbox: a disabled button with hint stays focusable so its tooltip is reachable.
+		it('keeps a disabled api button with hint focusable', () => {
+			host.btn.set(makeButton({ action: 'api', disabled: true, hint: 'Erst Filter setzen' }));
+			fixture.detectChanges();
+
+			const btn = inner();
+			expect(btn.hasAttribute('disabled')).toBe(false);
+			expect(btn.getAttribute('aria-disabled')).toBe('true');
+			expect(btn.hasAttribute('tabindex')).toBe(false);
+		});
+	});
+
 	it('should log unknown action to console', () => {
 		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		host.btn.set(makeButton({ action: 'unknown-action' }));

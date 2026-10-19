@@ -6,12 +6,12 @@
 			@let linkUrl = _url() | xiriUrl;
 			<a [routerLink]="linkUrl?.path" [queryParams]="linkUrl?.queryParams" [href]="_url()" [target]="button().target"
 			   (click)="clicked($event)">
-				<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
+				<xiri-buttonstyle [button]="linkButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 			</a>
 		}
 		@case ('href') {
 			<a [href]="_url()" [target]="button().target" (click)="clicked($event)">
-				<xiri-buttonstyle [button]="displayButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
+				<xiri-buttonstyle [button]="linkButton()" [disabled]="_disabled()" [loading]="loading()" [countdown]="countdown()" [pollText]="pollText()"></xiri-buttonstyle>
 			</a>
 		}
 		@case ('menu') {

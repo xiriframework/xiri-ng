@@ -16,7 +16,8 @@
 		@case ('icon') {
 			<button mat-icon-button [matTooltip]="button().hint" [matTooltipDisabled]="!button().hint"
 			        [attr.aria-label]="button().hint || button().text"
-			        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint">
+			        [color]="button().color || 'primary'" [disabled]="off()" [disabledInteractive]="!!button().hint"
+			        [tabIndex]="button().tabIndex">
 				@if (loading()) {
 					<mat-spinner diameter="20"></mat-spinner>
 				} @else {

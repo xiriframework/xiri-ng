@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Buttons sind wieder per Tastatur erreichbar.** Bei `link`/`href` ist nur das umschließende `<a>` ein Tab-Stop,
+  der innere Button bekommt immer `tabindex="-1"`; ein `tabIndex` aus dem JSON gilt dort nicht. `type: 'icon'`
+  übernimmt `tabIndex` jetzt wie alle anderen Typen. Nur zusammen mit xiri-go ≥ 0.9.2 ausrollen: ältere Versionen
+  schicken immer `tabIndex: -1`, damit wären auch Icon-Buttons keine Tab-Stops mehr.
+
 ## [0.10.1]
 
 ### Added

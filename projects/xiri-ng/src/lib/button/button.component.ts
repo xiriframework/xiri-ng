@@ -129,6 +129,8 @@ export class XiriButtonComponent implements OnDestroy {
 		const o = this.buttonOverride();
 		return o ? { ...this.button(), ...o } : this.button();
 	} );
+	// link/href: the enclosing <a> is the tab stop, so the inner button must not be a second one.
+	protected linkButton = computed<XiriButton>( () => ( { ...this.displayButton(), tabIndex: -1 } ) );
 	
 	private dataService = inject( XiriDataService );
 	private location = inject( Location );
