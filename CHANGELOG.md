@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.2]
+
 ### Fixed
 
 - **Buttons sind wieder per Tastatur erreichbar.** Bei `link`/`href` ist nur das umschließende `<a>` ein Tab-Stop,
