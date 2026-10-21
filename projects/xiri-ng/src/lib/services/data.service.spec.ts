@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { XiriDataService, XiriDataServiceConfig } from './data.service';
 import { XiriSnackbarService } from './snackbar.service';
 
@@ -135,6 +135,16 @@ describe( 'XiriDataService', () => {
 
 			expect( snackbar.handleResponse ).not.toHaveBeenCalled();
 		} );
+
+		it( 'should read the JSON error message out of a blob error', async () => {
+			httpClient.post.mockReturnValue( throwError( () => new HttpErrorResponse( {
+				status: 503, error: new Blob( [ '{"error":"Dienst nicht erreichbar"}' ] ),
+			} ) ) );
+
+			const err = await firstValueFrom( service.postFile( 'download', {} ) ).catch( ( e: HttpErrorResponse ) => e );
+
+			expect( ( err as HttpErrorResponse ).error ).toEqual( { error: 'Dienst nicht erreichbar' } );
+		} );
 	} );
 
 	describe( 'postFileResponse', () => {
@@ -148,6 +158,41 @@ describe( 'XiriDataService', () => {
 				{ format: 'csv' },
 				{ observe: 'response', responseType: 'blob' }
 			);
+		} );
+
+		// Fehler kommen bei responseType 'blob' als Blob; xiri-go schickt darin {"error": "…"}.
+		const failWith = ( body: unknown ) => {
+			const original = new HttpErrorResponse( { status: 409, statusText: 'Conflict', url: '/api/export', error: body } );
+			httpClient.post.mockReturnValue( throwError( () => original ) );
+			return original;
+		};
+		const errorOf = ( call: Promise<unknown> ) => call.then( () => undefined, ( err: HttpErrorResponse ) => err );
+
+		it( 'should read the JSON error message out of a blob error', async () => {
+			failWith( new Blob( [ '{"error":"Tour hat offene Lieferscheine"}' ], { type: 'application/json' } ) );
+
+			const err = await errorOf( firstValueFrom( service.postFileResponse( 'export', {} ) ) );
+
+			expect( err ).toBeInstanceOf( HttpErrorResponse );
+			expect( err?.status ).toBe( 409 );
+			expect( err?.statusText ).toBe( 'Conflict' );
+			expect( err?.error ).toEqual( { error: 'Tour hat offene Lieferscheine' } );
+		} );
+
+		it( 'should pass a non-JSON blob error through unchanged', async () => {
+			const original = failWith( new Blob( [ '<html>Bad Gateway</html>' ], { type: 'text/html' } ) );
+
+			const err = await errorOf( firstValueFrom( service.postFileResponse( 'export', {} ) ) );
+
+			expect( err ).toBe( original );
+		} );
+
+		it( 'should pass an error without blob through unchanged', async () => {
+			const original = failWith( null );
+
+			const err = await errorOf( firstValueFrom( service.postFileResponse( 'export', {} ) ) );
+
+			expect( err ).toBe( original );
 		} );
 	} );
 

@@ -964,7 +964,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 				// Before the request — openTab() needs the click's user activation.
 				const tab = button.target === '_blank' ? this.downloadService.openTab() : null;
 				this.dataService.postFileResponse( button.url ?? '', payload ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
-					next:  ( result ) => this.downloadService.download( result, button.filename || 'download.csv', tab ),
+					next:  ( result ) => this.downloadService.download( result, button.filename || 'download', tab ),
 					error: ( err: unknown ) => {
 						tab?.close();
 						this.snackbar.error( errorMessage( err ) || 'Download Error' );
@@ -1166,7 +1166,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 		const tab = button.target === '_blank' ? this.downloadService.openTab() : null;
 		this.dataService.postFileResponse( url, this.getSelectionIDs() ).pipe( takeUntil( this.reloadAbort$ ) ).subscribe( {
 			next: ( result ) => {
-				this.downloadService.download( result, 'download.csv', tab );
+				this.downloadService.download( result, 'download', tab );
 			},
 			error: ( err: unknown ) => {
 				tab?.close();

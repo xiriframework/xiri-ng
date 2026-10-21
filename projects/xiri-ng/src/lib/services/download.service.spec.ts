@@ -91,6 +91,23 @@ describe( 'XiriDownloadService', () => {
 			expect( mockAnchor.download ).toBe( 'myfile.pdf' );
 		} );
 
+		it.each( [
+			[ 'Report', 'application/pdf', 'Report.pdf' ],
+			[ 'Report', 'text/csv; charset=utf-8', 'Report.csv' ],
+			[ 'Report', 'application/octet-stream', 'Report' ],
+			[ 'custom.xlsx', 'application/pdf', 'custom.xlsx' ],
+		] )( 'should name %s with %s as %s', ( name, contentType, expected ) => {
+			const result = createMockResult( contentType );
+			const mockAnchor = { download: '', rel: '', href: '', click: vi.fn() };
+			vi.spyOn( document, 'createElementNS' ).mockReturnValue( mockAnchor as unknown as HTMLElement );
+			vi.spyOn( URL, 'createObjectURL' ).mockReturnValue( 'blob:test' );
+			vi.spyOn( URL, 'revokeObjectURL' ).mockImplementation( () => { /* intentionally empty */ } );
+
+			service.download( result, name, null );
+
+			expect( mockAnchor.download ).toBe( expected );
+		} );
+
 		// A tab handle as handed out by openTab() and passed back into download().
 		const createMockTab = () => ( {
 			opener: {} as unknown,

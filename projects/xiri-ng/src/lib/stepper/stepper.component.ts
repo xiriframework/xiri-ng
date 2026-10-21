@@ -24,6 +24,7 @@ import { XiriErrorComponent } from '../error/error.component';
 import { XiriFormFieldsComponent } from '../formfields/form-fields.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { HttpErrorResponse } from '@angular/common/http';
+import { parseHttpError } from '../services/error.util';
 
 import { formState } from '../formfields/form-state';
 export interface XiriStepperSettings {
@@ -273,14 +274,7 @@ export class XiriStepperComponent implements OnInit {
 
 	private showError( stepCurrent: StepState, err: HttpErrorResponse | null ) {
 
-		if ( err == null )
-			stepCurrent.errorMsg.set( 'Unknown error' );
-		else if ( err.status == 400 )
-			stepCurrent.errorMsg.set( err.error.error || 'Format Error' );
-		else if ( err.status == 403 )
-			stepCurrent.errorMsg.set( 'Access denied' );
-		else
-			stepCurrent.errorMsg.set( 'Unknown error' );
+		stepCurrent.errorMsg.set( err == null ? 'Unknown error' : parseHttpError( err ) );
 
 		stepCurrent.check.set( false );
 		stepCurrent.completed.set( false );

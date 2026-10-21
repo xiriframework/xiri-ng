@@ -468,6 +468,19 @@ describe( 'XiriStepperComponent', () => {
 			expect( steps[ 0 ].errorMsg() ).toBe( 'Unknown error' );
 		} );
 
+		it( 'should show the server message on other errors', () => {
+			const steps = component.steps();
+			steps[ 0 ].valid.set( true );
+
+			mockDataService.post.mockReturnValue(
+				throwError( () => ( { status: 409, error: { error: 'Tour hat offene Lieferscheine' } } ) )
+			);
+
+			( component as unknown as { checkStep( i: number ): void } ).checkStep( 0 );
+
+			expect( steps[ 0 ].errorMsg() ).toBe( 'Tour hat offene Lieferscheine' );
+		} );
+
 		it( 'should show default 400 error when error.error is missing', () => {
 			const steps = component.steps();
 			steps[ 0 ].valid.set( true );

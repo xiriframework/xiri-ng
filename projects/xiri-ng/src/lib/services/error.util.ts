@@ -1,10 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
+/** Server-Meldung (xiri-go `{"error": "…"}`) bei jedem Status, sonst ein fester Rückfalltext. */
 export function parseHttpError( err: HttpErrorResponse ): string {
+	const message = err.error?.error;
+	if ( typeof message === 'string' && message )
+		return message;
 	if ( err.status === 400 || err.status === 424 )
-		return err.error?.error || 'Format Error';
+		return 'Format Error';
 	if ( err.status === 403 )
-		return err.error?.error || 'Access denied';
+		return 'Access denied';
 	if ( err.status === 404 )
 		return 'Not found';
 	if ( err.status === 0 )

@@ -8,6 +8,9 @@ import { RouterLink } from "@angular/router";
 import { Location } from "@angular/common";
 import { XiriButtonstyleComponent } from "../buttonstyle/buttonstyle.component";
 import { XiriDownloadService } from "../services/download.service";
+import { XiriSnackbarService } from "../services/snackbar.service";
+import { parseHttpError } from "../services/error.util";
+import { HttpErrorResponse } from "@angular/common/http";
 import { XiriResponseHandlerService, XIRI_PANEL_HOST, XIRI_TABLE_HOST } from '../services/response-handler.service';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from "@angular/material/menu";
 import { MatIcon } from "@angular/material/icon";
@@ -136,6 +139,7 @@ export class XiriButtonComponent implements OnDestroy {
 	private location = inject( Location );
 	private dialog = inject( MatDialog );
 	private downloadService = inject( XiriDownloadService );
+	private snackbar = inject( XiriSnackbarService );
 	private responseHandler = inject( XiriResponseHandlerService );
 	// Nächstgelegene Card; null außerhalb einer Card. Ziel für refresh:'panel'.
 	private panelHost = inject( XIRI_PANEL_HOST, { optional: true } );
@@ -279,7 +283,7 @@ export class XiriButtonComponent implements OnDestroy {
 						            this.processResult( result as XiriButtonResponse );
 					            },
 					            error: ( err: unknown ) => {
-						            console.log( "xiri-button api error", err );
+						            this.snackbar.error( parseHttpError( err as HttpErrorResponse ) );
 						            this.result.emit( {
 							                              button: this.button(),
 							                              result: null,
@@ -342,7 +346,7 @@ export class XiriButtonComponent implements OnDestroy {
 			.subscribe( {
 				            next: ( res: unknown ) => this.processResult( res as XiriButtonResponse ),
 				            error: ( err: unknown ) => {
-						            console.log( "xiri-button poll error", err );
+						            this.snackbar.error( parseHttpError( err as HttpErrorResponse ) );
 						            this.stopPolling();
 						            this.result.emit( {
 							                              button: this.button(),
@@ -386,17 +390,9 @@ export class XiriButtonComponent implements OnDestroy {
 					{
 						next: ( result ) => {
 
-							let filename: string;
+							// Ohne filename ergänzt download() die Endung aus dem Content-Type.
 							const btn = this.button();
-							if ( btn.filename != undefined )
-								filename = btn.filename;
-							else
-								// ponytail: no extension guess when the file is displayed — the
-								// viewer would offer "Report.csv" for a PDF on save.
-								filename = ( btn.text != undefined ? btn.text : 'Download' )
-										+ ( tab ? '' : '.csv' )
-
-							this.downloadService.download( result, filename, tab );
+							this.downloadService.download( result, btn.filename ?? btn.text ?? 'Download', tab );
 
 							this.result.emit( {
 								                  button: this.button(),
@@ -407,7 +403,7 @@ export class XiriButtonComponent implements OnDestroy {
 							this.loading.set( false );
 						},
 						error: ( err: unknown ) => {
-							console.log( "xiri-button download error", err );
+							this.snackbar.error( parseHttpError( err as HttpErrorResponse ) );
 							tab?.close();
 							this.result.emit( {
 								                  button: this.button(),

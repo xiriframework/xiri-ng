@@ -4,6 +4,8 @@ import { Component, signal } from '@angular/core';
 import { XiriButtonComponent, XiriButton, XiriButtonResult, XiriButtonResponse } from './button.component';
 import { XiriDataService } from '../services/data.service';
 import { XiriDownloadService } from '../services/download.service';
+import { XiriSnackbarService } from '../services/snackbar.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import { XIRI_PANEL_HOST } from '../services/response-handler.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute, provideRouter } from '@angular/router';
@@ -46,6 +48,7 @@ describe('XiriButtonComponent', () => {
 	let mockDialog: { open: ReturnType<typeof vi.fn> };
 	let mockRouter: { navigate: ReturnType<typeof vi.fn>; url: string };
 	let mockLocation: { back: ReturnType<typeof vi.fn> };
+	let mockSnackbar: { error: ReturnType<typeof vi.fn> };
 
 	beforeEach(async () => {
 		mockDataService = {
@@ -57,6 +60,7 @@ describe('XiriButtonComponent', () => {
 		mockDialog = { open: vi.fn() };
 		mockRouter = { navigate: vi.fn().mockReturnValue(Promise.resolve(true)), url: '/current' };
 		mockLocation = { back: vi.fn() };
+		mockSnackbar = { error: vi.fn() };
 
 		await TestBed.configureTestingModule({
 			imports: [TestHostComponent],
@@ -67,6 +71,7 @@ describe('XiriButtonComponent', () => {
 				{ provide: Router, useValue: mockRouter },
 				{ provide: Location, useValue: mockLocation },
 				{ provide: ActivatedRoute, useValue: {} },
+				{ provide: XiriSnackbarService, useValue: mockSnackbar },
 			],
 		}).compileComponents();
 
@@ -340,6 +345,38 @@ describe('XiriButtonComponent', () => {
 		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'Report', expect.anything());
 	});
 
+	it('should show the server message in a snackbar when an api call fails', () => {
+		mockDataService.post.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409, error: { error: 'Reihenfolge gesperrt' } })));
+		host.btn.set(makeButton({ action: 'api', url: '/optimize' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockSnackbar.error).toHaveBeenCalledWith('Reihenfolge gesperrt');
+	});
+
+	it('should show the server message in a snackbar when a download fails', () => {
+		mockDataService.postFileResponse.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 503, error: { error: 'PDF-Dienst nicht erreichbar' } })));
+		host.btn.set(makeButton({ action: 'download', url: '/dl' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockSnackbar.error).toHaveBeenCalledWith('PDF-Dienst nicht erreichbar');
+	});
+
+	it('should not append .csv to the filename without a filename', () => {
+		const mockResponse = { headers: { get: () => null }, body: new Blob() };
+		mockDataService.postFileResponse.mockReturnValue(of(mockResponse));
+
+		host.btn.set(makeButton({ action: 'download', url: '/dl', text: 'Pdf' }));
+		fixture.detectChanges();
+
+		fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+
+		expect(mockDownloadService.download).toHaveBeenCalledWith(mockResponse, 'Pdf', null);
+	});
+
 	it('should close the opened tab when the download fails', () => {
 		const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { /* intentionally empty */ });
 		mockDataService.postFileResponse.mockReturnValue(throwError(() => new Error('dl fail')));
@@ -573,6 +610,20 @@ describe('XiriButtonComponent', () => {
 			const calls = mockDataService.get.mock.calls.length;
 			vi.advanceTimersByTime(5000);
 			expect(mockDataService.get.mock.calls.length).toBe(calls);
+		});
+
+		it('should show the server message in a snackbar when polling fails', () => {
+			vi.useFakeTimers();
+			mockDataService.post.mockReturnValue(of({ done: true, poll: 1000, pollUrl: '/status' }));
+			mockDataService.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 503, error: { error: 'Job abgebrochen' } })));
+			host.btn.set(makeButton({ action: 'api', url: '/start' }));
+			fixture.detectChanges();
+
+			fixture.nativeElement.querySelector('xiri-buttonstyle')?.click();
+			vi.advanceTimersByTime(1000);
+
+			expect(mockSnackbar.error).toHaveBeenCalledWith('Job abgebrochen');
+			expect(host.lastResult!.done).toBe(true);
 		});
 
 		it('should start polling when a dialog result contains poll', () => {

@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
+// ponytail: nur die gängigen Typen; ein anderer Typ braucht filename am Button oder Content-Disposition.
+const EXTENSIONS: Record<string, string> = {
+	'application/pdf': 'pdf',
+	'text/csv': 'csv',
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+	'application/json': 'json',
+	'application/zip': 'zip',
+	'image/png': 'png',
+};
 
 @Injectable( {
 	             providedIn: 'root',
@@ -24,13 +33,17 @@ export class XiriDownloadService {
 	 */
 	public download( result: HttpResponse<Blob>, filename: string, tab?: Window | null ): boolean {
 
+		const contentType = result.headers.get( 'content-type' ) ?? undefined;
 		const contentDisposition = result.headers.get( 'content-disposition' );
 		if ( contentDisposition ) {
 			filename = contentDisposition.split( 'filename=' )[ 1 ];
 			filename = filename.replace( /"/g, '' );
+		} else if ( !/\.\w{1,5}$/.test( filename ) ) {
+			const extension = EXTENSIONS[ contentType?.split( ';' )[ 0 ].trim().toLowerCase() ?? '' ];
+			if ( extension )
+				filename += '.' + extension;
 		}
 
-		const contentType = result.headers.get( 'content-type' ) ?? undefined;
 		const file = new File( [ result.body as BlobPart ], filename, { type: contentType } );
 		const fileData = URL.createObjectURL( file );
 

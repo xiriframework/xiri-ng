@@ -725,7 +725,7 @@ describe( 'XiriTableComponent', () => {
 			component.bulkAction( new MouseEvent( 'click' ), dlButton );
 
 			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
-			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', null );
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download', null );
 		} );
 
 		it( 'passes the tab handle for a bulk download with target _blank', () => {
@@ -759,7 +759,7 @@ describe( 'XiriTableComponent', () => {
 
 			component.downloadSelection( new MouseEvent( 'click' ), button );
 
-			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', tab );
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download', tab );
 		} );
 
 		it( 'saves the file for downloadSelection without target', () => {
@@ -768,7 +768,7 @@ describe( 'XiriTableComponent', () => {
 			component.downloadSelection( new MouseEvent( 'click' ), dlButton );
 
 			expect( mockDownloadService.openTab ).not.toHaveBeenCalled();
-			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download.csv', null );
+			expect( mockDownloadService.download ).toHaveBeenCalledWith( expect.anything(), 'download', null );
 		} );
 	} );
 
