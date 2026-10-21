@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.3]
+
 ### Fixed
 
 - **Server-Fehlermeldungen bei jedem Status.** `parseHttpError` (Dialog, Formular, Stepper) zeigt `error` aus der
