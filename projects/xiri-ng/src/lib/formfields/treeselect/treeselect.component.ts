@@ -19,6 +19,7 @@ import {
 import { SelectionModel } from "@angular/cdk/collections";
 import { XiriDataService } from "../../services/data.service";
 import { XiriSnackbarService } from '../../services/snackbar.service';
+import { serverMessage } from '../../services/error.util';
 import { XiriFormField } from "../field.interface";
 import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -137,7 +138,7 @@ export class XiriTreeselectComponent extends XiriFieldMain<XiriTreeselectId[] | 
 					},
 					error: ( err ) => {
 						console.log( 'error database-tree', err );
-						this.snackbar.error( 'Unknown Error! Please try again later' );
+						this.snackbar.error( serverMessage( err ) ?? 'Unknown Error! Please try again later' );
 						this._changeDetectorRef.markForCheck();
 					}
 				} )

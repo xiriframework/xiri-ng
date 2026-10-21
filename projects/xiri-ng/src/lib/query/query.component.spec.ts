@@ -426,6 +426,23 @@ describe( 'XiriQueryComponent', () => {
 
 			expect( component.error() ).toBe( 'Unknown Error' );
 		} );
+
+		it.each( [
+			[ 403, 'Kein Zugriff.', 'Kein Zugriff.' ],
+			[ 404, 'Nicht gefunden.', 'Nicht gefunden.' ],
+			[ 404, '', 'Page not found' ],
+		] )( 'should show the server message on %s (%j)', ( status, message, expected ) => {
+			mockDataService.post.mockReturnValue( throwError( () => ( { status, error: { error: message } } ) ) );
+
+			createFixture( {
+				fields: [ { id: 'f', type: 'text', value: '' } ],
+				url: 'search/results',
+			} );
+
+			component.formChanged( { valid: true, value: { f: 'test' } } );
+
+			expect( component.error() ).toBe( expected );
+		} );
 	} );
 
 	describe( 'clickedButton', () => {

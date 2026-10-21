@@ -32,6 +32,7 @@ import { MatChip, MatChipRemove, MatChipSet } from "@angular/material/chips";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { formState } from '../formfields/form-state';
+import { serverMessage } from '../services/error.util';
 export interface XiriQuerySettings {
 	fields?: XiriFormField[]
 	dyn?: XiriDynData[]
@@ -356,7 +357,10 @@ export class XiriQueryComponent implements OnInit, XiriPanelHost {
 
 		this.loading.set( false );
 		this.data.set( null );
-		if ( err.status === 404 )
+		const message = serverMessage( err );
+		if ( message )
+			this.error.set( message );
+		else if ( err.status === 404 )
 			this.error.set( 'Page not found' );
 		else if ( err.status === 401 )
 			this.error.set( 'No permission to view page' );

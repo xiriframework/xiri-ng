@@ -1183,6 +1183,16 @@ describe( 'XiriTableComponent', () => {
 			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Optionen konnten nicht geladen werden' );
 		} );
 
+		it( 'should show the server message on editable options load error', () => {
+			const column = { id: 'status', name: 'Status', editable: true, editableOptionsUrl: '/options/status' };
+			component.options.editUrl = '/edit';
+
+			mockDataService.get.mockReturnValue( throwError( () => ( { status: 403, error: { error: 'Kein Zugriff.' } } ) ) );
+			component.startInlineEdit( { id: 1, status: 'active' }, column as XiriTableField );
+
+			expect( mockSnackbar.error ).toHaveBeenCalledWith( 'Kein Zugriff.' );
+		} );
+
 		it( 'should handle onInlineEditKeydown Enter', () => {
 			const column = { id: 'name', name: 'Name', editable: true };
 			component.options.editUrl = '/edit';

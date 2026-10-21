@@ -1,9 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-/** Server-Meldung (xiri-go `{"error": "…"}`) bei jedem Status, sonst ein fester Rückfalltext. */
+/** Server-Meldung (xiri-go `{"error": "…"}`) als nicht-leerer String, sonst undefined. */
+export function serverMessage( err: HttpErrorResponse ): string | undefined {
+	const message = err?.error?.error;
+	return typeof message === 'string' && message ? message : undefined;
+}
+
+/** Server-Meldung bei jedem Status, sonst ein fester Rückfalltext. */
 export function parseHttpError( err: HttpErrorResponse ): string {
-	const message = err.error?.error;
-	if ( typeof message === 'string' && message )
+	const message = serverMessage( err );
+	if ( message )
 		return message;
 	if ( err.status === 400 || err.status === 424 )
 		return 'Format Error';

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Component, signal, viewChild } from '@angular/core';
+import { throwError } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { XiriTreeselectComponent } from './treeselect.component';
 import { XiriDataService } from '../../services/data.service';
@@ -222,5 +223,39 @@ describe( 'XiriTreeselectComponent – schmale Spalte', () => {
 	it( 'lässt Einträge mit umbrochenem Label wachsen und bricht lange Wörter um', () => {
 		expect( getComputedStyle( el( 'mat-tree-node' ) ).maxHeight ).not.toBe( '38px' );
 		expect( getComputedStyle( el( 'mat-tree-node .mdc-label' ) ).overflowWrap ).toBe( 'anywhere' );
+	} );
+} );
+
+// Ladefehler des Baums per url: Server-Meldung (xiri-go {"error": "…"}) vor dem festen Text.
+describe( 'XiriTreeselectComponent – Ladefehler', () => {
+	let fixture: ComponentFixture<TestHostComponent>;
+	let host: TestHostComponent;
+	const data = { get: vi.fn() };
+	const snackbar = { error: vi.fn() };
+
+	beforeEach( () => {
+		TestBed.resetTestingModule();
+		TestBed.configureTestingModule( {
+			imports: [ TestHostComponent ],
+			providers: [
+				{ provide: XiriDataService, useValue: data },
+				{ provide: XiriSnackbarService, useValue: snackbar },
+			],
+		} );
+		snackbar.error.mockClear();
+		fixture = TestBed.createComponent( TestHostComponent );
+		host = fixture.componentInstance;
+		fixture.detectChanges();
+	} );
+
+	it.each( [
+		[ { status: 403, error: { error: 'Kein Zugriff.' } }, 'Kein Zugriff.' ],
+		[ { status: 500 }, 'Unknown Error! Please try again later' ],
+	] )( 'meldet %j als %s', ( err, expected ) => {
+		data.get.mockReturnValue( throwError( () => err ) );
+		host.field.set( { id: 'cat', type: 'treeselect', name: 'Kategorie', url: '/tree' } as unknown as XiriFormField );
+		fixture.detectChanges();
+
+		expect( snackbar.error ).toHaveBeenCalledWith( expected );
 	} );
 } );

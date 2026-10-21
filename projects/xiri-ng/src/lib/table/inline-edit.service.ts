@@ -136,11 +136,11 @@ export class XiriTableInlineEditService {
 					this.initSearch( column, row );
 					this.focus();
 				},
-				error: () => {
+				error: ( err: unknown ) => {
 					this.editableOptionsLoading.set( false );
 					this.editableOptionsSub = null;
 					this.cancel();
-					this.snackbar.error( 'Optionen konnten nicht geladen werden' );
+					this.snackbar.error( errorMessage( err ) || 'Optionen konnten nicht geladen werden' );
 				}
 			} );
 		} else {

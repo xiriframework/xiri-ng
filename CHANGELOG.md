@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Ladefehler zeigen die Server-Meldung.** `xiri-query`, `xiri-treeselect` (Baum per `url`) und die Optionen beim
+  Inline-Edit (`editableOptionsUrl`) zeigen `error` aus der Antwort (xiri-go `response.NewErrorResponse`) bei jedem
+  Status. „Page not found“, „Access denied“, „Optionen konnten nicht geladen werden“ und die anderen festen Texte
+  kommen nur noch, wenn der Server keine Meldung schickt.
+
 ## [0.10.3]
 
 ### Fixed
