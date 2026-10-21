@@ -82,6 +82,10 @@ interface XiriQuerySettings {
 weiter. Ohne `url` reicht `reloadPanel()` an den äußeren Host bzw. die Seite weiter. Wird der Filter ungültig,
 leert die Query das Ergebnis und bricht einen laufenden Load ab.
 
+**Fehler:** Schlägt der Load fehl, zeigt die Query die Server-Meldung (`{"error": "…"}`, jeder Status) statt des
+Ergebnisses; nur ohne Meldung kommt ein fester Text („Page not found“, „Access denied“, …). Genauso melden
+`treeselect` mit `url` und das Laden der Inline-Edit-Optionen ihre Ladefehler per Snackbar.
+
 **`collapsed` — drei Zustände.** Fehlt das Feld, wird gar kein Expansion-Panel gerendert und der
 Filter ist immer offen (Default). `false` rendert das Panel aufgeklappt, `true` eingeklappt.
 
