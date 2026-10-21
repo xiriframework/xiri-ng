@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.4]
+
 ### Fixed
 
 - **Ladefehler zeigen die Server-Meldung.** `xiri-query`, `xiri-treeselect` (Baum per `url`) und die Optionen beim
