@@ -20,7 +20,7 @@ interface XiriFormSettings {
 
 Outputs: keine.
 
-Fehlerantworten (HTTP 400/403/404/0) landen als `XiriFormServiceError { error: string; fields?: Record<string, string> }`
+Fehlerantworten (jeder HTTP-Status; `error` = Server-Meldung, ohne sie ein fester Text wie „Unknown error“) landen als `XiriFormServiceError { error: string; fields?: Record<string, string> }`
 im Formular: `fields` (xiri-go `response.NewErrorResponseFromError`, Feld-ID → Meldung) gehen als `serverErrors` an
 `xiri-form-fields` und erscheinen als `mat-error` am Feld. `error` steht immer im Banner (`xiri-error`), auch mit
 `fields` — sonst bliebe ein Fehler an einem unbekannten oder unsichtbaren Feld unsichtbar. Signals: `fieldErrors()`, `error()`.
@@ -251,6 +251,8 @@ interface XiriButtonResult {
 
 **Datei anzeigen statt herunterladen (`target: '_blank'` bei `action: 'download'`):** Normalerweise landet die Antwort im Download-Ordner. Mit `target: '_blank'` öffnet der Button beim Klick einen Tab und zeigt die Datei darin an — der Fall „generiertes PDF ansehen". Gilt für freistehende Buttons, Tabellen-Zellen-Buttons, Bulk-/Selection-Buttons und Dialog-Buttons. Ob inline gerendert wird, entscheidet allein der **Content-Type** der Antwort (`application/pdf`); `Content-Disposition` ist irrelevant, weil der Blob im Frontend entsteht. Ohne Benutzer-Interaktion (`autoLoad: true`) blockt der Browser den Tab — dann wird gespeichert. Backend-Setter: `button.WithTarget("_blank")`, für Tabellen-Buttons `TableButton.WithTarget("_blank")`, für Zellen-Buttons `FieldBuilder.WithButtonTarget(key, "_blank")` (siehe xiri-go-expert).
 
+**Fehler:** Schlägt der Request von `action: 'api'`, `'download'` oder ein Poll fehl, zeigt der Button die Server-Meldung (`{"error": "…"}`, jeder Status) als Snackbar.
+
 **Selbst-pollender Button (`poll` / `pollUrl` / `text`):** Verarbeitet der Button eine Antwort (von `action:'api'` **oder** dem `afterClosed`-Ergebnis eines `action:'dialog'`), die `poll` (ms) enthält, beginnt er selbsttätig, im Intervall `pollUrl` per **GET** abzufragen — bis eine Antwort **ohne** `poll` kommt. Währenddessen ist der Button disabled und zeigt Spinner + Countdown bzw. den optionalen `text` (überschreibt den Countdown, pro Tick aktualisierbar → Fortschritt). Die **finale** Antwort (ohne `poll`) läuft normal durch den `responseHandler` (Snackbar/Refresh/Goto). `pollUrl` ist optional (Fallback: `button.url`); bei Dialog-Buttons Pflicht. Backend: `response.NewReturnPoll(pollUrl, ms).WithText("läuft… 50 %")` (siehe xiri-go-expert).
 
 **Button am Ende/laufend ändern (`button`-Patch):** Jede vom Button verarbeitete Antwort darf ein `button`-Objekt mitschicken (`{ text?, color?, icon?, type?, hint?, disabled? }`), das auf den Button gemergt und angezeigt wird — z. B. am Worker-Ende `text:'Erledigt ✓'`, `color:'success'`, `disabled:true`. Der Override bleibt, bis die Aktion erneut ausgelöst wird (dann Reset). `icon` zeigt nur ein Button vom Typ `icon`/`icontext`/`fab`/`minifab`; bei `raised`/`basic`/`stroked`/`flat` fällt es weg, dann zusätzlich `type:'icontext'` patchen. Backend: `…​.WithButton(response.NewButtonPatch().WithText("Erledigt ✓").WithColor("success").Disable())`.
@@ -325,7 +327,7 @@ interface XiriButton {
   data?: any;
   target?: string;      // 'link'/'href': Link-Target. 'download': '_blank' = im Tab anzeigen statt speichern
   loading?: boolean;
-  filename?: string;
+  filename?: string;   // 'download': ohne → Button-Text, Endung aus dem Content-Type der Antwort
 
   // Send-Buttons (z.B. in Tables)
   check?: any[];

@@ -50,6 +50,8 @@ postFile(url: string, data: any): Observable<any>
 
 postFileResponse(url: string, data: any): Observable<HttpResponse<Blob>>
   // mit Headern (für Filename aus Content-Disposition) — nutze mit XiriDownloadService
+  // postFile/postFileResponse: ein JSON-Fehler-Body ({"error": "…"}) kommt als Objekt in err.error,
+  // nicht als Blob — parseHttpError(err) bzw. err.error?.error liefern die Server-Meldung.
 
 getConfigApi(): string
   // aktuelle Base-URL (z.B. '/api/')
@@ -191,6 +193,8 @@ openTab(): Window | null
 
 download(result: HttpResponse<Blob>, filename: string, tab?: Window | null): boolean
   // Baut File + blob-URL. Mit tab-Handle wird die Datei dort angezeigt, sonst gespeichert.
+  // Name: Content-Disposition gewinnt; sonst ergänzt download() eine fehlende Endung aus dem
+  // Content-Type (pdf, csv, xlsx, json, zip, png) — 'Report' + application/pdf → 'Report.pdf'.
 ```
 
 Speichern (der Normalfall):

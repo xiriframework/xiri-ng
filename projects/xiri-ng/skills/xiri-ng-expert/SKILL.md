@@ -66,7 +66,7 @@ responseHandler.handle(result, { onTableRefresh?, onTableUpdate?, onPanelRefresh
 
 // File-Download (tab = Handle aus openTab() → im Tab anzeigen, null → speichern)
 download.openTab(): Window | null            // synchron im Click, sonst blockt der Browser
-download.download(httpResponse, filename, tab?): boolean
+download.download(httpResponse, filename, tab?): boolean  // fehlende Endung kommt aus dem Content-Type
 
 // Theme (Signal-basiert)
 theme.mode          // Signal<'light' | 'dark' | 'auto'>

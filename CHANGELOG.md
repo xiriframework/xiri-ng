@@ -7,6 +7,21 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Server-Fehlermeldungen bei jedem Status.** `parseHttpError` (Dialog, Formular, Stepper) zeigt `error` aus der
+  Antwort (xiri-go `response.NewErrorResponse`) jetzt auch bei 409, 503 usw.; „Unknown error“ und die anderen festen
+  Texte kommen nur noch, wenn der Server keine Meldung schickt. Der Stepper nutzt jetzt dieselbe Funktion.
+- **Fehler bei Downloads zeigen die Server-Meldung.** `postFile`/`postFileResponse` lesen einen JSON-Fehler aus dem
+  Blob-Body und geben ihn als `err.error` weiter; Button-, Tabellen- und Dialog-Downloads zeigen damit den Text des
+  Servers statt „Download Error“/„Unknown Error“. Andere Fehler-Bodies (z. B. HTML eines Proxys) bleiben unverändert.
+- **`xiri-button` meldet Fehler per Snackbar.** API-Aufruf, Polling und Download schrieben Fehler bisher nur in die
+  Konsole.
+- **Kein festes `.csv` mehr am Dateinamen.** Ohne `filename` heißt der Download wie der Button-Text (Tabelle:
+  `download`); `XiriDownloadService.download()` ergänzt eine fehlende Endung aus dem `Content-Type` (pdf, csv, xlsx,
+  json, zip, png), bei unbekanntem Typ bleibt der Name ohne Endung. Wer CSV als `application/octet-stream` ohne
+  `Content-Disposition` schickt, setzt `filename` oder `text/csv`.
+
 ## [0.10.2]
 
 ### Fixed
