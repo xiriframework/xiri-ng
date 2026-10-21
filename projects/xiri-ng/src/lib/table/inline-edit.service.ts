@@ -5,6 +5,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { XiriDataService } from '../services/data.service';
 import { XiriSnackbarService } from '../services/snackbar.service';
+import { serverMessage } from '../services/error.util';
 import { XiriTableField } from '../raw-table/tabefield.interface';
 import { XiriTableCellValue, XiriTableRow } from './tree.service';
 import { asCellObject, isCellObject, normalizeEditValue } from './cell';
@@ -136,11 +137,11 @@ export class XiriTableInlineEditService {
 					this.initSearch( column, row );
 					this.focus();
 				},
-				error: ( err: unknown ) => {
+				error: ( err ) => {
 					this.editableOptionsLoading.set( false );
 					this.editableOptionsSub = null;
 					this.cancel();
-					this.snackbar.error( errorMessage( err ) || 'Optionen konnten nicht geladen werden' );
+					this.snackbar.error( serverMessage( err ) ?? 'Optionen konnten nicht geladen werden' );
 				}
 			} );
 		} else {
