@@ -40,6 +40,7 @@
     "@angular/compiler-cli": "^22.2.1",
     "@angular/language-service": "^22.2.1",
     "@eslint/js": "^10.0.1",
+    "@openuidev/angular-lang": "^0.4.2",
     "angular-eslint": "22.6.0",
     "echarts": "^6.1.0",
     "eslint": "^10.12.0",
@@ -48,6 +49,7 @@
     "sass": "^1.104.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "8.71.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "zod": "^4.6.7"
   }
 }

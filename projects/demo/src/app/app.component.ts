@@ -183,6 +183,10 @@ export const demoNavFields: XiriNavigationField[] = [ {
 	icon: 'dynamic_form',
 	link: 'Dynamic'
 }, {
+	name: 'OpenUI Lang',
+	icon: 'smart_toy',
+	link: 'OpenUI'
+}, {
 	name: 'Services',
 	icon: 'build',
 	link: 'Services'

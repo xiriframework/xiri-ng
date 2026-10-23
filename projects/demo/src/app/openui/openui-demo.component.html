@@ -1,0 +1,36 @@
+<app-demo-page [bread]="breadcrumbs">
+	<div class="xrow">
+		<div class="xcol">
+			<xiri-page-header [settings]="pageHeader"></xiri-page-header>
+		</div>
+
+		<div class="xcol xcol-lg-5">
+			<xiri-section [settings]="sectionProgram">
+				<textarea class="program" spellcheck="false" aria-label="OpenUI-Lang-Programm"
+				          [value]="program()" [readOnly]="streaming()"
+				          (input)="edit($any($event.target).value)"></textarea>
+				<div class="actions">
+					<button mat-flat-button class="stream" [disabled]="streaming()" (click)="stream()">Streamen</button>
+				</div>
+				@if (errors().length) {
+					<ul class="errors">
+						@for (e of errors(); track $index) {
+							<li><code>{{ e.code }}</code> {{ e.statementId }}: {{ e.message }}</li>
+						}
+					</ul>
+				}
+			</xiri-section>
+		</div>
+
+		<div class="xcol xcol-lg-7">
+			<openui-renderer [library]="library" [response]="response()" [isStreaming]="streaming()"
+			                 (error)="errors.set($event)"></openui-renderer>
+		</div>
+
+		<div class="xcol">
+			<xiri-section [settings]="sectionPrompt">
+				<pre class="prompt">{{ prompt }}</pre>
+			</xiri-section>
+		</div>
+	</div>
+</app-demo-page>

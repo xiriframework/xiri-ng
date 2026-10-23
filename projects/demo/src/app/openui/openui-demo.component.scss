@@ -1,0 +1,29 @@
+.program {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 16rem;
+	padding: 12px;
+	font: 13px/1.5 ui-monospace, monospace;
+	color: var(--on-surface);
+	background: var(--surface-container-high);
+	border: 1px solid var(--outline-variant);
+	border-radius: 8px;
+	resize: vertical;
+}
+
+.actions {
+	margin-top: 12px;
+}
+
+.errors {
+	margin: 12px 0 0;
+	padding-left: 1.2rem;
+	color: var(--error);
+}
+
+.prompt {
+	max-height: 32rem;
+	overflow: auto;
+	white-space: pre-wrap;
+	font-size: 12px;
+}
