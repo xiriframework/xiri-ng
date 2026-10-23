@@ -5,13 +5,24 @@ import { XiriPageHeaderComponent, XiriPageHeaderSettings } from 'projects/xiri-n
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
 import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcrumb.component';
 import { DemoPageComponent } from '../demo-page/demo-page.component';
-import { xiriOpenUiLibrary } from './openui-library';
+import { xiriOpenUiLibrary, xiriOpenUiPrompt } from './openui-library';
 
 const example = `root = Card("Support-Überblick", [open, closed, sla, chart], "Diese Woche", "support_agent")
 open = Stat("Offene Tickets", 12, null, "inbox", "warn")
 closed = Stat("Geschlossen", 48, null, "task_alt", "success")
 sla = Stat("SLA eingehalten", 96, " %", "timer")
 chart = BarChart(["Mo", "Di", "Mi", "Do", "Fr"], [9, 14, 11, 8, 6], "Neue Tickets pro Tag")`;
+
+const tokenKey = 'openui-bridge-token';
+const notRunning = 'Brücke nicht erreichbar: npm run openui-bridge starten (hivectl bg start openui-bridge).';
+
+function readToken(): string {
+	try {
+		return localStorage.getItem( tokenKey ) ?? '';
+	} catch {
+		return '';
+	}
+}
 
 @Component( {
 	selector: 'app-openui-demo',
@@ -37,17 +48,73 @@ export class OpenUiDemoComponent {
 	};
 
 	library = xiriOpenUiLibrary;
-	prompt = xiriOpenUiLibrary.prompt();
+	prompt = xiriOpenUiPrompt;
 
 	program = signal( example );
 	response = signal( example );
 	streaming = signal( false );
 	errors = signal<OpenUIError[]>( [] );
 
+	sectionClaude: XiriSectionSettings = {
+		title: 'Frag Claude', subtitle: 'Über die Brücke zu claude -p (npm run openui-bridge, Schlüssel steht im Log)', icon: 'smart_toy',
+	};
+	question = signal( '' );
+	token = signal( readToken() );
+	sessionId = signal<string | null>( null );
+	askStatus = signal( '' );
+
 	private timer?: ReturnType<typeof setInterval>;
+	private abort?: AbortController;
 
 	constructor() {
-		inject( DestroyRef ).onDestroy( () => clearInterval( this.timer ) );
+		inject( DestroyRef ).onDestroy( () => {
+			clearInterval( this.timer );
+			this.abort?.abort();
+		} );
+	}
+
+	setToken( value: string ): void {
+		this.token.set( value );
+		try {
+			localStorage.setItem( tokenKey, value );
+		} catch { /* ohne Storage nur für diese Sitzung */ }
+	}
+
+	async ask(): Promise<void> {
+		this.abort = new AbortController();
+		this.streaming.set( true );
+		this.askStatus.set( 'Claude schreibt …' );
+		try {
+			const res = await fetch( '/openui-bridge', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'X-Bridge-Token': this.token() },
+				body: JSON.stringify( { message: this.question(), sessionId: this.sessionId() } ),
+				signal: this.abort.signal,
+			} );
+			if ( !res.ok || !res.body ) {
+				this.askStatus.set( res.status === 401 ? 'Schlüssel fehlt oder ist falsch (steht im Log der Brücke).'
+					: res.status >= 502 ? notRunning : `Fehler ${ res.status }: ${ await res.text() }` );
+				return;
+			}
+			this.sessionId.set( res.headers.get( 'X-Session-Id' ) );
+			this.response.set( '' );
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			for ( let r = await reader.read(); !r.done; r = await reader.read() )
+				this.response.update( t => t + decoder.decode( r.value, { stream: true } ) );
+			this.program.set( this.response() );
+			this.question.set( '' );
+			this.askStatus.set( '' );
+		} catch ( e ) {
+			if ( ( e as Error ).name !== 'AbortError' )
+				this.askStatus.set( notRunning );
+		} finally {
+			this.streaming.set( false );
+		}
+	}
+
+	newConversation(): void {
+		this.sessionId.set( null );
 	}
 
 	edit( value: string ): void {

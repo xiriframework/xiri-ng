@@ -1,4 +1,5 @@
-.program {
+.program,
+.ask-input {
 	box-sizing: border-box;
 	width: 100%;
 	min-height: 16rem;
@@ -11,8 +12,33 @@
 	resize: vertical;
 }
 
+.ask-input {
+	min-height: 0;
+	font-family: inherit;
+	font-size: 14px;
+}
+
 .actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
 	margin-top: 12px;
+}
+
+.token {
+	width: 9rem;
+	padding: 8px 10px;
+	font: inherit;
+	color: var(--on-surface);
+	background: var(--surface-container-high);
+	border: 1px solid var(--outline-variant);
+	border-radius: 8px;
+}
+
+.ask-status {
+	margin: 12px 0 0;
+	color: var(--on-surface-variant);
 }
 
 .errors {

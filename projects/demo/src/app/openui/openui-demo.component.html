@@ -5,21 +5,44 @@
 		</div>
 
 		<div class="xcol xcol-lg-5">
-			<xiri-section [settings]="sectionProgram">
-				<textarea class="program" spellcheck="false" aria-label="OpenUI-Lang-Programm"
-				          [value]="program()" [readOnly]="streaming()"
-				          (input)="edit($any($event.target).value)"></textarea>
-				<div class="actions">
-					<button mat-flat-button class="stream" [disabled]="streaming()" (click)="stream()">Streamen</button>
-				</div>
-				@if (errors().length) {
-					<ul class="errors">
-						@for (e of errors(); track $index) {
-							<li><code>{{ e.code }}</code> {{ e.statementId }}: {{ e.message }}</li>
+			<div class="xrow">
+				<div class="xcol">
+					<xiri-section [settings]="sectionClaude">
+						<textarea class="ask-input" rows="3" aria-label="Frage an Claude" placeholder="z. B. Zeig die Umsätze der letzten 4 Quartale"
+						          [value]="question()" (input)="question.set($any($event.target).value)"
+						          (keydown.control.enter)="question().trim() && !streaming() && ask()"></textarea>
+						<div class="actions">
+							<input class="token" type="password" aria-label="Schlüssel der Brücke" placeholder="Schlüssel"
+							       autocomplete="off" [value]="token()" (input)="setToken($any($event.target).value)">
+							<button mat-flat-button class="ask" [disabled]="streaming() || !question().trim()" (click)="ask()">Senden</button>
+							@if (sessionId()) {
+								<button mat-button class="reset" [disabled]="streaming()" (click)="newConversation()">Neues Gespräch</button>
+							}
+						</div>
+						@if (askStatus()) {
+							<p class="ask-status">{{ askStatus() }}</p>
 						}
-					</ul>
-				}
-			</xiri-section>
+					</xiri-section>
+				</div>
+
+				<div class="xcol">
+					<xiri-section [settings]="sectionProgram">
+						<textarea class="program" spellcheck="false" aria-label="OpenUI-Lang-Programm"
+						          [value]="program()" [readOnly]="streaming()"
+						          (input)="edit($any($event.target).value)"></textarea>
+						<div class="actions">
+							<button mat-flat-button class="stream" [disabled]="streaming()" (click)="stream()">Streamen</button>
+						</div>
+						@if (errors().length) {
+							<ul class="errors">
+								@for (e of errors(); track $index) {
+									<li><code>{{ e.code }}</code> {{ e.statementId }}: {{ e.message }}</li>
+								}
+							</ul>
+						}
+					</xiri-section>
+				</div>
+			</div>
 		</div>
 
 		<div class="xcol xcol-lg-7">

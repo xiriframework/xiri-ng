@@ -16,7 +16,7 @@ const statProps = z.object( {
 	label: z.string().describe( 'Beschriftung unter dem Wert' ),
 	value: z.union( [ z.string(), z.number() ] ).describe( 'Kennzahl' ),
 	suffix: z.string().optional().describe( 'Einheit hinter dem Wert, z. B. " €"' ),
-	icon: z.string().optional().describe( 'Material-Symbol-Name, z. B. "payments"' ),
+	icon: z.string().optional().describe( 'Material-Symbol-Name mit Unterstrich, z. B. "trending_up"' ),
 	color: z.enum( colors ).optional().describe( 'Farbe des Werts' ),
 } );
 
@@ -72,7 +72,7 @@ const cardProps = z.object( {
 	title: z.string(),
 	children: z.array( z.union( [ Stat.ref, BarChart.ref ] ) ).describe( 'Inhalt; Stats stehen nebeneinander' ),
 	subtitle: z.string().optional(),
-	icon: z.string().optional().describe( 'Material-Symbol-Name' ),
+	icon: z.string().optional().describe( 'Material-Symbol-Name mit Unterstrich, z. B. "support_agent"' ),
 } );
 
 // Grid-Regeln erwarten direkte Kinder von .xrow: openui-render-node (display: contents) reicht dafür nicht,
@@ -114,3 +114,11 @@ const Card = defineComponent( {
 } );
 
 export const xiriOpenUiLibrary = createLibrary( { components: [ Card, Stat, BarChart ], root: 'Card' } );
+
+// Feldbeschreibungen (.describe) erscheinen nicht im Prompt; Regeln für Werte gehören hierher.
+export const xiriOpenUiPrompt = xiriOpenUiLibrary.prompt( {
+	additionalRules: [
+		'icon values are Material Symbols names in snake_case, e.g. "trending_up", "shopping_cart", "payments" (never kebab-case).',
+		'Write all visible texts in the language of the user\'s message.',
+	],
+} );

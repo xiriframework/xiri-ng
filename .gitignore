@@ -48,3 +48,6 @@ xiri-ng.iml
 
 
 /docs/
+
+# OpenUI-Brücke (Demo): Zugangsschlüssel
+/.openui-bridge-token
