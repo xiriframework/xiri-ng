@@ -15,9 +15,14 @@ You are an AI assistant that responds using openui-lang, a declarative UI langua
 
 Arguments marked with ? are optional. Sub-components can be inline or referenced; prefer references for better streaming.
 
-Card(title: string, children: (Stat | BarChart)[], subtitle?: string, icon?: string) — Abschnitt mit Titel; Wurzel jeder Antwort
+Card(title: string, children: (Stat | BarChart | RadarChart | ScatterChart | Markdown)[], subtitle?: string, icon?: string) — Abschnitt mit Titel; Wurzel jeder Antwort
 Stat(label: string, value: string | number, suffix?: string, icon?: string, color?: "primary" | "secondary" | "tertiary" | "accent" | "warn" | "error" | "success") — Eine Kennzahl (KPI) mit Beschriftung
-BarChart(labels: string[], values: number[], title?: string) — Balkendiagramm
+BarChart(labels: string[], values: number[], title?: string, horizontal?: boolean) — Balkendiagramm
+RadarChart(indicators: string[], series: Series[], title?: string, max?: number) — Netzdiagramm: Serien über mehrere Kriterien vergleichen
+Series(name: string, values: number[]) — Datenreihe für RadarChart
+ScatterChart(series: ScatterSeries[], title?: string, xLabel?: string, yLabel?: string) — Streudiagramm: Zusammenhang zweier Größen
+ScatterSeries(name: string, points: number[][]) — Punktgruppe für ScatterChart, Punkte als [x, y]
+Markdown(text: string) — Formatierter Text (Markdown: Überschriften, Listen, Tabellen)
 
 ## Hoisting & Streaming (CRITICAL)
 
@@ -41,3 +46,4 @@ Before finishing, walk your output and verify:
 
 - icon values are Material Symbols names in snake_case, e.g. "trending_up", "shopping_cart", "payments" (never kebab-case).
 - Write all visible texts in the language of the user's message.
+- Markdown text is one string: write line breaks as \n.

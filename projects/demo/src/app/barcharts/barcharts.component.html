@@ -271,5 +271,52 @@
 				</div>
 			</xiri-section>
 		</div>
+
+		<!-- 15: Liegende Balken -->
+		<div class="xcol">
+			<xiri-section [settings]="sectionHorizontal">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<xiri-barchart [settings]="horizontal"></xiri-barchart>
+					</div>
+					<div class="xcol-md-6">
+						<xiri-barchart mode="stacked" [settings]="horizontalStacked"></xiri-barchart>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goHorizontalCode" title="Go: barchart.New + Horizontal()"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+
+		<!-- 16: Radar -->
+		<div class="xcol xcol-lg-6">
+			<xiri-section [settings]="sectionRadar">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-radarchart [settings]="radar"></xiri-radarchart>
+					</div>
+					<div class="xcol">
+						<app-go-code [code]="goRadarCode" title="Go: radarchart.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+
+		<!-- 17: Streudiagramm -->
+		<div class="xcol xcol-lg-6">
+			<xiri-section [settings]="sectionScatter">
+				<div class="xrow">
+					<div class="xcol">
+						<xiri-scatterchart [settings]="scatter"></xiri-scatterchart>
+					</div>
+					<div class="xcol">
+						<app-go-code [code]="goScatterCode" title="Go: scatterchart.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
 	</div>
 </app-demo-page>

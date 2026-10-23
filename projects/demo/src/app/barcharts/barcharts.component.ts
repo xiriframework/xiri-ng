@@ -12,6 +12,8 @@ import { XiriTreeComponent, XiriTreeSettings } from 'projects/xiri-ng/src/lib/tr
 import { XiriSankeyComponent, XiriSankeySettings } from 'projects/xiri-ng/src/lib/sankey/sankey.component';
 import { XiriGanttComponent, XiriGanttSettings } from 'projects/xiri-ng/src/lib/gantt/gantt.component';
 import { XiriBulletChartComponent, XiriBulletChartSettings } from 'projects/xiri-ng/src/lib/bulletchart/bulletchart.component';
+import { XiriRadarChartComponent, XiriRadarChartSettings } from 'projects/xiri-ng/src/lib/radarchart/radarchart.component';
+import { XiriScatterChartComponent, XiriScatterChartSettings } from 'projects/xiri-ng/src/lib/scatterchart/scatterchart.component';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
 import { DemoPageComponent } from '../demo-page/demo-page.component';
 
@@ -33,6 +35,8 @@ import { DemoPageComponent } from '../demo-page/demo-page.component';
 		XiriSankeyComponent,
 		XiriGanttComponent,
 		XiriBulletChartComponent,
+		XiriRadarChartComponent,
+		XiriScatterChartComponent,
 		GoCodePanelComponent,
 	],
 })
@@ -46,7 +50,7 @@ export class BarChartsComponent {
 
 	pageHeaderIntro: XiriPageHeaderSettings = {
 		title: 'Charts',
-		subtitle: 'Bar, Line, Pie und Gauge charts — alle auf einer geteilten echarts-Basis (xiri-echarts-host).',
+		subtitle: 'Bar, Line, Pie, Gauge, Radar, Scatter und mehr — alle auf einer geteilten echarts-Basis (xiri-echarts-host).',
 		icon: 'insert_chart',
 		iconColor: 'primary',
 	};
@@ -702,4 +706,96 @@ g := gantt.New("project").Title("Project plan").
 	goBulletCode = `b := bulletchart.New("revenue").
     Title("Quartalsumsatz").Value(82).Target(90).Max(120).
     Color(core.ColorBlue).Label("Q3")`;
+
+	// --- Horizontal / Radar / Scatter ---
+
+	sectionHorizontal: XiriSectionSettings = {
+		title: '15: Liegende Balken',
+		subtitle: 'xiri-barchart mit horizontal: true. Für lange Beschriftungen und Ranglisten; gilt auch für stacked.',
+		icon: 'align_horizontal_left',
+		iconColor: 'primary',
+	};
+
+	horizontal: XiriBarChartSettings = {
+		title: 'Umsatz nach Filiale (Mio. €)',
+		horizontal: true,
+		showValues: true,
+		bars: [
+			{ label: 'Wien Mariahilfer Straße', value: 42 },
+			{ label: 'Graz Annenstraße', value: 31 },
+			{ label: 'Linz Landstraße', value: 27 },
+			{ label: 'Salzburg Getreidegasse', value: 18 },
+			{ label: 'Innsbruck Maria-Theresien-Straße', value: 12 },
+		],
+	};
+
+	horizontalStacked: XiriBarChartSettings = {
+		title: 'Tickets nach Team',
+		horizontal: true,
+		bars: [
+			{ label: 'Support', segments: [ { value: 12, color: 'success', name: 'Erledigt' }, { value: 4, color: 'warn', name: 'Offen' } ] },
+			{ label: 'Technik', segments: [ { value: 8, color: 'success', name: 'Erledigt' }, { value: 7, color: 'warn', name: 'Offen' } ] },
+			{ label: 'Vertrieb', segments: [ { value: 5, color: 'success', name: 'Erledigt' }, { value: 1, color: 'warn', name: 'Offen' } ] },
+		],
+	};
+
+	goHorizontalCode = `bc := barchart.New("ranking").Horizontal().ShowValues().
+    Bar("Wien Mariahilfer Straße", 42).
+    Bar("Graz Annenstraße", 31).
+    Bar("Linz Landstraße", 27)`;
+
+	sectionRadar: XiriSectionSettings = {
+		title: '16: Radar',
+		subtitle: 'xiri-radarchart: mehrere Serien über dieselben Kriterien vergleichen. area: true füllt die Flächen.',
+		icon: 'radar',
+		iconColor: 'accent',
+	};
+
+	radar: XiriRadarChartSettings = {
+		title: 'Produktvergleich',
+		area: true,
+		indicators: [
+			{ name: 'Tempo', max: 10 }, { name: 'Preis', max: 10 }, { name: 'Qualität', max: 10 },
+			{ name: 'Service', max: 10 }, { name: 'Design', max: 10 },
+		],
+		series: [
+			{ name: 'Modell A', values: [ 8, 4, 7, 6, 9 ], color: 'primary' },
+			{ name: 'Modell B', values: [ 5, 8, 6, 8, 5 ], color: 'tertiary' },
+		],
+	};
+
+	goRadarCode = `rc := radarchart.New("products").
+    Title("Produktvergleich").
+    Indicator("Tempo", 10).Indicator("Preis", 10).Indicator("Qualität", 10).
+    Series("Modell A", core.ColorPrimary, 8, 4, 7).
+    Series("Modell B", core.ColorTertiary, 5, 8, 6).
+    Area()`;
+
+	sectionScatter: XiriSectionSettings = {
+		title: '17: Streudiagramm',
+		subtitle: 'xiri-scatterchart: Zusammenhang zweier Größen. Achsen skalieren auf den Datenbereich, Tooltip zeigt den Punktnamen.',
+		icon: 'scatter_plot',
+		iconColor: 'primary',
+	};
+
+	scatter: XiriScatterChartSettings = {
+		title: 'Fläche und Umsatz',
+		xLabel: 'Fläche (m²)',
+		yLabel: 'Umsatz (Mio. €)',
+		series: [
+			{ name: 'Innenstadt', color: 'primary', points: [
+				{ x: 120, y: 4.2, name: 'Wien' }, { x: 95, y: 3.6, name: 'Graz' }, { x: 80, y: 3.1, name: 'Linz' }, { x: 140, y: 4.8, name: 'Salzburg' },
+			] },
+			{ name: 'Einkaufszentrum', color: 'tertiary', points: [
+				{ x: 210, y: 3.9, name: 'SCS' }, { x: 180, y: 3.2, name: 'Seiersberg' }, { x: 250, y: 4.4, name: 'Plus City' }, { x: 160, y: 2.6, name: 'DEZ' },
+			] },
+		],
+	};
+
+	goScatterCode = `sc := scatterchart.New("shops").
+    Title("Fläche und Umsatz").
+    Axes("Fläche (m²)", "Umsatz (Mio. €)").
+    Series("Innenstadt", core.ColorPrimary,
+        scatterchart.P(120, 4.2, "Wien"),
+        scatterchart.P(95, 3.6, "Graz"))`;
 }

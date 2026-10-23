@@ -80,6 +80,24 @@
 			</xiri-section>
 		</div>
 
+		<!-- Markdown -->
+		<div class="xcol">
+			<xiri-section [settings]="sectionMarkdown">
+				<div class="xrow">
+					<div class="xcol-md-6">
+						<mat-card class="mat-elevation-z2" style="padding: 16px;">
+							<xiri-markdown [settings]="markdown"></xiri-markdown>
+						</mat-card>
+					</div>
+				</div>
+				<div class="xrow">
+					<div class="xcol">
+						<app-go-code [code]="goMarkdownCode" title="Go: markdown.New"></app-go-code>
+					</div>
+				</div>
+			</xiri-section>
+		</div>
+
 		<!-- SafehtmlPipe -->
 		<div class="xcol">
 			<xiri-section [settings]="sectionSafeHtml">

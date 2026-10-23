@@ -6,6 +6,7 @@ import { XiriImagetextComponent, XiriImagetextSettings } from 'projects/xiri-ng/
 import { XiriLinksComponent, XiriLinksSettings } from 'projects/xiri-ng/src/lib/links/links.component';
 import { XiriListComponent, XiriListSettings } from 'projects/xiri-ng/src/lib/list/list.component';
 import { XiriCardlinkComponent, XiriCardlinkSettings } from 'projects/xiri-ng/src/lib/cardlink/cardlink.component';
+import { XiriMarkdownComponent, XiriMarkdownSettings } from 'projects/xiri-ng/src/lib/markdown/markdown.component';
 import { SafehtmlPipe } from 'projects/xiri-ng/src/lib/pipes/safehtml.pipe';
 import { MatCard } from '@angular/material/card';
 import { GoCodePanelComponent } from '../go-code-panel/go-code-panel.component';
@@ -25,6 +26,7 @@ import { DemoPageComponent } from '../demo-page/demo-page.component';
 		            XiriLinksComponent,
 		            XiriListComponent,
 		            XiriCardlinkComponent,
+		            XiriMarkdownComponent,
 		            SafehtmlPipe,
 		            MatCard,
 		            GoCodePanelComponent
@@ -78,6 +80,33 @@ export class DisplayComponent {
 		icon: 'grid_view',
 		iconColor: 'primary',
 	};
+
+	sectionMarkdown: XiriSectionSettings = {
+		title: 'Markdown',
+		subtitle: 'xiri-markdown: Überschriften, Listen, Tabellen, Code. Läuft durch den Sanitizer, passt also auch für Text von einem LLM.',
+		icon: 'markdown',
+		iconColor: 'primary',
+	};
+
+	markdown: XiriMarkdownSettings = {
+		text: `### Wochenbericht
+
+Diese Woche wurden **48 Tickets** geschlossen, *12* sind noch offen.
+
+- SLA zu 96 % eingehalten
+- Längste Wartezeit: \`3 h 20 min\`
+- Details im [Support-Überblick](/Overview)
+
+| Team | Offen | Erledigt |
+|---|---:|---:|
+| Support | 4 | 21 |
+| Technik | 7 | 18 |
+
+> Hinweis: Skripte und \`onerror\`-Attribute werden entfernt. <img src="x" onerror="alert(1)">`,
+	};
+
+	goMarkdownCode = `md := markdown.New("### Wochenbericht\\n\\nDiese Woche wurden **48 Tickets** geschlossen.").
+    WithDisplay("xcol-md-6")`;
 
 	sectionSafeHtml: XiriSectionSettings = {
 		title: 'SafehtmlPipe',

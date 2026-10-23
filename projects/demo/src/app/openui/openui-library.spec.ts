@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { OpenUiRendererComponent, OpenUIError } from '@openuidev/angular-lang';
 import { XiriBarChartComponent } from 'projects/xiri-ng/src/lib/barchart/barchart.component';
+import { XiriRadarChartComponent } from 'projects/xiri-ng/src/lib/radarchart/radarchart.component';
+import { XiriScatterChartComponent } from 'projects/xiri-ng/src/lib/scatterchart/scatterchart.component';
 import { xiriOpenUiLibrary } from './openui-library';
 
 const program = `root = Card("Umsatz", [s1, chart], "Letzte 3 Monate", "payments")
@@ -51,6 +53,50 @@ describe( 'xiri OpenUI library', () => {
 		expect( chart.settings().bars ).toEqual( [ { label: 'Jan', value: 12 }, { label: 'Feb', value: 15 } ] );
 	} );
 
+	it( 'lays bars on their side with horizontal = true', async () => {
+		const { fixture } = await render( 'root = Card("R", [chart])\nchart = BarChart(["Wien", "Graz"], [3, 2], "Filialen", true)' );
+
+		const chart = fixture.debugElement.query( By.directive( XiriBarChartComponent ) ).componentInstance as XiriBarChartComponent;
+		expect( chart.settings() ).toMatchObject( { title: 'Filialen', horizontal: true } );
+	} );
+
+	it( 'renders RadarChart with Series children', async () => {
+		const { fixture, errors } = await render( `root = Card("Vergleich", [radar])
+radar = RadarChart(["Tempo", "Preis"], [a, b], "Produkte", 10)
+a = Series("Modell A", [8, 3])
+b = Series("Modell B", [5, 6])` );
+
+		const chart = fixture.debugElement.query( By.directive( XiriRadarChartComponent ) ).componentInstance as XiriRadarChartComponent;
+		expect( chart.settings() ).toEqual( {
+			title: 'Produkte', area: true,
+			indicators: [ { name: 'Tempo', max: 10 }, { name: 'Preis', max: 10 } ],
+			series: [ { name: 'Modell A', values: [ 8, 3 ] }, { name: 'Modell B', values: [ 5, 6 ] } ],
+		} );
+		expect( errors.flat() ).toEqual( [] );
+	} );
+
+	it( 'renders ScatterChart with ScatterSeries of [x, y] points', async () => {
+		const { fixture, errors } = await render( `root = Card("Filialen", [sc])
+sc = ScatterChart([s], "Fläche und Umsatz", "Fläche", "Umsatz")
+s = ScatterSeries("Innenstadt", [[120, 4.2], [80, 3.1]])` );
+
+		const chart = fixture.debugElement.query( By.directive( XiriScatterChartComponent ) ).componentInstance as XiriScatterChartComponent;
+		expect( chart.settings() ).toEqual( {
+			title: 'Fläche und Umsatz', xLabel: 'Fläche', yLabel: 'Umsatz',
+			series: [ { name: 'Innenstadt', points: [ { x: 120, y: 4.2 }, { x: 80, y: 3.1 } ] } ],
+		} );
+		expect( errors.flat() ).toEqual( [] );
+	} );
+
+	it( 'renders Markdown as sanitized HTML', async () => {
+		const { el, fixture } = await render( 'root = Card("Text", [md])\nmd = Markdown("## Hallo\\n\\n- **eins**")' );
+		await vi.waitFor( () => { // marked wird lazy geladen
+			fixture.detectChanges();
+			expect( el.querySelector( 'xiri-markdown h2' )?.textContent ).toBe( 'Hallo' );
+		} );
+		expect( el.querySelector( 'xiri-markdown li strong' )?.textContent ).toBe( 'eins' );
+	} );
+
 	it( 'renders a half-streamed program without the missing children', async () => {
 		const { el } = await render( 'root = Card("Umsatz", [s1, chart])\ns1 = Stat("Bestellungen", 128, " St', true );
 
@@ -65,5 +111,8 @@ describe( 'xiri OpenUI library', () => {
 		expect( prompt ).toContain( 'Card(' );
 		expect( prompt ).toContain( 'Stat(' );
 		expect( prompt ).toContain( 'BarChart(' );
+		expect( prompt ).toContain( 'RadarChart(' );
+		expect( prompt ).toContain( 'ScatterChart(' );
+		expect( prompt ).toContain( 'Markdown(' );
 	} );
 } );
