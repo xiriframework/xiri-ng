@@ -89,4 +89,23 @@ describe( 'OpenUI demo: Frag Claude', () => {
 		await waitFor( fixture, () => status().includes( 'npm run openui-bridge' ) );
 		expect( el.querySelector( 'openui-renderer xiri-section h2' )?.textContent ).toBe( 'Support-Überblick' );
 	} );
+
+	it( 'übernimmt eine abgebrochene Antwort nicht ins Programm', async () => {
+		const body = new ReadableStream<Uint8Array>( {
+			start( c ) {
+				c.enqueue( new TextEncoder().encode( 'root = Card("Halb' ) );
+				c.error( new TypeError( 'network error' ) );
+			},
+		} );
+		vi.spyOn( globalThis, 'fetch' ).mockResolvedValueOnce( new Response( body, { headers: { 'X-Session-Id': session } } ) );
+		const fixture = await renderDemo( '/OpenUI' );
+		const el = fixture.nativeElement as HTMLElement;
+
+		type( el, 'textarea.ask-input', 'hi' );
+		await fixture.whenStable();
+		( el.querySelector( 'button.ask' ) as HTMLButtonElement ).click();
+		await waitFor( fixture, () => ( el.querySelector( '.ask-status' )?.textContent ?? '' ).includes( 'abgebrochen' ) );
+		expect( ( el.querySelector( 'textarea.program' ) as HTMLTextAreaElement ).value ).toContain( 'Support-Überblick' );
+		expect( ( el.querySelector( 'textarea.ask-input' ) as HTMLTextAreaElement ).value ).toBe( 'hi' );
+	} );
 } );

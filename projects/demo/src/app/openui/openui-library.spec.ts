@@ -44,6 +44,13 @@ describe( 'xiri OpenUI library', () => {
 		expect( errors.flat() ).toEqual( [] );
 	} );
 
+	it( 'draws only bars that have both label and value', async () => {
+		const { fixture } = await render( 'root = Card("Umsatz", [chart])\nchart = BarChart(["Jan", "Feb", "Mär"], [12, 15])' );
+
+		const chart = fixture.debugElement.query( By.directive( XiriBarChartComponent ) ).componentInstance as XiriBarChartComponent;
+		expect( chart.settings().bars ).toEqual( [ { label: 'Jan', value: 12 }, { label: 'Feb', value: 15 } ] );
+	} );
+
 	it( 'renders a half-streamed program without the missing children', async () => {
 		const { el } = await render( 'root = Card("Umsatz", [s1, chart])\ns1 = Stat("Bestellungen", 128, " St', true );
 

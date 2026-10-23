@@ -57,7 +57,8 @@ class OpenUiBarChartComponent {
 	settings = computed<XiriBarChartSettings>( () => {
 		const p = this.props();
 		const values = p?.values ?? [];
-		return { title: p?.title, bars: ( p?.labels ?? [] ).map( ( label, i ) => ( { label, value: values[ i ] } ) ) };
+		// Nur vollständige Paare: beim Streamen oder bei ungleich langen Listen fehlt sonst der Wert.
+		return { title: p?.title, bars: ( p?.labels ?? [] ).slice( 0, values.length ).map( ( label, i ) => ( { label, value: values[ i ] } ) ) };
 	} );
 }
 

@@ -84,6 +84,7 @@ export class OpenUiDemoComponent {
 		this.abort = new AbortController();
 		this.streaming.set( true );
 		this.askStatus.set( 'Claude schreibt …' );
+		let answered = false;
 		try {
 			const res = await fetch( '/openui-bridge', {
 				method: 'POST',
@@ -98,6 +99,7 @@ export class OpenUiDemoComponent {
 					: text ? `Fehler ${ res.status }: ${ text }` : notRunning );
 				return;
 			}
+			answered = true;
 			this.sessionId.set( res.headers.get( 'X-Session-Id' ) );
 			this.response.set( '' );
 			const reader = res.body.getReader();
@@ -109,7 +111,7 @@ export class OpenUiDemoComponent {
 			this.askStatus.set( '' );
 		} catch ( e ) {
 			if ( ( e as Error ).name !== 'AbortError' )
-				this.askStatus.set( notRunning );
+				this.askStatus.set( answered ? 'Antwort abgebrochen (Details im Log der Brücke).' : notRunning );
 		} finally {
 			this.streaming.set( false );
 		}

@@ -3,10 +3,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import http from 'node:http';
 import { join } from 'node:path';
 import { createBridge } from './openui-bridge.mjs';
 
-// Fake-claude: liest die Nachricht von stdin und streamt Argumente + Nachricht als zwei text_delta-Stücke zurück. "FAIL" endet mit Fehler, "SLOW" wartet.
+// Fake-claude: liest die Nachricht von stdin und streamt Argumente + Nachricht als zwei text_delta-Stücke zurück.
+// "FAIL" endet mit Fehler, "BREAK" nach dem ersten Stück, "SLOW" wartet.
 const dir = mkdtempSync( join( tmpdir(), 'openui-bridge-' ) );
 const fake = join( dir, 'claude' );
 writeFileSync( fake, `#!/usr/bin/env node
@@ -16,6 +18,7 @@ process.stdin.on( 'data', d => msg += d );
 process.stdin.on( 'end', () => {
 	if ( msg === 'FAIL' ) { process.stderr.write( 'kaputt' ); process.exit( 1 ); }
 	const delta = text => console.log( JSON.stringify( { type: 'stream_event', event: { type: 'content_block_delta', delta: { type: 'text_delta', text } } } ) );
+	if ( msg === 'BREAK' ) { delta( 'root = Card(' ); setTimeout( () => process.exit( 1 ), 50 ); return; }
 	console.log( JSON.stringify( { type: 'system', subtype: 'init' } ) );
 	const text = JSON.stringify( { args, msg, cwd: process.cwd() } );
 	setTimeout( () => {
@@ -102,4 +105,24 @@ test( 'Fehler von claude ohne Text wird 502, stderr bleibt im Server-Log', () =>
 	const res = await post( url, { message: 'FAIL' } );
 	assert.equal( res.status, 502 );
 	assert.doesNotMatch( await res.text(), /kaputt/ );
+} ) );
+
+test( 'bricht claude nach dem ersten Text ab, bricht auch der Stream ab', () => withBridge( async url => {
+	const res = await post( url, { message: 'BREAK' } );
+	assert.equal( res.status, 200 );
+	await assert.rejects( res.text() );
+} ) );
+
+test( 'Umlaut über zwei Netzwerk-Stücke verteilt kommt heil an', () => withBridge( async url => {
+	const body = Buffer.from( JSON.stringify( { message: 'Grüße' } ) );
+	const cut = body.indexOf( Buffer.from( 'ü' ) ) + 1;
+	const text = await new Promise( ( resolve, reject ) => {
+		const req = http.request( url, { method: 'POST', headers: { 'X-Bridge-Token': 'geheim' } }, res => {
+			let t = '';
+			res.setEncoding( 'utf8' ).on( 'data', d => t += d ).on( 'end', () => resolve( t ) );
+		} ).on( 'error', reject );
+		req.write( body.subarray( 0, cut ) );
+		setTimeout( () => req.end( body.subarray( cut ) ), 50 );
+	} );
+	assert.equal( JSON.parse( text ).msg, 'Grüße' );
 } ) );

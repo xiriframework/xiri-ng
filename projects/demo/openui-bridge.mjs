@@ -32,6 +32,7 @@ export function createBridge( { claudeBin = 'claude', token, promptFile } ) {
 		let body;
 		try {
 			let raw = '';
+			req.setEncoding( 'utf8' );
 			for await ( const chunk of req ) {
 				raw += chunk;
 				if ( raw.length > 10 * MAX_MESSAGE ) return fail( 413, 'zu groß' );
@@ -82,8 +83,10 @@ export function createBridge( { claudeBin = 'claude', token, promptFile } ) {
 		child.on( 'close', code => {
 			clearTimeout( timer );
 			busy = false;
-			if ( res.headersSent ) return res.end();
-			console.error( `claude ohne Antwort beendet (Code ${ code }): ${ stderr }` );
+			if ( res.headersSent && code === 0 ) return res.end();
+			console.error( `claude abgebrochen (Code ${ code }): ${ stderr }` );
+			// Halber Stream: abbrechen statt sauber beenden, sonst hält der Browser die Antwort für vollständig.
+			if ( res.headersSent ) return res.destroy();
 			fail( 502, 'Claude hat nicht geantwortet (Details im Log der Brücke)' );
 		} );
 	} );
