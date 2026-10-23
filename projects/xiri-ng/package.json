@@ -34,10 +34,14 @@
 		"material-symbols": ">=0.44",
 		"ngx-mat-select-search": "^9.0.0",
 		"rxjs": "^7.8.2",
-		"echarts": "^6.1"
+		"echarts": "^6.1",
+		"marked": "^18.1"
 	},
 	"peerDependenciesMeta": {
 		"echarts": {
+			"optional": true
+		},
+		"marked": {
 			"optional": true
 		}
 	},

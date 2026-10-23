@@ -41,6 +41,7 @@ export interface XiriBarChartSettings {
 	showValues?: boolean;                  // show value/text labels on bars
 	labelPosition?: 'top' | 'inside';      // default 'top'
 	xLabelRotate?: number;                 // rotate x-axis labels by degrees (-90..90), 90 = vertical
+	horizontal?: boolean;                  // bars run left to right, categories on the y axis (simple + stacked)
 }
 
 @Component( {
@@ -68,8 +69,12 @@ export class XiriBarChartComponent {
 	// Rotierte X-Achsen-Labels brauchen vertikalen Platz. Bei fixer 200px-Höhe würden
 	// lange, schräg/vertikal gestellte Labels sonst unten abgeschnitten.
 	chartHeight = computed<string>( () => {
+		const s = this.settings();
+		// Liegende Balken: die Höhe wächst mit der Zahl der Kategorien, sonst werden die Balken zu dünn.
+		if ( s.horizontal && this.mode() !== 'heatmap' )
+			return `${ Math.max( 200, ( s.bars?.length ?? 0 ) * 32 + 40 ) }px`;
 		if ( this.compact() ) return '200px';
-		const rot = Math.abs( this.settings().xLabelRotate ?? 0 );
+		const rot = Math.abs( s.xLabelRotate ?? 0 );
 		if ( rot >= 60 ) return '280px';
 		if ( rot >= 30 ) return '250px';
 		return '200px';
@@ -90,9 +95,9 @@ export class XiriBarChartComponent {
 	option = computed( () => {
 		const m = this.mode();
 		switch ( m ) {
-			case 'stacked': return this.stackedOption();
+			case 'stacked': return this.orient( this.stackedOption() );
 			case 'heatmap': return this.heatmapOption();
-			default:        return this.simpleOption();
+			default:        return this.orient( this.simpleOption() );
 		}
 	} );
 
@@ -115,6 +120,23 @@ export class XiriBarChartComponent {
 		const s = this.settings();
 		const topLabels = !!s.showValues && s.labelPosition !== 'inside';
 		return { left: 32, right: 16, top: topLabels ? 34 : 24, bottom: 24, containLabel: true };
+	}
+
+	// Liegende Balken: Achsen tauschen, erste Kategorie oben, Wert-Labels rechts statt oben.
+	private orient<T extends { grid: object, xAxis: object, yAxis: object, series: unknown }>( opt: T ): T {
+		if ( !this.settings().horizontal ) return opt;
+		const series = ( opt.series as { label: { position: string }, itemStyle?: { borderRadius?: number[] } }[] ).map( x => ( {
+			...x,
+			label: { ...x.label, position: x.label.position === 'top' ? 'right' : x.label.position },
+			itemStyle: x.itemStyle?.borderRadius ? { ...x.itemStyle, borderRadius: [ 0, 3, 3, 0 ] } : x.itemStyle,
+		} ) );
+		return {
+			...opt,
+			grid: { ...opt.grid, top: this.compact() ? 4 : 8, right: this.settings().showValues ? 40 : 16 },
+			xAxis: opt.yAxis,
+			yAxis: { ...opt.xAxis, inverse: true, axisLabel: {} },
+			series,
+		};
 	}
 
 	private simpleOption() {

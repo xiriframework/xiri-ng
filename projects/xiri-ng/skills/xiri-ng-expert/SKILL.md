@@ -398,6 +398,10 @@ stepperSettings = {
                                             segments: [{ value: 2, color: 'green', name: 'Low strain' }, ...] }] }"/>
 <xiri-barchart mode="heatmap" [settings]="{ points: [{ time: 1700000000000, value: 1, name: 'Repeat #1' }, ...] }"/>
 <!-- echarts ist optional peerDependency: nur installieren wenn xiri-barchart genutzt wird -->
+<xiri-barchart [settings]="{ bars: [...], horizontal: true }"/>   <!-- liegende Balken -->
+<xiri-radarchart [settings]="{ indicators: [{ name: 'Tempo', max: 10 }], series: [{ name: 'A', values: [8] }] }"/>
+<xiri-scatterchart [settings]="{ series: [{ name: 'S', points: [{ x: 1, y: 2 }] }], xLabel: 'x', yLabel: 'y' }"/>
+<xiri-markdown [settings]="{ text: '## Titel' }"/>   <!-- marked ist optional peerDependency, Ausgabe sanitized -->
 <xiri-description-list [settings]="{ items: [...], columns: 2, layout: 'horizontal' }"/>
 <xiri-list [settings]="{ sections: [...] }"/>
 <xiri-infopoint [settings]="{ text: 'Info', info: 'Detail', icon: 'info', iconColor: 'primary' }"/>

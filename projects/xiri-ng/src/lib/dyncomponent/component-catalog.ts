@@ -40,6 +40,7 @@ export const COMPONENT_CATALOG: readonly XiriCatalogEntry[] = [
 	{ type: 'infopoint', name: 'Infopoint', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'infopoint', 'info', 'detail', 'label' ] },
 	{ type: 'imagetext', name: 'Image Text', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'imagetext', 'image', 'bild', 'media' ] },
 	{ type: 'infotext', name: 'Info Text', category: 'Data Display', angular: false, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'infotext', 'text', 'hinweis' ] },
+	{ type: 'markdown', name: 'Markdown', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'markdown', 'text', 'formatiert', 'llm' ] },
 	{ type: 'html', name: 'HTML', category: 'Data Display', angular: false, dyncomponent: true, goBuilder: true, route: '/Display', keywords: [ 'html', 'raw', 'markup' ] },
 	{ type: 'stat', name: 'Stat', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Stats', keywords: [ 'stat', 'kpi', 'metric', 'kennzahl' ] },
 	{ type: 'stat-grid', name: 'Stat Grid', category: 'Data Display', angular: true, dyncomponent: true, goBuilder: true, route: '/Stats', keywords: [ 'stat-grid', 'stat', 'kpi', 'grid', 'dashboard' ] },
@@ -81,5 +82,7 @@ export const COMPONENT_CATALOG: readonly XiriCatalogEntry[] = [
 	{ type: 'calendar', name: 'Calendar', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'calendar', 'kalender', 'heatmap', 'chart' ] },
 	{ type: 'tree', name: 'Tree', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'tree', 'baum', 'hierarchy', 'chart' ] },
 	{ type: 'sankey', name: 'Sankey', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'sankey', 'flow', 'fluss', 'chart' ] },
+	{ type: 'radarchart', name: 'Radar Chart', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'radarchart', 'radar', 'spider', 'netz', 'chart' ] },
+	{ type: 'scatterchart', name: 'Scatter Chart', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'scatterchart', 'scatter', 'streu', 'punkte', 'korrelation', 'chart' ] },
 	{ type: 'gantt', name: 'Gantt', category: 'Charts & Visualization', angular: true, dyncomponent: true, goBuilder: true, route: '/BarCharts', keywords: [ 'gantt', 'timeline', 'projekt', 'chart' ] },
 ];

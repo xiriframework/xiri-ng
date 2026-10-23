@@ -34,6 +34,9 @@ import { XiriDescriptionListComponent } from '../description-list/description-li
 import { XiriBarChartComponent } from '../barchart/barchart.component';
 import { XiriLineChartComponent } from '../linechart/linechart.component';
 import { XiriPieChartComponent } from '../piechart/piechart.component';
+import { XiriRadarChartComponent } from '../radarchart/radarchart.component';
+import { XiriScatterChartComponent } from '../scatterchart/scatterchart.component';
+import { XiriMarkdownComponent } from '../markdown/markdown.component';
 import { XiriGaugeChartComponent } from '../gaugechart/gaugechart.component';
 import { XiriBulletChartComponent } from '../bulletchart/bulletchart.component';
 import { XiriHeatmapComponent } from '../heatmap/heatmap.component';
@@ -89,6 +92,9 @@ import { XiriCalloutComponent } from '../callout/callout.component';
 	                       XiriBarChartComponent,
 	                       XiriLineChartComponent,
 	                       XiriPieChartComponent,
+	                       XiriRadarChartComponent,
+	                       XiriScatterChartComponent,
+	                       XiriMarkdownComponent,
 	                       XiriGaugeChartComponent,
 	                       XiriBulletChartComponent,
 	                       XiriHeatmapComponent,

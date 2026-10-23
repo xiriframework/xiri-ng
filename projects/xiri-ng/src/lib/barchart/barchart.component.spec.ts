@@ -28,4 +28,21 @@ describe( 'XiriBarChartComponent', () => {
 		const opt = make( { bars: [ { label: 'A', value: 1 } ], showValues: true } ).option() as { grid: { top: number } };
 		expect( opt.grid.top ).toBeGreaterThan( 24 );
 	} );
+
+	it( 'legt die Balken mit horizontal quer: Kategorien auf der y-Achse, erster Balken oben', () => {
+		const bars = [ { label: 'A', value: 1 }, { label: 'B', value: 2 } ];
+		for ( const mode of [ 'simple', 'stacked' ] ) {
+			const opt = make( { bars, horizontal: true }, mode ).option() as unknown as {
+				xAxis: { type: string }, yAxis: { type: string, data: string[], inverse: boolean }
+			};
+			expect( opt.xAxis.type ).toBe( 'value' );
+			expect( opt.yAxis ).toMatchObject( { type: 'category', data: [ 'A', 'B' ], inverse: true } );
+		}
+	} );
+
+	it( 'macht liegende Balken mit vielen Kategorien höher', () => {
+		const bars = Array.from( { length: 10 }, ( _, i ) => ( { label: '' + i, value: i } ) );
+		expect( make( { bars, horizontal: true } ).chartHeight() ).toBe( '360px' );
+		expect( make( { bars: bars.slice( 0, 3 ), horizontal: true } ).chartHeight() ).toBe( '200px' );
+	} );
 } );

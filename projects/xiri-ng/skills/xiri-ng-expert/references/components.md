@@ -928,6 +928,7 @@ interface XiriBarChartSettings {
   showValues?: boolean;               // Wert/Text-Label auf den Balken anzeigen
   labelPosition?: 'top' | 'inside';   // Default 'top' (über), 'inside' (im Balken)
   xLabelRotate?: number;              // X-Achsen-Labels um N Grad drehen (-90..90), 90 = vertikal
+  horizontal?: boolean;               // liegende Balken (simple + stacked), Kategorien auf der y-Achse
 }
 
 interface XiriBarChartBar {
@@ -964,6 +965,8 @@ interface XiriBarChartPoint {
 **Wert-/Text-Labels:** `showValues: true` zeigt pro Balken ein Label (ECharts `series.label`). Default ist der `value`; `bar.text` überschreibt ihn (z. B. "8h"). `labelPosition` steuert oben (`'top'`, Default) vs. innen (`'inside'`, weißer Text). Bei `stacked` wird jedes Segment mit seinem Wert beschriftet (immer innen); `heatmap` ignoriert Labels. Backend: `barchart.New(...).ShowValues().WithLabelPosition(barchart.LabelPositionInside).Bar("M", 3).LabelText("3h")`.
 
 **X-Achsen-Label-Rotation:** `xLabelRotate` dreht die Kategorie-Beschriftung der X-Achse um N Grad (-90..90; `90` = vertikal, `60`/`45` = schräg) — für schmale Bars mit langen Labels. Intern setzt der Component `axisLabel: { rotate: N, interval: 0 }`; das `interval: 0` erzwingt die Anzeige **aller** Labels (ECharts dünnt sonst bei engen Achsen aus). Gilt für `simple` + `stacked` (in `heatmap`-Mode = Zeitachse → ignoriert). Dasselbe Feld existiert auf `XiriLineChartSettings` und `XiriHeatmapSettings` (dort dreht es die Spalten-Labels). Backend: `barchart.New(...).XLabelRotate(60)`.
+
+**Liegende Balken:** `horizontal: true` tauscht die Achsen (gilt für `simple` + `stacked`, `heatmap` ignoriert es). Die erste Kategorie steht oben, Wert-Labels stehen rechts statt oben, die Höhe wächst mit der Zahl der Balken (32px je Balken, mindestens 200px). Gut für lange Beschriftungen oder Ranglisten. Backend: `barchart.New(...).Horizontal()`.
 
 **Im dyncomponent:** `{ type: 'barchart', mode: 'stacked', data: XiriBarChartSettings }`.
 
@@ -1018,6 +1021,65 @@ interface XiriPieChartSlice {
 ```
 
 Im dyncomponent: `{ type: 'piechart', data: XiriPieChartSettings }`.
+
+### xiri-radarchart
+
+```typescript
+@input.required settings: XiriRadarChartSettings;
+
+interface XiriRadarChartSettings {
+  title?: string;
+  indicators: XiriRadarChartIndicator[];   // Achsen des Netzes
+  series: XiriRadarChartSeries[];
+  area?: boolean;                          // Flächen füllen
+  compact?: boolean;
+}
+
+interface XiriRadarChartIndicator {
+  name: string;
+  max?: number;                // ohne max skaliert echarts die Achse selbst
+}
+
+interface XiriRadarChartSeries {
+  name: string;
+  values: number[];            // ein Wert je Indikator, gleiche Reihenfolge
+  color?: XiriColor;
+}
+```
+
+Vergleicht mehrere Objekte über mehrere Kriterien (z. B. Produkte nach Preis, Tempo, Qualität). Ab zwei Serien erscheint eine Legende. Backend: `radarchart.New(...).Indicator("Tempo", 10).Series("A", core.ColorBlue, 8, 3)`.
+
+Im dyncomponent: `{ type: 'radarchart', data: XiriRadarChartSettings }`.
+
+### xiri-scatterchart
+
+```typescript
+@input.required settings: XiriScatterChartSettings;
+
+interface XiriScatterChartSettings {
+  title?: string;
+  series: XiriScatterChartSeries[];
+  xLabel?: string;             // Achsentitel
+  yLabel?: string;
+  compact?: boolean;
+}
+
+interface XiriScatterChartSeries {
+  name: string;
+  points: XiriScatterChartPoint[];
+  color?: XiriColor;
+}
+
+interface XiriScatterChartPoint {
+  x: number;
+  y: number;
+  name?: string;               // erscheint im Tooltip
+}
+```
+
+Streudiagramm für Zusammenhänge zweier Größen. Beide Achsen skalieren auf den Datenbereich (`scale: true`), nicht ab 0. Backend: `scatterchart.New(...).Axes("Fläche", "Umsatz").Series("Filialen", core.ColorBlue, scatterchart.P(120, 4.2, "Wien"))`.
+
+Im dyncomponent: `{ type: 'scatterchart', data: XiriScatterChartSettings }`.
 
 ### xiri-gaugechart
 
@@ -1146,6 +1208,20 @@ interface XiriGanttTask {
 ```
 
 Im dyncomponent: `{ type: 'gantt', data: XiriGanttSettings }`.
+
+### xiri-markdown
+
+```typescript
+@input.required settings: XiriMarkdownSettings;
+
+interface XiriMarkdownSettings {
+  text: string;                // Markdown (GitHub-Variante: Tabellen, Listen, Code)
+}
+```
+
+Rendert Markdown mit `marked`, einer optionalen `peerDependency` wie `echarts`: nur installieren, wenn `xiri-markdown` genutzt wird; sie wird lazy geladen. Das HTML läuft durch Angulars Sanitizer (kein `safeHtml`), Skripte, Event-Handler und `javascript:`-Links fallen weg. Damit passt es für Text von Nutzern oder einem LLM. Für vertrauenswürdiges HTML gibt es `type: 'html'`. Backend: `markdown.New("## Titel\n\n- Punkt")`.
+
+Im dyncomponent: `{ type: 'markdown', data: XiriMarkdownSettings }`.
 
 ### xiri-echarts-host (geteilte Basis)
 

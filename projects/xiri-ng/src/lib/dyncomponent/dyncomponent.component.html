@@ -111,6 +111,11 @@
 				}
 			</div>
 		}
+		@case ('markdown') {
+			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-markdown [settings]="$any(obj.data)"></xiri-markdown> }
+			</div>
+		}
 		@case ('html') {
 			<div [class]="resolveClass(obj, 'xcol')" [class.xcol-start]="obj.newRow">
 				<div class="html" [innerHtml]="$any(obj.data).html | safeHtml"></div>
@@ -194,6 +199,16 @@
 		@case ('piechart') {
 			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
 				@defer { <xiri-piechart [settings]="$any(obj.data)"></xiri-piechart> }
+			</div>
+		}
+		@case ('radarchart') {
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-radarchart [settings]="$any(obj.data)"></xiri-radarchart> }
+			</div>
+		}
+		@case ('scatterchart') {
+			<div [class]="resolveClass(obj, 'xcol xcol-md-6 xcol-xl-3')" [class.xcol-start]="obj.newRow">
+				@defer { <xiri-scatterchart [settings]="$any(obj.data)"></xiri-scatterchart> }
 			</div>
 		}
 		@case ('gaugechart') {

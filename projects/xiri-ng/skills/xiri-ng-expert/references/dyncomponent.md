@@ -82,6 +82,9 @@ Renderer kennt und welche davon xiri-go ausgibt (`goBuilder`; Gegenstück `core.
 | `tree`              | `xiri-tree`            | `XiriTreeSettings`                   |
 | `sankey`            | `xiri-sankey`          | `XiriSankeySettings`                 |
 | `gantt`             | `xiri-gantt`           | `XiriGanttSettings`                  |
+| `radarchart`        | `xiri-radarchart`      | `XiriRadarChartSettings`             |
+| `scatterchart`      | `xiri-scatterchart`    | `XiriScatterChartSettings`           |
+| `markdown`          | `xiri-markdown`        | `XiriMarkdownSettings` (sanitized)   |
 | `spacer`            | vertical spacer div    | `{ size?: string }`                  |
 | `container`         | wrapper div            | `{ components: XiriDynData[] }`      |
 | `infotext`          | Text-Absatz            | `{ text: string, html?: boolean }`   |
