@@ -50,15 +50,18 @@ export function createBridge( { claudeBin = 'claude', token, promptFile } ) {
 
 		busy = true;
 		const id = sessionId ?? randomUUID();
+		// Die Nachricht geht über stdin, nie ins argv: claude würde "--settings=…" sonst als Option lesen.
 		// --tools "": das Modell kann auf dem Server nichts ausführen. --setting-sources "": keine Hooks/Plugins des
 		// Nutzers. cwd = tmpdir: keine Projekt-CLAUDE.md im Kontext. (--bare scheitert mit OAuth-Login.)
 		const child = spawn( claudeBin, [
-			'-p', message,
+			'-p',
 			'--output-format', 'stream-json', '--include-partial-messages', '--verbose',
 			'--tools', '', '--setting-sources', '',
 			'--system-prompt-file', promptFile,
 			...( sessionId ? [ '--resume', id ] : [ '--session-id', id ] ),
-		], { cwd: tmpdir(), stdio: [ 'ignore', 'pipe', 'pipe' ] } );
+		], { cwd: tmpdir(), stdio: [ 'pipe', 'pipe', 'pipe' ] } );
+		child.stdin.on( 'error', () => undefined ); // claude schon beendet: close meldet den Fehler
+		child.stdin.end( message );
 
 		let stderr = '';
 		child.stderr.on( 'data', d => stderr = ( stderr + d ).slice( -2000 ) );
@@ -80,7 +83,8 @@ export function createBridge( { claudeBin = 'claude', token, promptFile } ) {
 			clearTimeout( timer );
 			busy = false;
 			if ( res.headersSent ) return res.end();
-			fail( 502, `claude ohne Antwort beendet (Code ${ code }): ${ stderr }` );
+			console.error( `claude ohne Antwort beendet (Code ${ code }): ${ stderr }` );
+			fail( 502, 'Claude hat nicht geantwortet (Details im Log der Brücke)' );
 		} );
 	} );
 }

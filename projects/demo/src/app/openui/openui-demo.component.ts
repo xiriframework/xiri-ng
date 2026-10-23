@@ -92,8 +92,10 @@ export class OpenUiDemoComponent {
 				signal: this.abort.signal,
 			} );
 			if ( !res.ok || !res.body ) {
+				// Ohne Text kommt der Fehler vom Dev-Server-Proxy: die Brücke läuft nicht.
+				const text = await res.text();
 				this.askStatus.set( res.status === 401 ? 'Schlüssel fehlt oder ist falsch (steht im Log der Brücke).'
-					: res.status >= 502 ? notRunning : `Fehler ${ res.status }: ${ await res.text() }` );
+					: text ? `Fehler ${ res.status }: ${ text }` : notRunning );
 				return;
 			}
 			this.sessionId.set( res.headers.get( 'X-Session-Id' ) );

@@ -6,21 +6,24 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createBridge } from './openui-bridge.mjs';
 
-// Fake-claude: streamt seine Argumente als zwei text_delta-Stücke zurück. "FAIL" endet mit Fehler, "SLOW" wartet.
+// Fake-claude: liest die Nachricht von stdin und streamt Argumente + Nachricht als zwei text_delta-Stücke zurück. "FAIL" endet mit Fehler, "SLOW" wartet.
 const dir = mkdtempSync( join( tmpdir(), 'openui-bridge-' ) );
 const fake = join( dir, 'claude' );
 writeFileSync( fake, `#!/usr/bin/env node
 const args = process.argv.slice( 2 );
-const msg = args[ args.indexOf( '-p' ) + 1 ];
-if ( msg === 'FAIL' ) { process.stderr.write( 'kaputt' ); process.exit( 1 ); }
-const delta = text => console.log( JSON.stringify( { type: 'stream_event', event: { type: 'content_block_delta', delta: { type: 'text_delta', text } } } ) );
-console.log( JSON.stringify( { type: 'system', subtype: 'init' } ) );
-const text = JSON.stringify( { args, cwd: process.cwd() } );
-setTimeout( () => {
-	delta( text.slice( 0, 10 ) );
-	delta( text.slice( 10 ) );
-	console.log( JSON.stringify( { type: 'result', subtype: 'success' } ) );
-}, msg === 'SLOW' ? 500 : 0 );
+let msg = '';
+process.stdin.on( 'data', d => msg += d );
+process.stdin.on( 'end', () => {
+	if ( msg === 'FAIL' ) { process.stderr.write( 'kaputt' ); process.exit( 1 ); }
+	const delta = text => console.log( JSON.stringify( { type: 'stream_event', event: { type: 'content_block_delta', delta: { type: 'text_delta', text } } } ) );
+	console.log( JSON.stringify( { type: 'system', subtype: 'init' } ) );
+	const text = JSON.stringify( { args, msg, cwd: process.cwd() } );
+	setTimeout( () => {
+		delta( text.slice( 0, 10 ) );
+		delta( text.slice( 10 ) );
+		console.log( JSON.stringify( { type: 'result', subtype: 'success' } ) );
+	}, msg === 'SLOW' ? 500 : 0 );
+} );
 ` );
 chmodSync( fake, 0o755 );
 const promptFile = join( dir, 'prompt.txt' );
@@ -48,9 +51,10 @@ test( 'streamt nur den Text, startet ohne Werkzeuge und Nutzer-Settings, neue Se
 	const session = res.headers.get( 'x-session-id' );
 	assert.match( session, /^[0-9a-f-]{36}$/ );
 
-	const { args, cwd } = JSON.parse( await res.text() );
+	const { args, msg, cwd } = JSON.parse( await res.text() );
 	const arg = name => args[ args.indexOf( name ) + 1 ];
-	assert.equal( arg( '-p' ), 'Zeig KPIs' );
+	assert.equal( msg, 'Zeig KPIs' );
+	assert.ok( args.includes( '-p' ) );
 	assert.equal( arg( '--tools' ), '' );
 	assert.equal( arg( '--setting-sources' ), '' );
 	assert.equal( arg( '--system-prompt-file' ), promptFile );
@@ -70,6 +74,14 @@ test( 'Folgefrage setzt die Session mit --resume fort', () => withBridge( async 
 	assert.ok( !args.includes( '--session-id' ) );
 } ) );
 
+// Eine Nachricht im argv würde claude als Option lesen (z. B. --settings mit Hooks → Befehle auf dem Server).
+test( 'Nachricht geht über stdin, nie als Argument', () => withBridge( async url => {
+	const evil = '--settings={"hooks":{}}';
+	const { args, msg } = JSON.parse( await ( await post( url, { message: evil } ) ).text() );
+	assert.equal( msg, evil );
+	assert.ok( !args.some( a => a.includes( 'settings={' ) ), args.join( ' ' ) );
+} ) );
+
 test( 'ungültige Eingaben 400', () => withBridge( async url => {
 	assert.equal( ( await post( url, { message: '' } ) ).status, 400 );
 	assert.equal( ( await post( url, { message: 'x'.repeat( 2001 ) } ) ).status, 400 );
@@ -86,8 +98,8 @@ test( 'nur eine Anfrage gleichzeitig', () => withBridge( async url => {
 	assert.equal( ( await post( url, { message: 'hi' } ) ).status, 200 );
 } ) );
 
-test( 'Fehler von claude ohne Text wird 502 mit stderr', () => withBridge( async url => {
+test( 'Fehler von claude ohne Text wird 502, stderr bleibt im Server-Log', () => withBridge( async url => {
 	const res = await post( url, { message: 'FAIL' } );
 	assert.equal( res.status, 502 );
-	assert.match( await res.text(), /kaputt/ );
+	assert.doesNotMatch( await res.text(), /kaputt/ );
 } ) );

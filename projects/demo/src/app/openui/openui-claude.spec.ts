@@ -78,6 +78,15 @@ describe( 'OpenUI demo: Frag Claude', () => {
 		await fixture.whenStable();
 		( el.querySelector( 'button.ask' ) as HTMLButtonElement ).click();
 		await waitFor( fixture, () => status().includes( 'npm run openui-bridge' ) );
+
+		// 502 mit Text kommt von der Brücke (Claude-Fehler), ohne Text vom Proxy (Brücke läuft nicht).
+		fetch.mockResolvedValueOnce( new Response( 'Claude hat nicht geantwortet (Details im Log der Brücke)', { status: 502 } ) );
+		( el.querySelector( 'button.ask' ) as HTMLButtonElement ).click();
+		await waitFor( fixture, () => status().includes( 'Claude hat nicht geantwortet' ) );
+
+		fetch.mockResolvedValueOnce( new Response( '', { status: 502 } ) );
+		( el.querySelector( 'button.ask' ) as HTMLButtonElement ).click();
+		await waitFor( fixture, () => status().includes( 'npm run openui-bridge' ) );
 		expect( el.querySelector( 'openui-renderer xiri-section h2' )?.textContent ).toBe( 'Support-Überblick' );
 	} );
 } );
