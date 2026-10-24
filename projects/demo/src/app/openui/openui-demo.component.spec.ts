@@ -13,6 +13,16 @@ describe( 'OpenUI demo page', () => {
 		expect( el.querySelector( 'pre.prompt' )?.textContent ).toContain( 'BarChart(' );
 	} );
 
+	it( 'zeigt im Beispiel eine Tabelle mit CSV- und Excel-Export', async () => {
+		const fixture = await renderDemo( '/OpenUI' );
+		const el = fixture.nativeElement as HTMLElement;
+
+		await waitFor( fixture, () => !!el.querySelector( 'openui-renderer xiri-table tr.mat-mdc-row' ) );
+		expect( el.querySelectorAll( 'openui-renderer xiri-table tr.mat-mdc-row' ).length ).toBe( 4 );
+		expect( el.querySelector( 'openui-renderer xiri-table button.export-csv' ) ).not.toBeNull();
+		expect( el.querySelector( 'openui-renderer xiri-table button.export-excel' ) ).not.toBeNull();
+	} );
+
 	it( 'rendert Änderungen im Textfeld', async () => {
 		const fixture = await renderDemo( '/OpenUI' );
 		const el = fixture.nativeElement as HTMLElement;

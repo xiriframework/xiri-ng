@@ -7,11 +7,12 @@ import { XiriBreadcrumbItem } from 'projects/xiri-ng/src/lib/breadcrumb/breadcru
 import { DemoPageComponent } from '../demo-page/demo-page.component';
 import { xiriOpenUiLibrary, xiriOpenUiPrompt } from './openui-library';
 
-const example = `root = Card("Support-Überblick", [open, closed, sla, chart], "Diese Woche", "support_agent")
+const example = `root = Card("Support-Überblick", [open, closed, sla, chart, agents], "Diese Woche", "support_agent")
 open = Stat("Offene Tickets", 12, null, "inbox", "warn")
 closed = Stat("Geschlossen", 48, null, "task_alt", "success")
 sla = Stat("SLA eingehalten", 96, " %", "timer")
-chart = BarChart(["Mo", "Di", "Mi", "Do", "Fr"], [9, 14, 11, 8, 6], "Neue Tickets pro Tag")`;
+chart = BarChart(["Mo", "Di", "Mi", "Do", "Fr"], [9, 14, 11, 8, 6], "Neue Tickets pro Tag")
+agents = Table(["Agent", "Offen", "Geschlossen", "Ø Antwort (h)"], [["Anna", 3, 17, 1.5], ["Ben", 5, 12, 2.25], ["Cem", 1, 11, 0.75], ["Dora", 3, 8, null]], "Tickets je Agent")`;
 
 const tokenKey = 'openui-bridge-token';
 const notRunning = 'Brücke nicht erreichbar: npm run openui-bridge starten (hivectl bg start openui-bridge).';
@@ -37,7 +38,7 @@ export class OpenUiDemoComponent {
 
 	pageHeader: XiriPageHeaderSettings = {
 		title: 'OpenUI Lang',
-		subtitle: 'Ein LLM schreibt OpenUI Lang, xiri rendert es mit eigenen Komponenten (Prototyp: Card, Stat, BarChart)',
+		subtitle: 'Ein LLM schreibt OpenUI Lang, xiri rendert es mit eigenen Komponenten (Card, Stat, Diagramme, Markdown, Tabelle mit CSV-/Excel-Export)',
 		icon: 'smart_toy',
 		iconColor: 'primary',
 	};
