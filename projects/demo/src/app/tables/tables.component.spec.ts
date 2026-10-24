@@ -34,9 +34,9 @@ describe( 'Tables demo page', () => {
 		const download = vi.spyOn( TestBed.inject( XiriDownloadService ), 'download' ).mockReturnValue( true );
 		const table = [ ...fixture.nativeElement.querySelectorAll( 'xiri-table' ) as NodeListOf<HTMLElement> ]
 				.find( t => t.textContent?.includes( '12: Export im Browser' ) )!;
-		expect( table.querySelector( 'button.export-excel' ) ).not.toBeNull();
+		expect( table.querySelector( '.export-excel button' ) ).not.toBeNull();
 
-		( table.querySelector( 'button.export-csv' ) as HTMLElement ).click();
+		( table.querySelector( '.export-csv button' ) as HTMLElement ).click();
 		expect( download ).toHaveBeenCalledTimes( 1 );
 		const [ result, filename ] = download.mock.calls[ 0 ];
 		expect( filename ).toBe( '12: Export im Browser.csv' );

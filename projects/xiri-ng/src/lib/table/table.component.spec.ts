@@ -2925,7 +2925,7 @@ describe( 'XiriTableComponent', () => {
 			data: [ { id: 1, name: 'Apfel', kg: [ '2', 2 ] }, { id: 2, name: 'Birne', kg: [ '3', 3 ] }, { id: 3, name: 'Kiwi', kg: [ '1', 1 ] } ],
 			options: { clientExport: true, search: true, title: 'Obst' },
 		};
-		const button = ( cls: string ) => fixture.nativeElement.querySelector( 'button.' + cls ) as HTMLButtonElement | null;
+		const button = ( cls: string ) => fixture.nativeElement.querySelector( '.' + cls + ' button' ) as HTMLButtonElement | null;
 
 		it( 'clientExport lädt die gefilterte Tabelle als CSV', async () => {
 			createFixture( obst );
@@ -2962,6 +2962,17 @@ describe( 'XiriTableComponent', () => {
 			expect( lines.length ).toBe( 31 );
 			expect( lines[ 1 ] ).toBe( '"Obst29";29' );
 			expect( lines[ 30 ] ).toBe( '"Obst0";0' );
+		} );
+
+		// Wie die CSV/Excel-Buttons, die Go für Server-Tabellen schickt: rechts neben dem Titel, erhaben, Akzentfarbe.
+		it( 'clientExport-Buttons sehen aus und stehen wie die Export-Buttons von Go', () => {
+			createFixture( obst );
+			const header = fixture.nativeElement.querySelector( '.header' ) as HTMLElement;
+			const order = [ ...header.querySelectorAll( '.middle, .export-csv, .export-excel, xiri-search' ) ].map( e => e.className.split( ' ' )[ 0 ] || e.tagName );
+			expect( order ).toEqual( [ 'middle', 'export-csv', 'export-excel', 'XIRI-SEARCH' ] );
+			expect( button( 'export-csv' )!.classList ).toContain( 'mat-mdc-raised-button' );
+			expect( button( 'export-csv' )!.classList ).toContain( 'mat-accent' );
+			expect( button( 'export-excel' )!.textContent!.trim() ).toBe( 'Excel' );
 		} );
 
 		it( 'clientExport ohne Buttons bei Server-Tabelle', () => {

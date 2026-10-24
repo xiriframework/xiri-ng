@@ -112,8 +112,8 @@ s = ScatterSeries("Innenstadt", [[120, 4.2], [80, 3.1]])` );
 		const { fixture, el, errors } = await render( 'root = Card("T", [t])\nt = Table(["Obst", "Preis"], [["Apfel", 1.5], ["Birne", null]], "Preise")' );
 
 		expect( tableRows( el ).length ).toBe( 2 );
-		expect( el.querySelector( 'xiri-table button.export-csv' ) ).not.toBeNull();
-		expect( el.querySelector( 'xiri-table button.export-excel' ) ).not.toBeNull();
+		expect( el.querySelector( 'xiri-table .export-csv button' ) ).not.toBeNull();
+		expect( el.querySelector( 'xiri-table .export-excel button' ) ).not.toBeNull();
 		const table = fixture.debugElement.query( By.directive( XiriTableComponent ) ).componentInstance as XiriTableComponent;
 		expect( table.settings().fields ).toMatchObject( [ { id: 'c0', name: 'Obst' }, { id: 'c1', name: 'Preis', format: 'number' } ] );
 		expect( table.settings().data?.[ 0 ] ).toMatchObject( { c0: 'Apfel', c1: [ expect.any( String ), 1.5 ] } );

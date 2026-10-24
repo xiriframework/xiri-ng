@@ -47,12 +47,6 @@
 							</button>
 						</div>
 					}
-					@if (canExport) {
-						<div class="buttons">
-							<button mat-button class="export-csv" (click)="exportCsv()" color="primary">CSV</button>
-							<button mat-button class="export-excel" (click)="exportExcel()" color="primary">Excel</button>
-						</div>
-					}
 					@if (autoRefresh()) {
 						<div class="autorefresh-indicator" role="status" aria-live="polite"
 						     matTooltip="Tabelle aktualisiert sich automatisch">
@@ -81,6 +75,10 @@
 					@if (options.buttons) {
 						<xiri-buttonline [settings]="options.buttons"
 						                 [filterData]="_filterData()"></xiri-buttonline>
+					}
+					@if (canExport) {
+						<xiri-buttonstyle class="export-csv" [button]="csvButton" [disabled]="false" (click)="exportCsv()"></xiri-buttonstyle>
+						<xiri-buttonstyle class="export-excel" [button]="excelButton" [disabled]="false" (click)="exportExcel()"></xiri-buttonstyle>
 					}
 					@if (options.search) {
 						<xiri-search (changed)="searchDo($event)" [placeholder]="''" [text]="searchTextInit"></xiri-search>

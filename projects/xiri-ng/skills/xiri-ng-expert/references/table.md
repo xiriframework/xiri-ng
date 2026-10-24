@@ -415,7 +415,7 @@ tableSettings: XiriTableSettings = {
 
 ## Export im Browser (`options.clientExport`)
 
-Tabellen mit Inline-`data` (ohne `url`) bekommen mit `clientExport: true` die Buttons „CSV" und „Excel" im Header.
+Tabellen mit Inline-`data` (ohne `url`) bekommen mit `clientExport: true` die Buttons „CSV" und „Excel" im Header, rechts neben dem Titel und im selben Stil wie die Export-Buttons von xiri-go.
 Exportiert wird, was der Nutzer sieht: gefiltert, sortiert, alle Seiten; Spalten `buttons`, `icon`, `menu` fallen weg,
 `number`-Zellen gehen als Rohzahl hinaus. CSV wie der Go-Export (BOM, `;`, Dezimalzeichen nach `LOCALE_ID`), Text
 immer gequotet und mit `'` gegen Formeln geschützt. Excel braucht die optionale peerDependency `write-excel-file`

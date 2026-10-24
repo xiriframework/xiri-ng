@@ -19,8 +19,8 @@ describe( 'OpenUI demo page', () => {
 
 		await waitFor( fixture, () => !!el.querySelector( 'openui-renderer xiri-table tr.mat-mdc-row' ) );
 		expect( el.querySelectorAll( 'openui-renderer xiri-table tr.mat-mdc-row' ).length ).toBe( 4 );
-		expect( el.querySelector( 'openui-renderer xiri-table button.export-csv' ) ).not.toBeNull();
-		expect( el.querySelector( 'openui-renderer xiri-table button.export-excel' ) ).not.toBeNull();
+		expect( el.querySelector( 'openui-renderer xiri-table .export-csv button' ) ).not.toBeNull();
+		expect( el.querySelector( 'openui-renderer xiri-table .export-excel button' ) ).not.toBeNull();
 	} );
 
 	it( 'rendert Änderungen im Textfeld', async () => {
