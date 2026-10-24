@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, LOCALE_ID } from '@angular/core';
 import { createLibrary, defineComponent, ElementNode, injectOpenUiContext, OpenUiRenderNodeComponent } from '@openuidev/angular-lang';
 import { z } from 'zod/v4';
 import { XiriSectionComponent, XiriSectionSettings } from 'projects/xiri-ng/src/lib/section/section.component';
@@ -7,6 +7,7 @@ import { XiriBarChartComponent, XiriBarChartSettings } from 'projects/xiri-ng/sr
 import { XiriRadarChartComponent, XiriRadarChartSettings } from 'projects/xiri-ng/src/lib/radarchart/radarchart.component';
 import { XiriScatterChartComponent, XiriScatterChartSettings } from 'projects/xiri-ng/src/lib/scatterchart/scatterchart.component';
 import { XiriMarkdownComponent } from 'projects/xiri-ng/src/lib/markdown/markdown.component';
+import { XiriTableComponent, XiriTableRow, XiriTableSettings } from 'projects/xiri-ng/src/lib/table/table.component';
 
 // OpenUI Lang → xiri: pro Komponente ein zod-Schema (Key-Reihenfolge = positionelle Reihenfolge) und ein
 // Wrapper, der die props in xiri-Settings übersetzt. angular-lang setzt props, renderNode und statementId
@@ -190,9 +191,54 @@ const Markdown = defineComponent( {
 	component: OpenUiMarkdownComponent,
 } );
 
+const tableProps = z.object( {
+	columns: z.array( z.string() ).describe( 'Spaltenüberschriften' ),
+	rows: z.array( z.array( z.union( [ z.string(), z.number() ] ).nullable() ) ).describe( 'eine Liste je Zeile, Zellen in Spaltenreihenfolge' ),
+	title: z.string().optional(),
+} );
+
+// ponytail: xiri-table liest settings nur in ngOnInit; neu anlegen statt Tabelle reaktiv machen. Sortierung/Suche gehen
+// beim Streamen verloren.
+@Component( {
+	selector: 'app-openui-table',
+	template: '@for ( s of [ settings() ]; track s ) { <xiri-table [settings]="s" /> }',
+	imports: [ XiriTableComponent ],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+} )
+class OpenUiTableComponent {
+	props = input<z.infer<typeof tableProps> | null>( null );
+	renderNode = input<( ( value: unknown ) => unknown ) | null>( null );
+	statementId = input<string>();
+
+	private format = new Intl.NumberFormat( inject( LOCALE_ID ) );
+
+	settings = computed<XiriTableSettings>( () => {
+		const columns = this.props()?.columns ?? [];
+		// Fehlende Zellen (Stream, kurze Zeile) werden null, überzählige fallen weg.
+		const rows = ( this.props()?.rows ?? [] ).map( r => columns.map( ( _, i ) => r[ i ] ?? null ) );
+		const numeric = columns.map( ( _, i ) => rows.some( r => typeof r[ i ] === 'number' ) && rows.every( r => typeof r[ i ] !== 'string' ) );
+		return {
+			fields: columns.map( ( name, i ) => ( { id: 'c' + i, name, sort: true, ...( numeric[ i ] ? { format: 'number' } : {} ) } ) ),
+			data: rows.map( ( r, id ) => {
+				const row: XiriTableRow = { id };
+				r.forEach( ( v, i ) => row[ 'c' + i ] = numeric[ i ] && typeof v === 'number' ? [ this.format.format( v ), v ] : v );
+				return row;
+			} ),
+			options: {
+				title: this.props()?.title, clientExport: true, sort: true,
+				search: rows.length > 10, pagination: rows.length > 25, itemsPerPage: 25,
+			},
+		};
+	} );
+}
+
+const Table = defineComponent( {
+	name: 'Table', description: 'Tabelle mit Sortierung und CSV-/Excel-Export', props: tableProps, component: OpenUiTableComponent,
+} );
+
 const cardProps = z.object( {
 	title: z.string(),
-	children: z.array( z.union( [ Stat.ref, BarChart.ref, RadarChart.ref, ScatterChart.ref, Markdown.ref ] ) ).describe( 'Inhalt; Stats stehen nebeneinander' ),
+	children: z.array( z.union( [ Stat.ref, BarChart.ref, RadarChart.ref, ScatterChart.ref, Markdown.ref, Table.ref ] ) ).describe( 'Inhalt; Stats stehen nebeneinander' ),
 	subtitle: z.string().optional(),
 	icon: z.string().optional().describe( 'Material-Symbol-Name mit Unterstrich, z. B. "support_agent"' ),
 } );
@@ -235,7 +281,7 @@ const Card = defineComponent( {
 	name: 'Card', description: 'Abschnitt mit Titel; Wurzel jeder Antwort', props: cardProps, component: OpenUiCardComponent,
 } );
 
-export const xiriOpenUiLibrary = createLibrary( { components: [ Card, Stat, BarChart, RadarChart, Series, ScatterChart, ScatterSeries, Markdown ], root: 'Card' } );
+export const xiriOpenUiLibrary = createLibrary( { components: [ Card, Stat, BarChart, RadarChart, Series, ScatterChart, ScatterSeries, Markdown, Table ], root: 'Card' } );
 
 // Feldbeschreibungen (.describe) erscheinen nicht im Prompt; Regeln für Werte gehören hierher.
 export const xiriOpenUiPrompt = xiriOpenUiLibrary.prompt( {
@@ -243,5 +289,6 @@ export const xiriOpenUiPrompt = xiriOpenUiLibrary.prompt( {
 		'icon values are Material Symbols names in snake_case, e.g. "trending_up", "shopping_cart", "payments" (never kebab-case).',
 		'Write all visible texts in the language of the user\'s message.',
 		'Markdown text is one string: write line breaks as \\n.',
+		'Table cells are strings or numbers in column order; write null for an empty cell. Use numbers (not strings) for numeric columns.',
 	],
 } );

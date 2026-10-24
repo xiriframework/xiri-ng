@@ -5,6 +5,7 @@ import { OpenUiRendererComponent, OpenUIError } from '@openuidev/angular-lang';
 import { XiriBarChartComponent } from 'projects/xiri-ng/src/lib/barchart/barchart.component';
 import { XiriRadarChartComponent } from 'projects/xiri-ng/src/lib/radarchart/radarchart.component';
 import { XiriScatterChartComponent } from 'projects/xiri-ng/src/lib/scatterchart/scatterchart.component';
+import { XiriTableComponent } from 'projects/xiri-ng/src/lib/table/table.component';
 import { xiriOpenUiLibrary } from './openui-library';
 
 const program = `root = Card("Umsatz", [s1, chart], "Letzte 3 Monate", "payments")
@@ -105,6 +106,40 @@ s = ScatterSeries("Innenstadt", [[120, 4.2], [80, 3.1]])` );
 		expect( el.querySelector( 'xiri-barchart' ) ).toBeNull();
 	} );
 
+	const tableRows = ( el: HTMLElement ) => el.querySelectorAll( 'xiri-table tr.mat-mdc-row' );
+
+	it( 'Table rendert xiri-table mit Zahlspalte und Export-Buttons', async () => {
+		const { fixture, el, errors } = await render( 'root = Card("T", [t])\nt = Table(["Obst", "Preis"], [["Apfel", 1.5], ["Birne", null]], "Preise")' );
+
+		expect( tableRows( el ).length ).toBe( 2 );
+		expect( el.querySelector( 'xiri-table button.export-csv' ) ).not.toBeNull();
+		expect( el.querySelector( 'xiri-table button.export-excel' ) ).not.toBeNull();
+		const table = fixture.debugElement.query( By.directive( XiriTableComponent ) ).componentInstance as XiriTableComponent;
+		expect( table.settings().fields ).toMatchObject( [ { id: 'c0', name: 'Obst' }, { id: 'c1', name: 'Preis', format: 'number' } ] );
+		expect( table.settings().data?.[ 0 ] ).toMatchObject( { c0: 'Apfel', c1: [ expect.any( String ), 1.5 ] } );
+		expect( table.settings().options ).toMatchObject( { title: 'Preise', clientExport: true } );
+		expect( errors.flat() ).toEqual( [] );
+	} );
+
+	it( 'Table füllt kurze Zeilen auf', async () => {
+		const { fixture, errors } = await render( 'root = Card("T", [t])\nt = Table(["Obst", "Preis"], [["Apfel"]])' );
+
+		const table = fixture.debugElement.query( By.directive( XiriTableComponent ) ).componentInstance as XiriTableComponent;
+		expect( table.settings().data ).toEqual( [ { id: 0, c0: 'Apfel', c1: null } ] );
+		expect( errors.flat() ).toEqual( [] );
+	} );
+
+	// xiri-table liest Spalten und Optionen nur beim Start; beim Streamen kommen Spalten nach.
+	it( 'Table übernimmt nachkommende Spalten', async () => {
+		const { fixture, el } = await render( 'root = Card("T", [t])\nt = Table(["Obst"], [["Apfel"]])', true );
+		expect( el.querySelectorAll( 'xiri-table th.mat-mdc-header-cell' ).length ).toBe( 1 );
+
+		fixture.componentRef.setInput( 'response', 'root = Card("T", [t])\nt = Table(["Obst", "Preis"], [["Apfel", 2], ["Birne", 3]])' );
+		await fixture.whenStable();
+		expect( el.querySelectorAll( 'xiri-table th.mat-mdc-header-cell' ).length ).toBe( 2 );
+		expect( tableRows( el ).length ).toBe( 2 );
+	} );
+
 	it( 'generates a system prompt that lists the xiri signatures', () => {
 		const prompt = xiriOpenUiLibrary.prompt();
 
@@ -114,5 +149,6 @@ s = ScatterSeries("Innenstadt", [[120, 4.2], [80, 3.1]])` );
 		expect( prompt ).toContain( 'RadarChart(' );
 		expect( prompt ).toContain( 'ScatterChart(' );
 		expect( prompt ).toContain( 'Markdown(' );
+		expect( prompt ).toContain( 'Table(' );
 	} );
 } );
