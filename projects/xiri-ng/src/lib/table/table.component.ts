@@ -775,9 +775,9 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 			|| this.options.saveInput || this.treeEnabled || this.autoRefresh() || this.lastUpdated() || this.canExport );
 	}
 
-	// Same look as the CSV/Excel buttons the Go table sends for server tables.
-	protected readonly csvButton: XiriButton = { type: 'csv', text: 'CSV', action: 'download', color: 'accent' };
-	protected readonly excelButton: XiriButton = { type: 'explicit', text: 'Excel', action: 'download', color: 'accent' };
+	// Same as the CSV/Excel buttons the Go table sends for server tables (round icon button, hint as tooltip).
+	protected readonly csvButton: XiriButton = { type: 'icon', icon: 'csv', hint: 'CSV', text: '', action: 'download', color: 'accent' };
+	protected readonly excelButton: XiriButton = { type: 'icon', icon: 'explicit', hint: 'Excel', text: '', action: 'download', color: 'accent' };
 		get canExport(): boolean {
 		return !!this.options.clientExport && !this.settings().url;
 	}
