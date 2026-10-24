@@ -20,10 +20,14 @@ describe( 'table export', () => {
 			[ { c: [ { label: 'rot' }, { label: 'neu' } ], t: [ 'a', 'b' ] } ] ) ).toEqual( [ [ 'Tags', 'Zeilen' ], [ 'rot, neu', 'a, b' ] ] ) );
 
 	it( 'toCsv: BOM, Semikolon, Quoting, Formelschutz, Dezimalkomma', () =>
-		expect( toCsv( exportSheet( fields, rows ), true ) ).toBe( '﻿Name;Preis\n"Äpfel; rot";1234,5\n"\'=HYPERLINK(""x"")";-2\n;\n' ) );
+		expect( toCsv( exportSheet( fields, rows ), true ) ).toBe( '\uFEFF"Name";"Preis"\n"Äpfel; rot";1234,5\n"\'=HYPERLINK(""x"")";-2\n;\n' ) );
+
+	// Liest ein Programm "," als Trenner, darf aus einem Text keine ungeschützte Formel-Zelle werden.
+	it( 'toCsv: Text immer gequotet, auch mit Komma oder Tab', () =>
+		expect( toCsv( [ [ 'a,=1+1', 'b\t=2' ] ], false ) ).toBe( '\uFEFF"a,=1+1";"b\t=2"\n' ) );
 
 	it( 'toCsv: Punkt ohne Komma-Locale, Zeilenumbruch gequotet', () =>
-		expect( toCsv( [ [ 'a\nb', 1.5 ] ], false ) ).toBe( '﻿"a\nb";1.5\n' ) );
+		expect( toCsv( [ [ 'a\nb', 1.5 ] ], false ) ).toBe( '\uFEFF"a\nb";1.5\n' ) );
 
 	it( 'toXlsx: Zahl als Zahl, Text geschützt', async () => {
 		const files = unzipSync( new Uint8Array( await ( await toXlsx( [ [ 'Preis' ], [ 3.5 ], [ '-x' ] ] ) ).arrayBuffer() ) );

@@ -32,17 +32,17 @@ function protect( s: string ): string {
 	return /^[=+\-@\t\r\n]/.test( s ) ? '\'' + s : s;
 }
 
-/** CSV like the Go export: UTF-8 BOM, ";" separator, locale decimal sign, no thousands separator. */
+/** CSV like the Go export: UTF-8 BOM, ";" separator, locale decimal sign, no thousands separator; text always quoted. */
 export function toCsv( sheet: XiriExportCell[][], commaDecimal: boolean ): string {
 	const cell = ( v: XiriExportCell ): string => {
 		if ( v === null )
 			return '';
 		if ( typeof v === 'number' )
 			return commaDecimal ? String( v ).replace( '.', ',' ) : String( v );
-		const s = protect( v );
-		return /[;"\r\n]|^ /.test( s ) ? '"' + s.replace( /"/g, '""' ) + '"' : s;
+		// Text always quoted: a reader splitting on "," or tab must not get an unguarded formula cell.
+		return '"' + protect( v ).replace( /"/g, '""' ) + '"';
 	};
-	return '﻿' + sheet.map( row => row.map( cell ).join( ';' ) + '\n' ).join( '' );
+	return '\uFEFF' + sheet.map( row => row.map( cell ).join( ';' ) + '\n' ).join( '' );
 }
 
 /** .xlsx via write-excel-file (optional peerDependency, loaded on first use). */
