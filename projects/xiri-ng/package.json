@@ -35,13 +35,17 @@
 		"ngx-mat-select-search": "^9.0.0",
 		"rxjs": "^7.8.2",
 		"echarts": "^6.1",
-		"marked": "^18.1"
+		"marked": "^18.1",
+		"write-excel-file": "^4.1"
 	},
 	"peerDependenciesMeta": {
 		"echarts": {
 			"optional": true
 		},
 		"marked": {
+			"optional": true
+		},
+		"write-excel-file": {
 			"optional": true
 		}
 	},

@@ -1,0 +1,52 @@
+import { XiriTagChip } from '../formfields/field.interface';
+import { XiriTableField } from '../raw-table/tabefield.interface';
+import { cellLines, sortValue } from './cell';
+import type { XiriTableCellValue, XiriTableRow } from './tree.service';
+
+/** One cell of an exported sheet: text, number or empty. */
+export type XiriExportCell = string | number | null;
+
+// Columns without a value to export.
+const SKIP = [ 'buttons', 'icon', 'menu' ];
+
+/**
+ * Header row (field names) plus one row per table row, the way the Go export does it: numbers stay raw numbers,
+ * everything else becomes text. ponytail: html cells go out raw; strip tags once an inline table exports html.
+ */
+export function exportSheet( fields: XiriTableField[], rows: XiriTableRow[] ): XiriExportCell[][] {
+	const cols = fields.filter( f => !SKIP.includes( f.format ?? '' ) );
+	return [
+		cols.map( f => f.name ),
+		...rows.map( row => cols.map( f => {
+			if ( f.format === 'number' )
+				return typeof sortValue( row, f.id, f ) === 'number' ? sortValue( row, f.id, f ) : null;
+			const lines = cellLines( row[ f.id ] as XiriTableCellValue, f )
+				.map( v => typeof v === 'object' && v !== null && 'label' in v ? ( v as XiriTagChip ).label : String( v ) );
+			return lines.length ? lines.join( ', ' ) : null;
+		} ) ),
+	];
+}
+
+// Formula injection guard, same characters as Go sanitizeExportValue.
+function protect( s: string ): string {
+	return /^[=+\-@\t\r\n]/.test( s ) ? '\'' + s : s;
+}
+
+/** CSV like the Go export: UTF-8 BOM, ";" separator, locale decimal sign, no thousands separator. */
+export function toCsv( sheet: XiriExportCell[][], commaDecimal: boolean ): string {
+	const cell = ( v: XiriExportCell ): string => {
+		if ( v === null )
+			return '';
+		if ( typeof v === 'number' )
+			return commaDecimal ? String( v ).replace( '.', ',' ) : String( v );
+		const s = protect( v );
+		return /[;"\r\n]|^ /.test( s ) ? '"' + s.replace( /"/g, '""' ) + '"' : s;
+	};
+	return '﻿' + sheet.map( row => row.map( cell ).join( ';' ) + '\n' ).join( '' );
+}
+
+/** .xlsx via write-excel-file (optional peerDependency, loaded on first use). */
+export async function toXlsx( sheet: XiriExportCell[][] ): Promise<Blob> {
+	const { default: writeXlsxFile } = await import( 'write-excel-file/universal' );
+	return writeXlsxFile( sheet.map( row => row.map( v => typeof v === 'string' ? protect( v ) : v ) ) ).toBlob();
+}

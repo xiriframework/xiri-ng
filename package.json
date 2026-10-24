@@ -52,6 +52,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "8.71.2",
     "vitest": "^5.0.3",
+    "write-excel-file": "^4.1.1",
     "zod": "^4.6.7"
   }
 }
