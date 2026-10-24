@@ -50,6 +50,9 @@ export function toCsv( sheet: XiriExportCell[][], commaDecimal: boolean ): strin
 
 /** .xlsx via write-excel-file (optional peerDependency, loaded on first use). */
 export async function toXlsx( sheet: XiriExportCell[][] ): Promise<Blob> {
-	const { default: writeXlsxFile } = await import( 'write-excel-file/universal' );
+	// .catch is required: without it, a consumer app missing the optional package fails at build time (esbuild).
+	const { default: writeXlsxFile } = await import( 'write-excel-file/universal' ).catch( () => {
+		throw new Error( 'write-excel-file is not installed' );
+	} );
 	return writeXlsxFile( sheet.map( row => row.map( v => typeof v === 'string' ? protect( v ) : v ) ) ).toBlob();
 }

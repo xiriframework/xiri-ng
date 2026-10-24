@@ -25,7 +25,9 @@ export class XiriMarkdownComponent {
 	constructor() {
 		effect( () => {
 			const text = this.settings().text ?? '';
-			import( 'marked' ).then( m => this.html.set( m.marked.parse( text, { async: false } ) ) );
+			// Error handler is required: without it, a consumer app missing the optional package fails at build time (esbuild).
+			import( 'marked' ).then( m => this.html.set( m.marked.parse( text, { async: false } ) ),
+				() => console.error( 'marked is not installed. Add `npm install marked` to your app.' ) );
 		} );
 	}
 }
