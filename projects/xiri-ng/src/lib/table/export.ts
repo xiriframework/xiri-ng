@@ -18,10 +18,13 @@ export function exportSheet( fields: XiriTableField[], rows: XiriTableRow[] ): X
 	return [
 		cols.map( f => f.name ),
 		...rows.map( row => cols.map( f => {
+			const v = f.format === 'number' ? sortValue( row, f.id, f ) : row[ f.id ];
+			if ( typeof v === 'number' )
+				return v;
 			if ( f.format === 'number' )
-				return typeof sortValue( row, f.id, f ) === 'number' ? sortValue( row, f.id, f ) : null;
+				return null;
 			const lines = cellLines( row[ f.id ] as XiriTableCellValue, f )
-				.map( v => typeof v === 'object' && v !== null && 'label' in v ? ( v as XiriTagChip ).label : String( v ) );
+				.map( x => typeof x === 'object' && x !== null && 'label' in x ? ( x as XiriTagChip ).label : String( x ) );
 			return lines.length ? lines.join( ', ' ) : null;
 		} ) ),
 	];

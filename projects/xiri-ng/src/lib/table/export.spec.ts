@@ -19,6 +19,11 @@ describe( 'table export', () => {
 		expect( exportSheet( [ { id: 'c', name: 'Tags', format: 'chips' }, { id: 't', name: 'Zeilen', format: 'text2' } ],
 			[ { c: [ { label: 'rot' }, { label: 'neu' } ], t: [ 'a', 'b' ] } ] ) ).toEqual( [ [ 'Tags', 'Zeilen' ], [ 'rot, neu', 'a, b' ] ] ) );
 
+	// OpenUI-Spalten mit Text und Zahlen haben kein format 'number'; eine echte Zahl bleibt trotzdem Zahl.
+	it( 'exportSheet: Zahl in Textspalte bleibt Zahl, Text bleibt Text', () =>
+		expect( toCsv( exportSheet( [ { id: 'x', name: 'X' } ], [ { x: -2 }, { x: '-1+2' } ] ), false ) )
+			.toBe( '\uFEFF"X"\n-2\n"\'-1+2"\n' ) );
+
 	it( 'toCsv: BOM, Semikolon, Quoting, Formelschutz, Dezimalkomma', () =>
 		expect( toCsv( exportSheet( fields, rows ), true ) ).toBe( '\uFEFF"Name";"Preis"\n"Äpfel; rot";1234,5\n"\'=HYPERLINK(""x"")";-2\n;\n' ) );
 

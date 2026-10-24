@@ -2949,6 +2949,21 @@ describe( 'XiriTableComponent', () => {
 			expect( ( result.body as Blob ).size ).toBeGreaterThan( 0 );
 		} );
 
+		it( 'clientExport exportiert sortiert und über alle Seiten', async () => {
+			const data = Array.from( { length: 30 }, ( _, i ) => ( { id: i, name: 'Obst' + i, kg: [ String( i ), i ] } ) );
+			createFixture( {
+				fields: [ { id: 'name', name: 'Obst', sort: true }, { id: 'kg', name: 'Kilo', format: 'number', sort: true } ],
+				data, options: { clientExport: true, sort: true, pagination: true, itemsPerPage: 25 },
+			} );
+			await fixture.whenStable();
+			component.dataSource.sort!.sort( { id: 'kg', start: 'desc', disableClear: false } );
+			button( 'export-csv' )!.click();
+			const lines = ( await ( mockDownloadService.download.mock.calls[ 0 ][ 0 ].body as Blob ).text() ).trim().split( '\n' );
+			expect( lines.length ).toBe( 31 );
+			expect( lines[ 1 ] ).toBe( '"Obst29";29' );
+			expect( lines[ 30 ] ).toBe( '"Obst0";0' );
+		} );
+
 		it( 'clientExport ohne Buttons bei Server-Tabelle', () => {
 			createFixture( { ...obst, data: undefined, url: 'api/obst' } );
 			expect( button( 'export-csv' ) ).toBeNull();
