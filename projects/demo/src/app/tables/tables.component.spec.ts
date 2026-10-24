@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { MatMenuItemHarness } from '@angular/material/menu/testing';
 import { MatTooltipHarness } from '@angular/material/tooltip/testing';
+import { XiriDownloadService } from 'projects/xiri-ng/src/lib/services/download.service';
 import { renderDemo, waitFor } from '../../testing/demo-harness';
 
 describe( 'Tables demo page', () => {
@@ -26,5 +27,19 @@ describe( 'Tables demo page', () => {
 		const navigate = vi.spyOn( TestBed.inject( Router ), 'navigateByUrl' );
 		await item.click();
 		expect( navigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'exports the inline table as CSV in the browser (clientExport)', async () => {
+		const fixture = await renderDemo( '/Tables' );
+		const download = vi.spyOn( TestBed.inject( XiriDownloadService ), 'download' ).mockReturnValue( true );
+		const table = [ ...fixture.nativeElement.querySelectorAll( 'xiri-table' ) as NodeListOf<HTMLElement> ]
+				.find( t => t.textContent?.includes( '12: Export im Browser' ) )!;
+		expect( table.querySelector( 'button.export-excel' ) ).not.toBeNull();
+
+		( table.querySelector( 'button.export-csv' ) as HTMLElement ).click();
+		expect( download ).toHaveBeenCalledTimes( 1 );
+		const [ result, filename ] = download.mock.calls[ 0 ];
+		expect( filename ).toBe( '12: Export im Browser.csv' );
+		expect( await ( result.body as Blob ).text() ).toContain( '"Laptop Pro 15";"Bestseller";128450.5\n' );
 	} );
 } );

@@ -111,5 +111,13 @@
 				<app-go-code [code]="goDensityCode" title="JSON: density + format:'number'"></app-go-code>
 			</xiri-section>
 		</div>
+
+		<!-- Table 12: Export im Browser -->
+		<div class="xcol">
+			<xiri-section [settings]="sectionExport">
+				<xiri-table [settings]="exportData"></xiri-table>
+				<app-go-code [code]="goExportCode" title="JSON: options.clientExport"></app-go-code>
+			</xiri-section>
+		</div>
 	</div>
 </app-demo-page>

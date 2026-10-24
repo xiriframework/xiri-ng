@@ -710,6 +710,40 @@ tbl.SetData(widgets) // statische Daten`;
 }
 // format:'number' -> rechtsbündig + tabular-nums, ganz ohne "align"`;
 
+	// --- 12: Export im Browser ---
+	sectionExport: XiriSectionSettings = {
+		title: '12: Export im Browser (clientExport)',
+		subtitle: 'options.clientExport: Tabellen mit Inline-Daten bekommen CSV- und Excel-Buttons. Die Datei entsteht im Browser ' +
+			'und enthält, was die Tabelle zeigt: gefiltert, sortiert, alle Seiten. Server-Tabellen exportieren weiter über Go.',
+		icon: 'download',
+		iconColor: 'primary',
+	};
+
+	exportData: XiriTableSettings = {
+		data: [
+			{ id: 1, product: 'Laptop Pro 15', tags: [ { label: 'Bestseller', color: 'primary' } ], revenue: [ '128,450.50', 128450.5 ] },
+			{ id: 2, product: 'Wireless Mouse', tags: [], revenue: [ '2,430.00', 2430 ] },
+			{ id: 3, product: 'Monitor 27"', tags: [ { label: 'Neu', color: 'tertiary' } ], revenue: [ '45,870.25', 45870.25 ] },
+			{ id: 4, product: '=Formel bleibt Text', tags: [], revenue: [ '980.90', 980.9 ] },
+			{ id: 5, product: 'Docking Station', tags: [ { label: 'Bestseller', color: 'primary' }, { label: 'Neu', color: 'tertiary' } ], revenue: [ '15,920.00', 15920 ] },
+		],
+		fields: [
+			{ id: 'product', name: 'Product', sort: true },
+			{ id: 'tags', name: 'Tags', format: 'chips' },
+			{ id: 'revenue', name: 'Revenue', format: 'number', sort: true },
+		],
+		options: { title: '12: Export im Browser', clientExport: true, sort: true, search: true },
+		hasFilter: false
+	};
+
+	goExportCode = `{
+  "options": { "title": "Umsatz", "clientExport": true },
+  "data": [ ... ]
+}
+// CSV: BOM, ";" als Trenner, Zahlen roh, Text gequotet und gegen Formeln geschützt
+// Excel braucht das optionale Paket write-excel-file (npm install write-excel-file)
+// Mit "url" (Server-Tabelle) gilt clientExport nicht: dort exportiert Go`;
+
 	onRowClicked( row: XiriTableRow ): void {
 		console.log( 'Row clicked:', row );
 		this._snackBar.open( 'Row clicked: ' + ( row.name || row.id ), 'OK', { duration: 2000 } );
