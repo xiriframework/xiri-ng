@@ -105,6 +105,7 @@ export interface XiriTableOptions {
   emptyState?: XiriTableEmptyState;    // icon, iconColor, title, description, button
 
   buttons?: XiriButtonlineSettings;    // Action-Buttons über der Tabelle
+  clientExport?: boolean;              // CSV-/Excel-Buttons, Datei entsteht im Browser (nur Inline-`data`) — s. u.
 
   minWidth?: string;
   scrollHeight?: string;
@@ -411,6 +412,15 @@ tableSettings: XiriTableSettings = {
   ],
 };
 ```
+
+## Export im Browser (`options.clientExport`)
+
+Tabellen mit Inline-`data` (ohne `url`) bekommen mit `clientExport: true` die Buttons „CSV" und „Excel" im Header.
+Exportiert wird, was der Nutzer sieht: gefiltert, sortiert, alle Seiten; Spalten `buttons`, `icon`, `menu` fallen weg,
+`number`-Zellen gehen als Rohzahl hinaus. CSV wie der Go-Export (BOM, `;`, Dezimalzeichen nach `LOCALE_ID`), Text
+immer gequotet und mit `'` gegen Formeln geschützt. Excel braucht die optionale peerDependency `write-excel-file`
+(lazy geladen); fehlt sie, meldet die Snackbar das. Dateiname: `options.title` bzw. `tabelle`. Tabellen mit `url`
+ignorieren die Option, dort exportiert der Server (xiri-go `SetCsv`/`SetExcel`).
 
 ## Zeilen umsortieren (`options.reorderUrl`)
 

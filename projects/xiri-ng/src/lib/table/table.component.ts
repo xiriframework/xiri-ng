@@ -7,6 +7,7 @@ import {
 	forwardRef,
 	inject,
 	input,
+	LOCALE_ID,
 	OnDestroy,
 	OnInit,
 	output,
@@ -41,6 +42,8 @@ import { XiriButton, XiriButtonComponent } from "../button/button.component";
 import { XiriSnackbarService } from '../services/snackbar.service';
 import { XiriResponseHandlerService, XIRI_PANEL_HOST, XIRI_TABLE_HOST } from '../services/response-handler.service';
 import { XiriDownloadService } from '../services/download.service';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { exportSheet, toCsv, toXlsx, XiriExportCell } from './export';
 import { XiriTableInlineEditService } from './inline-edit.service';
 import { XiriTableCellValue, XiriTableRow, XiriTableTreeService, XiriTableTreeSettings } from './tree.service';
 import {
@@ -169,6 +172,8 @@ export interface XiriTableOptions {
 	// Drag&drop row order: POST {id, before, after} here after a drop (neighbours below/above, null at the end/top), then reload.
 	reorderUrl?: string
 	tree?: XiriTableTreeSettings // opt-in tree mode; delivered here by the Go builder (options.tree)
+	// CSV/Excel buttons that build the file in the browser; only for inline data (no url), server tables export via Go.
+	clientExport?: boolean
 }
 
 export interface XiriTableSettings {
@@ -235,6 +240,7 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// Nächstgelegene Card; null außerhalb einer Card. Ziel für refresh:'panel' aus eigenen Aktionspfaden.
 	private panelHost = inject( XIRI_PANEL_HOST, { optional: true } );
 	private downloadService = inject( XiriDownloadService );
+	private commaDecimal = ( 1.5 ).toLocaleString( inject( LOCALE_ID ) ).includes( ',' );
 	inlineEdit = inject( XiriTableInlineEditService );
 	tree = inject( XiriTableTreeService );
 	protected _changeDetectorRef: ChangeDetectorRef = inject( ChangeDetectorRef );
@@ -766,7 +772,32 @@ export class XiriTableComponent implements OnInit, OnDestroy {
 	// nur eine leere graue Leiste stehen. Reaktiv, weil autoRefresh/lastUpdated erst beim Laden kommen.
 	get hasHeader(): boolean {
 		return !!( this.options.reload || this.options.title || this.options.buttons || this.options.search
-			|| this.options.saveInput || this.treeEnabled || this.autoRefresh() || this.lastUpdated() );
+			|| this.options.saveInput || this.treeEnabled || this.autoRefresh() || this.lastUpdated() || this.canExport );
+	}
+
+	get canExport(): boolean {
+		return !!this.options.clientExport && !this.settings().url;
+	}
+
+	// What the user sees: filtered and sorted, all pages.
+	private exportData(): XiriExportCell[][] {
+		const ds = this.dataSource;
+		return exportSheet( this.displayedColumns, ds.sort ? ds.sortData( ds.filteredData, ds.sort ) : ds.filteredData );
+	}
+
+	private saveExport( blob: Blob, type: string, extension: string ): void {
+		const result = new HttpResponse<Blob>( { body: blob, headers: new HttpHeaders( { 'content-type': type } ) } );
+		this.downloadService.download( result, ( this.options.title || 'tabelle' ) + '.' + extension );
+	}
+
+	exportCsv(): void {
+		this.saveExport( new Blob( [ toCsv( this.exportData(), this.commaDecimal ) ] ), 'text/csv;charset=utf-8', 'csv' );
+	}
+
+	exportExcel(): void {
+		toXlsx( this.exportData() ).then(
+			blob => this.saveExport( blob, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xlsx' ),
+			() => this.snackbar.error( 'Excel-Export nicht verfügbar (Paket write-excel-file fehlt)' ) );
 	}
 	get treeColumnId(): string { return this.tree.treeColumn; }
 	get treeShowCounts(): boolean { return this.tree.showCounts; }

@@ -47,6 +47,12 @@
 							</button>
 						</div>
 					}
+					@if (canExport) {
+						<div class="buttons">
+							<button mat-button class="export-csv" (click)="exportCsv()" color="primary">CSV</button>
+							<button mat-button class="export-excel" (click)="exportExcel()" color="primary">Excel</button>
+						</div>
+					}
 					@if (autoRefresh()) {
 						<div class="autorefresh-indicator" role="status" aria-live="polite"
 						     matTooltip="Tabelle aktualisiert sich automatisch">

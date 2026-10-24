@@ -2918,4 +2918,41 @@ describe( 'XiriTableComponent', () => {
 			} );
 		} );
 	} );
+
+	describe( 'clientExport', () => {
+		const obst: XiriTableSettings = {
+			fields: [ { id: 'name', name: 'Obst' }, { id: 'kg', name: 'Kilo', format: 'number' } ],
+			data: [ { id: 1, name: 'Apfel', kg: [ '2', 2 ] }, { id: 2, name: 'Birne', kg: [ '3', 3 ] }, { id: 3, name: 'Kiwi', kg: [ '1', 1 ] } ],
+			options: { clientExport: true, search: true, title: 'Obst' },
+		};
+		const button = ( cls: string ) => fixture.nativeElement.querySelector( 'button.' + cls ) as HTMLButtonElement | null;
+
+		it( 'clientExport lädt die gefilterte Tabelle als CSV', async () => {
+			createFixture( obst );
+			component.searchDo( 'apfel' );
+			button( 'export-csv' )!.click();
+			expect( mockDownloadService.download ).toHaveBeenCalledTimes( 1 );
+			const [ result, filename ] = mockDownloadService.download.mock.calls[ 0 ];
+			expect( filename ).toBe( 'Obst.csv' );
+			const text = await ( result.body as Blob ).text();
+			expect( text ).toContain( 'Apfel' );
+			expect( text ).not.toContain( 'Birne' );
+			expect( text ).not.toContain( 'Kiwi' );
+		} );
+
+		it( 'clientExport lädt Excel', async () => {
+			createFixture( obst );
+			button( 'export-excel' )!.click();
+			await vi.waitFor( () => expect( mockDownloadService.download ).toHaveBeenCalled() );
+			const [ result, filename ] = mockDownloadService.download.mock.calls[ 0 ];
+			expect( filename ).toBe( 'Obst.xlsx' );
+			expect( ( result.body as Blob ).size ).toBeGreaterThan( 0 );
+		} );
+
+		it( 'clientExport ohne Buttons bei Server-Tabelle', () => {
+			createFixture( { ...obst, data: undefined, url: 'api/obst' } );
+			expect( button( 'export-csv' ) ).toBeNull();
+			expect( button( 'export-excel' ) ).toBeNull();
+		} );
+	} );
 } );
