@@ -124,6 +124,7 @@ export class DevicesComponent { /* ... */ }
 | `XiriMultiprogressComponent`  | Multi-row progress bars                           |
 | `XiriTimelineComponent`       | Vertical or horizontal timeline                   |
 | `XiriChatComponent`           | Messenger-style chat with input, poll/SSE updates |
+| `XiriMarkdownComponent`       | Markdown text, sanitized (needs `marked`)         |
 | `XiriEmptyStateComponent`     | Empty-state placeholder with optional action      |
 | `XiriSkeletonComponent`       | Loading skeleton (text/circle/rect/table-row)     |
 | `XiriAlertComponent`          | Alert / confirmation dialog content               |
@@ -176,6 +177,8 @@ The main repository ships a [Claude Code](https://claude.com/claude-code) skill 
 - `ngx-mat-select-search` 9+
 - `material-symbols` ≥ 0.44
 - `echarts` 6.1+ (optional, only for charts)
+- `marked` 18.1+ (optional, only for `xiri-markdown` and Markdown chat messages)
+- `write-excel-file` 4.1+ (optional, only for the table's Excel export in the browser)
 
 ## License
 

@@ -13,6 +13,23 @@ versioning follows [Semantic Versioning](https://semver.org/).
   `chat.Page.Activity`) erscheint als Zeile zwischen Verlauf und Eingabe, auch bei readonly: animierte Punkte, der
   Text und bei `since` die sekündlich mitlaufende Dauer („· 0:42“). Startseite, Poll und SSE ersetzen den Stand,
   fehlend oder `null` blendet aus, ältere Seiten ändern nichts. Nur der Text wird vom Screenreader angesagt.
+- **`xiri-chat` rendert Markdown-Nachrichten.** Nachrichten mit `format: 'markdown'` (xiri-go `Message.Markdown()`)
+  zeigen ihren Text über `xiri-markdown`, alle anderen bleiben Klartext. Nach dem asynchronen Rendern scrollt der Chat
+  erneut nach unten, wenn der Nutzer unten war.
+- **`xiri-markdown`** (Typ `markdown`): Überschriften, Listen, Tabellen, Code. Rendert mit `marked`, einer neuen
+  optionalen peerDependency (lazy geladen). Roh-HTML im Text erscheint als Text, nur ein nacktes `<br>` bricht um; das
+  Ergebnis läuft zusätzlich durch Angulars Sanitizer. Fehlt `marked`, erscheint der Text als Klartext und die Konsole
+  meldet es, der App-Build bricht nicht. Output `rendered` nach jedem Parsen. Breite Tabellen und Code scrollen im
+  Container. Die App-weite `marked`-Instanz bleibt unverändert.
+- **`xiri-radarchart`** (Typ `radarchart`) und **`xiri-scatterchart`** (Typ `scatterchart`) auf Basis von `echarts`.
+- **`xiri-barchart`: `horizontal`** legt die Balken in den Modi simple und stacked auf die Seite; die Höhe wächst mit
+  der Zahl der Balken.
+- **Tabellen-Export im Browser:** `options.clientExport: true` gibt Tabellen mit Inline-`data` (ohne `url`) die
+  Buttons „CSV“ und „Excel“ rechts neben dem Titel, im Stil der xiri-go-Export-Buttons. Exportiert wird, was der
+  Nutzer sieht (gefiltert, sortiert, alle Seiten), ohne Spalten `buttons`/`icon`/`menu`. CSV wie der Go-Export (BOM,
+  `;`, Dezimalzeichen nach `LOCALE_ID`), Text immer gequotet und gegen Formeln geschützt, Zahlen bleiben Zahlen.
+  Excel braucht die neue optionale peerDependency `write-excel-file`; fehlt sie, meldet es die Snackbar, der App-Build
+  bricht nicht. Tabellen mit `url` ignorieren die Option.
 
 ## [0.10.4]
 

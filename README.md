@@ -162,7 +162,8 @@ With both active, Claude scaffolds the backend handlers and the matching fronten
 | Stat Grid | `stat-grid` | Grid layout for multiple statistics |
 | Description List | `description-list` | Key-value pairs display (like a definition list) |
 | Timeline | `timeline` | Vertical timeline for events/activities |
-| Chat | `chat` | Messenger-style conversation with input, polling or SSE updates |
+| Chat | `chat` | Messenger-style conversation with input, polling or SSE updates, activity line ("Agent is working …"), Markdown messages |
+| Markdown | `markdown` | Markdown text (tables, lists, code), sanitized, safe for user or LLM text; needs `marked` |
 | Info Point | `infopoint` | Information tooltip |
 | Image Text | `imagetext` | Image with text content |
 | Links | `links` | Link list display |
@@ -517,7 +518,9 @@ For a deep API reference (every component's inputs/outputs, services, pipes, typ
 | RxJS | ^7.8.2 |
 | ngx-mat-select-search | ^9.0.0 |
 | material-symbols | >= 0.44 |
-| echarts (optional) | ^6.1 |
+| echarts (optional, charts) | ^6.1 |
+| marked (optional, `xiri-markdown`) | ^18.1 |
+| write-excel-file (optional, table Excel export in the browser) | ^4.1 |
 
 ## Claude Code Integration — `xiri-ng-expert` Skill
 
