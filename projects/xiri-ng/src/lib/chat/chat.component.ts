@@ -10,6 +10,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriDataService } from '../services/data.service';
 import { XiriLocaleService } from '../services/locale.service';
+import { XiriMarkdownComponent } from '../markdown/markdown.component';
 import { buildChatRows, formatElapsed, XiriChatMsgRow } from './chat-rows';
 import { XiriChatActivity, XiriChatMessage, XiriChatPage, XiriChatSettings, XiriChatStatus } from './chat.types';
 
@@ -32,7 +33,7 @@ export function chatQuery( url: string, key: string, value: string ): string {
 	            templateUrl: './chat.component.html',
 	            styleUrl: './chat.component.scss',
 	            changeDetection: ChangeDetectionStrategy.OnPush,
-	            imports: [ CdkTextareaAutosize, MatButton, MatIconButton, MatIcon, MatProgressSpinner ]
+	            imports: [ CdkTextareaAutosize, MatButton, MatIconButton, MatIcon, MatProgressSpinner, XiriMarkdownComponent ]
             } )
 export class XiriChatComponent implements OnInit {
 
@@ -132,6 +133,13 @@ export class XiriChatComponent implements OnInit {
 	protected onScroll(): void {
 		if ( this.isAtBottom() )
 			this.unseen.set( false );
+	}
+
+	// Markdown rendert asynchron, also nach dem Scroll nach unten. Hier steht noch das alte HTML im DOM:
+	// war der Nutzer unten, nach dem Rendern erneut nach unten.
+	protected onRendered(): void {
+		if ( this.isAtBottom() )
+			this.scrollToBottom();
 	}
 
 	protected scrollToBottom(): void {

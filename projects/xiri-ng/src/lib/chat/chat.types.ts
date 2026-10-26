@@ -12,6 +12,8 @@ export interface XiriChatMessage {
 	status?: XiriChatStatus;
 	// clientId des Sende-Requests: ersetzt die optimistische Nachricht.
 	clientId?: string;
+	// 'markdown': Text als Markdown rendern (z. B. Agent-Antworten), sonst Klartext.
+	format?: 'markdown';
 }
 
 // Die Gegenseite arbeitet gerade (z. B. "Agent arbeitet … (Bash)"); since = Unix-Sekunden, der Client zeigt die Dauer.

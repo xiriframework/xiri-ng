@@ -1,5 +1,7 @@
 .xiri-markdown {
 	line-height: 1.5;
+	// break-word statt anywhere: anywhere senkt die min-content-Breite, Tabellen würden gequetscht statt zu scrollen.
+	overflow-wrap: break-word;
 
 	> :first-child { margin-top: 0; }
 	> :last-child { margin-bottom: 0; }
@@ -9,19 +11,20 @@
 		font-size: .9em;
 		padding: .1em .3em;
 		border-radius: 4px;
-		background: var(--surface-container-high);
+		background: color-mix(in srgb, currentColor 8%, transparent);
 	}
 
 	pre {
 		overflow-x: auto;
 		padding: 12px;
 		border-radius: 8px;
-		background: var(--surface-container-high);
+		background: color-mix(in srgb, currentColor 8%, transparent);
 
 		code { padding: 0; background: none; }
 	}
 
-	table { border-collapse: collapse; }
+	// display: block, sonst greift overflow an <table> nicht: breite Tabellen scrollen statt den Container zu sprengen.
+	table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 	th, td { padding: 4px 12px; border-bottom: 1px solid var(--outline-variant); text-align: left; }
 
 	blockquote {

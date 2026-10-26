@@ -5,6 +5,8 @@ describe( 'Chat demo page', () => {
 	it( 'zeigt den Verlauf, sendet und bekommt eine Antwort', async () => {
 		const fixture = await renderDemo( '/Chat' );
 		await waitFor( fixture, () => mainText( fixture ).includes( 'Passt, bis dann.' ) );
+		// Annas Markdown-Antwort im Seed rendert als Tabelle in der Bubble.
+		await waitFor( fixture, () => !!fixture.nativeElement.querySelector( 'xiri-chat .bubble xiri-markdown table td' ) );
 
 		const textarea = fixture.nativeElement.querySelector( 'xiri-chat textarea' ) as HTMLTextAreaElement;
 		textarea.value = 'Grüß dich';

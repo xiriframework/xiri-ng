@@ -27,8 +27,37 @@ describe( 'XiriMarkdownComponent', () => {
 
 	it( 'entfernt Skripte, Event-Handler und javascript:-Links (Text kann von einem LLM kommen)', async () => {
 		const el = await render( '<script>alert(1)</script><img src="x" onerror="alert(1)">\n\n[klick](javascript:alert(1))' );
-		expect( el.querySelector( 'script' ) ).toBeNull();
-		expect( el.querySelector( 'img' )?.getAttribute( 'onerror' ) ).toBeNull();
+		expect( el.querySelector( 'script, img' ) ).toBeNull();
 		expect( el.querySelector( 'a' )?.getAttribute( 'href' ) ?? '' ).not.toMatch( /^javascript:/ );
+	} );
+
+	it( 'zeigt Roh-HTML als Text, Block und Inline', async () => {
+		const el = await render( '<div>x</div>\n\na <b>y</b> c' );
+		expect( el.querySelector( '.xiri-markdown div, .xiri-markdown b' ) ).toBeNull();
+		expect( el.textContent ).toContain( '<div>x</div>' );
+		expect( el.textContent ).toContain( 'a <b>y</b> c' );
+	} );
+
+	it( 'lässt nur ein nacktes <br> als Umbruch durch, etwa in Tabellenzellen', async () => {
+		const el = await render( '| A |\n|---|\n| eins<br>zwei<BR/>drei |\n\nx <br onclick="alert(1)"> y' );
+		expect( el.querySelectorAll( 'td br' ).length ).toBe( 2 );
+		expect( el.querySelector( 'p br' ) ).toBeNull();
+		expect( el.querySelector( 'p' )?.textContent ).toContain( '<br onclick="alert(1)">' );
+	} );
+
+	it( 'zeigt ohne installiertes marked den Text als Klartext', async () => {
+		vi.doMock( 'marked', () => { throw new Error( 'not installed' ); } );
+		const error = vi.spyOn( console, 'error' ).mockImplementation( () => undefined );
+		try {
+			const el = await render( '<b>x</b>\nzwei' );
+			const box = el.querySelector( '.xiri-markdown' )!;
+			expect( box.querySelector( 'b' ) ).toBeNull();
+			expect( box.querySelector( 'br' ) ).toBeTruthy();
+			expect( box.textContent ).toBe( '<b>x</b>zwei' );
+			expect( error ).toHaveBeenCalled();
+		} finally {
+			vi.doUnmock( 'marked' );
+			error.mockRestore();
+		}
 	} );
 } );

@@ -21,7 +21,11 @@
 					}
 					<div class="bubble">
 						@if ( row.showFrom && row.msg.from ) { <div class="from">{{ row.msg.from }}</div> }
-						<div class="text">{{ row.msg.text }}</div>
+						@if ( row.msg.format === 'markdown' ) {
+							<xiri-markdown [settings]="{ text: row.msg.text }" (rendered)="onRendered()" />
+						} @else {
+							<div class="text">{{ row.msg.text }}</div>
+						}
 						<div class="meta">
 							<span class="time">{{ row.time }}</span>
 							@if ( row.msg.own && row.msg.status ) {

@@ -10,6 +10,15 @@ const PAGE = 20;
 const LINES = [ 'Hallo zusammen!', 'Hat jemand die Lieferung schon gesehen?', 'Ja, ist heute früh gekommen.', 'Super, danke!',
 	'Ich schau mir das später an.', 'Passt, bis dann.' ];
 
+// Markdown-Antworten von Anna: eine auf der ersten Seite, eine erst beim Nachladen (Index 30).
+const MARKDOWN: Record<number, string> = {
+	57: '**Lieferstatus** für heute:\n\n| Position | Menge | Lager | Status | Bemerkung |\n|---|---:|---|---|---|\n'
+		+ '| Schrauben M6 | 500 | Halle 2, Regal 14 | ✅ geliefert | vollständig, Lieferschein liegt bei<br>Rechnung folgt |\n'
+		+ '| Dübel 8 mm | 200 | Halle 2, Regal 15 | ⏳ unterwegs | Spedition meldet Verspätung bis morgen Mittag |\n\n'
+		+ '- Rest kommt morgen\n- Abholung ab `08:00`',
+	30: 'Kurze Zusammenfassung:\n\n1. Bestellung ist **raus**\n2. Bestätigung per Mail\n\n```\nBestellnr. 2026-1042\n```',
+};
+
 let seq = 0;
 let nextId = 0;
 const store: Stored[] = seed();
@@ -22,7 +31,8 @@ function seed(): Stored[] {
 		const who = i % 3;
 		return {
 			id: 'm-' + ( ++nextId ),
-			text: LINES[ i % LINES.length ],
+			text: MARKDOWN[ i ] ?? LINES[ i % LINES.length ],
+			...( MARKDOWN[ i ] ? { format: 'markdown' as const } : {} ),
 			time: now - ( 60 - i ) * 3600,
 			changed: ++seq,
 			...( who === 2 ? { own: true, status: 'read' as const } : { from: who === 0 ? 'Anna Berger' : 'Ben Huber' } ),

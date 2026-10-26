@@ -63,6 +63,38 @@ describe( 'XiriChatComponent', () => {
 		expect( bubbles( f )[ 0 ].textContent ).toContain( '<b>x</b>' );
 	} );
 
+	describe( 'Markdown', () => {
+		const MD = '| A | B |\n|---|---|\n| 1 | 2 |\n\n- eins\n- zwei';
+
+		it( 'rendert Nachrichten mit format markdown, andere bleiben Klartext', async () => {
+			const f = await render( { url: 'Chat', messages: [
+				{ id: '1', text: MD, time: T, from: 'Agent', format: 'markdown' },
+				{ id: '2', text: '- kein Markdown', time: T + 1, own: true },
+			] } );
+			await vi.waitFor( () => {
+				f.detectChanges();
+				expect( bubbles( f )[ 0 ].querySelector( 'table td' )?.textContent ).toBe( '1' );
+			} );
+			expect( bubbles( f )[ 0 ].querySelectorAll( 'li' ).length ).toBe( 2 );
+			expect( bubbles( f )[ 1 ].querySelector( 'li' ) ).toBeNull();
+			expect( bubbles( f )[ 1 ].querySelector( '.text' )?.textContent ).toBe( '- kein Markdown' );
+		} );
+
+		it( 'scrollt nach dem asynchronen Rendern erneut nach unten, wenn der Nutzer unten war', async () => {
+			const f = await render( { url: 'Chat', messages: [ { id: '1', text: MD, time: T, from: 'Agent', format: 'markdown' } ] } );
+			const scroller = el( f ).querySelector( '.messages' ) as HTMLElement;
+			let top = 0;
+			// jsdom hat kein Layout: Die Tabelle lässt den Verlauf von 300 auf 1000 px wachsen.
+			Object.defineProperty( scroller, 'scrollHeight', { get: () => scroller.querySelector( 'table' ) ? 1000 : 300, configurable: true } );
+			Object.defineProperty( scroller, 'clientHeight', { value: 300, configurable: true } );
+			Object.defineProperty( scroller, 'scrollTop', { get: () => top, set: v => top = v, configurable: true } );
+			await vi.waitFor( () => {
+				f.detectChanges();
+				expect( top ).toBe( 1000 );
+			} );
+		} );
+	} );
+
 	it( 'lädt die Startseite per GET, wenn keine Nachrichten mitkommen', async () => {
 		const f = await render( { url: 'Chat' } );
 		http.expectOne( '/api/Chat' ).flush( { messages: [ { id: '1', text: 'geladen', time: T } ], cursor: 'c1' } );

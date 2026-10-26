@@ -862,7 +862,8 @@ interface XiriTimelineItem {
 Messenger-artiger Verlauf: neue Nachrichten unten, Eingabe mit Senden (Enter; Shift+Enter = Umbruch). Eigene
 Nachrichten rechts mit Status, fremde links mit Name und Avatar (sonst Initialen), Datums-Trenner; Nachrichten vor
 heute zeigen das Kurzdatum der Locale vor der Uhrzeit. Text wird nie als
-HTML gerendert. Go-Builder: xiri-go `chat.New` (Protokoll dort in `references/components.md`).
+HTML gerendert; mit `format: 'markdown'` rendert die Nachricht ihren Text über `xiri-markdown` (für
+Agent-Antworten, braucht `marked`). Go-Builder: xiri-go `chat.New` (Protokoll dort in `references/components.md`).
 
 ```typescript
 @input.required settings: XiriChatSettings;
@@ -888,6 +889,7 @@ interface XiriChatMessage {
   own?: boolean; from?: string; avatar?: string;
   status?: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';  // sending/failed nur clientseitig
   clientId?: string;    // ersetzt die optimistische Nachricht
+  format?: 'markdown';  // Text als Markdown (Go: Message.Markdown()), sonst Klartext
 }
 ```
 
@@ -1227,7 +1229,7 @@ interface XiriMarkdownSettings {
 }
 ```
 
-Rendert Markdown mit `marked`, einer optionalen `peerDependency` wie `echarts`: nur installieren, wenn `xiri-markdown` genutzt wird; sie wird lazy geladen. Das HTML läuft durch Angulars Sanitizer (kein `safeHtml`), Skripte, Event-Handler und `javascript:`-Links fallen weg. Damit passt es für Text von Nutzern oder einem LLM. Für vertrauenswürdiges HTML gibt es `type: 'html'`. Backend: `markdown.New("## Titel\n\n- Punkt")`.
+Rendert Markdown mit `marked`, einer optionalen `peerDependency` wie `echarts`: nur installieren, wenn `xiri-markdown` genutzt wird; sie wird lazy geladen. Roh-HTML im Text erscheint als Text, nur ein nacktes `<br>` (etwa in Tabellenzellen) bricht um; das Ergebnis läuft zusätzlich durch Angulars Sanitizer (kein `safeHtml`), `javascript:`-Links fallen weg. Fehlt `marked`, erscheint der Text als Klartext (plus Konsolenfehler). Output `rendered`: nach jedem Parsen, bevor das HTML im DOM steht. Damit passt es für Text von Nutzern oder einem LLM. Für vertrauenswürdiges HTML gibt es `type: 'html'`. Backend: `markdown.New("## Titel\n\n- Punkt")`.
 
 Im dyncomponent: `{ type: 'markdown', data: XiriMarkdownSettings }`.
 
