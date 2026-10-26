@@ -1,5 +1,5 @@
 import { HttpRequest } from '@angular/common/http';
-import { XiriChatMessage, XiriChatPage } from 'projects/xiri-ng/src/lib/chat/chat.types';
+import { XiriChatActivity, XiriChatMessage, XiriChatPage } from 'projects/xiri-ng/src/lib/chat/chat.types';
 
 // In-memory-Gegenseite der Chat-Demo. ponytail: Modulzustand, lebt bis zum Neuladen der Seite.
 interface Stored extends XiriChatMessage {
@@ -13,6 +13,8 @@ const LINES = [ 'Hallo zusammen!', 'Hat jemand die Lieferung schon gesehen?', 'J
 let seq = 0;
 let nextId = 0;
 const store: Stored[] = seed();
+// Steht zwischen „gelesen“ und Annas Antwort; jede Seite bringt den aktuellen Stand mit.
+let activity: XiriChatActivity | null = null;
 
 function seed(): Stored[] {
 	const now = Math.floor( Date.now() / 1000 );
@@ -33,7 +35,7 @@ function strip( { changed, ...msg }: Stored ): XiriChatMessage {
 }
 
 function page( messages: Stored[], hasOlder: boolean ): XiriChatPage {
-	return { messages: messages.map( strip ), cursor: String( seq ), hasOlder };
+	return { messages: messages.map( strip ), cursor: String( seq ), hasOlder, activity };
 }
 
 function touch( msg: Stored, patch: Partial<XiriChatMessage> ): void {
@@ -52,9 +54,14 @@ export function chatMockResponse( req: HttpRequest<unknown> ): unknown {
 		setTimeout( () => touch( msg, { status: 'delivered' } ), 800 );
 		setTimeout( () => {
 			touch( msg, { status: 'read' } );
+			activity = { text: 'Anna schreibt …', since: Math.floor( Date.now() / 1000 ) };
+		}, 1600 );
+		// Länger als ein Poll-Intervall (2 s), sonst sieht man „Anna schreibt …“ kaum.
+		setTimeout( () => {
+			activity = null;
 			store.push( { id: 'm-' + ( ++nextId ), text: 'Danke, ist angekommen: „' + text + '“', time: Math.floor( Date.now() / 1000 ),
 				from: 'Anna Berger', changed: ++seq } );
-		}, 1600 );
+		}, 4500 );
 		return { message: strip( msg ) };
 	}
 	const before = params.get( 'before' );

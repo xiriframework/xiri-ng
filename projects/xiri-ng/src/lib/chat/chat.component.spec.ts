@@ -29,6 +29,7 @@ describe( 'XiriChatComponent', () => {
 
 	const el = ( f: ComponentFixture<unknown> ) => f.nativeElement as HTMLElement;
 	const bubbles = ( f: ComponentFixture<unknown> ) => [ ...el( f ).querySelectorAll( '.bubble' ) ] as HTMLElement[];
+	const activityText = ( f: ComponentFixture<unknown> ) => el( f ).querySelector( '.activity-text' )?.textContent?.trim() ?? null;
 	const textarea = ( f: ComponentFixture<unknown> ) => el( f ).querySelector( 'textarea' ) as HTMLTextAreaElement;
 
 	function type( f: ComponentFixture<unknown>, value: string ): void {
@@ -257,6 +258,17 @@ describe( 'XiriChatComponent', () => {
 				http.expectNone( r => r.url.includes( 'before=' ) );
 			} );
 
+			it( 'eine ältere Seite ändert die Aktivität nicht', async () => {
+				const f = await render( {
+					url: 'Chat', hasOlder: true, activity: { text: 'Agent arbeitet' }, messages: [ { id: 'm5', text: 'neu', time: T } ],
+				} );
+				await f.whenStable();
+				trigger( true );
+				http.expectOne( '/api/Chat?before=m5' ).flush( { messages: [ { id: 'm1', text: 'alt', time: T - 60 } ], activity: null } );
+				await f.whenStable();
+				expect( activityText( f ) ).toBe( 'Agent arbeitet' );
+			} );
+
 			it( 'stellt das Nachladen nach einem Fehler ein (keine Endlosschleife)', async () => {
 				const f = await render( { url: 'Chat', hasOlder: true, messages: [ { id: 'm5', text: 'neu', time: T } ] } );
 				await f.whenStable(); // ready wird erst nach dem ersten Rendern (afterNextRender) gesetzt
@@ -301,6 +313,67 @@ describe( 'XiriChatComponent', () => {
 			chip.click();
 			f.detectChanges();
 			expect( el( f ).querySelector( '.unseen' ) ).toBeNull();
+		} );
+	} );
+
+	describe( 'Aktivität', () => {
+		afterEach( () => {
+			vi.useRealTimers();
+			vi.unstubAllGlobals();
+		} );
+
+		it( 'zeigt die Aktivität der Startseite, ein Poll ohne activity blendet sie aus', async () => {
+			vi.useFakeTimers();
+			const f = await render( { url: 'Chat', poll: 1, cursor: 'c1', messages: [], activity: { text: 'Agent arbeitet … (Bash)' } } );
+			expect( activityText( f ) ).toBe( 'Agent arbeitet … (Bash)' );
+			expect( el( f ).querySelector( '.activity .elapsed' ) ).toBeNull(); // ohne since keine Dauer
+
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=c1' ).flush( { messages: [], cursor: 'c1', activity: { text: 'Agent arbeitet … (Read)' } } );
+			f.detectChanges();
+			expect( activityText( f ) ).toBe( 'Agent arbeitet … (Read)' );
+
+			await vi.advanceTimersByTimeAsync( 1000 );
+			http.expectOne( '/api/Chat?cursor=c1' ).flush( { messages: [], cursor: 'c1' } );
+			f.detectChanges();
+			expect( activityText( f ) ).toBeNull();
+			// Die Live-Region bleibt im DOM, damit der Screenreader die nächste Aktivität ansagt.
+			expect( el( f ).querySelector( '[role="status"]' ) ).toBeTruthy();
+		} );
+
+		it( 'SSE-Event setzt die Aktivität', async () => {
+			let source: { onmessage?: ( e: { data: string } ) => void } | undefined;
+			vi.stubGlobal( 'EventSource', class {
+				onmessage?: ( e: { data: string } ) => void;
+				constructor() { source = this; }
+				close(): void { return undefined; }
+			} );
+			const f = await render( { url: 'Chat', stream: 'Chat/Stream', messages: [] } );
+			source!.onmessage!( { data: JSON.stringify( { messages: [], cursor: 'c2', activity: { text: 'per SSE' } } ) } );
+			f.detectChanges();
+			expect( activityText( f ) ).toBe( 'per SSE' );
+		} );
+
+		it( 'leerer Text zeigt nichts, readonly zeigt die Aktivität', async () => {
+			const empty = await render( { url: 'Chat', messages: [], activity: { text: '' } } );
+			expect( activityText( empty ) ).toBeNull();
+			const ro = await render( { url: 'Chat', readonly: true, messages: [], activity: { text: 'Archiv lädt' } } );
+			expect( activityText( ro ) ).toBe( 'Archiv lädt' );
+		} );
+
+		it( 'zählt die Dauer ab since sekündlich hoch, Dauer und Punkte für Screenreader verborgen', async () => {
+			vi.useFakeTimers();
+			vi.setSystemTime( ( T + 42 ) * 1000 );
+			const f = await render( { url: 'Chat', messages: [], activity: { text: 'Agent arbeitet', since: T } } );
+			const elapsed = () => el( f ).querySelector( '.activity .elapsed' );
+			expect( elapsed()?.textContent ).toContain( '0:42' );
+			expect( elapsed()?.getAttribute( 'aria-hidden' ) ).toBe( 'true' );
+			expect( el( f ).querySelector( '.activity .dots' )?.getAttribute( 'aria-hidden' ) ).toBe( 'true' );
+			expect( el( f ).querySelector( '[role="status"] .activity-text' ) ).toBeTruthy();
+
+			await vi.advanceTimersByTimeAsync( 1000 );
+			f.detectChanges();
+			expect( elapsed()?.textContent ).toContain( '0:43' );
 		} );
 	} );
 } );

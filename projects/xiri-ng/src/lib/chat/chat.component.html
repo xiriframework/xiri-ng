@@ -1,4 +1,4 @@
-<div class="xiri-chat" [style.height]="settings().height ?? '60vh'">
+<div class="xiri-chat" [class.busy]="activity()" [style.height]="settings().height ?? '60vh'">
 	<div #scroller class="messages" role="log" aria-live="polite" (scroll)="onScroll()">
 		@if ( hasOlder() ) {
 			<div #sentinel class="sentinel">
@@ -37,6 +37,16 @@
 					</div>
 				</div>
 			}
+		}
+	</div>
+	<!-- Immer im DOM: Live-Regionen, die erst mit ihrem Inhalt entstehen, sagen viele Screenreader nicht an. -->
+	<div class="activity" role="status">
+		@if ( activity(); as a ) {
+			<div class="activity-line">
+				<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+				<span class="activity-text">{{ a.text }}</span>
+				@if ( elapsed(); as e ) { <span class="elapsed" aria-hidden="true">· {{ e }}</span> }
+			</div>
 		}
 	</div>
 	@if ( unseen() ) {

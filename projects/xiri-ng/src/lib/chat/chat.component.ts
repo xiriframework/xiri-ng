@@ -10,8 +10,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { XiriDataService } from '../services/data.service';
 import { XiriLocaleService } from '../services/locale.service';
-import { buildChatRows, XiriChatMsgRow } from './chat-rows';
-import { XiriChatMessage, XiriChatPage, XiriChatSettings, XiriChatStatus } from './chat.types';
+import { buildChatRows, formatElapsed, XiriChatMsgRow } from './chat-rows';
+import { XiriChatActivity, XiriChatMessage, XiriChatPage, XiriChatSettings, XiriChatStatus } from './chat.types';
 
 const STATUS_ICON: Record<XiriChatStatus, string> = {
 	sending: 'schedule', sent: 'done', delivered: 'done_all', read: 'done_all', failed: 'error',
@@ -59,9 +59,24 @@ export class XiriChatComponent implements OnInit {
 	// true, sobald eine Startseite übernommen wurde; danach zählen Poll/SSE als Update, auch ohne Cursor.
 	private started = false;
 	protected readonly loadingOlder = signal( false );
+	protected readonly activity = signal<XiriChatActivity | null>( null );
+	private readonly now = signal( Date.now() );
+	// ponytail: Uhrversatz zwischen Client und Server geht in die Dauer ein.
+	protected readonly elapsed = computed( () => {
+		const since = this.activity()?.since;
+		return typeof since === 'number' ? formatElapsed( Math.floor( this.now() / 1000 ) - since ) : null;
+	} );
 	private readonly sentinel = viewChild<ElementRef<HTMLElement>>( 'sentinel' );
 
 	constructor() {
+		// Sekundentakt nur, solange eine Dauer läuft. now sofort setzen: Jede Antwort startet das Intervall neu.
+		effect( onCleanup => {
+			if ( typeof this.activity()?.since !== 'number' )
+				return;
+			this.now.set( Date.now() );
+			const timer = setInterval( () => this.now.set( Date.now() ), 1000 );
+			onCleanup( () => clearInterval( timer ) );
+		} );
 		// Ein neuer Observer pro Lauf: Nach jedem Nachladen meldet er den aktuellen Stand sofort. Ist der Wächter noch
 		// sichtbar (kurzer Verlauf), lädt er so weiter, bis der Bereich gefüllt ist oder hasOlder false wird.
 		effect( onCleanup => {
@@ -142,6 +157,8 @@ export class XiriChatComponent implements OnInit {
 			this.hasOlder.set( page.hasOlder );
 		if ( kind === 'older' )
 			return;
+		// Vor dem Scrollen setzen: scrollToBottom misst nach dem Rendern, die Zeile über dem Composer ist dann schon da.
+		this.activity.set( page.activity?.text ? page.activity : null );
 		if ( atBottom )
 			this.scrollToBottom();
 		else if ( this.byId().size > before )

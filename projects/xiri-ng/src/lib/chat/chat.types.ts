@@ -14,11 +14,19 @@ export interface XiriChatMessage {
 	clientId?: string;
 }
 
+// Die Gegenseite arbeitet gerade (z. B. "Agent arbeitet … (Bash)"); since = Unix-Sekunden, der Client zeigt die Dauer.
+export interface XiriChatActivity {
+	text: string;
+	since?: number;
+}
+
 // Antwort der Chat-Endpunkte; cursor ist undurchsichtig und wird nur zurückgeschickt.
+// activity: jede Startseite und jedes Update ersetzt den Stand, fehlend/null blendet aus; ältere Seiten ignorieren es.
 export interface XiriChatPage {
 	messages?: XiriChatMessage[];
 	cursor?: string;
 	hasOlder?: boolean;
+	activity?: XiriChatActivity | null;
 }
 
 export interface XiriChatSettings extends XiriChatPage {

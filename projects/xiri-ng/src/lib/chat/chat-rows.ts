@@ -41,3 +41,12 @@ export function chatInitials( name?: string ): string {
 	return ( name ?? '' ).trim().split( /\s+/ ).filter( Boolean ).slice( 0, 2 )
 		.map( w => Array.from( w )[ 0 ].toUpperCase() ).join( '' );
 }
+
+// m:ss, ab einer Stunde h:mm:ss; negativ (Uhrversatz) = 0:00.
+export function formatElapsed( seconds: number ): string {
+	const s = Math.max( 0, Math.floor( seconds ) );
+	const pad = ( n: number ) => String( n ).padStart( 2, '0' );
+	const h = Math.floor( s / 3600 );
+	const m = Math.floor( s / 60 ) % 60;
+	return ( h ? h + ':' + pad( m ) : m ) + ':' + pad( s % 60 );
+}

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { XiriLocaleService } from '../services/locale.service';
-import { buildChatRows, chatInitials, XiriChatMsgRow } from './chat-rows';
+import { buildChatRows, chatInitials, formatElapsed, XiriChatMsgRow } from './chat-rows';
 import { XiriChatMessage } from './chat.types';
 
 // 16.10.2026 12:00 Wien (10:00 UTC)
@@ -71,5 +71,15 @@ describe( 'XiriLocaleService.chatLabels', () => {
 		locale.setLanguage( 'fr' );
 		expect( locale.chatLabels().send ).toBe( 'Envoyer' );
 		expect( locale.chatLabels().today ).toBe( 'Heute' );
+	} );
+} );
+
+describe( 'formatElapsed', () => {
+	it( 'm:ss, ab einer Stunde h:mm:ss, negativ als 0:00', () => {
+		expect( formatElapsed( 42 ) ).toBe( '0:42' );
+		expect( formatElapsed( 605 ) ).toBe( '10:05' );
+		expect( formatElapsed( 3600 ) ).toBe( '1:00:00' );
+		expect( formatElapsed( 3725 ) ).toBe( '1:02:05' );
+		expect( formatElapsed( -5 ) ).toBe( '0:00' );
 	} );
 } );

@@ -12,10 +12,13 @@ describe( 'Chat demo page', () => {
 		textarea.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Enter', cancelable: true } ) );
 
 		await waitFor( fixture, () => mainText( fixture ).includes( 'Grüß dich' ) );
-		await waitFor( fixture, () => mainText( fixture ).includes( 'Danke, ist angekommen: „Grüß dich“' ), 6000 );
+		const activity = () => fixture.nativeElement.querySelector( 'xiri-chat .activity-text' )?.textContent ?? '';
+		await waitFor( fixture, () => activity().includes( 'Anna schreibt' ), 5000 );
+		await waitFor( fixture, () => mainText( fixture ).includes( 'Danke, ist angekommen: „Grüß dich“' ), 8000 );
+		await waitFor( fixture, () => activity() === '' );
 		// Der Seed enthält schon gelesene eigene Nachrichten, deshalb gezielt die neue prüfen.
 		const ownRow = () => [ ...fixture.nativeElement.querySelectorAll( 'xiri-chat .row.own' ) as NodeListOf<HTMLElement> ]
 			.find( r => r.textContent?.includes( 'Grüß dich' ) );
 		await waitFor( fixture, () => !!ownRow()?.querySelector( '[aria-label="Gelesen"]' ) );
-	}, 10000 );
+	}, 20000 );
 } );

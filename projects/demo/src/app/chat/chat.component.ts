@@ -30,6 +30,7 @@ export class ChatComponent {
 	section: XiriSectionSettings = {
 		title: 'Unterhaltung',
 		subtitle: 'Anna antwortet auf jede Nachricht, eigene Nachrichten wechseln auf zugestellt und gelesen. '
+			+ 'Bis zur Antwort zeigt die Zeile über der Eingabe „Anna schreibt …“ mit mitlaufender Dauer. '
 			+ 'Hochscrollen lädt ältere Nachrichten. Die Demo pollt alle 2 s; SSE läuft am Mock-Backend vorbei.',
 		icon: 'forum',
 	};
@@ -46,6 +47,7 @@ export class ChatComponent {
 p := chat.NewPage(cursor).HasOlder(more)
 p.Add("m-1", "Hallo zusammen!", t).From("Anna Berger")
 p.Add("m-2", "Hi!", t2).Own().Status(chat.Read)
+p.Activity("Anna schreibt …", startedAt) // jede Seite neu; ohne Aufruf ausgeblendet
 return ec.JSON(200, p.Print())
 
 // POST

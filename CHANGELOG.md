@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **`xiri-chat` zeigt eine Aktivität.** `XiriChatPage.activity?: {text, since?} | null` (xiri-go
+  `chat.Page.Activity`) erscheint als Zeile zwischen Verlauf und Eingabe, auch bei readonly: animierte Punkte, der
+  Text und bei `since` die sekündlich mitlaufende Dauer („· 0:42“). Startseite, Poll und SSE ersetzen den Stand,
+  fehlend oder `null` blendet aus, ältere Seiten ändern nichts. Nur der Text wird vom Screenreader angesagt.
+
 ## [0.10.4]
 
 ### Fixed

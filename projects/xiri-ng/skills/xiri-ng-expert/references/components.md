@@ -877,7 +877,10 @@ interface XiriChatSettings extends XiriChatPage {
   height?: string;      // Standard '60vh'; '100%' füllt einen Container mit fester Höhe
 }
 
-interface XiriChatPage { messages?: XiriChatMessage[]; cursor?: string; hasOlder?: boolean; }
+interface XiriChatPage {
+  messages?: XiriChatMessage[]; cursor?: string; hasOlder?: boolean;
+  activity?: { text: string; since?: number } | null;  // „Agent arbeitet …“; since = Unix-Sekunden
+}
 
 interface XiriChatMessage {
   id: string; text: string;
@@ -889,6 +892,11 @@ interface XiriChatMessage {
 ```
 
 Nachrichten werden per `id` zusammengeführt (Upsert); der Cursor muss auch geänderte Nachrichten liefern (Status).
+`activity` zeigt zwischen Verlauf und Eingabe (auch bei readonly) eine Zeile mit animierten Punkten, Text und bei
+`since` der sekündlich mitlaufenden Dauer (m:ss, ab 1 h h:mm:ss, Uhrversatz → nie negativ). Startseite und jedes
+Update ersetzen den Stand, fehlend/`null`/leerer Text blendet aus, ältere Seiten (`?before=`) ignorieren es. Nur der
+Text steht in der Live-Region (`role="status"`), Dauer und Punkte sind `aria-hidden`; bei `prefers-reduced-motion`
+stehen die Punkte still.
 Texte über `chatLabels` in `XiriLanguageDefinition` (de/en eingebaut, fehlende Keys = Deutsch).
 
 ### xiri-description-list
