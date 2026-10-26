@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.5]
+
 ### Added
 
 - **`xiri-chat` zeigt eine Aktivität.** `XiriChatPage.activity?: {text, since?} | null` (xiri-go
