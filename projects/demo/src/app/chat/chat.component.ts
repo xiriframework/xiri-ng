@@ -47,7 +47,9 @@ export class ChatComponent {
 p := chat.NewPage(cursor).HasOlder(more)
 p.Add("m-1", "Hallo zusammen!", t).From("Anna Berger")
 p.Add("m-2", "Hi!", t2).Own().Status(chat.Read)
-p.Activity("Anna schreibt …", startedAt) // jede Seite neu; ohne Aufruf ausgeblendet
+if typing {                                // jede Seite neu; ohne Aufruf ausgeblendet
+    p.Activity("Anna schreibt …", typingSince)
+}
 return ec.JSON(200, p.Print())
 
 // POST

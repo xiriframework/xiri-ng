@@ -52,13 +52,15 @@ export function chatMockResponse( req: HttpRequest<unknown> ): unknown {
 		};
 		store.push( msg );
 		setTimeout( () => touch( msg, { status: 'delivered' } ), 800 );
+		let typing: XiriChatActivity | undefined;
 		setTimeout( () => {
 			touch( msg, { status: 'read' } );
-			activity = { text: 'Anna schreibt …', since: Math.floor( Date.now() / 1000 ) };
+			activity = typing = { text: 'Anna schreibt …', since: Math.floor( Date.now() / 1000 ) };
 		}, 1600 );
 		// Länger als ein Poll-Intervall (2 s), sonst sieht man „Anna schreibt …“ kaum.
 		setTimeout( () => {
-			activity = null;
+			if ( activity === typing ) // eine spätere Nachricht hat schon ihre eigene Aktivität
+				activity = null;
 			store.push( { id: 'm-' + ( ++nextId ), text: 'Danke, ist angekommen: „' + text + '“', time: Math.floor( Date.now() / 1000 ),
 				from: 'Anna Berger', changed: ++seq } );
 		}, 4500 );
