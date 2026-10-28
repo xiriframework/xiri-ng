@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.6]
+
 ### Fixed
 
 - **Client-Export nach Excel ohne Apostroph.** `toXlsx` stellte Text, der mit `=`, `+`, `-` oder `@` beginnt, ein `'`
