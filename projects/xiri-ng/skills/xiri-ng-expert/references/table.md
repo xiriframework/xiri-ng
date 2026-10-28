@@ -418,7 +418,8 @@ tableSettings: XiriTableSettings = {
 Tabellen mit Inline-`data` (ohne `url`) bekommen mit `clientExport: true` die Buttons „CSV" und „Excel" im Header, rechts neben dem Titel als runde Icon-Buttons (`csv`, `explicit`) wie die Export-Buttons von xiri-go.
 Exportiert wird, was der Nutzer sieht: gefiltert, sortiert, alle Seiten; Spalten `buttons`, `icon`, `menu` fallen weg,
 `number`-Zellen gehen als Rohzahl hinaus. CSV wie der Go-Export (BOM, `;`, Dezimalzeichen nach `LOCALE_ID`), Text
-immer gequotet und mit `'` gegen Formeln geschützt. Excel braucht die optionale peerDependency `write-excel-file`
+immer gequotet und mit `'` gegen Formeln geschützt, reine Zahlen wie `-12,50` ohne. Im Excel gibt es keinen
+`'`-Präfix, eine Textzelle ist dort nie eine Formel. Excel braucht die optionale peerDependency `write-excel-file`
 (lazy geladen); fehlt sie, meldet die Snackbar das. Dateiname: `options.title` bzw. `tabelle`. Tabellen mit `url`
 ignorieren die Option, dort exportiert der Server (xiri-go `SetCsv`/`SetExcel`).
 
