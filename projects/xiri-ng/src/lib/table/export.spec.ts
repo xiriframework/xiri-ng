@@ -34,10 +34,17 @@ describe( 'table export', () => {
 	it( 'toCsv: Punkt ohne Komma-Locale, Zeilenumbruch gequotet', () =>
 		expect( toCsv( [ [ 'a\nb', 1.5 ] ], false ) ).toBe( '\uFEFF"a\nb";1.5\n' ) );
 
-	it( 'toXlsx: Zahl als Zahl, Text geschützt', async () => {
-		const files = unzipSync( new Uint8Array( await ( await toXlsx( [ [ 'Preis' ], [ 3.5 ], [ '-x' ] ] ) ).arrayBuffer() ) );
+	// Eine Zahl ist keine Formel: im CSV ohne sichtbares Apostroph, auch mit Tausenderpunkt.
+	it( 'toCsv: Text mit reiner Zahl ungeschützt', () =>
+		expect( toCsv( [ [ '-12,50', '-1.234,56', '+1234', '-1e5' ] ], true ) ).toBe( '\uFEFF"-12,50";"-1.234,56";"+1234";"\'-1e5"\n' ) );
+
+	// Eine xlsx-Textzelle ist nie eine Formel; ein Apostroph stünde nur sichtbar im Wert.
+	it( 'toXlsx: Zahl als Zahl, Text ohne Apostroph', async () => {
+		const files = unzipSync( new Uint8Array( await ( await toXlsx( [ [ '-Preis' ], [ 3.5 ], [ '-x' ], [ '-12,50' ] ] ) ).arrayBuffer() ) );
 		const xml = Object.entries( files ).filter( ( [ name ] ) => name.endsWith( '.xml' ) ).map( ( [ , data ] ) => strFromU8( data ) ).join();
 		expect( xml ).toContain( '<v>3.5</v>' );
-		expect( xml ).toContain( '\'-x' );
+		expect( xml ).toContain( '-x' );
+		expect( xml ).toContain( '-12,50' );
+		expect( xml ).not.toContain( '\'-' );
 	} );
 } );

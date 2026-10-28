@@ -30,9 +30,9 @@ export function exportSheet( fields: XiriTableField[], rows: XiriTableRow[] ): X
 	];
 }
 
-// Formula injection guard, same characters as Go sanitizeExportValue.
+// CSV formula injection guard, same rule as Go sanitizeExportValue: a plain number ("-12,50") is no formula.
 function protect( s: string ): string {
-	return /^[=+\-@\t\r\n]/.test( s ) ? '\'' + s : s;
+	return !/^[+-]?[0-9][0-9.,]*$/.test( s ) && /^[=+\-@\t\r\n]/.test( s ) ? '\'' + s : s;
 }
 
 /** CSV like the Go export: UTF-8 BOM, ";" separator, locale decimal sign, no thousands separator; text always quoted. */
@@ -48,11 +48,11 @@ export function toCsv( sheet: XiriExportCell[][], commaDecimal: boolean ): strin
 	return '\uFEFF' + sheet.map( row => row.map( cell ).join( ';' ) + '\n' ).join( '' );
 }
 
-/** .xlsx via write-excel-file (optional peerDependency, loaded on first use). */
+/** .xlsx via write-excel-file (optional peerDependency, loaded on first use). Text cells are never formulas: no guard. */
 export async function toXlsx( sheet: XiriExportCell[][] ): Promise<Blob> {
 	// .catch is required: without it, a consumer app missing the optional package fails at build time (esbuild).
 	const { default: writeXlsxFile } = await import( 'write-excel-file/universal' ).catch( () => {
 		throw new Error( 'write-excel-file is not installed' );
 	} );
-	return writeXlsxFile( sheet.map( row => row.map( v => typeof v === 'string' ? protect( v ) : v ) ) ).toBlob();
+	return writeXlsxFile( sheet ).toBlob();
 }

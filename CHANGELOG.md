@@ -7,6 +7,12 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Client-Export nach Excel ohne Apostroph.** `toXlsx` stellte Text, der mit `=`, `+`, `-` oder `@` beginnt, ein `'`
+  voran, das in Excel sichtbar im Wert stand (`'-12,50`). Eine xlsx-Textzelle ist nie eine Formel, der Schutz entfällt
+  dort. Im CSV bleibt er, lässt aber reine Zahlen durch (`-12,50`, `-1.234,56`), wie in xiri-go.
+
 ## [0.10.5]
 
 ### Added
