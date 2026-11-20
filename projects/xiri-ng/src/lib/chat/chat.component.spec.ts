@@ -374,14 +374,14 @@ describe( 'XiriChatComponent', () => {
 		} );
 
 		it( 'SSE-Event setzt die Aktivität', async () => {
-			let source: { onmessage?: ( e: { data: string } ) => void } | undefined;
+			const sources: { onmessage?: ( e: { data: string } ) => void }[] = [];
 			vi.stubGlobal( 'EventSource', class {
 				onmessage?: ( e: { data: string } ) => void;
-				constructor() { source = this; }
+				constructor() { sources.push( this ); }
 				close(): void { return undefined; }
 			} );
 			const f = await render( { url: 'Chat', stream: 'Chat/Stream', messages: [] } );
-			source!.onmessage!( { data: JSON.stringify( { messages: [], cursor: 'c2', activity: { text: 'per SSE' } } ) } );
+			sources[0].onmessage!( { data: JSON.stringify( { messages: [], cursor: 'c2', activity: { text: 'per SSE' } } ) } );
 			f.detectChanges();
 			expect( activityText( f ) ).toBe( 'per SSE' );
 		} );

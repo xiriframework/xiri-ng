@@ -255,7 +255,7 @@ class TestFormHostComponent {
 
 describe('XiriSearchComponent in einem Formular', () => {
 	it('öffnet ohne NG01354-Warnung', () => {
-		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 		try {
 			const fixture = TestBed.createComponent(TestFormHostComponent);
 			fixture.detectChanges();
