@@ -184,6 +184,10 @@ export const mockApiInterceptor: HttpInterceptorFn = ( req, next ) => {
 		return of( new HttpResponse( { status: 200, body: getSpacingPage( false ) } ) );
 	}
 
+	if ( req.url.includes( 'Test/Spacing/TableExtras' ) ) {
+		return of( new HttpResponse( { status: 200, body: getSpacingTableExtras() } ) );
+	}
+
 	if ( req.url.includes( 'Test/Spacing/Page' ) ) {
 		return of( new HttpResponse( { status: 200, body: getSpacingPage( true ) } ) );
 	}
@@ -529,7 +533,12 @@ function getSpacingPage( withTable: boolean ): unknown {
 		data: [
 			{ type: 'page-header', data: { title: 'Abstände', subtitle: 'Mess-Seite für vertikale Abstände', icon: 'straighten', iconColor: 'primary' } },
 			section( 'Erste Section', 'Inhalt der ersten Section.' ),
-			...( withTable ? [ table, { type: 'section', data: { title: 'Tabelle in Section', components: [ table ] } } ] : [] ),
+			...( withTable ? [
+				table,
+				{ type: 'section', data: { title: 'Tabelle in Section', components: [ table ] } },
+				// Tabelle mit mitgelieferter summary: die Stats hängen in <xiri-table> hinter der Card
+				{ type: 'table', data: { url: 'Test/Spacing/TableExtras', options: { title: 'Mit Summary', search: false, pagination: false } } },
+			] : [] ),
 			stat( 'Fahrzeuge', 42, 'local_shipping' ),
 			stat( 'Fahrer', 17, 'person' ),
 			stat( 'Touren', 128, 'route' ),
@@ -540,6 +549,17 @@ function getSpacingPage( withTable: boolean ): unknown {
 		]
 	};
 }
+function getSpacingTableExtras(): unknown {
+	const stat = ( label: string, value: number, icon: string ) => (
+		{ type: 'stat', display: 'xcol-md-6', data: { label, value, icon, iconColor: 'primary' } }
+	);
+	return {
+		fields: [ { id: 'id', name: 'ID', format: 'number' }, { id: 'name', name: 'Name' } ],
+		data: [ { id: 1, name: 'Alice' }, { id: 2, name: 'Bob' } ],
+		summary: [ stat( 'Summe', 2, 'functions' ), stat( 'Aktiv', 1, 'check_circle' ) ],
+	};
+}
+
 function getLoginTestPage(): unknown {
 	return {
 		bread: null,

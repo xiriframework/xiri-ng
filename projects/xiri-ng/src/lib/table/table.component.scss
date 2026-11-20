@@ -14,6 +14,12 @@ mat-card.xiritablecard.flat {
 	margin-bottom: 0;
 }
 
+// summary/components der Response hängen in <xiri-table> direkt hinter der Card. Dort wirkt kein row-gap, und im
+// Grid wie bei flat ist das margin-bottom der Card 0 — den Abstand bringen die Zusatz-Elemente daher selbst mit.
+mat-card.xiritablecard + * {
+	margin-top: var(--xiri-grid-row-gap, 20px);
+}
+
 .xiritable {
 	width:    100%;
 	overflow-x: auto; // breite Tabelle scrollt in sich, statt die Card zu sprengen

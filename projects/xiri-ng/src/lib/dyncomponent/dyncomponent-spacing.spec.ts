@@ -156,4 +156,31 @@ describe( 'Abstände im Grid', () => {
 		// jsdom liefert '0', wenn keine Regel ein margin-bottom setzt
 		expect( marginBottom( root, 'xiri-dyncomponent' ) ).toBe( '0' );
 	} );
+
+	// summary/components der Tabellen-Response hängen in <xiri-table> direkt hinter der Card. Dort wirkt kein row-gap,
+	// und im Grid wie bei flat ist das margin-bottom der Card 0 — den Abstand bringen die Zusatz-Elemente selbst mit.
+	describe( 'mitgelieferte Zusatz-Elemente der Tabelle', () => {
+		function extrasMarginTop( options: XiriTableSettings['options'] ): string {
+			vi.mocked( TestBed.inject( XiriDataService ).post ).mockReturnValue( of( {
+				fields: tableData.fields, data: tableData.data, summary: [ { type: 'section', data: section } ],
+			} ) );
+			const fixture = TestBed.createComponent( DynGridHostComponent );
+			fixture.componentInstance.data.set( [
+				{ type: 'table', data: { fields: tableData.fields, url: 'Test/Extras', options: { ...tableData.options, ...options } } },
+			] );
+			fixture.detectChanges();
+			fixture.detectChanges();
+			const extras = fixture.nativeElement.querySelector( 'xiri-table > mat-card.xiritablecard + xiri-dyncomponent' );
+			expect( extras, 'Zusatz-Elemente hinter der Card' ).toBeTruthy();
+			return getComputedStyle( extras ).marginTop;
+		}
+
+		it( 'im dyncomponent-Grid', () => {
+			expect( extrasMarginTop( {} ) ).toBe( 'var(--xiri-grid-row-gap, 20px)' );
+		} );
+
+		it( 'bei flat', () => {
+			expect( extrasMarginTop( { flat: true } ) ).toBe( 'var(--xiri-grid-row-gap, 20px)' );
+		} );
+	} );
 } );
