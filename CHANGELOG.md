@@ -7,6 +7,13 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Abstand zwischen Tabelle und mitgelieferten `summary`/`components`.** Die Zusatz-Elemente einer Tabellen-Response
+  hängen in `<xiri-table>` direkt hinter der Card. Im Grid und bei `flat` ist deren `margin-bottom` 0, ein row-gap wirkt
+  dort nicht, sie klebten an der Tabelle. Jetzt bringen sie den Grid-Abstand (`--xiri-grid-row-gap`) als `margin-top`
+  selbst mit; ohne Grid verschmilzt er mit dem Card-Margin.
+
 ## [0.10.6]
 
 ### Fixed
