@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.7]
+
 ### Fixed
 
 - **Abstand zwischen Tabelle und mitgelieferten `summary`/`components`.** Die Zusatz-Elemente einer Tabellen-Response
