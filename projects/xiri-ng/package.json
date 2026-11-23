@@ -1,6 +1,9 @@
 {
 	"name": "@xiriframework/xiri-ng",
 	"version": "0.10.7",
+	"exports": {
+		".": "./src/public-api.ts"
+	},
 	"description": "Angular UI component library for the Xiri Framework",
 	"license": "Apache-2.0",
 	"repository": {
@@ -16,9 +19,6 @@
 		"material",
 		"xiri"
 	],
-	"dependencies": {
-		"tslib": "^2.8.1"
-	},
 	"peerDependencies": {
 		"@angular/compiler": "^22.0",
 		"@angular/platform-browser": "^22.0",

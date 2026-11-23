@@ -6,18 +6,31 @@
     "xiri-ng": {
       "projectType": "library",
       "root": "projects/xiri-ng",
-      "sourceRoot": "projects/xiri-ng/src",
+      "sourceRoot": "projects/xiri-ng",
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular/build:ng-packagr",
+          "builder": "@angular/build:library",
           "options": {
             "tsConfig": "projects/xiri-ng/tsconfig.lib.json",
-            "project": "projects/xiri-ng/ng-package.json"
+            "outputPath": "dist/xiri-ng",
+            "assets": [
+              {
+                "glob": "./styles/*.*",
+                "input": "projects/xiri-ng"
+              },
+              {
+                "glob": "./skills/**/*",
+                "input": "projects/xiri-ng"
+              }
+            ]
           },
           "configurations": {
             "production": {
               "tsConfig": "projects/xiri-ng/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "compilationMode": "full"
             }
           }
         },
