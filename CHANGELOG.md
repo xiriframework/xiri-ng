@@ -7,6 +7,16 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Paket wird mit `@angular/build:library` gebaut statt mit `ng-packagr`.** Inhalt des Bundles unverändert. Die
+  `package.json` des Pakets nennt jetzt zusätzlich `main` und `types`, `tslib` steht nicht mehr unter `dependencies`
+  (die Bundles importieren es nicht). Peer-Dependencies unverändert.
+
+### Internal
+
+- Entwicklungs-Abhängigkeiten auf Angular 22.3, vitest 5.1, eslint 10.15, sass 1.108 und weitere Minor-Versionen.
+
 ## [0.10.7]
 
 ### Fixed
