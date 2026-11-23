@@ -7,6 +7,8 @@ versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.8]
+
 ### Changed
 
 - **Paket wird mit `@angular/build:library` gebaut statt mit `ng-packagr`.** Inhalt des Bundles unverändert. Die
